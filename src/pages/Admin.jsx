@@ -1,5 +1,6 @@
-import React, { useState, useEffect, useMemo } from "react";
-import { base44 } from "@/api/base44Client";
+import React, { useState, useMemo } from "react";
+import { api } from "@/api/client";
+import { useAuth } from "@/lib/AuthContext";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { Link } from "react-router-dom";
 import { createPageUrl } from "@/utils";
@@ -8,9 +9,7 @@ import {
   Shield,
   Users,
   Gamepad2,
-  BarChart3,
   Plus,
-  Settings,
   Eye,
   EyeOff,
   Trash2,
@@ -59,8 +58,8 @@ function UsersTabContent({ users, user, queryClient, clearChatMute, clearPlayBan
   const filteredUsers = useMemo(() => {
     if (!searchQuery.trim()) return users;
     const q = searchQuery.toLowerCase();
-    return users.filter(u => 
-      u.email?.toLowerCase().includes(q) || 
+    return users.filter(u =>
+      u.email?.toLowerCase().includes(q) ||
       u.full_name?.toLowerCase().includes(q)
     );
   }, [users, searchQuery]);
@@ -243,66 +242,42 @@ function UsersTabContent({ users, user, queryClient, clearChatMute, clearPlayBan
 }
 
 export default function Admin() {
+  const { user, isLoadingAuth } = useAuth();
   const queryClient = useQueryClient();
-  const [user, setUser] = useState(null);
-  const [isLoading, setIsLoading] = useState(true);
 
-  useEffect(() => {
-    loadUser();
-  }, []);
-
-  const loadUser = async () => {
-    try {
-      const currentUser = await base44.auth.me();
-      if (currentUser.role !== 'admin') {
-        window.location.replace('/Home');
-        return;
-      }
-      setUser(currentUser);
-      setIsLoading(false);
-    } catch (e) {
-      window.location.replace('/Home');
-    }
-  };
-
-  const { data: games = [], refetch: refetchGames } = useQuery({
+  const { data: gamesData = {}, refetch: refetchGames } = useQuery({
     queryKey: ["adminGames"],
-    queryFn: () => base44.entities.Game.list("-created_date"),
+    queryFn: () => api.get("/games?limit=500&all=true"),
     enabled: user?.role === "admin"
   });
+  const games = gamesData.games || [];
 
   const { data: users = [] } = useQuery({
     queryKey: ["adminUsers"],
-    queryFn: () => base44.entities.User.list("-created_date"),
-    enabled: user?.role === "admin"
-  });
-
-  const { data: scores = [] } = useQuery({
-    queryKey: ["adminScores"],
-    queryFn: () => base44.entities.Score.list(),
+    queryFn: () => api.get("/users"),
     enabled: user?.role === "admin"
   });
 
   const toggleGameVisibility = async (game) => {
-    await base44.entities.Game.update(game.id, { is_active: !game.is_active });
+    await api.patch(`/games/${game.id}`, { is_active: !game.is_active });
     refetchGames();
     toast.success(game.is_active ? "Juego ocultado" : "Juego visible");
   };
 
   const toggleGameFeatured = async (game) => {
-    await base44.entities.Game.update(game.id, { is_featured: !game.is_featured });
+    await api.patch(`/games/${game.id}`, { is_featured: !game.is_featured });
     refetchGames();
     toast.success(game.is_featured ? "Quitado de destacados" : "Marcado como destacado");
   };
 
   const deleteGame = async (gameId) => {
-    await base44.entities.Game.delete(gameId);
+    await api.delete(`/games/${gameId}`);
     refetchGames();
     toast.success("Juego eliminado");
   };
 
   const toggleUserBan = async (targetUser) => {
-    await base44.entities.User.update(targetUser.id, { is_banned: !targetUser.is_banned });
+    await api.patch(`/users/${targetUser.id}`, { is_banned: !targetUser.is_banned });
     queryClient.invalidateQueries(["adminUsers"]);
     toast.success(targetUser.is_banned ? "Usuario desbaneado" : "Usuario baneado");
   };
@@ -319,24 +294,24 @@ export default function Admin() {
   };
 
   const clearChatMute = async (targetUser) => {
-    await base44.entities.User.update(targetUser.id, { chat_muted_until: null });
+    await api.patch(`/users/${targetUser.id}`, { chat_muted_until: null });
     queryClient.invalidateQueries(["adminUsers"]);
     toast.success("Silencio de chat eliminado");
   };
 
   const clearPlayBan = async (targetUser) => {
-    await base44.entities.User.update(targetUser.id, { play_banned_until: null });
+    await api.patch(`/users/${targetUser.id}`, { play_banned_until: null });
     queryClient.invalidateQueries(["adminUsers"]);
     toast.success("Bloqueo de jugar eliminado");
   };
 
   const changeUserRole = async (targetUser, newRole) => {
-    await base44.entities.User.update(targetUser.id, { role: newRole });
+    await api.patch(`/users/${targetUser.id}`, { role: newRole });
     queryClient.invalidateQueries(["adminUsers"]);
     toast.success("Rol actualizado");
   };
 
-  if (isLoading) {
+  if (isLoadingAuth) {
     return (
       <div className="flex items-center justify-center min-h-[60vh]">
         <Loader2 className="w-8 h-8 animate-spin text-purple-500" />
@@ -383,7 +358,7 @@ export default function Admin() {
       </div>
 
       {/* Stats */}
-      <div className="grid grid-cols-1 md:grid-cols-4 gap-4 mb-8">
+      <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-8">
         <Card className="bg-gradient-to-br from-purple-900/30 to-purple-900/10 border-purple-500/20">
           <CardContent className="p-6">
             <div className="flex items-center justify-between">
@@ -410,21 +385,10 @@ export default function Admin() {
           <CardContent className="p-6">
             <div className="flex items-center justify-between">
               <div>
-                <p className="text-sm text-green-300">Partidas</p>
+                <p className="text-sm text-green-300">Partidas totales</p>
                 <p className="text-3xl font-bold text-white">{totalPlays}</p>
               </div>
               <Play className="w-10 h-10 text-green-400 opacity-50" />
-            </div>
-          </CardContent>
-        </Card>
-        <Card className="bg-gradient-to-br from-yellow-900/30 to-yellow-900/10 border-yellow-500/20">
-          <CardContent className="p-6">
-            <div className="flex items-center justify-between">
-              <div>
-                <p className="text-sm text-yellow-300">Puntuaciones</p>
-                <p className="text-3xl font-bold text-white">{scores.length}</p>
-              </div>
-              <BarChart3 className="w-10 h-10 text-yellow-400 opacity-50" />
             </div>
           </CardContent>
         </Card>

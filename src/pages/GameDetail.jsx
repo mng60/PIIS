@@ -1,22 +1,14 @@
 import React, { useState, useEffect, useRef } from "react";
-import { base44 } from "@/api/base44Client";
+import { api } from "@/api/client";
+import { useAuth } from "@/lib/AuthContext";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { Link } from "react-router-dom";
 import { createPageUrl } from "@/utils";
-import { 
-  Loader2, 
-  ArrowLeft, 
-  Star, 
-  Play, 
-  Heart, 
-  Share2,
-  Trophy,
-  MessageSquare,
-  Gamepad,
-  MessageCircle
+import {
+  Loader2, ArrowLeft, Star, Play, Heart, Share2,
+  Trophy, MessageSquare, Gamepad, MessageCircle
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
-import { format } from "date-fns";
 import { Badge } from "@/components/ui/badge";
 import { toast } from "sonner";
 import SnakeGame from "@/components/games/SnakeGame";
@@ -39,7 +31,7 @@ const categoryLabels = {
 
 export default function GameDetail() {
   const queryClient = useQueryClient();
-  const [user, setUser] = useState(null);
+  const { user } = useAuth();
   const [isFavorite, setIsFavorite] = useState(false);
   const [isPlaying, setIsPlaying] = useState(false);
   const [sessionStart, setSessionStart] = useState(null);
@@ -48,55 +40,37 @@ export default function GameDetail() {
   const [ageGateOpen, setAgeGateOpen] = useState(false);
   const [chessMoveHistory, setChessMoveHistory] = useState([]);
 
-  // Chess relay refs (avoid stale closures in polling)
   const chessSessionRef = useRef(null);
   const chessRoleRef = useRef(null);
   const lastDeliveredIdxRef = useRef(-1);
   const whiteNotifiedRef = useRef(false);
-  // srcdoc for HTML5 games (bypasses Supabase CSP and text/plain MIME)
   const [iframeSrcDoc, setIframeSrcDoc] = useState(null);
 
   const urlParams = new URLSearchParams(window.location.search);
   const gameId = urlParams.get("id");
 
-  useEffect(() => {
-    loadUser();
-  }, []);
-
-  const loadUser = async () => {
-    try {
-      const currentUser = await base44.auth.me();
-      setUser(currentUser);
-    } catch (e) {
-      setUser(null);
-    }
-  };
-
   const { data: game, isLoading: gameLoading } = useQuery({
     queryKey: ["game", gameId],
-    queryFn: async () => {
-      const games = await base44.entities.Game.filter({ id: gameId });
-      return games[0] || null;
-    },
-    enabled: !!gameId
+    queryFn: () => api.get(`/games/${gameId}`),
+    enabled: !!gameId,
   });
 
   const { data: scores = [] } = useQuery({
     queryKey: ["scores", gameId],
-    queryFn: () => base44.entities.Score.filter({ game_id: gameId }, "-score", 10),
-    enabled: !!gameId
+    queryFn: () => api.get(`/scores?game_id=${gameId}&limit=10`),
+    enabled: !!gameId,
   });
 
   const { data: comments = [], refetch: refetchComments } = useQuery({
     queryKey: ["comments", gameId],
-    queryFn: () => base44.entities.Comment.filter({ game_id: gameId }, "-created_date"),
-    enabled: !!gameId
+    queryFn: () => api.get(`/comments?game_id=${gameId}`),
+    enabled: !!gameId,
   });
 
   const { data: favorites = [], refetch: refetchFavorites } = useQuery({
     queryKey: ["favorites", user?.email],
-    queryFn: () => base44.entities.Favorite.filter({ user_email: user.email }),
-    enabled: !!user
+    queryFn: () => api.get("/favorites"),
+    enabled: !!user,
   });
 
   useEffect(() => {
@@ -105,17 +79,13 @@ export default function GameDetail() {
     }
   }, [favorites, gameId]);
 
-  // Load HTML5 game: prioritize html_content, fallback to fetching game_url
+  // Load HTML5 game content
   useEffect(() => {
     if (game?.game_type !== "html5") return;
-    
-    // Priority 1: html_content field
     if (game.html_content && game.html_content.length > 0) {
       setIframeSrcDoc(game.html_content);
       return;
     }
-    
-    // Priority 2: fetch from game_url
     if (!game.game_url) return;
     let cancelled = false;
     fetch(game.game_url)
@@ -139,33 +109,20 @@ export default function GameDetail() {
     setIsPlaying(true);
     setTimeout(() => window.scrollTo({ top: scrollY, behavior: "instant" }), 50);
     if (game) {
-      await base44.entities.Game.update(gameId, {
-        plays_count: (game.plays_count || 0) + 1
-      });
+      await api.post(`/games/${gameId}/play`);
       queryClient.invalidateQueries(["game", gameId]);
     }
   };
 
   const handlePlay = async () => {
     if (!user) {
-      toast.error("¡Inicia sesión para jugar!", {
-        action: {
-          label: "Iniciar Sesión",
-          onClick: () => base44.auth.redirectToLogin(window.location.href),
-        },
-      });
+      toast.error("¡Inicia sesión para jugar!");
       return;
     }
     if (user?.is_banned) {
       toast.error("Tu cuenta está baneada");
       return;
     }
-    const bannedUntil = user?.play_banned_until ? new Date(user.play_banned_until) : null;
-    if (bannedUntil && bannedUntil > new Date()) {
-      toast.error(`No puedes jugar hasta ${format(bannedUntil, "dd/MM HH:mm")}`);
-      return;
-    }
-    // Age gate for adult games
     if (game?.is_adult && localStorage.getItem(AGE_KEY) !== "yes") {
       setAgeGateOpen(true);
       return;
@@ -175,20 +132,13 @@ export default function GameDetail() {
 
   const handleToggleFavorite = async () => {
     if (!user) {
-      base44.auth.redirectToLogin(window.location.href);
+      toast.error("Inicia sesión para guardar favoritos");
       return;
     }
-
     if (isFavorite) {
-      const fav = favorites.find(f => f.game_id === gameId);
-      if (fav) {
-        await base44.entities.Favorite.delete(fav.id);
-      }
+      await api.delete(`/favorites/${gameId}`);
     } else {
-      await base44.entities.Favorite.create({
-        game_id: gameId,
-        user_email: user.email
-      });
+      await api.post("/favorites", { game_id: gameId });
     }
     refetchFavorites();
     setIsFavorite(!isFavorite);
@@ -196,18 +146,11 @@ export default function GameDetail() {
 
   const handleScoreUpdate = async (score) => {
     if (!user) return;
-    
-    await base44.entities.Score.create({
-      game_id: gameId,
-      user_email: user.email,
-      user_name: user.full_name || user.email.split("@")[0],
-      score
-    });
+    await api.post("/scores", { game_id: gameId, score });
     queryClient.invalidateQueries(["scores", gameId]);
     await evaluateAndUpdateAchievements({ userEmail: user.email, gameId });
-
-    queryClient.invalidateQueries(["userAchievements", user.email]); // AchievementsSection (GameDetail)
-    queryClient.invalidateQueries(["userAchievementsAll", user.email]); // Profile (por si vuelves luego)
+    queryClient.invalidateQueries(["userAchievements", user.email]);
+    queryClient.invalidateQueries(["userAchievementsAll", user.email]);
   };
 
   const handleShare = () => {
@@ -241,16 +184,14 @@ export default function GameDetail() {
       if (msg.type === "CREATE_ROOM") {
         const code = Math.random().toString(36).substring(2, 8).toUpperCase();
         try {
-          const session = await base44.entities.GameSession.create({
+          const session = await api.post("/sessions", {
             room_code: code,
             game_id: gameId,
-            white_email: user.email,
-            white_name: user.full_name || user.email.split("@")[0],
-            moves: [],
-            status: "waiting",
+            game_state: { moves: [] },
+            current_turn: "host",
           });
           chessSessionRef.current = session;
-          chessRoleRef.current = "white";
+          chessRoleRef.current = "host";
           lastDeliveredIdxRef.current = -1;
           whiteNotifiedRef.current = false;
           iframeRef.current?.contentWindow?.postMessage({ type: "ROOM_CREATED", code }, "*");
@@ -259,32 +200,26 @@ export default function GameDetail() {
 
       if (msg.type === "JOIN_ROOM") {
         try {
-          const all = await base44.entities.GameSession.filter({ room_code: msg.code });
-          const session = all.find(s => s.status === "waiting");
-          if (!session) {
+          const session = await api.get(`/sessions/${msg.code}`);
+          if (!session || session.status !== "waiting") {
             iframeRef.current?.contentWindow?.postMessage(
               { type: "ROOM_ERROR", message: "Sala no encontrada o ya empezada" }, "*"
             );
             return;
           }
-          await base44.entities.GameSession.update(session.id, {
-            black_email: user.email,
-            black_name: user.full_name || user.email.split("@")[0],
-            status: "active",
+          await api.patch(`/sessions/${msg.code}`, {
+            guest_email: user.email,
+            guest_name: user.full_name || user.email.split("@")[0],
+            status: "playing",
           });
-          chessSessionRef.current = {
-            ...session,
-            black_email: user.email,
-            black_name: user.full_name || user.email.split("@")[0],
-            status: "active",
-          };
-          chessRoleRef.current = "black";
+          chessSessionRef.current = { ...session, guest_email: user.email, status: "playing" };
+          chessRoleRef.current = "guest";
           lastDeliveredIdxRef.current = -1;
           iframeRef.current?.contentWindow?.postMessage({
             type: "PLAYER_INFO",
             player: { name: user.full_name || user.email.split("@")[0], email: user.email },
             color: "black",
-            opponentName: session.white_name || "Rival",
+            opponentName: session.host_name || "Rival",
           }, "*");
         } catch (e) { console.error("JOIN_ROOM error:", e); }
       }
@@ -292,12 +227,13 @@ export default function GameDetail() {
       if (msg.type === "CHESS_MOVE" && chessSessionRef.current) {
         try {
           const s = chessSessionRef.current;
+          const prevMoves = s.game_state?.moves || [];
           const moves = [
-            ...(s.moves || []),
+            ...prevMoves,
             { from: msg.from, to: msg.to, promo: msg.promo, player: chessRoleRef.current },
           ];
-          await base44.entities.GameSession.update(s.id, { moves });
-          chessSessionRef.current = { ...s, moves };
+          await api.patch(`/sessions/${s.room_code}`, { game_state: { moves } });
+          chessSessionRef.current = { ...s, game_state: { moves } };
         } catch (e) { console.error("CHESS_MOVE save error:", e); }
       }
     };
@@ -305,32 +241,29 @@ export default function GameDetail() {
     return () => window.removeEventListener("message", handleMsg);
   }, [isPlaying, user, gameId]);
 
-  // Chess relay: poll GameSession and forward opponent moves to iframe
+  // Chess relay: poll GameSession and forward opponent moves
   useEffect(() => {
     if (!isPlaying || !user) return;
     const poll = async () => {
       const session = chessSessionRef.current;
       if (!session) return;
       try {
-        const all = await base44.entities.GameSession.filter({ room_code: session.room_code });
-        const latest = all[0];
+        const latest = await api.get(`/sessions/${session.room_code}`);
         if (!latest) return;
         chessSessionRef.current = latest;
-        const moves = latest.moves || [];
+        const moves = latest.game_state?.moves || [];
         const myColor = chessRoleRef.current;
 
-        // Notify white once when black joins
-        if (myColor === "white" && latest.status === "active" && !whiteNotifiedRef.current) {
+        if (myColor === "host" && latest.status === "playing" && !whiteNotifiedRef.current) {
           whiteNotifiedRef.current = true;
           iframeRef.current?.contentWindow?.postMessage({
             type: "PLAYER_INFO",
             player: { name: user.full_name || user.email.split("@")[0], email: user.email },
             color: "white",
-            opponentName: latest.black_name || "Rival",
+            opponentName: latest.guest_name || "Rival",
           }, "*");
         }
 
-        // Deliver new moves from opponent
         for (let i = lastDeliveredIdxRef.current + 1; i < moves.length; i++) {
           if (moves[i].player !== myColor) {
             iframeRef.current?.contentWindow?.postMessage({
@@ -342,23 +275,16 @@ export default function GameDetail() {
           }
           lastDeliveredIdxRef.current = i;
         }
-      } catch (e) { /* silently ignore polling errors */ }
+      } catch { /* silently ignore polling errors */ }
     };
     const id = setInterval(poll, 1500);
     return () => clearInterval(id);
   }, [isPlaying, user]);
 
-  // Send player info to iframe once it loads
   const handleIframeLoad = () => {
     if (iframeRef.current && user) {
       iframeRef.current.contentWindow?.postMessage(
-        {
-          type: "PLAYER_INFO",
-          player: {
-            name: user.full_name || user.email.split("@")[0],
-            email: user.email,
-          },
-        },
+        { type: "PLAYER_INFO", player: { name: user.full_name || user.email.split("@")[0], email: user.email } },
         "*"
       );
     }
@@ -379,25 +305,19 @@ export default function GameDetail() {
         <h2 className="text-2xl font-bold text-white mb-2">Juego no encontrado</h2>
         <p className="text-gray-400 mb-6">El juego que buscas no existe o fue eliminado.</p>
         <Link to={createPageUrl("Home")}>
-          <Button className="bg-gradient-to-r from-purple-600 to-cyan-500">
-            Volver al inicio
-          </Button>
+          <Button className="bg-gradient-to-r from-purple-600 to-cyan-500">Volver al inicio</Button>
         </Link>
       </div>
     );
   }
 
-  const rating = game.rating_count > 0 
-    ? (game.rating_sum / game.rating_count).toFixed(1) 
+  const rating = game.rating_count > 0
+    ? (game.rating_sum / game.rating_count).toFixed(1)
     : "N/A";
 
   const renderGamePlayer = () => {
-    if (game.game_code === "snake") {
-      return <SnakeGame onScoreUpdate={handleScoreUpdate} />;
-    }
-    if (game.game_code === "pong") {
-      return <PongGame onScoreUpdate={handleScoreUpdate} />;
-    }
+    if (game.game_code === "snake") return <SnakeGame onScoreUpdate={handleScoreUpdate} />;
+    if (game.game_code === "pong") return <PongGame onScoreUpdate={handleScoreUpdate} />;
     if (game.game_code === "chess-online") {
       return (
         <ChessOnlineGame
@@ -437,26 +357,15 @@ export default function GameDetail() {
 
   return (
     <div className="max-w-7xl mx-auto px-2 sm:px-4 py-4 sm:py-8">
-      {/* Back Button */}
-      <Link 
-        to={createPageUrl("Home")} 
-        className="inline-flex items-center gap-2 text-gray-400 hover:text-white mb-6 transition-colors"
-      >
+      <Link to={createPageUrl("Home")} className="inline-flex items-center gap-2 text-gray-400 hover:text-white mb-6 transition-colors">
         <ArrowLeft className="w-4 h-4" />
         Volver al catálogo
       </Link>
 
       <AgeGateDialog
         open={ageGateOpen}
-        onConfirm={() => {
-          localStorage.setItem(AGE_KEY, "yes");
-          setAgeGateOpen(false);
-          startGame();
-        }}
-        onDeny={() => {
-          setAgeGateOpen(false);
-          toast.error("Debes ser mayor de 18 años para acceder a este juego.");
-        }}
+        onConfirm={() => { localStorage.setItem(AGE_KEY, "yes"); setAgeGateOpen(false); startGame(); }}
+        onDeny={() => { setAgeGateOpen(false); toast.error("Debes ser mayor de 18 años para acceder a este juego."); }}
       />
 
       <div className="space-y-6">
@@ -469,43 +378,29 @@ export default function GameDetail() {
                   {categoryLabels[game.category] || game.category}
                 </Badge>
                 {game.is_adult && (
-                  <Badge className="bg-red-500/20 text-red-400 border-red-500/30">
-                    +18
-                  </Badge>
+                  <Badge className="bg-red-500/20 text-red-400 border-red-500/30">+18</Badge>
                 )}
               </div>
-              <h1 className="text-2xl sm:text-3xl md:text-4xl font-bold text-white break-words">
-                {game.title}
-              </h1>
+              <h1 className="text-2xl sm:text-3xl md:text-4xl font-bold text-white break-words">{game.title}</h1>
             </div>
             <div className="flex gap-2 flex-shrink-0">
-              <Button
-                variant="outline"
-                size="icon"
-                onClick={handleToggleFavorite}
-                className={`border-white/10 ${isFavorite ? "text-red-500 bg-red-500/10" : "text-gray-400"}`}
-              >
+              <Button variant="outline" size="icon" onClick={handleToggleFavorite}
+                className={`border-white/10 ${isFavorite ? "text-red-500 bg-red-500/10" : "text-gray-400"}`}>
                 <Heart className={`w-4 h-4 ${isFavorite ? "fill-current" : ""}`} />
               </Button>
-              <Button
-                variant="outline"
-                size="icon"
-                onClick={handleShare}
-                className="border-white/10 text-gray-400"
-              >
+              <Button variant="outline" size="icon" onClick={handleShare} className="border-white/10 text-gray-400">
                 <Share2 className="w-4 h-4" />
               </Button>
             </div>
           </div>
 
-          {/* Stats */}
           <div className="flex flex-wrap items-center gap-3 sm:gap-6 text-sm">
             <div className="flex items-center gap-1.5">
               <Star className="w-4 h-4 text-yellow-500 fill-yellow-500" />
               <span className="text-white font-medium">{rating}</span>
               <span className="text-gray-500">({game.rating_count || 0} votos)</span>
             </div>
-            {user && (user.role === "admin" || (user.role === "empresa" && game.created_by === user.email)) && (
+            {user && (user.role === "admin" || user.role === "empresa") && (
               <div className="flex items-center gap-1.5 text-gray-400">
                 <Play className="w-4 h-4" />
                 <span>{game.plays_count || 0} partidas</span>
@@ -518,31 +413,19 @@ export default function GameDetail() {
         {/* Game Player + Chat */}
         {isPlaying ? (
           <div className="flex flex-col lg:grid lg:grid-cols-3 gap-4 lg:gap-6 items-stretch">
-            {/* Canvas */}
             <div className="lg:col-span-2 bg-gradient-to-b from-white/5 to-transparent rounded-2xl border border-white/10 p-2 sm:p-4 w-full">
               {renderGamePlayer()}
             </div>
-            {/* Chat al lado / debajo en móvil */}
             <div className="flex flex-col gap-4">
               <div className="bg-white/5 rounded-xl border border-white/10 p-3 sm:p-4 flex flex-col" style={{ minHeight: 260, maxHeight: 400 }}>
                 <h2 className="text-base font-semibold text-white mb-3 flex items-center gap-2 flex-shrink-0">
                   <MessageCircle className="w-4 h-4 text-purple-400" />
                   Chat de partida
                 </h2>
-                <ChatSection
-                  gameId={gameId}
-                  user={user}
-                  sessionId={chatSessionId}
-                  key={chatSessionId || sessionStart}
-                />
+                <ChatSection gameId={gameId} user={user} sessionId={chatSessionId} key={chatSessionId || sessionStart} />
               </div>
               {game.game_code === "chess-online" && chessMoveHistory.length > 0 && (
-                <OnlineGameMoveHistory
-                  moves={chessMoveHistory}
-                  title="Historial de jugadas"
-                  emptyMessage="Aún no hay movimientos"
-                  maxHeight="250px"
-                />
+                <OnlineGameMoveHistory moves={chessMoveHistory} title="Historial de jugadas" emptyMessage="Aún no hay movimientos" maxHeight="250px" />
               )}
             </div>
           </div>
@@ -550,23 +433,15 @@ export default function GameDetail() {
           <div className="bg-gradient-to-b from-white/5 to-transparent rounded-2xl border border-white/10 p-6">
             <div className="relative aspect-video rounded-xl overflow-hidden">
               {game.thumbnail ? (
-                <img
-                  src={game.thumbnail}
-                  alt={game.title}
-                  className="w-full h-full object-cover"
-                />
+                <img src={game.thumbnail} alt={game.title} className="w-full h-full object-cover" />
               ) : (
                 <div className="w-full h-full bg-gradient-to-br from-purple-900/50 to-cyan-900/50 flex items-center justify-center">
                   <Gamepad className="w-20 h-20 text-white/30" />
                 </div>
               )}
               <div className="absolute inset-0 bg-black/50 flex items-center justify-center">
-                <Button
-                  onClick={handlePlay}
-                  className="bg-gradient-to-r from-purple-600 to-cyan-500 hover:opacity-90 text-lg px-8 py-6 rounded-xl neon-glow"
-                >
-                  <Play className="w-6 h-6 mr-2 fill-white" />
-                  Jugar
+                <Button onClick={handlePlay} className="bg-gradient-to-r from-purple-600 to-cyan-500 hover:opacity-90 text-lg px-8 py-6 rounded-xl neon-glow">
+                  <Play className="w-6 h-6 mr-2 fill-white" />Jugar
                 </Button>
               </div>
             </div>
@@ -584,13 +459,11 @@ export default function GameDetail() {
         {/* Top 5 */}
         <div className="bg-white/5 rounded-xl border border-white/10 p-6">
           <h2 className="text-lg font-semibold text-white mb-4 flex items-center gap-2">
-            <Trophy className="w-5 h-5 text-yellow-500" />
-            Top 5
+            <Trophy className="w-5 h-5 text-yellow-500" />Top 5
           </h2>
           <Leaderboard scores={scores} />
         </div>
 
-        {/* Achievements */}
         <AchievementsSection gameId={gameId} user={user} />
 
         {/* Comments */}
@@ -599,12 +472,7 @@ export default function GameDetail() {
             <MessageSquare className="w-5 h-5" />
             Comentarios ({comments.length})
           </h2>
-          <CommentSection
-            gameId={gameId}
-            comments={comments}
-            user={user}
-            onCommentAdded={refetchComments}
-          />
+          <CommentSection gameId={gameId} comments={comments} user={user} onCommentAdded={refetchComments} />
         </div>
       </div>
     </div>

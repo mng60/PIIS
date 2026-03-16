@@ -1,5 +1,5 @@
 import React, { useEffect, useRef, useState } from "react";
-import { base44 } from "@/api/base44Client";
+import { api } from "@/api/client";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Card } from "@/components/ui/card";
@@ -32,7 +32,6 @@ import {
   TabsTrigger,
 } from "@/components/ui/tabs";
 
-// OJO: en tu proyecto los helpers están en src/components/chess
 import { initBoard, safeParseBoardState, packBoardState, FILES, getPieceColor, getPieceType } from "@/components/chess/chessState";
 import { calculateValidMoves } from "@/components/chess/chessMoves";
 import { PIECE_SETS, renderPieceNode, getPieceDataUri } from "@/components/chess/chessPieces";
@@ -40,7 +39,6 @@ import { TIME_LIMITS, initClockFromMinutes, formatMs, getDisplayedMs, applyClock
 import OnlineGameLobby from "@/components/games/OnlineGameLobby";
 import OnlineGamePlayerZone from "@/components/games/OnlineGamePlayerZone";
 
-// Temas tablero
 const BOARD_THEMES = {
   classic: { label: "Clásico", light: "#F0D9B5", dark: "#B58863", labelLight: "#B58863", labelDark: "#F0D9B5" },
   blue:    { label: "Azul",    light: "#E8EDF9", dark: "#4B7399", labelLight: "#4B7399", labelDark: "#E8EDF9" },
@@ -60,7 +58,6 @@ export default function ChessOnlineGame({ user, onScoreUpdate, onRoomCodeChange,
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
 
-  // ✅ tiempo fácil: none/5/10/15/20
   const [timeKey, setTimeKey] = useState("5");
 
   const [board, setBoard] = useState(initBoard());
@@ -80,7 +77,6 @@ export default function ChessOnlineGame({ user, onScoreUpdate, onRoomCodeChange,
   const [leaveOpen, setLeaveOpen] = useState(false);
   const [settingsOpen, setSettingsOpen] = useState(false);
 
-  // Personalización
   const [boardTheme, setBoardTheme] = useState(() => localStorage.getItem("chess_board_theme") || "classic");
   const [pieceSet, setPieceSet] = useState(() => localStorage.getItem("chess_piece_set") || "staunton");
 
@@ -89,9 +85,8 @@ export default function ChessOnlineGame({ user, onScoreUpdate, onRoomCodeChange,
 
   const theme = BOARD_THEMES[boardTheme] || BOARD_THEMES.classic;
 
-  const roomIdRef = useRef(null);
+  const roomCodeRef = useRef(null);   // room_code for API calls
   const lastUpdatedRef = useRef(null);
-  const unsubscribeRef = useRef(null);
   const pollIntervalRef = useRef(null);
 
   const didAwardRef = useRef(false);
@@ -104,7 +99,6 @@ export default function ChessOnlineGame({ user, onScoreUpdate, onRoomCodeChange,
   const clockStartGuardRef = useRef(false);
   const timeoutDeclaredRef = useRef(false);
 
-  // tick local
   const [nowMs, setNowMs] = useState(Date.now());
   useEffect(() => {
     if (!clock || gameStatus !== "playing") return;
@@ -117,37 +111,17 @@ export default function ChessOnlineGame({ user, onScoreUpdate, onRoomCodeChange,
       clearInterval(pollIntervalRef.current);
       pollIntervalRef.current = null;
     }
-    if (unsubscribeRef.current) {
-      unsubscribeRef.current();
-      unsubscribeRef.current = null;
-    }
   };
 
   const startPolling = () => {
     if (pollIntervalRef.current) return;
     pollIntervalRef.current = setInterval(async () => {
-      if (!roomIdRef.current) return;
+      if (!roomCodeRef.current) return;
       try {
-        const rooms = await base44.entities.ChessRoom.filter({ id: roomIdRef.current });
-        if (rooms.length > 0) {
-          const room = rooms[0];
-          if (room.updated_date !== lastUpdatedRef.current) applyRoomUpdate(room);
-        }
+        const room = await api.get(`/chess/${roomCodeRef.current}`);
+        if (room.updated_at !== lastUpdatedRef.current) applyRoomUpdate(room);
       } catch {}
     }, 1200);
-  };
-
-  const startRealtime = () => {
-    if (unsubscribeRef.current) unsubscribeRef.current();
-    const unsubscribe = base44.entities.ChessRoom.subscribe((event) => {
-      if (event.id === roomIdRef.current && event.type === "update") applyRoomUpdate(event.data);
-    });
-    unsubscribeRef.current = unsubscribe;
-  };
-
-  const startSync = () => {
-    startRealtime();
-    startPolling();
   };
 
   const maybeStartClockIfHost = (room, boardFromRoom, meta) => {
@@ -162,13 +136,13 @@ export default function ChessOnlineGame({ user, onScoreUpdate, onRoomCodeChange,
     metaRef.current = nextMeta;
     setClock(nextMeta.clock);
 
-    base44.entities.ChessRoom.update(room.id, {
+    api.patch(`/chess/${room.room_code}`, {
       board_state: packBoardState(boardFromRoom, nextMeta),
     }).catch(() => {});
   };
 
   const applyRoomUpdate = (room) => {
-    lastUpdatedRef.current = room.updated_date;
+    lastUpdatedRef.current = room.updated_at;
     hostEmailRef.current = room.host_email || hostEmailRef.current;
     guestEmailRef.current = room.guest_email || guestEmailRef.current;
 
@@ -204,7 +178,6 @@ export default function ChessOnlineGame({ user, onScoreUpdate, onRoomCodeChange,
       const w = room.winner || null;
       setWinner(w);
 
-      // ✅ solo +1 al ganador
       if (!didAwardRef.current) {
         didAwardRef.current = true;
 
@@ -225,10 +198,10 @@ export default function ChessOnlineGame({ user, onScoreUpdate, onRoomCodeChange,
   // timeout loop
   useEffect(() => {
     if (!clock || gameStatus !== "playing" || winner) return;
-    if (!roomIdRef.current) return;
+    if (!roomCodeRef.current) return;
 
     const interval = setInterval(async () => {
-      if (!roomIdRef.current) return;
+      if (!roomCodeRef.current) return;
       if (timeoutDeclaredRef.current) return;
 
       const display = getDisplayedMs(clock, currentTurn, Date.now());
@@ -249,7 +222,7 @@ export default function ChessOnlineGame({ user, onScoreUpdate, onRoomCodeChange,
         }
 
         try {
-          await base44.entities.ChessRoom.update(roomIdRef.current, {
+          await api.patch(`/chess/${roomCodeRef.current}`, {
             status: "finished",
             winner: winnerEmail,
             board_state: packBoardState(board, meta),
@@ -275,7 +248,7 @@ export default function ChessOnlineGame({ user, onScoreUpdate, onRoomCodeChange,
   const handleSquareClick = async (row, col) => {
     if (gameStatus !== "playing") return;
     if (currentTurn !== playerColor) return;
-    if (!roomIdRef.current) return;
+    if (!roomCodeRef.current) return;
 
     if (selectedSquare) {
       const isValidMove = validMoves.some((m) => m.row === row && m.col === col);
@@ -289,7 +262,6 @@ export default function ChessOnlineGame({ user, onScoreUpdate, onRoomCodeChange,
         const maybeNewMeta = clearOpponentDrawOfferIfAny();
         if (maybeNewMeta) nextMeta = { ...maybeNewMeta };
 
-        // ⏱️ aplica reloj
         if (nextMeta.clock && nextMeta.clock.lastTickAt) {
           const { clock: updatedClock, timeoutWinner } = applyClockOnMove(nextMeta.clock, currentTurn, Date.now());
           nextMeta.clock = updatedClock;
@@ -298,7 +270,7 @@ export default function ChessOnlineGame({ user, onScoreUpdate, onRoomCodeChange,
             const winnerEmail = timeoutWinner === "white" ? hostEmailRef.current : guestEmailRef.current;
             if (winnerEmail) {
               didAwardRef.current = false;
-              await base44.entities.ChessRoom.update(roomIdRef.current, {
+              await api.patch(`/chess/${roomCodeRef.current}`, {
                 status: "finished",
                 winner: winnerEmail,
                 board_state: packBoardState(board, nextMeta),
@@ -314,8 +286,7 @@ export default function ChessOnlineGame({ user, onScoreUpdate, onRoomCodeChange,
         newBoard[selectedSquare.row][selectedSquare.col] = null;
 
         const nextTurn = currentTurn === "white" ? "black" : "white";
-        
-        // Agregar movimiento al historial
+
         const pieceSymbol = getPieceType(piece);
         const fromSquare = `${FILES[selectedSquare.col]}${8 - selectedSquare.row}`;
         const toSquare = `${FILES[col]}${8 - row}`;
@@ -332,13 +303,13 @@ export default function ChessOnlineGame({ user, onScoreUpdate, onRoomCodeChange,
         try {
           if (capturedPiece && getPieceType(capturedPiece) === "K") {
             didAwardRef.current = false;
-            await base44.entities.ChessRoom.update(roomIdRef.current, {
+            await api.patch(`/chess/${roomCodeRef.current}`, {
               board_state: packBoardState(newBoard, nextMeta),
               status: "finished",
               winner: user.email,
             });
           } else {
-            await base44.entities.ChessRoom.update(roomIdRef.current, {
+            await api.patch(`/chess/${roomCodeRef.current}`, {
               board_state: packBoardState(newBoard, nextMeta),
               current_turn: nextTurn,
             });
@@ -387,7 +358,7 @@ export default function ChessOnlineGame({ user, onScoreUpdate, onRoomCodeChange,
         clock: initClockFromMinutes(minutes),
       };
 
-      const room = await base44.entities.ChessRoom.create({
+      const room = await api.post("/chess", {
         room_code: code,
         host_email: user.email,
         host_name: user.full_name || user.email.split("@")[0],
@@ -396,8 +367,8 @@ export default function ChessOnlineGame({ user, onScoreUpdate, onRoomCodeChange,
         current_turn: "white",
       });
 
-      roomIdRef.current = room.id;
-      lastUpdatedRef.current = room.updated_date;
+      roomCodeRef.current = code;
+      lastUpdatedRef.current = room.updated_at;
 
       hostEmailRef.current = user.email;
       guestEmailRef.current = null;
@@ -417,7 +388,7 @@ export default function ChessOnlineGame({ user, onScoreUpdate, onRoomCodeChange,
       setDrawOfferBy(null);
       setClock(meta.clock);
 
-      startSync();
+      startPolling();
     } catch (e) {
       console.error(e);
       setError("Error al crear sala");
@@ -432,22 +403,21 @@ export default function ChessOnlineGame({ user, onScoreUpdate, onRoomCodeChange,
     setError("");
 
     try {
-      const rooms = await base44.entities.ChessRoom.filter({ room_code: joinCode.toUpperCase(), status: "waiting" });
-      if (rooms.length === 0) {
+      const room = await api.get(`/chess/${joinCode.toUpperCase()}`);
+      if (!room || room.status !== "waiting") {
         setError("Sala no encontrada o ya empezada");
         setLoading(false);
         return;
       }
 
-      const room = rooms[0];
-      const updatedRoom = await base44.entities.ChessRoom.update(room.id, {
+      const updatedRoom = await api.patch(`/chess/${joinCode.toUpperCase()}`, {
         guest_email: user.email,
         guest_name: user.full_name || user.email.split("@")[0],
         status: "playing",
       });
 
-      roomIdRef.current = room.id;
-      lastUpdatedRef.current = updatedRoom.updated_date;
+      roomCodeRef.current = joinCode.toUpperCase();
+      lastUpdatedRef.current = updatedRoom.updated_at;
 
       hostEmailRef.current = room.host_email;
       guestEmailRef.current = user.email;
@@ -471,7 +441,7 @@ export default function ChessOnlineGame({ user, onScoreUpdate, onRoomCodeChange,
       setClock(meta?.clock || null);
       setCurrentTurn(room.current_turn || "white");
 
-      startSync();
+      startPolling();
     } catch (e) {
       console.error(e);
       setError("Error al unirse a la sala");
@@ -481,7 +451,7 @@ export default function ChessOnlineGame({ user, onScoreUpdate, onRoomCodeChange,
   };
 
   const handleOfferDraw = async () => {
-    if (!user || gameStatus !== "playing" || !roomIdRef.current) return;
+    if (!user || gameStatus !== "playing" || !roomCodeRef.current) return;
 
     const meta = { ...(metaRef.current || {}) };
 
@@ -491,7 +461,7 @@ export default function ChessOnlineGame({ user, onScoreUpdate, onRoomCodeChange,
         meta.drawOfferAt = null;
         metaRef.current = meta;
 
-        await base44.entities.ChessRoom.update(roomIdRef.current, { board_state: packBoardState(board, meta) });
+        await api.patch(`/chess/${roomCodeRef.current}`, { board_state: packBoardState(board, meta) });
         toast.message("Oferta de tablas cancelada");
       } else {
         setIncomingDrawOpen(true);
@@ -503,12 +473,12 @@ export default function ChessOnlineGame({ user, onScoreUpdate, onRoomCodeChange,
     meta.drawOfferAt = nowISO();
     metaRef.current = meta;
 
-    await base44.entities.ChessRoom.update(roomIdRef.current, { board_state: packBoardState(board, meta) });
+    await api.patch(`/chess/${roomCodeRef.current}`, { board_state: packBoardState(board, meta) });
     toast.message("Tablas ofrecidas");
   };
 
   const handleAcceptDraw = async () => {
-    if (!roomIdRef.current) return;
+    if (!roomCodeRef.current) return;
 
     const meta = { ...(metaRef.current || {}) };
     meta.drawOfferBy = null;
@@ -517,7 +487,7 @@ export default function ChessOnlineGame({ user, onScoreUpdate, onRoomCodeChange,
 
     didAwardRef.current = false;
 
-    await base44.entities.ChessRoom.update(roomIdRef.current, {
+    await api.patch(`/chess/${roomCodeRef.current}`, {
       board_state: packBoardState(board, meta),
       status: "finished",
       winner: "draw",
@@ -527,14 +497,14 @@ export default function ChessOnlineGame({ user, onScoreUpdate, onRoomCodeChange,
   };
 
   const handleDeclineDraw = async () => {
-    if (!roomIdRef.current) return;
+    if (!roomCodeRef.current) return;
 
     const meta = { ...(metaRef.current || {}) };
     meta.drawOfferBy = null;
     meta.drawOfferAt = null;
     metaRef.current = meta;
 
-    await base44.entities.ChessRoom.update(roomIdRef.current, { board_state: packBoardState(board, meta) });
+    await api.patch(`/chess/${roomCodeRef.current}`, { board_state: packBoardState(board, meta) });
 
     setIncomingDrawOpen(false);
     toast.message("Tablas rechazadas");
@@ -544,13 +514,13 @@ export default function ChessOnlineGame({ user, onScoreUpdate, onRoomCodeChange,
     setLeaveOpen(false);
 
     try {
-      if (!roomIdRef.current) {
+      if (!roomCodeRef.current) {
         resetLocal();
         return;
       }
 
       if (gameStatus === "waiting") {
-        await base44.entities.ChessRoom.delete(roomIdRef.current);
+        await api.delete(`/chess/${roomCodeRef.current}`);
         toast.message("Sala cerrada");
         resetLocal();
         return;
@@ -562,13 +532,13 @@ export default function ChessOnlineGame({ user, onScoreUpdate, onRoomCodeChange,
 
       if (opponentEmail) {
         didAwardRef.current = false;
-        await base44.entities.ChessRoom.update(roomIdRef.current, {
+        await api.patch(`/chess/${roomCodeRef.current}`, {
           status: "finished",
           winner: opponentEmail,
           board_state: packBoardState(board, { ...(metaRef.current || {}), drawOfferBy: null, drawOfferAt: null }),
         });
       } else {
-        await base44.entities.ChessRoom.delete(roomIdRef.current);
+        await api.delete(`/chess/${roomCodeRef.current}`);
       }
 
       resetLocal();
@@ -598,7 +568,7 @@ export default function ChessOnlineGame({ user, onScoreUpdate, onRoomCodeChange,
       onMoveHistoryChange([]);
     }
 
-    roomIdRef.current = null;
+    roomCodeRef.current = null;
     lastUpdatedRef.current = null;
     metaRef.current = {};
     didAwardRef.current = false;
@@ -609,8 +579,6 @@ export default function ChessOnlineGame({ user, onScoreUpdate, onRoomCodeChange,
     clockStartGuardRef.current = false;
     timeoutDeclaredRef.current = false;
   };
-
-  // -------- UI --------
 
   if (screen === "lobby") {
     return (
@@ -795,7 +763,7 @@ export default function ChessOnlineGame({ user, onScoreUpdate, onRoomCodeChange,
         </AlertDialogContent>
       </AlertDialog>
 
-      {/* Personalizar: agrandado + grid sin scrollbar horizontal */}
+      {/* Personalizar */}
       <Dialog open={settingsOpen} onOpenChange={setSettingsOpen}>
         <DialogContent className="bg-zinc-950 border-white/10 text-white w-[980px] max-w-[95vw]">
           <DialogHeader>
@@ -841,13 +809,10 @@ export default function ChessOnlineGame({ user, onScoreUpdate, onRoomCodeChange,
 
             <TabsContent value="piezas" className="mt-4">
               <div className="grid grid-cols-1 lg:grid-cols-[1fr_340px] gap-4">
-                {/* izquierda: grid grande */}
                 <div className="max-h-[430px] overflow-y-auto overflow-x-hidden pr-2">
                   <div className="grid [grid-template-columns:repeat(auto-fill,minmax(76px,1fr))] gap-2">
                     {PIECE_SETS.map((s) => {
                       const selected = s.key === pieceSet;
-
-                      // preview mini: SIEMPRE blancas para evitar confusión visual en thumbnails
                       const kUrl = getPieceDataUri(s.key, "wK");
                       const qUrl = getPieceDataUri(s.key, "wQ");
                       const nUrl = getPieceDataUri(s.key, "wN");
@@ -880,7 +845,6 @@ export default function ChessOnlineGame({ user, onScoreUpdate, onRoomCodeChange,
                   </div>
                 </div>
 
-                {/* derecha: preview más claro (blancas + negras) */}
                 <div className="rounded-lg border border-white/10 bg-white/5 p-4">
                   <p className="text-xs text-gray-400 mb-2">Vista previa</p>
                   <div className="grid grid-cols-3 gap-2 place-items-center">
@@ -892,7 +856,7 @@ export default function ChessOnlineGame({ user, onScoreUpdate, onRoomCodeChange,
                     <div className="w-20 h-20 flex items-center justify-center">{renderPieceNode("bN", pieceSet)}</div>
                   </div>
                   <p className="text-[11px] text-gray-500 mt-3">
-                    Consejo: si quieres que se vean bien en cualquier tablero, usa “Staunton 3D” o “Graphite”.
+                    Consejo: si quieres que se vean bien en cualquier tablero, usa "Staunton 3D" o "Graphite".
                   </p>
                 </div>
               </div>

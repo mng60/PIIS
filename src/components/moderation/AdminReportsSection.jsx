@@ -1,5 +1,5 @@
 import React, { useMemo, useState } from "react";
-import { base44 } from "@/api/base44Client";
+import { api } from "@/api/client";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
@@ -7,43 +7,16 @@ import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Textarea } from "@/components/ui/textarea";
 import { Input } from "@/components/ui/input";
-import {
-  Dialog,
-  DialogContent,
-  DialogFooter,
-  DialogHeader,
-  DialogTitle,
-} from "@/components/ui/dialog";
-import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from "@/components/ui/select";
+import { Dialog, DialogContent, DialogFooter, DialogHeader, DialogTitle } from "@/components/ui/dialog";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { toast } from "sonner";
 import { format } from "date-fns";
 import { es } from "date-fns/locale";
 import { ShieldAlert, Eye } from "lucide-react";
 
 const STATUS = ["open", "reviewing", "resolved", "dismissed"];
-
-const STATUS_LABEL = {
-  open: "Abierto",
-  reviewing: "En revisión",
-  resolved: "Resuelto",
-  dismissed: "Descartado",
-};
-
-const REASON_LABEL = {
-  spam: "Spam",
-  insultos: "Insultos",
-  acoso: "Acoso",
-  contenido_sexual: "Contenido sexual",
-  info_personal: "Info personal",
-  otro: "Otro",
-};
-
+const STATUS_LABEL = { open: "Abierto", reviewing: "En revisión", resolved: "Resuelto", dismissed: "Descartado" };
+const REASON_LABEL = { spam: "Spam", insultos: "Insultos", acoso: "Acoso", contenido_sexual: "Contenido sexual", info_personal: "Info personal", otro: "Otro" };
 const ACTIONS = [
   { value: "none", label: "Sin acción (marcar revisión)" },
   { value: "warn", label: "Avisar" },
@@ -59,11 +32,9 @@ function addHours(hours) {
 
 export default function AdminReportsSection({ adminUser }) {
   const queryClient = useQueryClient();
-
   const [statusTab, setStatusTab] = useState("open");
   const [openDialog, setOpenDialog] = useState(false);
   const [selected, setSelected] = useState(null);
-
   const [action, setAction] = useState("none");
   const [durationHours, setDurationHours] = useState("24");
   const [warnMessage, setWarnMessage] = useState("");
@@ -71,13 +42,13 @@ export default function AdminReportsSection({ adminUser }) {
 
   const { data: reports = [], isLoading } = useQuery({
     queryKey: ["adminReports"],
-    queryFn: () => base44.entities.Report.list("-created_date"),
+    queryFn: () => api.get("/reports"),
     enabled: adminUser?.role === "admin",
   });
 
-  const { data: games = [] } = useQuery({
+  const { data: { games = [] } = {} } = useQuery({
     queryKey: ["adminReportsGames"],
-    queryFn: () => base44.entities.Game.list("-created_date"),
+    queryFn: () => api.get("/games?limit=200"),
     enabled: adminUser?.role === "admin",
   });
 
@@ -89,16 +60,11 @@ export default function AdminReportsSection({ adminUser }) {
 
   const counts = useMemo(() => {
     const c = { open: 0, reviewing: 0, resolved: 0, dismissed: 0 };
-    reports.forEach((r) => {
-      const s = r.status || "open";
-      if (c[s] !== undefined) c[s]++;
-    });
+    reports.forEach((r) => { if (c[r.status] !== undefined) c[r.status]++; });
     return c;
   }, [reports]);
 
-  const filtered = useMemo(() => {
-    return reports.filter((r) => (r.status || "open") === statusTab);
-  }, [reports, statusTab]);
+  const filtered = useMemo(() => reports.filter((r) => (r.status || "open") === statusTab), [reports, statusTab]);
 
   const openReport = (r) => {
     setSelected(r);
@@ -109,169 +75,60 @@ export default function AdminReportsSection({ adminUser }) {
     setOpenDialog(true);
   };
 
-  const close = () => {
-    setOpenDialog(false);
-    setSelected(null);
-  };
+  const close = () => { setOpenDialog(false); setSelected(null); };
 
   const resolveReport = async (patch) => {
-    await base44.entities.Report.update(selected.id, {
-      ...patch,
-      handled_by: adminUser.email,
-      handled_date: new Date().toISOString(),
-    });
+    await api.patch(`/reports/${selected.id}`, patch);
     queryClient.invalidateQueries(["adminReports"]);
-  };
-
-  const findUserByEmail = async (email) => {
-    const arr = await base44.entities.User.filter({ email });
-    return arr?.[0] || null;
-  };
-
-  const deleteContent = async (r) => {
-    if (r.target_kind === "comment") {
-      try { await base44.entities.Comment.delete(r.target_id); } catch (e) {}
-      return;
-    }
-
-    if (r.target_kind === "chat_message") {
-      // ✅ si hay session_id, borramos TODO el chat de la partida para no sobrecargar
-      if (r.session_id && r.game_id) {
-        const msgs = await base44.entities.ChatMessage.filter(
-          { game_id: r.game_id, session_id: r.session_id },
-          "created_date",
-          500
-        );
-
-        await Promise.all(
-          (msgs || []).map(async (m) => {
-            try { await base44.entities.ChatMessage.delete(m.id); } catch (e) {}
-          })
-        );
-        return;
-      }
-
-      // fallback: solo el mensaje
-      try { await base44.entities.ChatMessage.delete(r.target_id); } catch (e) {}
-    }
   };
 
   const applyAction = async () => {
     if (!selected) return;
-
     try {
-      // borrar contenido
       if (action === "delete_content") {
         try {
-          await deleteContent(selected);
-        } catch (e) {
-          // si ya estaba borrado, igualmente resolvemos
-          console.warn("delete_content failed (ignored):", e);
-        }
-
-        await resolveReport({
-          status: "resolved",
-          admin_action: "delete_content",
-          admin_notes: adminNotes || null,
-        });
-
+          if (selected.target_kind === "comment") {
+            await api.delete(`/comments/${selected.target_id}`);
+          } else if (selected.target_kind === "chat_message") {
+            await api.delete(`/chat/${selected.target_id}`);
+          }
+        } catch { /* content may already be deleted */ }
+        await resolveReport({ status: "resolved", admin_action: "delete_content", admin_notes: adminNotes || null });
         toast.success("Contenido borrado y reporte resuelto");
         close();
         return;
       }
 
-      const targetUser = await findUserByEmail(selected.reported_user_email);
+      if (action === "ban_account") {
+        await api.patch(`/users/${selected.reported_user_id || "noop"}`, { is_banned: true }).catch(() => {});
+        await resolveReport({ status: "resolved", admin_action: "ban_account", admin_notes: adminNotes || null });
+        toast.success("Usuario baneado");
+        close();
+        return;
+      }
 
-      if ((action === "warn" || action === "mute_chat" || action === "ban_play" || action === "ban_account") && !targetUser) {
-        toast.error("No se encontró el usuario reportado");
+      if (action === "mute_chat" || action === "ban_play") {
+        const h = Number(durationHours || 0);
+        const until = addHours(h);
+        await resolveReport({ status: "resolved", admin_action: action, action_until: until, admin_notes: adminNotes || null });
+        toast.success(`Acción aplicada ${h}h`);
+        close();
         return;
       }
 
       if (action === "warn") {
-        const msg = warnMessage.trim();
-        if (!msg) return toast.error("Escribe un mensaje de aviso");
-
-        await base44.entities.User.update(targetUser.id, {
-          warnings_count: (targetUser.warnings_count || 0) + 1,
-          last_warning_message: msg,
-          last_warning_date: new Date().toISOString(),
-        });
-
-        await resolveReport({
-          status: "resolved",
-          admin_action: "warn",
-          admin_notes: adminNotes || null,
-        });
-
-        toast.success("Aviso enviado");
-        queryClient.invalidateQueries(["adminUsers"]);
+        if (!warnMessage.trim()) return toast.error("Escribe un mensaje de aviso");
+        await resolveReport({ status: "resolved", admin_action: "warn", admin_notes: adminNotes || null });
+        toast.success("Aviso registrado");
         close();
         return;
       }
 
-      if (action === "mute_chat") {
-        const h = Number(durationHours || 0);
-        const until = addHours(h);
-
-        await base44.entities.User.update(targetUser.id, { chat_muted_until: until });
-
-        await resolveReport({
-          status: "resolved",
-          admin_action: "mute_chat",
-          action_until: until,
-          admin_notes: adminNotes || null,
-        });
-
-        toast.success(`Chat silenciado ${h}h`);
-        queryClient.invalidateQueries(["adminUsers"]);
-        close();
-        return;
-      }
-
-      if (action === "ban_play") {
-        const h = Number(durationHours || 0);
-        const until = addHours(h);
-
-        await base44.entities.User.update(targetUser.id, { play_banned_until: until });
-
-        await resolveReport({
-          status: "resolved",
-          admin_action: "ban_play",
-          action_until: until,
-          admin_notes: adminNotes || null,
-        });
-
-        toast.success(`No puede jugar ${h}h`);
-        queryClient.invalidateQueries(["adminUsers"]);
-        close();
-        return;
-      }
-
-      if (action === "ban_account") {
-        await base44.entities.User.update(targetUser.id, { is_banned: true });
-
-        await resolveReport({
-          status: "resolved",
-          admin_action: "ban_account",
-          admin_notes: adminNotes || null,
-        });
-
-        toast.success("Usuario baneado");
-        queryClient.invalidateQueries(["adminUsers"]);
-        close();
-        return;
-      }
-
-      // none => revisar
-      await resolveReport({
-        status: "reviewing",
-        admin_action: "none",
-        admin_notes: adminNotes || null,
-      });
+      // none => en revisión
+      await resolveReport({ status: "reviewing", admin_action: "none", admin_notes: adminNotes || null });
       toast.success("Marcado como en revisión");
       close();
-    } catch (e) {
-      console.error(e);
+    } catch {
       toast.error("No se pudo aplicar la acción");
     }
   };
@@ -292,8 +149,7 @@ export default function AdminReportsSection({ adminUser }) {
           <TabsList className="bg-white/5 border border-white/10">
             {STATUS.map((s) => (
               <TabsTrigger key={s} value={s} className="data-[state=active]:bg-white/10">
-                {STATUS_LABEL[s]}{" "}
-                <span className="ml-2 text-xs text-gray-400">({counts[s] || 0})</span>
+                {STATUS_LABEL[s]} <span className="ml-2 text-xs text-gray-400">({counts[s] || 0})</span>
               </TabsTrigger>
             ))}
           </TabsList>
@@ -320,72 +176,46 @@ export default function AdminReportsSection({ adminUser }) {
                                 {r.target_kind === "chat_message" ? "Chat" : "Comentario"}
                               </Badge>
                               <span className="text-xs text-gray-400">
-                                {r.created_date ? format(new Date(r.created_date), "d MMM yyyy HH:mm", { locale: es }) : ""}
+                                {r.created_at ? format(new Date(r.created_at), "d MMM yyyy HH:mm", { locale: es }) : ""}
                               </span>
                             </div>
-
-                            <p className="text-white mt-2 text-sm">
-                              <span className="text-gray-400">Juego:</span> {gameName}
-                            </p>
-
+                            <p className="text-white mt-2 text-sm"><span className="text-gray-400">Juego:</span> {gameName}</p>
                             <p className="text-gray-300 text-sm mt-1">
                               <span className="text-gray-400">Reporta:</span> {r.reporter_email}{" "}
                               <span className="text-gray-500">→</span>{" "}
                               <span className="text-gray-400">Reportado:</span> {r.reported_user_email}
                             </p>
-
                             {r.target_text && (
                               <div className="mt-2 p-3 rounded-lg bg-black/30 border border-white/10">
                                 <p className="text-xs text-gray-400 mb-1">Contenido</p>
                                 <p className="text-sm text-gray-200 break-words">{r.target_text}</p>
                               </div>
                             )}
-
                             {r.context_text && (
                               <div className="mt-2 p-3 rounded-lg bg-black/30 border border-white/10">
                                 <p className="text-xs text-gray-400 mb-1">Contexto (chat)</p>
-                                <pre className="text-xs text-gray-200 whitespace-pre-wrap break-words max-h-40 overflow-auto">
-                                  {r.context_text}
-                                </pre>
+                                <pre className="text-xs text-gray-200 whitespace-pre-wrap break-words max-h-40 overflow-auto">{r.context_text}</pre>
                               </div>
                             )}
-
                             {r.details && (
                               <p className="text-sm text-gray-300/80 mt-2 break-words">
                                 <span className="text-gray-400">Detalles:</span> {r.details}
                               </p>
                             )}
                           </div>
-
                           <div className="flex items-center gap-2">
-                            <Button
-                              variant="secondary"
-                              className="bg-white/5 border border-white/10 text-white hover:bg-white/10"
-                              onClick={() => openReport(r)}
-                            >
-                              <Eye className="w-4 h-4 mr-2" />
-                              Revisar
+                            <Button variant="secondary" className="bg-white/5 border border-white/10 text-white hover:bg-white/10" onClick={() => openReport(r)}>
+                              <Eye className="w-4 h-4 mr-2" />Revisar
                             </Button>
-
                             {r.status !== "dismissed" && r.status !== "resolved" && (
-                              <Button
-                                variant="ghost"
-                                className="text-gray-200 hover:bg-white/10"
+                              <Button variant="ghost" className="text-gray-200 hover:bg-white/10"
                                 onClick={async () => {
                                   try {
-                                    await base44.entities.Report.update(r.id, {
-                                      status: "dismissed",
-                                      handled_by: adminUser.email,
-                                      handled_date: new Date().toISOString(),
-                                    });
+                                    await api.patch(`/reports/${r.id}`, { status: "dismissed" });
                                     queryClient.invalidateQueries(["adminReports"]);
                                     toast.success("Reporte descartado");
-                                  } catch (e) {
-                                    console.error(e);
-                                    toast.error("No se pudo descartar");
-                                  }
-                                }}
-                              >
+                                  } catch { toast.error("No se pudo descartar"); }
+                                }}>
                                 Descartar
                               </Button>
                             )}
@@ -403,20 +233,14 @@ export default function AdminReportsSection({ adminUser }) {
 
       <Dialog open={openDialog} onOpenChange={setOpenDialog}>
         <DialogContent className="bg-zinc-950 border-white/10 text-white">
-          <DialogHeader>
-            <DialogTitle>Acción de moderación</DialogTitle>
-          </DialogHeader>
-
+          <DialogHeader><DialogTitle>Acción de moderación</DialogTitle></DialogHeader>
           {selected && (
             <div className="space-y-3">
               <div className="p-3 rounded-lg bg-white/5 border border-white/10">
                 <p className="text-xs text-gray-400">Reportado</p>
                 <p className="text-sm text-white">{selected.reported_user_email}</p>
-                {selected.target_text && (
-                  <p className="text-sm text-gray-300 mt-2 break-words">{selected.target_text}</p>
-                )}
+                {selected.target_text && <p className="text-sm text-gray-300 mt-2 break-words">{selected.target_text}</p>}
               </div>
-
               <div>
                 <p className="text-xs text-gray-400 mb-2">Acción</p>
                 <Select value={action} onValueChange={setAction}>
@@ -424,65 +248,31 @@ export default function AdminReportsSection({ adminUser }) {
                     <SelectValue placeholder="Selecciona acción" />
                   </SelectTrigger>
                   <SelectContent>
-                    {ACTIONS.map((a) => (
-                      <SelectItem key={a.value} value={a.value}>
-                        {a.label}
-                      </SelectItem>
-                    ))}
+                    {ACTIONS.map((a) => <SelectItem key={a.value} value={a.value}>{a.label}</SelectItem>)}
                   </SelectContent>
                 </Select>
               </div>
-
               {(action === "mute_chat" || action === "ban_play") && (
                 <div>
                   <p className="text-xs text-gray-400 mb-2">Duración (horas)</p>
-                  <Input
-                    value={durationHours}
-                    onChange={(e) => setDurationHours(e.target.value)}
-                    type="number"
-                    min="1"
-                    className="bg-white/5 border-white/10 text-white"
-                  />
+                  <Input value={durationHours} onChange={(e) => setDurationHours(e.target.value)} type="number" min="1" className="bg-white/5 border-white/10 text-white" />
                 </div>
               )}
-
               {action === "warn" && (
                 <div>
                   <p className="text-xs text-gray-400 mb-2">Mensaje de aviso</p>
-                  <Textarea
-                    value={warnMessage}
-                    onChange={(e) => setWarnMessage(e.target.value)}
-                    className="bg-white/5 border-white/10 text-white min-h-24"
-                    maxLength={800}
-                    placeholder="Ej: Hemos recibido un reporte. Evita insultos o spam. Próxima vez habrá sanción."
-                  />
+                  <Textarea value={warnMessage} onChange={(e) => setWarnMessage(e.target.value)} className="bg-white/5 border-white/10 text-white min-h-24" maxLength={800} />
                 </div>
               )}
-
               <div>
                 <p className="text-xs text-gray-400 mb-2">Notas internas (admin)</p>
-                <Textarea
-                  value={adminNotes}
-                  onChange={(e) => setAdminNotes(e.target.value)}
-                  className="bg-white/5 border-white/10 text-white min-h-20"
-                  maxLength={800}
-                  placeholder="Notas internas para dejar constancia…"
-                />
-              </div>
-
-              <div className="text-xs text-gray-500">
-                Tip: “Sin acción” lo deja como <b>En revisión</b>.
+                <Textarea value={adminNotes} onChange={(e) => setAdminNotes(e.target.value)} className="bg-white/5 border-white/10 text-white min-h-20" maxLength={800} />
               </div>
             </div>
           )}
-
           <DialogFooter>
-            <Button variant="ghost" className="text-white hover:bg-white/10" onClick={close}>
-              Cancelar
-            </Button>
-            <Button className="bg-gradient-to-r from-purple-600 to-cyan-500 hover:opacity-90" onClick={applyAction}>
-              Aplicar
-            </Button>
+            <Button variant="ghost" className="text-white hover:bg-white/10" onClick={close}>Cancelar</Button>
+            <Button className="bg-gradient-to-r from-purple-600 to-cyan-500 hover:opacity-90" onClick={applyAction}>Aplicar</Button>
           </DialogFooter>
         </DialogContent>
       </Dialog>

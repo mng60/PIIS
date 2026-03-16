@@ -1,46 +1,33 @@
-import React, { useState, useEffect } from "react";
-import { base44 } from "@/api/base44Client";
+import React from "react";
+import { api } from "@/api/client";
+import { useAuth } from "@/lib/AuthContext";
 import { useQuery } from "@tanstack/react-query";
 import { createPageUrl } from "@/utils";
 import { Loader2, Heart, Gamepad2 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import GameCard from "@/components/games/GameCard";
+import { Link } from "react-router-dom";
 
 export default function Favorites() {
-  const [user, setUser] = useState(null);
-  const [isLoading, setIsLoading] = useState(true);
+  const { user, isLoadingAuth } = useAuth();
 
-  useEffect(() => {
-    loadUser();
-  }, []);
-
-  const loadUser = async () => {
-    try {
-      const currentUser = await base44.auth.me();
-      setUser(currentUser);
-      setIsLoading(false);
-    } catch (e) {
-      window.location.replace('/Home');
-    }
-  };
-
-  const { data: favorites = [] } = useQuery({
+  const { data: favorites = [], isLoading: favsLoading } = useQuery({
     queryKey: ["favorites", user?.email],
-    queryFn: () => base44.entities.Favorite.filter({ user_email: user.email }),
-    enabled: !!user
+    queryFn: () => api.get("/favorites"),
+    enabled: !!user,
   });
 
-  const { data: allGames = [] } = useQuery({
+  const { data: { games: allGames = [] } = {}, isLoading: gamesLoading } = useQuery({
     queryKey: ["games"],
-    queryFn: () => base44.entities.Game.filter({ is_active: true }),
-    enabled: !!user
+    queryFn: () => api.get("/games?limit=200"),
+    enabled: !!user,
   });
 
-  const favoriteGames = allGames.filter(game => 
+  const favoriteGames = allGames.filter(game =>
     favorites.some(f => f.game_id === game.id)
   );
 
-  if (isLoading) {
+  if (isLoadingAuth || favsLoading || gamesLoading) {
     return (
       <div className="flex items-center justify-center min-h-[60vh]">
         <Loader2 className="w-8 h-8 animate-spin text-purple-500" />
@@ -56,12 +43,11 @@ export default function Favorites() {
         <p className="text-gray-400 mb-6">
           Necesitas iniciar sesión para ver tus juegos favoritos
         </p>
-        <Button
-          onClick={() => base44.auth.redirectToLogin()}
-          className="bg-gradient-to-r from-purple-600 to-cyan-500"
-        >
-          Iniciar Sesión
-        </Button>
+        <Link to={createPageUrl("Home")}>
+          <Button className="bg-gradient-to-r from-purple-600 to-cyan-500">
+            Ir al inicio
+          </Button>
+        </Link>
       </div>
     );
   }

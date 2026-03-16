@@ -1,5 +1,5 @@
 import React, { useEffect, useMemo, useState } from "react";
-import { base44 } from "@/api/base44Client";
+import { api } from "@/api/client";
 import { useQuery } from "@tanstack/react-query";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
@@ -21,19 +21,19 @@ export default function UserAchievementsSection({ userEmail }) {
 
   const { data: userAchievements = [] } = useQuery({
     queryKey: ["userAchievementsAll", userEmail],
-    queryFn: () => base44.entities.UserAchievement.filter({ user_email: userEmail }),
+    queryFn: () => api.get("/achievements/user"),
     enabled: !!userEmail,
   });
 
   const { data: definitions = [] } = useQuery({
     queryKey: ["allAchievementDefs"],
-    queryFn: () => base44.entities.AchievementDefinition.filter({ is_active: true }),
+    queryFn: () => api.get("/achievements/definitions"),
     enabled: !!userEmail,
   });
 
   const { data: games = [] } = useQuery({
     queryKey: ["games-for-achievements"],
-    queryFn: () => base44.entities.Game.filter({ is_active: true }),
+    queryFn: async () => { const r = await api.get("/games?limit=200"); return r.games || []; },
     enabled: !!userEmail,
   });
 

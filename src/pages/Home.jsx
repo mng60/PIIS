@@ -1,5 +1,5 @@
 import React, { useMemo } from "react";
-import { base44 } from "@/api/base44Client";
+import { api } from "@/api/client";
 import { useQuery } from "@tanstack/react-query";
 import { Loader2, ArrowRight } from "lucide-react";
 import { Link } from "react-router-dom";
@@ -11,25 +11,13 @@ import GamingNews from "@/components/home/GamingNews";
 import TournamentsSection from "@/components/home/TournamentsSection";
 
 export default function Home() {
-  const { data: games = [], isLoading } = useQuery({
+  const { data: { games = [] } = {}, isLoading } = useQuery({
     queryKey: ["games"],
-    queryFn: () => base44.entities.Game.filter({ is_active: true }, "-created_date"),
+    queryFn: () => api.get("/games?limit=100"),
   });
 
-  // Featured games (admin seleccionados con is_featured)
-  const featuredGames = useMemo(() => {
-    return games.filter(g => g.is_featured);
-  }, [games]);
-
-  // Nuevos juegos (últimos 8 añadidos)
-  const newGames = useMemo(() => {
-    return games.slice(0, 8);
-  }, [games]);
-
-  // Total de partidas jugadas
-  const totalPlays = useMemo(() => {
-    return games.reduce((sum, game) => sum + (game.plays_count || 0), 0);
-  }, [games]);
+  const featuredGames = useMemo(() => games.filter(g => g.is_featured), [games]);
+  const newGames = useMemo(() => games.slice(0, 8), [games]);
 
   if (isLoading) {
     return (
@@ -53,7 +41,6 @@ export default function Home() {
         </p>
       </div>
 
-      {/* Featured Carousel */}
       {featuredGames.length > 0 && (
         <section>
           <h2 className="text-2xl md:text-3xl font-bold text-white mb-6 flex items-center gap-3">
@@ -63,24 +50,20 @@ export default function Home() {
         </section>
       )}
 
-      {/* New Games Slider */}
       {newGames.length > 0 && (
         <section>
           <NewGamesSlider games={newGames} />
         </section>
       )}
 
-      {/* Tournaments */}
       <section>
         <TournamentsSection />
       </section>
 
-      {/* Gaming News */}
       <section>
         <GamingNews />
       </section>
 
-      {/* CTA to Games catalog */}
       <section className="bg-gradient-to-r from-purple-600/20 to-cyan-600/20 border border-white/10 rounded-2xl md:rounded-3xl p-6 sm:p-8 md:p-12 text-center">
         <h2 className="text-2xl sm:text-3xl md:text-4xl font-bold text-white mb-3 sm:mb-4">
           ¿Listo para jugar?

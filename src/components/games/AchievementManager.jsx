@@ -1,5 +1,5 @@
 import React, { useState } from "react";
-import { base44 } from "@/api/base44Client";
+import { api } from "@/api/client";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -41,8 +41,7 @@ export default function AchievementManager({ gameId }) {
 
   const { data: achievements = [], isLoading } = useQuery({
     queryKey: ["achievementMgr", gameId],
-    queryFn: () =>
-      base44.entities.AchievementDefinition.filter({ game_id: gameId }, "sort_order"),
+    queryFn: () => api.get(`/achievements/definitions?game_id=${gameId}`),
     enabled: !!gameId
   });
 
@@ -88,10 +87,10 @@ export default function AchievementManager({ gameId }) {
     };
 
     if (editingId) {
-      await base44.entities.AchievementDefinition.update(editingId, data);
+      await api.patch(`/achievements/definitions/${editingId}`, data);
       toast.success("Logro actualizado");
     } else {
-      await base44.entities.AchievementDefinition.create(data);
+      await api.post("/achievements/definitions", data);
       toast.success("Logro creado");
     }
 
@@ -105,7 +104,7 @@ export default function AchievementManager({ gameId }) {
 
   const handleDelete = async (id) => {
     if (!window.confirm("¿Eliminar este logro?")) return;
-    await base44.entities.AchievementDefinition.delete(id);
+    await api.delete(`/achievements/definitions/${id}`);
     qc.invalidateQueries(["achievementMgr", gameId]);
     qc.invalidateQueries(["achievementDefs", gameId]);
     toast.success("Logro eliminado");

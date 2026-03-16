@@ -1,15 +1,12 @@
 import React, { useState, useEffect } from "react";
-import { base44 } from "@/api/base44Client";
-import { useQuery } from "@tanstack/react-query";
+import { api } from "@/api/client";
+import { useAuth } from "@/lib/AuthContext";
 import { Link, useNavigate } from "react-router-dom";
 import { createPageUrl } from "@/utils";
 import {
   Loader2,
   Shield,
   ArrowLeft,
-  Upload,
-  Image,
-  FileCode,
   Save,
   Eye,
   Gamepad
@@ -30,11 +27,8 @@ import { toast } from "sonner";
 import AchievementManager from "@/components/games/AchievementManager";
 
 export default function UploadGame() {
-  const [user, setUser] = useState(null);
-  const [isLoading, setIsLoading] = useState(true);
+  const { user, isLoadingAuth } = useAuth();
   const [isSaving, setIsSaving] = useState(false);
-  const [showPreview, setShowPreview] = useState(false);
-  const [useExternalUrl, setUseExternalUrl] = useState(false);
 
   const [formData, setFormData] = useState({
     title: "",
@@ -43,71 +37,30 @@ export default function UploadGame() {
     category: "",
     game_type: "html5",
     thumbnail: "",
-    game_url: ""
+    game_url: "",
+    is_adult: false,
   });
 
   const urlParams = new URLSearchParams(window.location.search);
   const editId = urlParams.get("edit");
 
-  useEffect(() => {
-    loadUser();
-  }, []);
-
-  const loadUser = async () => {
-    try {
-      const currentUser = await base44.auth.me();
-      if (currentUser.role !== 'admin') {
-        window.location.replace('/Home');
-        return;
-      }
-      setUser(currentUser);
-      setIsLoading(false);
-    } catch (e) {
-      window.location.replace('/Home');
-    }
-  };
-
   // Load game data if editing
   useEffect(() => {
     if (editId && user?.role === "admin") {
-      loadGameData();
+      api.get(`/games/${editId}`).then((game) => {
+        setFormData({
+          title: game.title || "",
+          description: game.description || "",
+          full_description: game.full_description || "",
+          category: game.category || "",
+          game_type: game.game_type || "html5",
+          thumbnail: game.thumbnail || "",
+          game_url: game.game_url || "",
+          is_adult: game.is_adult || false,
+        });
+      }).catch(() => toast.error("No se pudo cargar el juego"));
     }
   }, [editId, user]);
-
-  const loadGameData = async () => {
-    const games = await base44.entities.Game.filter({ id: editId });
-    if (games.length > 0) {
-      const game = games[0];
-      setFormData({
-        title: game.title || "",
-        description: game.description || "",
-        full_description: game.full_description || "",
-        category: game.category || "",
-        game_type: game.game_type || "html5",
-        thumbnail: game.thumbnail || "",
-        game_url: game.game_url || ""
-      });
-    }
-  };
-
-  const handleThumbnailUpload = async (e) => {
-    const file = e.target.files?.[0];
-    if (!file) return;
-
-    const { file_url } = await base44.integrations.Core.UploadFile({ file });
-    setFormData({ ...formData, thumbnail: file_url });
-    toast.success("Miniatura subida");
-  };
-
-  const handleGameUpload = async (e) => {
-    const file = e.target.files?.[0];
-    if (!file) return;
-
-    // For HTML5 games, we expect an HTML file or ZIP
-    const { file_url } = await base44.integrations.Core.UploadFile({ file });
-    setFormData({ ...formData, game_url: file_url });
-    toast.success("Archivo del juego subido");
-  };
 
   const handleSubmit = async (e) => {
     e.preventDefault();
@@ -117,26 +70,22 @@ export default function UploadGame() {
     }
 
     setIsSaving(true);
-
-    const gameData = {
-      ...formData,
-      publisher: user.full_name || user.email,
-      is_active: true
-    };
-
-    if (editId) {
-      await base44.entities.Game.update(editId, gameData);
-      toast.success("Juego actualizado");
-    } else {
-      await base44.entities.Game.create(gameData);
-      toast.success("Juego publicado");
+    try {
+      if (editId) {
+        await api.patch(`/games/${editId}`, formData);
+        toast.success("Juego actualizado");
+      } else {
+        await api.post("/games", formData);
+        toast.success("Juego publicado");
+      }
+      window.location.href = createPageUrl("Admin");
+    } catch {
+      toast.error("Error al guardar el juego");
     }
-
     setIsSaving(false);
-    window.location.href = createPageUrl("Admin");
   };
 
-  if (isLoading) {
+  if (isLoadingAuth) {
     return (
       <div className="flex items-center justify-center min-h-[60vh]">
         <Loader2 className="w-8 h-8 animate-spin text-purple-500" />
@@ -252,98 +201,49 @@ export default function UploadGame() {
                 />
               </div>
 
-              {/* Thumbnail Upload */}
+              {/* Thumbnail URL */}
               <div className="space-y-2">
-                <Label className="text-white">Miniatura</Label>
-                <div className="flex gap-4">
-                  <label className="flex-1 flex items-center justify-center gap-2 px-4 py-8 border-2 border-dashed border-white/20 rounded-xl cursor-pointer hover:border-purple-500/50 transition-colors">
-                    <Image className="w-5 h-5 text-gray-400" />
-                    <span className="text-gray-400">Subir imagen</span>
-                    <input
-                      type="file"
-                      accept="image/*"
-                      className="hidden"
-                      onChange={handleThumbnailUpload}
-                    />
-                  </label>
-                  {formData.thumbnail && (
-                    <img
-                      src={formData.thumbnail}
-                      alt="Preview"
-                      className="w-24 h-24 rounded-xl object-cover"
-                    />
-                  )}
-                </div>
+                <Label className="text-white">URL Miniatura</Label>
+                <Input
+                  value={formData.thumbnail}
+                  onChange={(e) => setFormData({ ...formData, thumbnail: e.target.value })}
+                  placeholder="https://ejemplo.com/imagen.jpg"
+                  className="bg-white/5 border-white/10 text-white"
+                />
               </div>
 
-              {/* Game Source (for HTML5) */}
+              {/* Game URL */}
               {formData.game_type === "html5" && (
-                <div className="space-y-3">
-                  <Label className="text-white">Fuente del juego</Label>
-                  {/* Toggle upload vs URL */}
-                  <div className="flex rounded-lg overflow-hidden border border-white/10">
-                    <button
-                      type="button"
-                      onClick={() => setUseExternalUrl(false)}
-                      className={`flex-1 py-2 text-sm transition-colors ${!useExternalUrl ? "bg-purple-600 text-white" : "bg-white/5 text-gray-400 hover:bg-white/10"}`}
-                    >
-                      Subir archivo
-                    </button>
-                    <button
-                      type="button"
-                      onClick={() => setUseExternalUrl(true)}
-                      className={`flex-1 py-2 text-sm transition-colors ${useExternalUrl ? "bg-purple-600 text-white" : "bg-white/5 text-gray-400 hover:bg-white/10"}`}
-                    >
-                      URL externa
-                    </button>
-                  </div>
-
-                  {useExternalUrl ? (
-                    <div className="space-y-1">
-                      <Input
-                        value={formData.game_url}
-                        onChange={(e) => setFormData({ ...formData, game_url: e.target.value })}
-                        placeholder="https://tu-juego.github.io/juego/"
-                        className="bg-white/5 border-white/10 text-white placeholder:text-gray-500"
-                      />
-                      <p className="text-xs text-gray-500">
-                        GitHub Pages, Netlify, Vercel, itch.io (iframe embed)…
-                      </p>
-                    </div>
-                  ) : (
-                    <div className="space-y-1">
-                      <label className="flex items-center justify-center gap-2 px-4 py-8 border-2 border-dashed border-white/20 rounded-xl cursor-pointer hover:border-purple-500/50 transition-colors">
-                        <FileCode className="w-5 h-5 text-gray-400" />
-                        <span className="text-gray-400">
-                          {formData.game_url ? "Archivo subido ✓" : "Subir archivo HTML"}
-                        </span>
-                        <input
-                          type="file"
-                          accept=".html,.htm"
-                          className="hidden"
-                          onChange={handleGameUpload}
-                        />
-                      </label>
-                      <p className="text-xs text-gray-500">
-                        Un único archivo HTML autocontenido (JS y assets embebidos o en CDN)
-                      </p>
-                    </div>
-                  )}
+                <div className="space-y-2">
+                  <Label className="text-white">URL del juego</Label>
+                  <Input
+                    value={formData.game_url}
+                    onChange={(e) => setFormData({ ...formData, game_url: e.target.value })}
+                    placeholder="https://tu-juego.github.io/juego/"
+                    className="bg-white/5 border-white/10 text-white"
+                  />
+                  <p className="text-xs text-gray-500">
+                    GitHub Pages, Netlify, Vercel, itch.io (iframe embed)…
+                  </p>
                 </div>
               )}
 
+              {/* Adult content */}
+              <div className="flex items-center gap-3">
+                <input
+                  type="checkbox"
+                  id="is_adult"
+                  checked={formData.is_adult}
+                  onChange={(e) => setFormData({ ...formData, is_adult: e.target.checked })}
+                  className="w-4 h-4 accent-purple-500"
+                />
+                <Label htmlFor="is_adult" className="text-white text-sm cursor-pointer">
+                  Contenido para mayores de 18 años
+                </Label>
+              </div>
+
               {/* Actions */}
               <div className="flex gap-4 pt-4">
-                <Button
-                  type="button"
-                  variant="outline"
-                  onClick={() => setShowPreview(true)}
-                  className="flex-1 border-white/20"
-                  disabled={!formData.title}
-                >
-                  <Eye className="w-4 h-4 mr-2" />
-                  Vista Previa
-                </Button>
                 <Button
                   type="submit"
                   disabled={isSaving}
@@ -361,11 +261,11 @@ export default function UploadGame() {
           </CardContent>
         </Card>
 
-        {/* Achievement Manager (edit mode only) */}
-        {editId && <AchievementManager gameId={editId} />}
-
-        {/* Preview */}
         <div className="space-y-6">
+          {/* Achievement Manager (edit mode only) */}
+          {editId && <AchievementManager gameId={editId} />}
+
+          {/* Preview */}
           <Card className="bg-white/5 border-white/10">
             <CardHeader>
               <CardTitle className="text-white flex items-center gap-2">
@@ -401,16 +301,6 @@ export default function UploadGame() {
           <Card className="bg-gradient-to-br from-purple-900/20 to-cyan-900/20 border-white/10">
             <CardContent className="p-6 space-y-4">
               <div>
-                <h4 className="font-medium text-white mb-2">Requisitos del juego</h4>
-                <ul className="space-y-1 text-sm text-gray-400">
-                  <li>• Miniatura en proporción 16:9</li>
-                  <li>• HTML: todo el JS/CSS embebido o en CDN</li>
-                  <li>• URL externa: debe admitir carga en iframe</li>
-                  <li>• Incluye controles en la descripción</li>
-                </ul>
-              </div>
-
-              <div>
                 <h4 className="font-medium text-white mb-2">API de integración</h4>
                 <p className="text-xs text-gray-500 mb-2">
                   Llama a estas funciones desde tu juego para conectar con la plataforma:
@@ -438,9 +328,8 @@ window.addEventListener('message', (e) => {
                 <ul className="space-y-1 text-sm text-gray-400">
                   <li>• HTML5 + JavaScript / Canvas</li>
                   <li>• Three.js, Phaser, p5.js, Babylon.js…</li>
-                  <li>• Lua: exportar con LÖVE2D → love.js (WebAssembly)</li>
-                  <li>• Python: exportar con Pygbag (WebAssembly)</li>
                   <li>• Unity / Godot: exportar a HTML5 WebGL</li>
+                  <li>• URL externa: debe admitir carga en iframe</li>
                 </ul>
               </div>
             </CardContent>

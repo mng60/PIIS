@@ -1,5 +1,6 @@
-import React, { useState, useMemo, useEffect } from "react";
-import { base44 } from "@/api/base44Client";
+import React, { useState, useMemo } from "react";
+import { api } from "@/api/client";
+import { useAuth } from "@/lib/AuthContext";
 import { useQuery } from "@tanstack/react-query";
 import { Loader2, Gamepad2, Search } from "lucide-react";
 import GameCard from "@/components/games/GameCard";
@@ -16,26 +17,13 @@ const categories = [
 ];
 
 export default function Games() {
-  const [user, setUser] = useState(null);
+  const { user } = useAuth();
   const [searchQuery, setSearchQuery] = useState("");
   const [selectedCategory, setSelectedCategory] = useState("all");
 
-  useEffect(() => {
-    loadUser();
-  }, []);
-
-  const loadUser = async () => {
-    try {
-      const currentUser = await base44.auth.me();
-      setUser(currentUser);
-    } catch (e) {
-      setUser(null);
-    }
-  };
-
-  const { data: games = [], isLoading } = useQuery({
+  const { data: { games = [] } = {}, isLoading } = useQuery({
     queryKey: ["games"],
-    queryFn: () => base44.entities.Game.filter({ is_active: true }, "-created_date"),
+    queryFn: () => api.get("/games?limit=200"),
   });
 
   const filteredGames = useMemo(() => {
@@ -59,7 +47,6 @@ export default function Games() {
 
   return (
     <div className="max-w-7xl mx-auto px-4 py-8">
-      {/* Header */}
       <div className="mb-8">
         <h1 className="text-3xl font-bold text-white mb-2 flex items-center gap-3">
           <Gamepad2 className="w-8 h-8 text-purple-400" />
@@ -70,12 +57,9 @@ export default function Games() {
         </p>
       </div>
 
-      {/* Recommendations */}
       {user && <RecommendationSection userEmail={user.email} />}
 
-      {/* Filters */}
       <div className="mb-8 space-y-4">
-        {/* Search */}
         <div className="relative">
           <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-5 h-5 text-gray-400" />
           <Input
@@ -86,7 +70,6 @@ export default function Games() {
           />
         </div>
 
-        {/* Category Filters */}
         <div className="flex flex-wrap gap-2">
           {categories.map((category) => (
             <Button
@@ -105,7 +88,6 @@ export default function Games() {
         </div>
       </div>
 
-      {/* Games Grid */}
       {filteredGames.length === 0 ? (
         <div className="text-center py-16">
           <Gamepad2 className="w-16 h-16 mx-auto mb-4 text-gray-600" />

@@ -1,5 +1,5 @@
 import React from "react";
-import { base44 } from "@/api/base44Client";
+import { api } from "@/api/client";
 import { useQuery } from "@tanstack/react-query";
 import { Trophy, Star } from "lucide-react";
 
@@ -14,7 +14,7 @@ export default function AchievementsSection({ gameId, user }) {
   const { data: definitions = [] } = useQuery({
     queryKey: ["achievementDefs", gameId],
     queryFn: async () => {
-      const all = await base44.entities.AchievementDefinition.filter({ is_active: true });
+      const all = await api.get("/achievements/definitions");
       return all
         .filter(a => a.game_id === gameId || !a.game_id)
         .sort((a, b) => (a.sort_order || 0) - (b.sort_order || 0));
@@ -24,7 +24,7 @@ export default function AchievementsSection({ gameId, user }) {
 
   const { data: userAchievements = [] } = useQuery({
     queryKey: ["userAchievements", user?.email],
-    queryFn: () => base44.entities.UserAchievement.filter({ user_email: user.email }),
+    queryFn: () => api.get("/achievements/user"),
     enabled: !!user
   });
 
