@@ -1,0 +1,36 @@
+{
+  "name": "UserAchievement",
+  "type": "object",
+  "properties": {
+    "achievement_id": {
+      "type": "string",
+      "description": "ID del logro (AchievementDefinition)"
+    },
+    "user_email": {
+      "type": "string",
+      "description": "Email del usuario"
+    },
+    "game_id": {
+      "type": "string",
+      "description": "ID del juego (para filtrado r\u00e1pido)"
+    },
+    "progress": {
+      "type": "number",
+      "default": 0,
+      "description": "Progreso actual hacia el umbral"
+    },
+    "unlocked": {
+      "type": "boolean",
+      "default": false,
+      "description": "Si el logro est\u00e1 desbloqueado"
+    },
+    "unlocked_date": {
+      "type": "string",
+      "description": "Fecha de desbloqueo (ISO)"
+    }
+  },
+  "required": [
+    "achievement_id",
+    "user_email"
+  ]
+}

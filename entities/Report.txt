@@ -1,0 +1,125 @@
+{
+  "name": "Report",
+  "type": "object",
+  "properties": {
+    "target_kind": {
+      "type": "string",
+      "enum": [
+        "chat_message",
+        "comment"
+      ],
+      "description": "Tipo de contenido reportado"
+    },
+    "target_id": {
+      "type": "string",
+      "description": "ID del ChatMessage o Comment reportado"
+    },
+    "game_id": {
+      "type": "string",
+      "description": "ID del juego relacionado"
+    },
+    "session_id": {
+      "type": "string",
+      "description": "ID de la partida/sala (solo aplica a reportes del chat online)"
+    },
+    "context_text": {
+      "type": "string",
+      "maxLength": 20000,
+      "description": "Contexto del chat (historial de mensajes de la partida/sala) para que el admin tenga evidencia aunque luego se borre el chat"
+    },
+    "reporter_email": {
+      "type": "string",
+      "description": "Email del usuario que reporta"
+    },
+    "reporter_name": {
+      "type": "string",
+      "description": "Nombre del usuario que reporta"
+    },
+    "reported_user_email": {
+      "type": "string",
+      "description": "Email del usuario reportado"
+    },
+    "reported_user_name": {
+      "type": "string",
+      "description": "Nombre del usuario reportado (opcional)"
+    },
+    "reason": {
+      "type": "string",
+      "enum": [
+        "spam",
+        "insultos",
+        "acoso",
+        "contenido_sexual",
+        "info_personal",
+        "otro"
+      ],
+      "description": "Motivo del reporte"
+    },
+    "details": {
+      "type": "string",
+      "maxLength": 800,
+      "description": "Detalles adicionales del reporte (opcional)"
+    },
+    "target_text": {
+      "type": "string",
+      "maxLength": 800,
+      "description": "Snapshot del mensaje o comentario reportado"
+    },
+    "status": {
+      "type": "string",
+      "enum": [
+        "open",
+        "reviewing",
+        "resolved",
+        "dismissed"
+      ],
+      "default": "open",
+      "description": "Estado del reporte"
+    },
+    "admin_action": {
+      "type": "string",
+      "enum": [
+        "none",
+        "warn",
+        "mute_chat",
+        "ban_play",
+        "ban_account",
+        "delete_content"
+      ],
+      "default": "none",
+      "description": "Acci\u00f3n tomada por el admin"
+    },
+    "action_until": {
+      "type": "string",
+      "description": "Fecha/hora hasta la que aplica la acci\u00f3n (ISO datetime, opcional)"
+    },
+    "admin_notes": {
+      "type": "string",
+      "maxLength": 800,
+      "description": "Notas internas del admin (opcional)"
+    },
+    "handled_by": {
+      "type": "string",
+      "description": "Email del admin que gestion\u00f3 el reporte (opcional)"
+    },
+    "handled_date": {
+      "type": "string",
+      "description": "Fecha/hora en que se gestion\u00f3 el reporte (ISO datetime, opcional)"
+    }
+  },
+  "required": [
+    "target_kind",
+    "target_id",
+    "game_id",
+    "reporter_email",
+    "reported_user_email",
+    "reason",
+    "target_text"
+  ],
+  "permissions": {
+    "create": "authenticated",
+    "read": "admin",
+    "update": "admin",
+    "delete": "admin"
+  }
+}

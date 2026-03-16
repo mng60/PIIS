@@ -1,0 +1,911 @@
+import React, { useEffect, useRef, useState } from "react";
+import { base44 } from "@/api/base44Client";
+import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
+import { Card } from "@/components/ui/card";
+import { toast } from "sonner";
+import { Loader2, Copy, Trophy, Settings, Scale, LogOut, Check } from "lucide-react";
+
+import {
+  Dialog,
+  DialogContent,
+  DialogFooter,
+  DialogHeader,
+  DialogTitle,
+} from "@/components/ui/dialog";
+
+import {
+  AlertDialog,
+  AlertDialogContent,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+  AlertDialogDescription,
+  AlertDialogCancel,
+  AlertDialogAction,
+} from "@/components/ui/alert-dialog";
+
+import {
+  Tabs,
+  TabsContent,
+  TabsList,
+  TabsTrigger,
+} from "@/components/ui/tabs";
+
+// OJO: en tu proyecto los helpers están en src/components/chess
+import { initBoard, safeParseBoardState, packBoardState, FILES, getPieceColor, getPieceType } from "@/components/chess/chessState";
+import { calculateValidMoves } from "@/components/chess/chessMoves";
+import { PIECE_SETS, renderPieceNode, getPieceDataUri } from "@/components/chess/chessPieces";
+import { TIME_LIMITS, initClockFromMinutes, formatMs, getDisplayedMs, applyClockOnMove } from "@/components/chess/chessClock";
+import OnlineGameLobby from "@/components/games/OnlineGameLobby";
+import OnlineGamePlayerZone from "@/components/games/OnlineGamePlayerZone";
+
+// Temas tablero
+const BOARD_THEMES = {
+  classic: { label: "Clásico", light: "#F0D9B5", dark: "#B58863", labelLight: "#B58863", labelDark: "#F0D9B5" },
+  blue:    { label: "Azul",    light: "#E8EDF9", dark: "#4B7399", labelLight: "#4B7399", labelDark: "#E8EDF9" },
+  green:   { label: "Verde",   light: "#EEEED2", dark: "#769656", labelLight: "#769656", labelDark: "#EEEED2" },
+  dark:    { label: "Oscuro",  light: "#3A3A3A", dark: "#1F1F1F", labelLight: "#D0D0D0", labelDark: "#B0B0B0" },
+};
+
+const nowISO = () => new Date().toISOString();
+
+export default function ChessOnlineGame({ user, onScoreUpdate, onRoomCodeChange, onMoveHistoryChange }) {
+  const [screen, setScreen] = useState("lobby");
+  const [roomCode, setRoomCode] = useState("");
+  useEffect(() => {
+    if (onRoomCodeChange) onRoomCodeChange(roomCode);
+  }, [roomCode, onRoomCodeChange]);
+  const [joinCode, setJoinCode] = useState("");
+  const [loading, setLoading] = useState(false);
+  const [error, setError] = useState("");
+
+  // ✅ tiempo fácil: none/5/10/15/20
+  const [timeKey, setTimeKey] = useState("5");
+
+  const [board, setBoard] = useState(initBoard());
+  const [playerColor, setPlayerColor] = useState(null);
+  const [currentTurn, setCurrentTurn] = useState("white");
+  const [selectedSquare, setSelectedSquare] = useState(null);
+  const [validMoves, setValidMoves] = useState([]);
+  const [opponentName, setOpponentName] = useState("Rival");
+  const [gameStatus, setGameStatus] = useState("waiting");
+  const [winner, setWinner] = useState(null);
+  const [moveHistory, setMoveHistory] = useState([]);
+
+  const [drawOfferBy, setDrawOfferBy] = useState(null);
+  const [clock, setClock] = useState(null);
+
+  const [incomingDrawOpen, setIncomingDrawOpen] = useState(false);
+  const [leaveOpen, setLeaveOpen] = useState(false);
+  const [settingsOpen, setSettingsOpen] = useState(false);
+
+  // Personalización
+  const [boardTheme, setBoardTheme] = useState(() => localStorage.getItem("chess_board_theme") || "classic");
+  const [pieceSet, setPieceSet] = useState(() => localStorage.getItem("chess_piece_set") || "staunton");
+
+  useEffect(() => localStorage.setItem("chess_board_theme", boardTheme), [boardTheme]);
+  useEffect(() => localStorage.setItem("chess_piece_set", pieceSet), [pieceSet]);
+
+  const theme = BOARD_THEMES[boardTheme] || BOARD_THEMES.classic;
+
+  const roomIdRef = useRef(null);
+  const lastUpdatedRef = useRef(null);
+  const unsubscribeRef = useRef(null);
+  const pollIntervalRef = useRef(null);
+
+  const didAwardRef = useRef(false);
+  const metaRef = useRef({});
+  const lastOfferSeenRef = useRef(null);
+
+  const hostEmailRef = useRef(null);
+  const guestEmailRef = useRef(null);
+
+  const clockStartGuardRef = useRef(false);
+  const timeoutDeclaredRef = useRef(false);
+
+  // tick local
+  const [nowMs, setNowMs] = useState(Date.now());
+  useEffect(() => {
+    if (!clock || gameStatus !== "playing") return;
+    const t = setInterval(() => setNowMs(Date.now()), 250);
+    return () => clearInterval(t);
+  }, [clock, gameStatus]);
+
+  const stopSync = () => {
+    if (pollIntervalRef.current) {
+      clearInterval(pollIntervalRef.current);
+      pollIntervalRef.current = null;
+    }
+    if (unsubscribeRef.current) {
+      unsubscribeRef.current();
+      unsubscribeRef.current = null;
+    }
+  };
+
+  const startPolling = () => {
+    if (pollIntervalRef.current) return;
+    pollIntervalRef.current = setInterval(async () => {
+      if (!roomIdRef.current) return;
+      try {
+        const rooms = await base44.entities.ChessRoom.filter({ id: roomIdRef.current });
+        if (rooms.length > 0) {
+          const room = rooms[0];
+          if (room.updated_date !== lastUpdatedRef.current) applyRoomUpdate(room);
+        }
+      } catch {}
+    }, 1200);
+  };
+
+  const startRealtime = () => {
+    if (unsubscribeRef.current) unsubscribeRef.current();
+    const unsubscribe = base44.entities.ChessRoom.subscribe((event) => {
+      if (event.id === roomIdRef.current && event.type === "update") applyRoomUpdate(event.data);
+    });
+    unsubscribeRef.current = unsubscribe;
+  };
+
+  const startSync = () => {
+    startRealtime();
+    startPolling();
+  };
+
+  const maybeStartClockIfHost = (room, boardFromRoom, meta) => {
+    if (!meta?.clock) return;
+    if (meta.clock.lastTickAt) return;
+    if (clockStartGuardRef.current) return;
+    if (user?.email !== room.host_email) return;
+
+    clockStartGuardRef.current = true;
+
+    const nextMeta = { ...meta, clock: { ...meta.clock, lastTickAt: nowISO() } };
+    metaRef.current = nextMeta;
+    setClock(nextMeta.clock);
+
+    base44.entities.ChessRoom.update(room.id, {
+      board_state: packBoardState(boardFromRoom, nextMeta),
+    }).catch(() => {});
+  };
+
+  const applyRoomUpdate = (room) => {
+    lastUpdatedRef.current = room.updated_date;
+    hostEmailRef.current = room.host_email || hostEmailRef.current;
+    guestEmailRef.current = room.guest_email || guestEmailRef.current;
+
+    if (room.board_state) {
+      const { board: b, meta } = safeParseBoardState(room.board_state);
+      setBoard(b);
+
+      metaRef.current = meta || {};
+      setDrawOfferBy(meta?.drawOfferBy || null);
+      setClock(meta?.clock || null);
+
+      const offerBy = meta?.drawOfferBy || null;
+      if (room.status === "playing" && offerBy && offerBy !== user?.email && lastOfferSeenRef.current !== offerBy) {
+        lastOfferSeenRef.current = offerBy;
+        setIncomingDrawOpen(true);
+      }
+      if (!offerBy) lastOfferSeenRef.current = null;
+
+      if (room.status === "playing") {
+        maybeStartClockIfHost(room, b, meta);
+      }
+    }
+
+    setCurrentTurn(room.current_turn || "white");
+    setGameStatus(room.status);
+
+    if (room.status !== "waiting") {
+      const opp = user?.email === room.host_email ? (room.guest_name || "Rival") : (room.host_name || "Rival");
+      setOpponentName(opp);
+    }
+
+    if (room.status === "finished") {
+      const w = room.winner || null;
+      setWinner(w);
+
+      // ✅ solo +1 al ganador
+      if (!didAwardRef.current) {
+        didAwardRef.current = true;
+
+        if (w === user?.email) {
+          onScoreUpdate?.(1);
+          toast.success("¡Victoria! +1 punto");
+        } else if (w === "draw" || !w) {
+          toast.info("Tablas");
+        } else {
+          toast.info("Derrota");
+        }
+      }
+    }
+  };
+
+  useEffect(() => () => stopSync(), []);
+
+  // timeout loop
+  useEffect(() => {
+    if (!clock || gameStatus !== "playing" || winner) return;
+    if (!roomIdRef.current) return;
+
+    const interval = setInterval(async () => {
+      if (!roomIdRef.current) return;
+      if (timeoutDeclaredRef.current) return;
+
+      const display = getDisplayedMs(clock, currentTurn, Date.now());
+      const ms = currentTurn === "white" ? display.white : display.black;
+
+      if (ms !== null && ms <= 0) {
+        timeoutDeclaredRef.current = true;
+
+        const winnerColor = currentTurn === "white" ? "black" : "white";
+        const winnerEmail = winnerColor === "white" ? hostEmailRef.current : guestEmailRef.current;
+        if (!winnerEmail) return;
+
+        didAwardRef.current = false;
+
+        const meta = { ...(metaRef.current || {}) };
+        if (meta.clock) {
+          meta.clock = { ...meta.clock, whiteMs: Math.max(0, display.white), blackMs: Math.max(0, display.black), lastTickAt: nowISO() };
+        }
+
+        try {
+          await base44.entities.ChessRoom.update(roomIdRef.current, {
+            status: "finished",
+            winner: winnerEmail,
+            board_state: packBoardState(board, meta),
+          });
+        } catch {}
+      }
+    }, 400);
+
+    return () => clearInterval(interval);
+  }, [clock, gameStatus, winner, currentTurn, board]);
+
+  const clearOpponentDrawOfferIfAny = () => {
+    const meta = { ...(metaRef.current || {}) };
+    if (meta.drawOfferBy && meta.drawOfferBy !== user?.email) {
+      meta.drawOfferBy = null;
+      meta.drawOfferAt = null;
+      metaRef.current = meta;
+      return meta;
+    }
+    return null;
+  };
+
+  const handleSquareClick = async (row, col) => {
+    if (gameStatus !== "playing") return;
+    if (currentTurn !== playerColor) return;
+    if (!roomIdRef.current) return;
+
+    if (selectedSquare) {
+      const isValidMove = validMoves.some((m) => m.row === row && m.col === col);
+
+      if (isValidMove) {
+        const newBoard = board.map((r) => [...r]);
+        const piece = newBoard[selectedSquare.row][selectedSquare.col];
+        const capturedPiece = newBoard[row][col];
+
+        let nextMeta = { ...(metaRef.current || {}) };
+        const maybeNewMeta = clearOpponentDrawOfferIfAny();
+        if (maybeNewMeta) nextMeta = { ...maybeNewMeta };
+
+        // ⏱️ aplica reloj
+        if (nextMeta.clock && nextMeta.clock.lastTickAt) {
+          const { clock: updatedClock, timeoutWinner } = applyClockOnMove(nextMeta.clock, currentTurn, Date.now());
+          nextMeta.clock = updatedClock;
+
+          if (timeoutWinner) {
+            const winnerEmail = timeoutWinner === "white" ? hostEmailRef.current : guestEmailRef.current;
+            if (winnerEmail) {
+              didAwardRef.current = false;
+              await base44.entities.ChessRoom.update(roomIdRef.current, {
+                status: "finished",
+                winner: winnerEmail,
+                board_state: packBoardState(board, nextMeta),
+              });
+            }
+            setSelectedSquare(null);
+            setValidMoves([]);
+            return;
+          }
+        }
+
+        newBoard[row][col] = piece;
+        newBoard[selectedSquare.row][selectedSquare.col] = null;
+
+        const nextTurn = currentTurn === "white" ? "black" : "white";
+        
+        // Agregar movimiento al historial
+        const pieceSymbol = getPieceType(piece);
+        const fromSquare = `${FILES[selectedSquare.col]}${8 - selectedSquare.row}`;
+        const toSquare = `${FILES[col]}${8 - row}`;
+        const moveNotation = `${pieceSymbol}${fromSquare}-${toSquare}`;
+        const newHistory = [...moveHistory, {
+          move: moveNotation,
+          player: currentTurn === "white" ? "Blancas" : "Negras"
+        }];
+        setMoveHistory(newHistory);
+        if (onMoveHistoryChange) {
+          onMoveHistoryChange(newHistory);
+        }
+
+        try {
+          if (capturedPiece && getPieceType(capturedPiece) === "K") {
+            didAwardRef.current = false;
+            await base44.entities.ChessRoom.update(roomIdRef.current, {
+              board_state: packBoardState(newBoard, nextMeta),
+              status: "finished",
+              winner: user.email,
+            });
+          } else {
+            await base44.entities.ChessRoom.update(roomIdRef.current, {
+              board_state: packBoardState(newBoard, nextMeta),
+              current_turn: nextTurn,
+            });
+          }
+
+          setBoard(newBoard);
+          setCurrentTurn(nextTurn);
+          setClock(nextMeta.clock || null);
+        } catch (e) {
+          console.error(e);
+        }
+
+        setSelectedSquare(null);
+        setValidMoves([]);
+      } else {
+        const clickedPiece = board[row][col];
+        if (clickedPiece && getPieceColor(clickedPiece) === playerColor) {
+          setSelectedSquare({ row, col });
+          setValidMoves(calculateValidMoves(board, row, col));
+        } else {
+          setSelectedSquare(null);
+          setValidMoves([]);
+        }
+      }
+    } else {
+      const piece = board[row][col];
+      if (piece && getPieceColor(piece) === playerColor) {
+        setSelectedSquare({ row, col });
+        setValidMoves(calculateValidMoves(board, row, col));
+      }
+    }
+  };
+
+  const handleCreateRoom = async () => {
+    if (!user) return;
+    setLoading(true);
+    setError("");
+
+    try {
+      const code = Math.random().toString(36).substring(2, 8).toUpperCase();
+      const minutes = TIME_LIMITS.find((t) => t.key === timeKey)?.minutes ?? 0;
+
+      const meta = {
+        drawOfferBy: null,
+        drawOfferAt: null,
+        clock: initClockFromMinutes(minutes),
+      };
+
+      const room = await base44.entities.ChessRoom.create({
+        room_code: code,
+        host_email: user.email,
+        host_name: user.full_name || user.email.split("@")[0],
+        status: "waiting",
+        board_state: packBoardState(initBoard(), meta),
+        current_turn: "white",
+      });
+
+      roomIdRef.current = room.id;
+      lastUpdatedRef.current = room.updated_date;
+
+      hostEmailRef.current = user.email;
+      guestEmailRef.current = null;
+
+      didAwardRef.current = false;
+      timeoutDeclaredRef.current = false;
+      clockStartGuardRef.current = false;
+
+      metaRef.current = meta;
+      lastOfferSeenRef.current = null;
+
+      setRoomCode(code);
+      setPlayerColor("white");
+      setScreen("playing");
+      setGameStatus("waiting");
+      setWinner(null);
+      setDrawOfferBy(null);
+      setClock(meta.clock);
+
+      startSync();
+    } catch (e) {
+      console.error(e);
+      setError("Error al crear sala");
+    }
+
+    setLoading(false);
+  };
+
+  const handleJoinRoom = async () => {
+    if (!user || !joinCode.trim()) return;
+    setLoading(true);
+    setError("");
+
+    try {
+      const rooms = await base44.entities.ChessRoom.filter({ room_code: joinCode.toUpperCase(), status: "waiting" });
+      if (rooms.length === 0) {
+        setError("Sala no encontrada o ya empezada");
+        setLoading(false);
+        return;
+      }
+
+      const room = rooms[0];
+      const updatedRoom = await base44.entities.ChessRoom.update(room.id, {
+        guest_email: user.email,
+        guest_name: user.full_name || user.email.split("@")[0],
+        status: "playing",
+      });
+
+      roomIdRef.current = room.id;
+      lastUpdatedRef.current = updatedRoom.updated_date;
+
+      hostEmailRef.current = room.host_email;
+      guestEmailRef.current = user.email;
+
+      didAwardRef.current = false;
+      timeoutDeclaredRef.current = false;
+      clockStartGuardRef.current = false;
+      lastOfferSeenRef.current = null;
+
+      setRoomCode(joinCode.toUpperCase());
+      setPlayerColor("black");
+      setOpponentName(room.host_name || "Rival");
+      setGameStatus("playing");
+      setScreen("playing");
+      setWinner(null);
+
+      const { board: b, meta } = safeParseBoardState(room.board_state);
+      setBoard(b);
+      metaRef.current = meta || {};
+      setDrawOfferBy(meta?.drawOfferBy || null);
+      setClock(meta?.clock || null);
+      setCurrentTurn(room.current_turn || "white");
+
+      startSync();
+    } catch (e) {
+      console.error(e);
+      setError("Error al unirse a la sala");
+    }
+
+    setLoading(false);
+  };
+
+  const handleOfferDraw = async () => {
+    if (!user || gameStatus !== "playing" || !roomIdRef.current) return;
+
+    const meta = { ...(metaRef.current || {}) };
+
+    if (meta.drawOfferBy) {
+      if (meta.drawOfferBy === user.email) {
+        meta.drawOfferBy = null;
+        meta.drawOfferAt = null;
+        metaRef.current = meta;
+
+        await base44.entities.ChessRoom.update(roomIdRef.current, { board_state: packBoardState(board, meta) });
+        toast.message("Oferta de tablas cancelada");
+      } else {
+        setIncomingDrawOpen(true);
+      }
+      return;
+    }
+
+    meta.drawOfferBy = user.email;
+    meta.drawOfferAt = nowISO();
+    metaRef.current = meta;
+
+    await base44.entities.ChessRoom.update(roomIdRef.current, { board_state: packBoardState(board, meta) });
+    toast.message("Tablas ofrecidas");
+  };
+
+  const handleAcceptDraw = async () => {
+    if (!roomIdRef.current) return;
+
+    const meta = { ...(metaRef.current || {}) };
+    meta.drawOfferBy = null;
+    meta.drawOfferAt = null;
+    metaRef.current = meta;
+
+    didAwardRef.current = false;
+
+    await base44.entities.ChessRoom.update(roomIdRef.current, {
+      board_state: packBoardState(board, meta),
+      status: "finished",
+      winner: "draw",
+    });
+
+    setIncomingDrawOpen(false);
+  };
+
+  const handleDeclineDraw = async () => {
+    if (!roomIdRef.current) return;
+
+    const meta = { ...(metaRef.current || {}) };
+    meta.drawOfferBy = null;
+    meta.drawOfferAt = null;
+    metaRef.current = meta;
+
+    await base44.entities.ChessRoom.update(roomIdRef.current, { board_state: packBoardState(board, meta) });
+
+    setIncomingDrawOpen(false);
+    toast.message("Tablas rechazadas");
+  };
+
+  const handleConfirmLeave = async () => {
+    setLeaveOpen(false);
+
+    try {
+      if (!roomIdRef.current) {
+        resetLocal();
+        return;
+      }
+
+      if (gameStatus === "waiting") {
+        await base44.entities.ChessRoom.delete(roomIdRef.current);
+        toast.message("Sala cerrada");
+        resetLocal();
+        return;
+      }
+
+      const hostEmail = hostEmailRef.current;
+      const guestEmail = guestEmailRef.current;
+      const opponentEmail = user?.email === hostEmail ? guestEmail : hostEmail;
+
+      if (opponentEmail) {
+        didAwardRef.current = false;
+        await base44.entities.ChessRoom.update(roomIdRef.current, {
+          status: "finished",
+          winner: opponentEmail,
+          board_state: packBoardState(board, { ...(metaRef.current || {}), drawOfferBy: null, drawOfferAt: null }),
+        });
+      } else {
+        await base44.entities.ChessRoom.delete(roomIdRef.current);
+      }
+
+      resetLocal();
+    } catch (e) {
+      console.error(e);
+      resetLocal();
+    }
+  };
+
+  const resetLocal = () => {
+    stopSync();
+    setScreen("lobby");
+    setRoomCode("");
+    setJoinCode("");
+    setBoard(initBoard());
+    setPlayerColor(null);
+    setCurrentTurn("white");
+    setSelectedSquare(null);
+    setValidMoves([]);
+    setGameStatus("waiting");
+    setWinner(null);
+    setDrawOfferBy(null);
+    setClock(null);
+    setOpponentName("Rival");
+    setMoveHistory([]);
+    if (onMoveHistoryChange) {
+      onMoveHistoryChange([]);
+    }
+
+    roomIdRef.current = null;
+    lastUpdatedRef.current = null;
+    metaRef.current = {};
+    didAwardRef.current = false;
+    lastOfferSeenRef.current = null;
+
+    hostEmailRef.current = null;
+    guestEmailRef.current = null;
+    clockStartGuardRef.current = false;
+    timeoutDeclaredRef.current = false;
+  };
+
+  // -------- UI --------
+
+  if (screen === "lobby") {
+    return (
+      <OnlineGameLobby
+        title="♔ Ajedrez Online ♚"
+        description="Juega en tiempo real con otro jugador"
+        timeLimits={TIME_LIMITS}
+        selectedTimeKey={timeKey}
+        onTimeChange={setTimeKey}
+        onCreateRoom={handleCreateRoom}
+        onJoinRoom={handleJoinRoom}
+        loading={loading}
+        error={error}
+        joinCode={joinCode}
+        onJoinCodeChange={setJoinCode}
+      />
+    );
+  }
+
+  const flip = playerColor === "black";
+  const canInteract = gameStatus === "playing" && currentTurn === playerColor;
+
+  const display = getDisplayedMs(clock, currentTurn, nowMs);
+  const myMs = playerColor === "white" ? display.white : display.black;
+  const oppMs = playerColor === "white" ? display.black : display.white;
+
+  const finishedLabel =
+    winner === "draw" ? "Tablas" : winner === user?.email ? "¡Victoria!" : "Derrota";
+
+  const drawPill =
+    drawOfferBy && gameStatus === "playing"
+      ? drawOfferBy === user?.email
+        ? "Has ofrecido tablas"
+        : "Tu rival ofrece tablas"
+      : null;
+
+  const isTopPlayerActive = flip ? currentTurn === "white" : currentTurn === "black";
+  const isBottomPlayerActive = flip ? currentTurn === "black" : currentTurn === "white";
+
+  return (
+    <div className="flex flex-col items-center gap-3 p-2 sm:p-4 w-full">
+      <OnlineGamePlayerZone
+        topPlayer={{
+          label: flip ? "Blancas" : "Negras",
+          name: opponentName,
+          time: formatMs(clock ? Math.max(0, oppMs) : null)
+        }}
+        bottomPlayer={{
+          label: flip ? "Negras" : "Blancas",
+          name: user?.full_name || "Tú",
+          time: formatMs(clock ? Math.max(0, myMs) : null)
+        }}
+        isTopPlayerActive={isTopPlayerActive}
+        isBottomPlayerActive={isBottomPlayerActive}
+        onSettingsClick={() => setSettingsOpen(true)}
+        centerContent={
+          gameStatus === "waiting" && roomCode ? (
+            <div className="bg-purple-500/10 border border-purple-500/30 rounded-lg px-6 py-3">
+              <p className="text-sm text-gray-300 mb-2">Comparte el código con tu rival:</p>
+              <div className="flex items-center gap-2">
+                <div className="text-3xl font-bold tracking-widest text-cyan-400">{roomCode}</div>
+                <Button size="icon" variant="ghost" onClick={() => { navigator.clipboard.writeText(roomCode); toast.success("Código copiado"); }} className="text-gray-400 hover:text-white">
+                  <Copy className="w-4 h-4" />
+                </Button>
+              </div>
+            </div>
+          ) : null
+        }
+      />
+
+      {gameStatus === "waiting" && <div className="text-sm text-gray-400">Esperando rival...</div>}
+
+      {drawPill && (
+        <div className="text-xs text-gray-300 bg-white/5 border border-white/10 rounded-full px-4 py-1">
+          {drawPill}
+        </div>
+      )}
+
+      {gameStatus === "finished" && (
+        <div className="bg-white/10 rounded-lg px-6 py-3 flex items-center gap-3">
+          <Trophy className="w-6 h-6 text-yellow-500" />
+          <span className="font-semibold">{finishedLabel}</span>
+        </div>
+      )}
+
+      <div className="grid grid-cols-8 border-2 border-white/10 rounded-lg overflow-hidden shadow-2xl" style={{ width: "min(480px, 90vw)", aspectRatio: "1/1" }}>
+        {Array.from({ length: 8 }).map((_, ri) => {
+          const row = flip ? 7 - ri : ri;
+          return Array.from({ length: 8 }).map((_, ci) => {
+            const col = flip ? 7 - ci : ci;
+            const piece = board[row][col];
+
+            const isLight = (row + col) % 2 === 0;
+            const isSelected = selectedSquare?.row === row && selectedSquare?.col === col;
+            const isValidMove = validMoves.some((m) => m.row === row && m.col === col);
+
+            const bg = isLight ? theme.light : theme.dark;
+            const labelColor = isLight ? theme.labelLight : theme.labelDark;
+
+            return (
+              <div
+                key={`${row}-${col}`}
+                onClick={() => (canInteract ? handleSquareClick(row, col) : null)}
+                className={`aspect-square flex items-center justify-center relative overflow-hidden ${canInteract ? "cursor-pointer hover:brightness-110" : "cursor-default"} ${isSelected ? "ring-4 ring-yellow-400 ring-inset" : ""}`}
+                style={{ backgroundColor: bg }}
+              >
+                {piece && renderPieceNode(piece, pieceSet)}
+
+                {isValidMove && (
+                  <div className="absolute inset-0 flex items-center justify-center pointer-events-none">
+                    {piece ? <div className="w-[85%] h-[85%] rounded-full border-4 border-black/25" /> : <div className="w-4 h-4 rounded-full bg-black/25" />}
+                  </div>
+                )}
+
+                {((!flip && ci === 0) || (flip && ci === 7)) && (
+                  <span className="absolute top-1 left-1 text-xs font-bold" style={{ color: labelColor, opacity: 0.8 }}>
+                    {8 - row}
+                  </span>
+                )}
+                {((!flip && ri === 7) || (flip && ri === 0)) && (
+                  <span className="absolute bottom-1 right-1 text-xs font-bold" style={{ color: labelColor, opacity: 0.8 }}>
+                    {FILES[col]}
+                  </span>
+                )}
+              </div>
+            );
+          });
+        })}
+      </div>
+
+      <div className="flex gap-3">
+        {gameStatus === "playing" && (
+          <Button onClick={handleOfferDraw} variant="outline" className="border-white/10 text-gray-200">
+            <Scale className="w-4 h-4 mr-2" />
+            {drawOfferBy === user?.email ? "Cancelar tablas" : "Ofrecer tablas"}
+          </Button>
+        )}
+
+        <Button onClick={() => setLeaveOpen(true)} variant="secondary">
+          <LogOut className="w-4 h-4 mr-2" />
+          {gameStatus === "finished" ? "Volver" : "Salir"}
+        </Button>
+      </div>
+
+      {/* Tablas */}
+      <AlertDialog open={incomingDrawOpen} onOpenChange={setIncomingDrawOpen}>
+        <AlertDialogContent className="bg-zinc-950 border-white/10 text-white">
+          <AlertDialogHeader>
+            <AlertDialogTitle>Oferta de tablas</AlertDialogTitle>
+            <AlertDialogDescription className="text-gray-400">
+              Si aceptas, la partida termina sin ganador y nadie suma puntos.
+            </AlertDialogDescription>
+          </AlertDialogHeader>
+          <AlertDialogFooter>
+            <AlertDialogCancel className="bg-white/5 border-white/10 text-white hover:bg-white/10" onClick={handleDeclineDraw}>
+              Rechazar
+            </AlertDialogCancel>
+            <AlertDialogAction className="bg-gradient-to-r from-purple-600 to-cyan-500 hover:opacity-90" onClick={handleAcceptDraw}>
+              Aceptar
+            </AlertDialogAction>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
+
+      {/* Salir */}
+      <AlertDialog open={leaveOpen} onOpenChange={setLeaveOpen}>
+        <AlertDialogContent className="bg-zinc-950 border-white/10 text-white">
+          <AlertDialogHeader>
+            <AlertDialogTitle>¿Salir de la partida?</AlertDialogTitle>
+            <AlertDialogDescription className="text-gray-400">
+              {gameStatus === "playing" ? "Si sales ahora, se considerará abandono y tu rival ganará (+1 punto)." : "Volverás al lobby."}
+            </AlertDialogDescription>
+          </AlertDialogHeader>
+          <AlertDialogFooter>
+            <AlertDialogCancel className="bg-white/5 border-white/10 text-white hover:bg-white/10">
+              Cancelar
+            </AlertDialogCancel>
+            <AlertDialogAction className="bg-gradient-to-r from-purple-600 to-cyan-500 hover:opacity-90" onClick={handleConfirmLeave}>
+              Salir
+            </AlertDialogAction>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
+
+      {/* Personalizar: agrandado + grid sin scrollbar horizontal */}
+      <Dialog open={settingsOpen} onOpenChange={setSettingsOpen}>
+        <DialogContent className="bg-zinc-950 border-white/10 text-white w-[980px] max-w-[95vw]">
+          <DialogHeader>
+            <DialogTitle>Personalizar</DialogTitle>
+          </DialogHeader>
+
+          <Tabs defaultValue="piezas" className="w-full">
+            <TabsList className="bg-white/5 border border-white/10">
+              <TabsTrigger value="tableros">Tableros</TabsTrigger>
+              <TabsTrigger value="piezas">Piezas</TabsTrigger>
+            </TabsList>
+
+            <TabsContent value="tableros" className="mt-4">
+              <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
+                {Object.entries(BOARD_THEMES).map(([k, v]) => {
+                  const selected = k === boardTheme;
+                  return (
+                    <button
+                      key={k}
+                      type="button"
+                      onClick={() => setBoardTheme(k)}
+                      className={`relative rounded-lg border p-3 bg-white/5 hover:bg-white/10 transition
+                        ${selected ? "border-green-500/60 ring-2 ring-green-500/30" : "border-white/10"}`}
+                    >
+                      <div className="flex items-center justify-between">
+                        <span className="text-sm">{v.label}</span>
+                        <div className="flex gap-1">
+                          <span className="w-4 h-4 rounded" style={{ backgroundColor: v.light }} />
+                          <span className="w-4 h-4 rounded" style={{ backgroundColor: v.dark }} />
+                        </div>
+                      </div>
+
+                      {selected && (
+                        <div className="absolute top-2 right-2 w-7 h-7 rounded-full bg-green-500/25 border border-green-500/60 flex items-center justify-center">
+                          <Check className="w-4 h-4 text-green-400" />
+                        </div>
+                      )}
+                    </button>
+                  );
+                })}
+              </div>
+            </TabsContent>
+
+            <TabsContent value="piezas" className="mt-4">
+              <div className="grid grid-cols-1 lg:grid-cols-[1fr_340px] gap-4">
+                {/* izquierda: grid grande */}
+                <div className="max-h-[430px] overflow-y-auto overflow-x-hidden pr-2">
+                  <div className="grid [grid-template-columns:repeat(auto-fill,minmax(76px,1fr))] gap-2">
+                    {PIECE_SETS.map((s) => {
+                      const selected = s.key === pieceSet;
+
+                      // preview mini: SIEMPRE blancas para evitar confusión visual en thumbnails
+                      const kUrl = getPieceDataUri(s.key, "wK");
+                      const qUrl = getPieceDataUri(s.key, "wQ");
+                      const nUrl = getPieceDataUri(s.key, "wN");
+
+                      return (
+                        <button
+                          key={s.key}
+                          type="button"
+                          onClick={() => setPieceSet(s.key)}
+                          className={`relative rounded-lg border p-1.5 bg-white/5 hover:bg-white/10 transition min-h-[52px] min-w-[76px] overflow-hidden
+                            ${selected ? "border-green-500/60 ring-2 ring-green-500/30" : "border-white/10"}`}
+                          title={s.label}
+                        >
+                          <div className="flex items-center justify-center gap-0.5">
+                            {kUrl ? <img className="w-6 h-6" src={kUrl} alt="" /> : <span className="text-xl">♔</span>}
+                            {qUrl ? <img className="w-6 h-6" src={qUrl} alt="" /> : <span className="text-xl">♕</span>}
+                            {nUrl ? <img className="w-6 h-6" src={nUrl} alt="" /> : <span className="text-xl">♘</span>}
+                          </div>
+
+                          {selected && (
+                            <div className="absolute inset-0 flex items-center justify-center">
+                              <div className="w-10 h-10 rounded-full bg-green-500/25 border border-green-500/60 flex items-center justify-center">
+                                <Check className="w-5 h-5 text-green-400" />
+                              </div>
+                            </div>
+                          )}
+                        </button>
+                      );
+                    })}
+                  </div>
+                </div>
+
+                {/* derecha: preview más claro (blancas + negras) */}
+                <div className="rounded-lg border border-white/10 bg-white/5 p-4">
+                  <p className="text-xs text-gray-400 mb-2">Vista previa</p>
+                  <div className="grid grid-cols-3 gap-2 place-items-center">
+                    <div className="w-20 h-20 flex items-center justify-center">{renderPieceNode("wK", pieceSet)}</div>
+                    <div className="w-20 h-20 flex items-center justify-center">{renderPieceNode("wQ", pieceSet)}</div>
+                    <div className="w-20 h-20 flex items-center justify-center">{renderPieceNode("wN", pieceSet)}</div>
+                    <div className="w-20 h-20 flex items-center justify-center">{renderPieceNode("bK", pieceSet)}</div>
+                    <div className="w-20 h-20 flex items-center justify-center">{renderPieceNode("bQ", pieceSet)}</div>
+                    <div className="w-20 h-20 flex items-center justify-center">{renderPieceNode("bN", pieceSet)}</div>
+                  </div>
+                  <p className="text-[11px] text-gray-500 mt-3">
+                    Consejo: si quieres que se vean bien en cualquier tablero, usa “Staunton 3D” o “Graphite”.
+                  </p>
+                </div>
+              </div>
+            </TabsContent>
+          </Tabs>
+
+          <DialogFooter>
+            <Button variant="ghost" className="text-white hover:bg-white/10" onClick={() => setSettingsOpen(false)}>
+              Cerrar
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
+    </div>
+  );
+}

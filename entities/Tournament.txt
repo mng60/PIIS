@@ -1,0 +1,59 @@
+{
+  "name": "Tournament",
+  "type": "object",
+  "properties": {
+    "title": {
+      "type": "string",
+      "description": "T\u00edtulo del torneo"
+    },
+    "description": {
+      "type": "string",
+      "description": "Descripci\u00f3n del torneo"
+    },
+    "game_id": {
+      "type": "string",
+      "description": "ID del juego del torneo"
+    },
+    "start_date": {
+      "type": "string",
+      "description": "Fecha de inicio (ISO)"
+    },
+    "end_date": {
+      "type": "string",
+      "description": "Fecha de finalizaci\u00f3n (ISO)"
+    },
+    "prize": {
+      "type": "string",
+      "description": "Premio del torneo"
+    },
+    "thumbnail": {
+      "type": "string",
+      "description": "Imagen del torneo"
+    },
+    "max_participants": {
+      "type": "number",
+      "description": "M\u00e1ximo de participantes"
+    },
+    "status": {
+      "type": "string",
+      "enum": [
+        "upcoming",
+        "active",
+        "finished"
+      ],
+      "default": "upcoming",
+      "description": "Estado del torneo"
+    },
+    "is_active": {
+      "type": "boolean",
+      "default": true,
+      "description": "Si el torneo est\u00e1 visible"
+    }
+  },
+  "required": [
+    "title",
+    "game_id",
+    "start_date",
+    "end_date"
+  ]
+}

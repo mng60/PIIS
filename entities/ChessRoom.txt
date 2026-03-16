@@ -1,0 +1,60 @@
+{
+  "name": "ChessRoom",
+  "type": "object",
+  "properties": {
+    "room_code": {
+      "type": "string",
+      "description": "C\u00f3digo \u00fanico de 6 caracteres para la sala"
+    },
+    "host_email": {
+      "type": "string",
+      "description": "Email del host (jugador blanco)"
+    },
+    "host_name": {
+      "type": "string",
+      "description": "Nombre del host"
+    },
+    "guest_email": {
+      "type": "string",
+      "description": "Email del invitado (jugador negro)"
+    },
+    "guest_name": {
+      "type": "string",
+      "description": "Nombre del invitado"
+    },
+    "status": {
+      "type": "string",
+      "enum": [
+        "waiting",
+        "playing",
+        "finished"
+      ],
+      "default": "waiting",
+      "description": "Estado de la sala"
+    },
+    "current_turn": {
+      "type": "string",
+      "enum": [
+        "white",
+        "black"
+      ],
+      "default": "white",
+      "description": "Turno actual"
+    },
+    "board_state": {
+      "type": "string",
+      "description": "Estado del tablero en formato JSON (matriz 8x8)"
+    },
+    "winner": {
+      "type": "string",
+      "description": "Email del ganador"
+    }
+  },
+  "required": [
+    "room_code",
+    "host_email",
+    "host_name",
+    "status",
+    "board_state"
+  ]
+}

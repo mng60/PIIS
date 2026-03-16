@@ -1,0 +1,92 @@
+{
+  "name": "Game",
+  "type": "object",
+  "properties": {
+    "title": {
+      "type": "string",
+      "description": "T\u00edtulo del juego"
+    },
+    "description": {
+      "type": "string",
+      "description": "Descripci\u00f3n corta del juego"
+    },
+    "full_description": {
+      "type": "string",
+      "description": "Descripci\u00f3n completa del juego"
+    },
+    "category": {
+      "type": "string",
+      "enum": [
+        "accion",
+        "puzzle",
+        "arcade",
+        "estrategia"
+      ],
+      "description": "Categor\u00eda del juego"
+    },
+    "thumbnail": {
+      "type": "string",
+      "description": "URL de la miniatura del juego"
+    },
+    "game_type": {
+      "type": "string",
+      "enum": [
+        "html5",
+        "lua",
+        "builtin"
+      ],
+      "description": "Tipo de juego"
+    },
+    "game_url": {
+      "type": "string",
+      "description": "URL de los archivos del juego"
+    },
+    "game_code": {
+      "type": "string",
+      "description": "C\u00f3digo del juego para juegos built-in"
+    },
+    "plays_count": {
+      "type": "number",
+      "default": 0,
+      "description": "N\u00famero de partidas jugadas"
+    },
+    "rating_sum": {
+      "type": "number",
+      "default": 0,
+      "description": "Suma de todas las valoraciones"
+    },
+    "rating_count": {
+      "type": "number",
+      "default": 0,
+      "description": "N\u00famero de valoraciones"
+    },
+    "is_featured": {
+      "type": "boolean",
+      "default": false,
+      "description": "Juego destacado"
+    },
+    "is_active": {
+      "type": "boolean",
+      "default": true,
+      "description": "Juego activo/visible"
+    },
+    "is_adult": {
+      "type": "boolean",
+      "default": false,
+      "description": "Contenido solo para mayores de 18 a\u00f1os"
+    },
+    "publisher": {
+      "type": "string",
+      "description": "Nombre del publicador"
+    },
+    "html_content": {
+      "type": "string",
+      "description": "Contenido HTML completo del juego (para juegos html5)"
+    }
+  },
+  "required": [
+    "title",
+    "category",
+    "game_type"
+  ]
+}

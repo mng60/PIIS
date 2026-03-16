@@ -1,0 +1,33 @@
+{
+  "name": "ChatMessage",
+  "type": "object",
+  "properties": {
+    "game_id": {
+      "type": "string",
+      "description": "ID del juego"
+    },
+    "session_id": {
+      "type": "string",
+      "description": "ID de la partida/sala (para separar chats por partida y dejar el chat vac\u00edo en la siguiente)"
+    },
+    "user_email": {
+      "type": "string",
+      "description": "Email del usuario"
+    },
+    "user_name": {
+      "type": "string",
+      "description": "Nombre del usuario"
+    },
+    "message": {
+      "type": "string",
+      "maxLength": 300,
+      "description": "Mensaje del chat"
+    }
+  },
+  "required": [
+    "game_id",
+    "session_id",
+    "user_email",
+    "message"
+  ]
+}

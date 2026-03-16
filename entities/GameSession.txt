@@ -1,0 +1,85 @@
+{
+  "name": "GameSession",
+  "type": "object",
+  "properties": {
+    "room_code": {
+      "type": "string",
+      "description": "C\u00f3digo \u00fanico de 6 caracteres para la sala"
+    },
+    "game_id": {
+      "type": "string",
+      "description": "ID del juego"
+    },
+    "white_email": {
+      "type": "string",
+      "description": "Email del jugador blanco"
+    },
+    "black_email": {
+      "type": "string",
+      "description": "Email del jugador negro"
+    },
+    "white_name": {
+      "type": "string",
+      "description": "Nombre del jugador blanco"
+    },
+    "black_name": {
+      "type": "string",
+      "description": "Nombre del jugador negro"
+    },
+    "moves": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "properties": {
+          "from": {
+            "type": "object",
+            "properties": {
+              "row": {
+                "type": "number"
+              },
+              "col": {
+                "type": "number"
+              }
+            }
+          },
+          "to": {
+            "type": "object",
+            "properties": {
+              "row": {
+                "type": "number"
+              },
+              "col": {
+                "type": "number"
+              }
+            }
+          },
+          "promo": {
+            "type": "string"
+          },
+          "player": {
+            "type": "string"
+          }
+        }
+      },
+      "default": [],
+      "description": "Array de movimientos del juego"
+    },
+    "status": {
+      "type": "string",
+      "enum": [
+        "waiting",
+        "active",
+        "finished"
+      ],
+      "default": "waiting",
+      "description": "Estado de la sesi\u00f3n"
+    }
+  },
+  "required": [
+    "room_code",
+    "game_id",
+    "white_email",
+    "white_name",
+    "status"
+  ]
+}
