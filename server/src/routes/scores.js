@@ -6,6 +6,7 @@ const router = Router();
 const prisma = new PrismaClient();
 
 // GET /api/scores?game_id=xxx&limit=10
+// Devuelve la MEJOR puntuación de cada usuario (sin duplicados en el ranking)
 router.get('/', async (req, res) => {
   const { game_id, user_email, limit = '20' } = req.query;
   const scores = await prisma.score.findMany({
@@ -14,6 +15,8 @@ router.get('/', async (req, res) => {
       ...(user_email && { user_email }),
     },
     orderBy: { score: 'desc' },
+    // distinct + orderBy desc → primera aparición de cada usuario = su mejor score
+    ...(game_id && { distinct: ['user_email'] }),
     take: parseInt(limit),
   });
   res.json(scores);

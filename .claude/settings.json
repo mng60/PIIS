@@ -2,7 +2,12 @@
   "permissions": {
     "allow": [
       "Bash(npx prisma:*)",
-      "Bash(node prisma/seed.js)"
+      "Bash(node prisma/seed.js)",
+      "Bash(node -e \"import\\(''phaser''\\).then\\(p => console.log\\(''Phaser version:'', p.default.VERSION\\)\\).catch\\(e => console.error\\(e\\)\\)\")",
+      "Bash(node -e \"const p = require\\(''./node_modules/phaser/package.json''\\); console.log\\(p.version\\)\")",
+      "WebSearch",
+      "Bash(npm uninstall:*)",
+      "Bash(npx vite:*)"
     ]
   }
 }

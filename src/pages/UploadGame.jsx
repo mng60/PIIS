@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from "react";
 import { api } from "@/api/client";
 import { useAuth } from "@/lib/AuthContext";
-import { Link, useNavigate } from "react-router-dom";
+import { Link } from "react-router-dom";
 import { createPageUrl } from "@/utils";
 import {
   Loader2,
@@ -39,6 +39,7 @@ export default function UploadGame() {
     thumbnail: "",
     game_url: "",
     is_adult: false,
+    is_multiplayer: false,
   });
 
   const urlParams = new URLSearchParams(window.location.search);
@@ -57,6 +58,7 @@ export default function UploadGame() {
           thumbnail: game.thumbnail || "",
           game_url: game.game_url || "",
           is_adult: game.is_adult || false,
+          is_multiplayer: game.is_multiplayer || false,
         });
       }).catch(() => toast.error("No se pudo cargar el juego"));
     }
@@ -227,6 +229,20 @@ export default function UploadGame() {
                   </p>
                 </div>
               )}
+
+              {/* Multiplayer */}
+              <div className="flex items-center gap-3">
+                <input
+                  type="checkbox"
+                  id="is_multiplayer"
+                  checked={formData.is_multiplayer}
+                  onChange={(e) => setFormData({ ...formData, is_multiplayer: e.target.checked })}
+                  className="w-4 h-4 accent-purple-500"
+                />
+                <Label htmlFor="is_multiplayer" className="text-white text-sm cursor-pointer">
+                  Juego multijugador (activa sala, chat y registro de movimientos)
+                </Label>
+              </div>
 
               {/* Adult content */}
               <div className="flex items-center gap-3">
