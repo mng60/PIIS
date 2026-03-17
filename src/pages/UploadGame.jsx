@@ -47,7 +47,7 @@ export default function UploadGame() {
 
   // Load game data if editing
   useEffect(() => {
-    if (editId && user?.role === "admin") {
+    if (editId && (user?.role === "admin" || user?.role === "empresa")) {
       getGameById(editId).then((game) => {
         setFormData({
           title: game.title || "",
@@ -80,7 +80,7 @@ export default function UploadGame() {
         await createGame(formData);
         toast.success("Juego publicado");
       }
-      navigate("/admin");
+      navigate(user.role === "admin" ? "/admin" : "/company-dashboard");
     } catch {
       toast.error("Error al guardar el juego");
     }
@@ -95,13 +95,13 @@ export default function UploadGame() {
     );
   }
 
-  if (!user || user.role !== "admin") {
+  if (!user || (user.role !== "admin" && user.role !== "empresa")) {
     return (
       <div className="max-w-7xl mx-auto px-4 py-16 text-center">
         <Shield className="w-16 h-16 mx-auto mb-4 text-gray-600" />
         <h2 className="text-2xl font-bold text-white mb-2">Acceso Denegado</h2>
         <p className="text-gray-400 mb-6">
-          Solo los administradores pueden subir juegos
+          Solo los administradores y empresas pueden subir juegos
         </p>
         <Link to={"/"}>
           <Button className="bg-gradient-to-r from-purple-600 to-cyan-500">

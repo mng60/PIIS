@@ -199,7 +199,7 @@ export default function Layout({ children }) {
                 </Button>
               </div>
             ) : (
-              <Link to="/Login" className="hidden md:flex">
+              <Link to="/login" className="hidden md:flex">
                 <Button className="bg-gradient-to-r from-purple-600 to-cyan-500 hover:opacity-90 border-0">
                   Iniciar Sesión / Registrarse
                 </Button>
@@ -233,7 +233,7 @@ export default function Layout({ children }) {
                         </Button>
                       </div>
                     ) : (
-                      <Link to="/Login" onClick={() => setIsOpen(false)}>
+                      <Link to="/login" onClick={() => setIsOpen(false)}>
                         <Button className="w-full bg-gradient-to-r from-purple-600 to-cyan-500">
                           Iniciar Sesión / Registrarse
                         </Button>
