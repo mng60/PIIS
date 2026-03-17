@@ -92,9 +92,9 @@ PIIS/
 │   ├── hooks/
 │   │   ├── useGameDetail.js      # fetching de juego, scores, comentarios, favoritos
 │   │   ├── useSinglePlayerGame.js# ciclo idle→playing→gameover para juegos single
-│   │   ├── useTurnGameRelay.js   # BASE genérica para juegos por turnos con iframe
-│   │   ├── useChessGame.js       # wrapper de ajedrez sobre useTurnGameRelay
-│   │   └── useGameRoom.js        # sala React genérica (disponible, sin uso actual)
+│   │   ├── useTurnGameRelay.js   # BASE activa de multijugador: sincroniza iframe + /sessions
+│   │   ├── useChessGame.js       # capa específica de ajedrez sobre useTurnGameRelay
+│   │   └── useGameRoom.js        # alternativa React sin iframe (disponible, sin uso actual)
 │   ├── api/                     # Capa API por dominio (un archivo por endpoint)
 │   └── lib/                     # AuthContext, query-client, utilidades
 └── server/
@@ -132,7 +132,19 @@ Cada módulo agrupa las llamadas HTTP de un dominio. Las páginas y hooks import
 
 ## Hooks (`src/hooks/`)
 
-### `useGameDetail` — fetching de detalle de juego
+Los cinco hooks se dividen en tres roles:
+
+| Rol | Hook |
+|-----|------|
+| Datos del detalle de juego | `useGameDetail` |
+| Ciclo de vida single-player | `useSinglePlayerGame` |
+| **Multijugador activo** — sincronización iframe | `useTurnGameRelay` ← base |
+| **Multijugador activo** — protocolo de ajedrez | `useChessGame` ← capa sobre la base |
+| Multijugador alternativo sin iframe | `useGameRoom` *(sin uso actual)* |
+
+---
+
+### `useGameDetail` — fetching del detalle de juego
 
 Centraliza las 4 queries de React Query para una página de juego: datos del juego,
 marcadores, comentarios y favoritos. Expone además `toggleFavorite` e `invalidateGame`.
@@ -161,11 +173,10 @@ Usado en: `SnakeGame.jsx`. `PongGame.jsx` gestiona su propio estado con `useStat
 
 ---
 
-### `useTurnGameRelay` — base genérica para juegos por turnos con iframe
+### `useTurnGameRelay` — base activa de multijugador por turnos
 
-**Este es el hook base activo para juegos multijugador por turnos embebidos en iframe.**
-
-Gestiona el ciclo completo de sala vía `postMessage` + polling contra `/sessions`:
+**Es el hook que implementa el multijugador en el proyecto.** Gestiona el ciclo
+completo de sala vía `postMessage` + polling contra `/sessions`:
 
 | Mensaje entrante | Acción |
 |-----------------|--------|
@@ -173,8 +184,8 @@ Gestiona el ciclo completo de sala vía `postMessage` + polling contra `/session
 | `JOIN_ROOM` | Valida sala, une al guest, responde al iframe |
 | `[actionType]` | Persiste la acción en `game_state.actions` |
 
-El polling cada 1.5 s entrega al iframe las acciones del oponente que aún no ha recibido.
-Todo el comportamiento específico del juego se inyecta vía callbacks:
+El polling cada 1.5 s entrega al iframe las acciones del oponente que aún no ha
+recibido. El comportamiento específico de cada juego se inyecta vía callbacks:
 
 ```js
 useTurnGameRelay({
@@ -191,7 +202,7 @@ useTurnGameRelay({
 
 ---
 
-### `useChessGame` — configuración de ajedrez sobre el relay
+### `useChessGame` — capa específica de ajedrez sobre el relay
 
 Thin wrapper de `useTurnGameRelay` que fija el protocolo de mensajes para ajedrez
 embebido en iframe:
@@ -208,27 +219,26 @@ GameArea.jsx
               └── api/sessions.js  →  /sessions
 ```
 
-> **Nota:** el ajedrez integrado de PlayCraft (`ChessOnlineGame.jsx`, accesible por
-> `game_code === 'chess-online'`) es un componente React independiente que usa
-> `api/chess.js` → `/chess` directamente, sin pasar por este relay. Son dos
-> implementaciones distintas que coexisten.
+> **Nota:** `ChessOnlineGame.jsx` (accesible por `game_code === 'chess-online'`) es un
+> componente React independiente que usa `api/chess.js` → `/chess` directamente, sin
+> pasar por este relay. Son dos implementaciones distintas que coexisten.
 
 ---
 
-### `useGameRoom` — sala React genérica *(sin uso actual)*
+### `useGameRoom` — sala React sin iframe *(sin uso actual)*
 
-Infraestructura para futuros juegos multijugador implementados como componentes React
-propios (sin iframe). Expone el mismo ciclo lobby → espera → partida → finalización
-que `useTurnGameRelay`, pero mediante estado React en lugar de `postMessage`.
+Hook para juegos multijugador implementados como componentes React propios (sin
+iframe). Gestiona lobby → espera → partida → finalización usando `api/sessions.js`.
 
-**Ningún componente lo importa actualmente.**
+**Ningún componente lo importa actualmente.** Está disponible si en el futuro se
+implementa un juego de mesa como componente React propio en lugar de iframe.
 
 ---
 
-## Añadir un juego multijugador
+## Añadir un juego multijugador por turnos
 
-El camino activo es el iframe relay (`useTurnGameRelay`). Crea un hook específico
-que lo envuelva con el protocolo de mensajes de tu juego:
+El camino activo es el iframe relay. Crea un hook que envuelva `useTurnGameRelay`
+con el protocolo de mensajes de tu juego:
 
 ```js
 // src/hooks/useDominoGame.js
@@ -250,8 +260,8 @@ Llama al hook en `GameArea.jsx` igual que `useChessGame`. El iframe debe enviar
 `CREATE_ROOM` o `JOIN_ROOM` para arrancar la sala, y el `actionType` configurado
 para cada acción de juego.
 
-> Para juegos implementados como componentes React propios (sin iframe) existe
-> `useGameRoom`, pero actualmente no lo usa ningún componente.
+> Para juegos React sin iframe existe `useGameRoom`, pero no tiene ninguna
+> implementación activa en el proyecto.
 
 ---
 
