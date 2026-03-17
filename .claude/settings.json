@@ -7,7 +7,8 @@
       "Bash(node -e \"const p = require\\(''./node_modules/phaser/package.json''\\); console.log\\(p.version\\)\")",
       "WebSearch",
       "Bash(npm uninstall:*)",
-      "Bash(npx vite:*)"
+      "Bash(npx vite:*)",
+      "Bash(grep -r \"from ''''@/api/client''''\" src/ --include=\"*.jsx\" --include=\"*.js\")"
     ],
     "additionalDirectories": [
       "c:\\Users\\migue\\.claude\\projects\\c--Users-migue-Documents-4o-PIIS\\memory"

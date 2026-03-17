@@ -38,7 +38,7 @@ cd server && npm install
 VITE_API_URL="http://localhost:3001/api"
 ```
 
-**Backend** — `server/.env`:
+**Backend** — `server/.env` (no commitear, usa `server/.env.example` como plantilla):
 
 ```env
 DATABASE_URL="postgresql://TU_USUARIO:TU_PASSWORD@localhost:5432/playcraft"
@@ -83,11 +83,11 @@ PIIS/
 ├── src/
 │   ├── pages/                   # Páginas (coordinan datos + componentes)
 │   ├── components/
-│   │   ├── game-detail/         # Componentes específicos de GameDetail
-│   │   ├── games/               # Componentes de juego (GameCard, Leaderboard, etc.)
-│   │   ├── home/                # Secciones de la home
-│   │   ├── admin/               # Panel de administración
-│   │   ├── moderation/          # Reportes y moderación
+│   │   ├── game-detail/         # GameArea, GameHeader
+│   │   ├── games/               # GameCard, Leaderboard, ChatSection, etc.
+│   │   ├── home/                # Secciones de la home (torneos, carrusel…)
+│   │   ├── admin/               # Panel de administración (TournamentsTab…)
+│   │   ├── moderation/          # ReportDialog, AdminReportsSection
 │   │   └── ui/                  # shadcn/ui (no modificar)
 │   ├── hooks/                   # Hooks reutilizables
 │   ├── api/                     # Capa API por dominio
@@ -103,7 +103,7 @@ PIIS/
 
 ## Capa API (`src/api/`)
 
-Cada módulo agrupa las llamadas HTTP de un dominio. Las páginas y hooks importan desde aquí — nunca llaman a `api.get/post` directamente para dominios que tienen módulo.
+Cada módulo agrupa las llamadas HTTP de un dominio. Las páginas y hooks importan desde aquí.
 
 | Módulo | Funciones principales |
 |--------|----------------------|
@@ -120,35 +120,58 @@ Cada módulo agrupa las llamadas HTTP de un dominio. Las páginas y hooks import
 | `chat.js` | `getChatMessages`, `sendChatMessage`, `deleteChatMessage` |
 | `reports.js` | `getReports`, `createReport`, `updateReport` |
 
+> **Excepción legítima:** `src/lib/AuthContext.jsx` usa `api` directamente porque gestiona
+> el token JWT y el estado React de sesión de forma acoplada. No tiene módulo propio.
+
 ---
 
 ## Hooks (`src/hooks/`)
 
-### Hooks de datos
+### Hook de datos — `useGameDetail`
 
 | Hook | Dónde se usa | Qué hace |
 |------|-------------|----------|
-| `useGameDetail` | `GameDetail.jsx` | Queries de juego, puntuaciones, comentarios y favoritos |
+| `useGameDetail(gameId, user)` | `GameDetail.jsx` | Queries de juego, puntuaciones, comentarios y favoritos vía React Query. Expone `toggleFavorite` e `invalidateGame`. |
 
-### Hooks para juegos de un jugador
+### Hook de juego de un jugador — `useSinglePlayerGame`
 
 | Hook | Dónde se usa | Qué hace |
 |------|-------------|----------|
-| `useSinglePlayerGame` | `SnakeGame.jsx` | Ciclo idle → playing → gameover, marcador, récord en localStorage |
+| `useSinglePlayerGame({ onScoreUpdate, storageKey })` | `SnakeGame.jsx` | Ciclo `idle → playing → gameover`, marcador, récord en localStorage. Devuelve: `gameState`, `score`, `highScore`, `scoreRef`, `startGame`, `addPoints`, `endGame`, `resetGame`. |
+
+> `PongGame.jsx` gestiona su propio estado con `useState` sin usar este hook.
+
+---
 
 ### Hooks para juegos multijugador
 
-PlayCraft tiene dos sistemas según el tipo de juego multijugador:
+PlayCraft tiene **dos sistemas independientes** para juegos multijugador:
 
-#### Sistema 1 — Relay de iframe (`useTurnGameRelay` + `useChessGame`)
+---
 
-Para juegos que se ejecutan dentro de un **iframe** y se comunican con el host vía `postMessage`.
+#### Sistema 1 — Chess integrado (`ChessOnlineGame.jsx` + `chess.js`)
+
+El ajedrez online está implementado como componente React completo (`ChessOnlineGame.jsx`) y usa su propio endpoint REST `/chess` a través del módulo `src/api/chess.js`.
 
 ```
-GameArea
-  └── useChessGame          ← config específica de ajedrez
+GameArea (game_code === 'chess-online')
+  └── ChessOnlineGame.jsx
+        └── src/api/chess.js  →  /chess  (endpoint propio)
+```
+
+Este sistema gestiona internamente: sala de espera, estado del tablero, turnos, reloj, tablas, abandono y puntuaciones.
+
+---
+
+#### Sistema 2 — Relay de iframe (`useTurnGameRelay` + `useChessGame`)
+
+Para juegos **HTML5 en iframe** que se comunican con el host vía `postMessage`. El hook genérico es `useTurnGameRelay`; por encima se crean hooks específicos por juego.
+
+```
+GameArea (game_type === 'html5', is_multiplayer)
+  └── useChessGame          ← configuración específica de ajedrez por iframe
         └── useTurnGameRelay  ← infraestructura genérica de sala + relay
-              └── src/api/sessions.js
+              └── src/api/sessions.js  →  /sessions
 ```
 
 `useTurnGameRelay` gestiona:
@@ -157,7 +180,7 @@ GameArea
 - `[actionType]` → almacena la acción del jugador en `game_state.actions`
 - Polling cada 1.5 s → entrega acciones del oponente al iframe
 
-`useChessGame` configura el relay para ajedrez:
+`useChessGame` configura el relay para ajedrez embebido en iframe:
 - Tipo de acción: `CHESS_MOVE` → `{ from, to, promo }`
 - Mensaje al oponente: `CHESS_OPPONENT_MOVE`
 - `PLAYER_INFO` con `color: 'black'` al guest y `color: 'white'` al host
@@ -182,9 +205,9 @@ export function useDominoGame({ isPlaying, user, gameId, iframeRef, onRoomCodeCh
 
 ---
 
-#### Sistema 2 — Sala React (`useGameRoom`)
+#### Sistema 3 — Sala React genérica (`useGameRoom`) — infraestructura disponible
 
-Para juegos implementados como **componentes React** (sin iframe). Gestiona la sala completa: lobby, espera, turno activo, abandono.
+`useGameRoom` es un hook de infraestructura para juegos multijugador implementados como **componentes React** (sin iframe). Está completamente implementado y usa `sessions.js`, pero **ningún componente lo usa actualmente**. Está disponible para futuros juegos de este tipo.
 
 ```js
 import { useGameRoom } from "@/hooks/useGameRoom";
@@ -207,19 +230,11 @@ export default function MiJuegoOnline({ user, gameId }) {
 
   return (
     <div>
-      <OnlineGamePlayerZone
-        topPlayer={{ name: room.opponentName }}
-        bottomPlayer={{ name: user?.full_name || "Tú" }}
-        isTopPlayerActive={!room.isMyTurn}
-        isBottomPlayerActive={room.isMyTurn}
-      />
-
-      {/* Lógica del juego con room.gameState y room.updateState() */}
-      {/* Para pasar turno: room.passTurn() */}
-      {/* Para terminar: room.finishGame(winnerEmail) o room.finishGame("draw") */}
-
+      {/* room.gameState, room.isMyTurn, room.myRole, room.phase, room.winner */}
+      {/* room.updateState(patch) — actualiza game_state en BD (merge) */}
+      {/* room.passTurn()         — cambia turno host ↔ guest */}
+      {/* room.finishGame(email)  — marca partida como terminada */}
       <ChatSection gameId={gameId} user={user} sessionId={room.roomCode} />
-      <OnlineGameMoveHistory moves={[]} />
       <button onClick={room.leaveRoom}>Salir</button>
     </div>
   );
