@@ -5,8 +5,14 @@ import { updateMe, changePassword } from "@/api/users";
 import { useAuth } from "@/lib/AuthContext";
 import { useQuery } from "@tanstack/react-query";
 import {
-  Loader2, User, Mail, Calendar, Trophy, Heart, Gamepad2, Edit2, Save, Camera, Lock
+  Loader2, User, Mail, Calendar, Trophy, Heart, Gamepad2, Edit2, Save, Camera, Lock, MoreVertical,
 } from "lucide-react";
+import {
+  DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger,
+} from "@/components/ui/dropdown-menu";
+import {
+  Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter,
+} from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
@@ -26,6 +32,7 @@ export default function Profile() {
   const [isUploadingAvatar, setIsUploadingAvatar] = useState(false);
   const avatarInputRef = useRef(null);
 
+  const [showPwDialog, setShowPwDialog] = useState(false);
   const [pwForm, setPwForm] = useState({ current: "", next: "", confirm: "" });
   const [pwErrors, setPwErrors] = useState({});
   const [isChangingPw, setIsChangingPw] = useState(false);
@@ -77,6 +84,7 @@ export default function Profile() {
       await changePassword(pwForm.current, pwForm.next);
       toast.success("Contraseña actualizada");
       setPwForm({ current: "", next: "", confirm: "" });
+      setShowPwDialog(false);
     } catch (err) {
       const msg = err?.message || "Error al cambiar contraseña";
       toast.error(msg);
@@ -176,6 +184,22 @@ export default function Profile() {
                     >
                       <Edit2 className="w-4 h-4" />
                     </Button>
+                    <DropdownMenu>
+                      <DropdownMenuTrigger asChild>
+                        <Button variant="ghost" size="icon" className="text-gray-400 hover:text-white">
+                          <MoreVertical className="w-4 h-4" />
+                        </Button>
+                      </DropdownMenuTrigger>
+                      <DropdownMenuContent align="start" className="bg-[#0f0f18] border-white/10 text-white">
+                        <DropdownMenuItem
+                          onClick={() => { setPwForm({ current: "", next: "", confirm: "" }); setPwErrors({}); setShowPwDialog(true); }}
+                          className="cursor-pointer hover:bg-white/5 gap-2"
+                        >
+                          <Lock className="w-4 h-4 text-purple-400" />
+                          Cambiar contraseña
+                        </DropdownMenuItem>
+                      </DropdownMenuContent>
+                    </DropdownMenu>
                   </div>
                   <div className="flex items-center justify-center md:justify-start gap-2 text-gray-400 mb-2">
                     <Mail className="w-4 h-4" />
@@ -216,60 +240,57 @@ export default function Profile() {
         </Card>
       </div>
 
-      {/* Change password */}
-      <Card className="bg-white/5 border-white/10 mb-8">
-        <CardHeader>
-          <CardTitle className="text-white flex items-center gap-2 text-base">
-            <Lock className="w-4 h-4 text-purple-400" />
-            Cambiar contraseña
-          </CardTitle>
-        </CardHeader>
-        <CardContent>
-          <div className="grid sm:grid-cols-3 gap-4 max-w-2xl">
-            <div className="space-y-1.5">
-              <label className="text-xs text-gray-400">Contraseña actual</label>
-              <input
-                type="password"
-                value={pwForm.current}
-                onChange={e => setPwForm(p => ({ ...p, current: e.target.value }))}
-                placeholder="••••••"
-                className="w-full bg-white/5 border border-white/10 rounded-md px-3 py-2 text-white text-sm placeholder:text-gray-600 focus:outline-none focus:border-purple-500"
-              />
-              {pwErrors.current && <p className="text-xs text-red-400">{pwErrors.current}</p>}
+      {/* Change password dialog */}
+      {showPwDialog && (
+        <Dialog open onOpenChange={(open) => { if (!open) setShowPwDialog(false); }}>
+          <DialogContent className="bg-[#0f0f18] border-white/10 text-white max-w-sm">
+            <DialogHeader>
+              <DialogTitle className="flex items-center gap-2">
+                <Lock className="w-4 h-4 text-purple-400" />
+                Cambiar contraseña
+              </DialogTitle>
+            </DialogHeader>
+            <div className="space-y-3">
+              <div className="space-y-1.5">
+                <label className="text-xs text-gray-400">Contraseña actual</label>
+                <input type="password" value={pwForm.current}
+                  onChange={e => setPwForm(p => ({ ...p, current: e.target.value }))}
+                  placeholder="••••••"
+                  className="w-full bg-white/5 border border-white/10 rounded-md px-3 py-2 text-white text-sm placeholder:text-gray-600 focus:outline-none focus:border-purple-500"
+                />
+                {pwErrors.current && <p className="text-xs text-red-400">{pwErrors.current}</p>}
+              </div>
+              <div className="space-y-1.5">
+                <label className="text-xs text-gray-400">Nueva contraseña</label>
+                <input type="password" value={pwForm.next}
+                  onChange={e => setPwForm(p => ({ ...p, next: e.target.value }))}
+                  placeholder="Mínimo 6 caracteres"
+                  className="w-full bg-white/5 border border-white/10 rounded-md px-3 py-2 text-white text-sm placeholder:text-gray-600 focus:outline-none focus:border-purple-500"
+                />
+                {pwErrors.next && <p className="text-xs text-red-400">{pwErrors.next}</p>}
+              </div>
+              <div className="space-y-1.5">
+                <label className="text-xs text-gray-400">Confirmar nueva</label>
+                <input type="password" value={pwForm.confirm}
+                  onChange={e => setPwForm(p => ({ ...p, confirm: e.target.value }))}
+                  placeholder="Repetir contraseña"
+                  className="w-full bg-white/5 border border-white/10 rounded-md px-3 py-2 text-white text-sm placeholder:text-gray-600 focus:outline-none focus:border-purple-500"
+                />
+                {pwErrors.confirm && <p className="text-xs text-red-400">{pwErrors.confirm}</p>}
+              </div>
             </div>
-            <div className="space-y-1.5">
-              <label className="text-xs text-gray-400">Nueva contraseña</label>
-              <input
-                type="password"
-                value={pwForm.next}
-                onChange={e => setPwForm(p => ({ ...p, next: e.target.value }))}
-                placeholder="Mínimo 6 caracteres"
-                className="w-full bg-white/5 border border-white/10 rounded-md px-3 py-2 text-white text-sm placeholder:text-gray-600 focus:outline-none focus:border-purple-500"
-              />
-              {pwErrors.next && <p className="text-xs text-red-400">{pwErrors.next}</p>}
-            </div>
-            <div className="space-y-1.5">
-              <label className="text-xs text-gray-400">Confirmar nueva</label>
-              <input
-                type="password"
-                value={pwForm.confirm}
-                onChange={e => setPwForm(p => ({ ...p, confirm: e.target.value }))}
-                placeholder="Repetir contraseña"
-                className="w-full bg-white/5 border border-white/10 rounded-md px-3 py-2 text-white text-sm placeholder:text-gray-600 focus:outline-none focus:border-purple-500"
-              />
-              {pwErrors.confirm && <p className="text-xs text-red-400">{pwErrors.confirm}</p>}
-            </div>
-          </div>
-          <Button
-            onClick={handleChangePassword}
-            disabled={isChangingPw}
-            className="mt-4 bg-gradient-to-r from-purple-600 to-cyan-500 border-0"
-            size="sm"
-          >
-            {isChangingPw ? <Loader2 className="w-4 h-4 animate-spin" /> : "Guardar contraseña"}
-          </Button>
-        </CardContent>
-      </Card>
+            <DialogFooter>
+              <Button variant="outline" onClick={() => setShowPwDialog(false)} className="border-white/10">
+                Cancelar
+              </Button>
+              <Button onClick={handleChangePassword} disabled={isChangingPw}
+                className="bg-gradient-to-r from-purple-600 to-cyan-500 border-0">
+                {isChangingPw ? <Loader2 className="w-4 h-4 animate-spin" /> : "Guardar"}
+              </Button>
+            </DialogFooter>
+          </DialogContent>
+        </Dialog>
+      )}
 
       <UserAchievementsSection userEmail={user.email} />
 

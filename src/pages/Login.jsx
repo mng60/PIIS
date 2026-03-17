@@ -6,6 +6,9 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { toast } from "sonner";
+import {
+  Dialog, DialogContent, DialogHeader, DialogTitle,
+} from "@/components/ui/dialog";
 
 const DOMAIN = "@playcraft.com";
 
@@ -21,6 +24,7 @@ export default function Login() {
   const [showPassword, setShowPassword] = useState(false);
   const [form, setForm] = useState({ identifier: "", password: "", full_name: "" });
   const [errors, setErrors] = useState({});
+  const [showForgotDialog, setShowForgotDialog] = useState(false);
 
   if (isAuthenticated) {
     const redirect = new URLSearchParams(location.search).get("redirect") || "/";
@@ -30,9 +34,12 @@ export default function Login() {
 
   const validate = () => {
     const e = {};
-    if (!form.identifier.trim()) {
+    const raw = form.identifier.trim();
+    // If user pasted the full email, extract only the part before @
+    const idPart = raw.includes("@") ? raw.split("@")[0] : raw;
+    if (!idPart) {
       e.identifier = "Identificador obligatorio";
-    } else if (!/^[a-zA-Z0-9_.-]+$/.test(form.identifier.trim())) {
+    } else if (!/^[a-zA-Z0-9_.-]+$/.test(idPart)) {
       e.identifier = "Solo letras, números, guiones bajos, puntos y guiones";
     }
     if (!form.password) e.password = "Contraseña obligatoria";
@@ -47,7 +54,8 @@ export default function Login() {
     if (Object.keys(errs).length) { setErrors(errs); return; }
     setErrors({});
     setLoading(true);
-    const email = `${form.identifier.trim().toLowerCase()}${DOMAIN}`;
+    const raw = form.identifier.trim().toLowerCase();
+    const email = raw.includes("@") ? raw : `${raw}${DOMAIN}`;
     try {
       if (mode === "login") {
         await login(email, form.password);
@@ -143,28 +151,25 @@ export default function Login() {
             </div>
           )}
 
-          {/* Identifier + domain */}
+          {/* Identifier */}
           <div className="space-y-1.5">
             <Label className="text-gray-300 text-sm">
               {mode === "register" ? "Identificador de cuenta" : "Identificador"}
             </Label>
-            <div className="flex items-center bg-white/5 border border-white/10 rounded-md overflow-hidden focus-within:border-purple-500 transition-colors">
-              <input
-                type="text"
-                value={form.identifier}
-                onChange={e => f("identifier", e.target.value.replace(/\s/g, "").toLowerCase())}
-                placeholder="tu_identificador"
-                autoComplete="username"
-                autoCapitalize="none"
-                spellCheck={false}
-                className="flex-1 bg-transparent px-3 py-2 text-white placeholder:text-gray-600 outline-none text-sm min-w-0"
-              />
-              <span className="text-gray-500 text-sm pr-3 shrink-0 select-none">{DOMAIN}</span>
-            </div>
+            <Input
+              type="text"
+              value={form.identifier}
+              onChange={e => f("identifier", e.target.value.replace(/\s/g, "").toLowerCase())}
+              placeholder="tu_identificador"
+              autoComplete="username"
+              autoCapitalize="none"
+              spellCheck={false}
+              className="bg-white/5 border-white/10 text-white placeholder:text-gray-600 focus:border-purple-500"
+            />
             {errors.identifier && <p className="text-xs text-red-400">{errors.identifier}</p>}
-            {mode === "register" && !errors.identifier && (
+            {mode === "register" && !errors.identifier && form.identifier && (
               <p className="text-xs text-gray-600">
-                Tu cuenta será: <span className="text-gray-400">{form.identifier || "…"}{DOMAIN}</span>
+                Tu cuenta será: <span className="text-gray-400">{form.identifier}{DOMAIN}</span>
               </p>
             )}
           </div>
@@ -202,6 +207,16 @@ export default function Login() {
               : mode === "login" ? "Entrar" : "Crear cuenta"
             }
           </Button>
+
+          {mode === "login" && (
+            <button
+              type="button"
+              onClick={() => setShowForgotDialog(true)}
+              className="w-full text-xs text-gray-500 hover:text-gray-300 transition-colors mt-1"
+            >
+              ¿Has olvidado tu contraseña?
+            </button>
+          )}
         </form>
 
         <p className="text-center text-xs text-gray-500 mt-6">
@@ -216,6 +231,29 @@ export default function Login() {
           </button>
         </p>
       </div>
+
+      {/* Forgot password dialog */}
+      {showForgotDialog && (
+        <Dialog open onOpenChange={(open) => { if (!open) setShowForgotDialog(false); }}>
+          <DialogContent className="bg-[#0f0f18] border-white/10 text-white max-w-sm">
+            <DialogHeader>
+              <DialogTitle>¿Has olvidado tu contraseña?</DialogTitle>
+            </DialogHeader>
+            <p className="text-sm text-gray-400 leading-relaxed">
+              Esta es una beta cerrada. No existe recuperación automática por correo.
+            </p>
+            <p className="text-sm text-gray-300">
+              Contacta con un administrador para que te asigne una nueva contraseña temporal. Luego podrás cambiarla desde tu perfil.
+            </p>
+            <Button
+              onClick={() => setShowForgotDialog(false)}
+              className="w-full bg-gradient-to-r from-purple-600 to-cyan-500 border-0 mt-2"
+            >
+              Entendido
+            </Button>
+          </DialogContent>
+        </Dialog>
+      )}
 
       <Link
         to={"/"}
