@@ -72,7 +72,7 @@ export default function FeaturedCarousel({ games }) {
             {currentGame.description || currentGame.full_description}
           </p>
 
-          <Link to={`/game/${currentGame.id}`}>
+          <Link to={`/games/${currentGame.id}`}>
             <Button className="bg-gradient-to-r from-purple-600 to-cyan-500 hover:opacity-90 text-sm sm:text-base md:text-lg px-4 py-3 sm:px-6 sm:py-4 md:px-8 md:py-6">
               <Play className="w-4 h-4 sm:w-5 sm:h-5 mr-1 sm:mr-2 fill-white" />
               Jugar Ahora

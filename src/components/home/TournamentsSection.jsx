@@ -112,7 +112,7 @@ export default function TournamentsSection() {
                 </div>
                 {game && (
                   <div className="mt-4 pt-4 border-t border-white/10">
-                    <Link to={`/game/${game.id}`}>
+                    <Link to={`/games/${game.id}`}>
                       <Button variant="outline" className="w-full border-yellow-500/30 text-yellow-400 hover:bg-yellow-500/10">
                         Ver Juego
                       </Button>

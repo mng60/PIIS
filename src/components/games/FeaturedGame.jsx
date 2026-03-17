@@ -58,7 +58,7 @@ export default function FeaturedGame({ game }) {
             {game.full_description || game.description || "Descubre este increíble juego y desafía tus habilidades."}
           </p>
 
-          <Link to={`/game/${game.id}`}>
+          <Link to={`/games/${game.id}`}>
             <Button className="bg-gradient-to-r from-purple-600 to-cyan-500 hover:opacity-90 text-white px-8 py-6 text-lg font-medium rounded-xl neon-glow">
               <Play className="w-5 h-5 mr-2 fill-white" />
               Jugar Ahora

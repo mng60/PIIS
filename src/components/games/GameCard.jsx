@@ -24,7 +24,7 @@ export default function GameCard({ game }) {
 
   return (
     <Link
-      to={`/game/${game.id}`}
+      to={`/games/${game.id}`}
       className="group block"
     >
       <div className="game-card relative bg-gradient-to-b from-white/5 to-white/[0.02] border border-white/10 rounded-2xl overflow-hidden transition-all duration-300 hover:border-purple-500/50">
