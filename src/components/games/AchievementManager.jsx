@@ -1,5 +1,10 @@
 import React, { useState } from "react";
-import { api } from "@/api/client";
+import {
+  getAchievementDefinitions,
+  createAchievementDefinition,
+  updateAchievementDefinition,
+  deleteAchievementDefinition,
+} from "@/api/achievements";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -41,7 +46,7 @@ export default function AchievementManager({ gameId }) {
 
   const { data: achievements = [], isLoading } = useQuery({
     queryKey: ["achievementMgr", gameId],
-    queryFn: () => api.get(`/achievements/definitions?game_id=${gameId}`),
+    queryFn: () => getAchievementDefinitions(`?game_id=${gameId}`),
     enabled: !!gameId
   });
 
@@ -87,10 +92,10 @@ export default function AchievementManager({ gameId }) {
     };
 
     if (editingId) {
-      await api.patch(`/achievements/definitions/${editingId}`, data);
+      await updateAchievementDefinition(editingId, data);
       toast.success("Logro actualizado");
     } else {
-      await api.post("/achievements/definitions", data);
+      await createAchievementDefinition(data);
       toast.success("Logro creado");
     }
 
@@ -104,7 +109,7 @@ export default function AchievementManager({ gameId }) {
 
   const handleDelete = async (id) => {
     if (!window.confirm("¿Eliminar este logro?")) return;
-    await api.delete(`/achievements/definitions/${id}`);
+    await deleteAchievementDefinition(id);
     qc.invalidateQueries(["achievementMgr", gameId]);
     qc.invalidateQueries(["achievementDefs", gameId]);
     toast.success("Logro eliminado");

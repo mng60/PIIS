@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useRef } from "react";
-import { api } from "@/api/client";
+import { getChatMessages, sendChatMessage } from "@/api/chat";
 import { useQuery } from "@tanstack/react-query";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -19,7 +19,7 @@ export default function ChatSection({ gameId, user, sessionId }) {
 
   const { data: messages = [], refetch } = useQuery({
     queryKey: ["chat-messages", gameId, sessionId],
-    queryFn: () => api.get(`/chat?game_id=${gameId}&session_id=${sessionId}`),
+    queryFn: () => getChatMessages(gameId, sessionId),
     enabled: !!gameId && !!sessionId,
   });
 
@@ -47,11 +47,7 @@ export default function ChatSection({ gameId, user, sessionId }) {
     }
     setIsSending(true);
     try {
-      await api.post("/chat", {
-        game_id: gameId,
-        session_id: sessionId,
-        message: message.trim(),
-      });
+      await sendChatMessage(gameId, sessionId, message.trim());
       setMessage("");
       refetch();
     } catch {

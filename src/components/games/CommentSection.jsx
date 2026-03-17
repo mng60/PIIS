@@ -1,5 +1,5 @@
 import React, { useState } from "react";
-import { api } from "@/api/client";
+import { addComment, deleteComment } from "@/api/comments";
 import { Button } from "@/components/ui/button";
 import { Textarea } from "@/components/ui/textarea";
 import { Star, Send, MessageSquare, Flag, Trash2 } from "lucide-react";
@@ -28,11 +28,7 @@ export default function CommentSection({ gameId, comments, user, onCommentAdded 
     if (!content.trim() || !user) return;
     setIsSubmitting(true);
     try {
-      await api.post("/comments", {
-        game_id: gameId,
-        content: content.trim(),
-        rating: rating || null,
-      });
+      await addComment(gameId, content.trim(), rating || null);
       setContent("");
       setRating(0);
       toast.success("Comentario publicado");
@@ -169,7 +165,7 @@ export default function CommentSection({ gameId, comments, user, onCommentAdded 
               className="bg-red-600 hover:bg-red-700"
               onClick={async () => {
                 try {
-                  await api.delete(`/comments/${deleteTarget.id}`);
+                  await deleteComment(deleteTarget.id);
                   toast.success("Comentario borrado");
                   setDeleteTarget(null);
                   onCommentAdded?.();

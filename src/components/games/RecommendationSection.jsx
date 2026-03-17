@@ -1,5 +1,6 @@
 import React, { useCallback, useEffect, useMemo, useRef, useState } from "react";
-import { api } from "@/api/client";
+import { getUserScores } from "@/api/scores";
+import { getGames } from "@/api/games";
 import { useQuery } from "@tanstack/react-query";
 import { Sparkles, ChevronLeft, ChevronRight } from "lucide-react";
 import GameCard from "./GameCard";
@@ -7,13 +8,13 @@ import GameCard from "./GameCard";
 export default function RecommendationSection({ userEmail, currentGameId = null }) {
   const { data: scores = [], isLoading: scoresLoading } = useQuery({
     queryKey: ["user-scores", userEmail],
-    queryFn: () => api.get(`/scores?user_email=${userEmail}`),
+    queryFn: () => getUserScores(userEmail),
     enabled: !!userEmail,
   });
 
   const { data: { games = [] } = {}, isLoading: gamesLoading } = useQuery({
     queryKey: ["games-active"],
-    queryFn: () => api.get("/games?limit=200"),
+    queryFn: () => getGames("?limit=200"),
   });
 
   const recommendations = useMemo(() => {

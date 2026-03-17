@@ -1,5 +1,9 @@
 import React, { useMemo, useState } from "react";
-import { api } from "@/api/client";
+import { getReports, updateReport } from "@/api/reports";
+import { deleteComment } from "@/api/comments";
+import { deleteChatMessage } from "@/api/chat";
+import { updateUser } from "@/api/users";
+import { getGames } from "@/api/games";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
@@ -42,13 +46,13 @@ export default function AdminReportsSection({ adminUser }) {
 
   const { data: reports = [], isLoading } = useQuery({
     queryKey: ["adminReports"],
-    queryFn: () => api.get("/reports"),
+    queryFn: getReports,
     enabled: adminUser?.role === "admin",
   });
 
   const { data: { games = [] } = {} } = useQuery({
     queryKey: ["adminReportsGames"],
-    queryFn: () => api.get("/games?limit=200"),
+    queryFn: () => getGames("?limit=200"),
     enabled: adminUser?.role === "admin",
   });
 
@@ -78,7 +82,7 @@ export default function AdminReportsSection({ adminUser }) {
   const close = () => { setOpenDialog(false); setSelected(null); };
 
   const resolveReport = async (patch) => {
-    await api.patch(`/reports/${selected.id}`, patch);
+    await updateReport(selected.id, patch);
     queryClient.invalidateQueries(["adminReports"]);
   };
 
@@ -88,9 +92,9 @@ export default function AdminReportsSection({ adminUser }) {
       if (action === "delete_content") {
         try {
           if (selected.target_kind === "comment") {
-            await api.delete(`/comments/${selected.target_id}`);
+            await deleteComment(selected.target_id);
           } else if (selected.target_kind === "chat_message") {
-            await api.delete(`/chat/${selected.target_id}`);
+            await deleteChatMessage(selected.target_id);
           }
         } catch { /* content may already be deleted */ }
         await resolveReport({ status: "resolved", admin_action: "delete_content", admin_notes: adminNotes || null });
@@ -100,7 +104,7 @@ export default function AdminReportsSection({ adminUser }) {
       }
 
       if (action === "ban_account") {
-        await api.patch(`/users/${selected.reported_user_id || "noop"}`, { is_banned: true }).catch(() => {});
+        await updateUser(selected.reported_user_id || "noop", { is_banned: true }).catch(() => {});
         await resolveReport({ status: "resolved", admin_action: "ban_account", admin_notes: adminNotes || null });
         toast.success("Usuario baneado");
         close();
@@ -211,7 +215,7 @@ export default function AdminReportsSection({ adminUser }) {
                               <Button variant="ghost" className="text-gray-200 hover:bg-white/10"
                                 onClick={async () => {
                                   try {
-                                    await api.patch(`/reports/${r.id}`, { status: "dismissed" });
+                                    await updateReport(r.id, { status: "dismissed" });
                                     queryClient.invalidateQueries(["adminReports"]);
                                     toast.success("Reporte descartado");
                                   } catch { toast.error("No se pudo descartar"); }

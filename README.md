@@ -109,12 +109,16 @@ Cada módulo agrupa las llamadas HTTP de un dominio. Las páginas y hooks import
 |--------|----------------------|
 | `client.js` | `api.get/post/patch/delete` — cliente HTTP base con JWT |
 | `games.js` | `getGames`, `getGameById`, `getMyGames`, `createGame`, `updateGame`, `deleteGame`, `recordPlay` |
-| `scores.js` | `getGameScores`, `getUserScores`, `submitScore` |
+| `scores.js` | `getGameScores`, `getUserScores`, `getUserGameScores`, `submitScore` |
 | `comments.js` | `getGameComments`, `addComment`, `deleteComment` |
 | `favorites.js` | `getFavorites`, `addFavorite`, `removeFavorite` |
 | `sessions.js` | `createSession`, `getSession`, `updateSession`, `deleteSession` |
-
-> Dominios sin módulo propio todavía (usan `api` directamente): `/users`, `/achievements`, `/chess`, `/tournaments`, `/chat`, `/reports`.
+| `users.js` | `getUsers`, `updateUser`, `updateMe` |
+| `achievements.js` | `getAchievementDefinitions`, `createAchievementDefinition`, `updateAchievementDefinition`, `deleteAchievementDefinition`, `getUserAchievements`, `upsertUserAchievement` |
+| `chess.js` | `createChessRoom`, `getChessRoom`, `updateChessRoom`, `deleteChessRoom` |
+| `tournaments.js` | `getTournaments`, `createTournament`, `updateTournament`, `deleteTournament` |
+| `chat.js` | `getChatMessages`, `sendChatMessage`, `deleteChatMessage` |
+| `reports.js` | `getReports`, `createReport`, `updateReport` |
 
 ---
 

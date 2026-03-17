@@ -1,5 +1,6 @@
 import { useState } from "react";
-import { api } from "@/api/client";
+import { getTournaments, createTournament, updateTournament, deleteTournament } from "@/api/tournaments";
+import { getGames } from "@/api/games";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { format } from "date-fns";
 import {
@@ -214,12 +215,12 @@ export default function TournamentsTab() {
 
   const { data: tournaments = [], isLoading } = useQuery({
     queryKey: ["adminTournaments"],
-    queryFn: () => api.get("/tournaments"),
+    queryFn: getTournaments,
   });
 
   const { data: gamesData = {} } = useQuery({
     queryKey: ["adminGamesForTournaments"],
-    queryFn: () => api.get("/games?limit=500&all=true"),
+    queryFn: () => getGames("?limit=500&all=true"),
   });
   const games = gamesData.games || [];
 
@@ -230,7 +231,7 @@ export default function TournamentsTab() {
         ...form,
         max_participants: form.max_participants ? parseInt(form.max_participants) : undefined,
       };
-      await api.post("/tournaments", payload);
+      await createTournament(payload);
       queryClient.invalidateQueries(["adminTournaments"]);
       toast.success("Torneo creado");
       setShowForm(false);
@@ -248,7 +249,7 @@ export default function TournamentsTab() {
         ...form,
         max_participants: form.max_participants ? parseInt(form.max_participants) : null,
       };
-      await api.patch(`/tournaments/${editingTournament.id}`, payload);
+      await updateTournament(editingTournament.id, payload);
       queryClient.invalidateQueries(["adminTournaments"]);
       toast.success("Torneo actualizado");
       setEditingTournament(null);
@@ -261,7 +262,7 @@ export default function TournamentsTab() {
 
   const handleDelete = async (id) => {
     try {
-      await api.delete(`/tournaments/${id}`);
+      await deleteTournament(id);
       queryClient.invalidateQueries(["adminTournaments"]);
       toast.success("Torneo eliminado");
     } catch (err) {

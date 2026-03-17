@@ -1,4 +1,5 @@
-import { api } from "@/api/client";
+import { getAchievementDefinitions, getUserAchievements, upsertUserAchievement } from "@/api/achievements";
+import { getUserScores, getUserGameScores } from "@/api/scores";
 import { toast } from "sonner";
 
 /**
@@ -7,14 +8,14 @@ import { toast } from "sonner";
  */
 export async function evaluateAndUpdateAchievements({ userEmail, gameId }) {
   try {
-    const allDefinitions = await api.get("/achievements/definitions");
+    const allDefinitions = await getAchievementDefinitions();
     const relevant = allDefinitions.filter((a) => a.game_id === gameId || !a.game_id);
     if (relevant.length === 0) return;
 
     const [gameScores, allScores, existing] = await Promise.all([
-      api.get(`/scores?user_email=${userEmail}&game_id=${gameId}`),
-      api.get(`/scores?user_email=${userEmail}`),
-      api.get("/achievements/user"),
+      getUserGameScores(userEmail, gameId),
+      getUserScores(userEmail, 1000),
+      getUserAchievements(),
     ]);
 
     for (const def of relevant) {
@@ -50,7 +51,7 @@ export async function evaluateAndUpdateAchievements({ userEmail, gameId }) {
           if (unlocked && !wasUnlocked) {
             toast.success(`🏆 ${def.title} completado`, { duration: 5000 });
           }
-          await api.post("/achievements/user", {
+          await upsertUserAchievement({
             achievement_id: def.id,
             game_id: def.game_id || null,
             progress,
@@ -62,7 +63,7 @@ export async function evaluateAndUpdateAchievements({ userEmail, gameId }) {
         if (unlocked) {
           toast.success(`🏆 ${def.title} completado`, { duration: 5000 });
         }
-        await api.post("/achievements/user", {
+        await upsertUserAchievement({
           achievement_id: def.id,
           user_email: userEmail,
           game_id: def.game_id || null,

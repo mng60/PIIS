@@ -1,7 +1,8 @@
 import React, { useRef } from "react";
 import { Trophy, Calendar, Users, ChevronLeft, ChevronRight, Gift } from "lucide-react";
 import { useQuery } from "@tanstack/react-query";
-import { api } from "@/api/client";
+import { getTournaments } from "@/api/tournaments";
+import { getGames } from "@/api/games";
 import { Link } from "react-router-dom";
 import { Card } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
@@ -14,12 +15,12 @@ export default function TournamentsSection() {
 
   const { data: tournaments = [] } = useQuery({
     queryKey: ["tournaments"],
-    queryFn: () => api.get("/tournaments"),
+    queryFn: getTournaments,
   });
 
   const { data: { games = [] } = {} } = useQuery({
     queryKey: ["games"],
-    queryFn: () => api.get("/games?limit=200"),
+    queryFn: () => getGames("?limit=200"),
   });
 
   const scroll = (direction) => {

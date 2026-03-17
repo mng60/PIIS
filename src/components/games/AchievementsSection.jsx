@@ -1,5 +1,5 @@
 import React from "react";
-import { api } from "@/api/client";
+import { getAchievementDefinitions, getUserAchievements } from "@/api/achievements";
 import { useQuery } from "@tanstack/react-query";
 import { Trophy, Star } from "lucide-react";
 
@@ -14,7 +14,7 @@ export default function AchievementsSection({ gameId, user }) {
   const { data: definitions = [] } = useQuery({
     queryKey: ["achievementDefs", gameId],
     queryFn: async () => {
-      const all = await api.get("/achievements/definitions");
+      const all = await getAchievementDefinitions();
       return all
         .filter(a => a.game_id === gameId || !a.game_id)
         .sort((a, b) => (a.sort_order || 0) - (b.sort_order || 0));
@@ -24,7 +24,7 @@ export default function AchievementsSection({ gameId, user }) {
 
   const { data: userAchievements = [] } = useQuery({
     queryKey: ["userAchievements", user?.email],
-    queryFn: () => api.get("/achievements/user"),
+    queryFn: getUserAchievements,
     enabled: !!user
   });
 

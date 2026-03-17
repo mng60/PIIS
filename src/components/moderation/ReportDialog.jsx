@@ -1,5 +1,6 @@
 import React, { useMemo, useState } from "react";
-import { api } from "@/api/client";
+import { getChatMessages } from "@/api/chat";
+import { createReport } from "@/api/reports";
 import { toast } from "sonner";
 import { Button } from "@/components/ui/button";
 import { Textarea } from "@/components/ui/textarea";
@@ -34,7 +35,7 @@ export default function ReportDialog({ open, onOpenChange, reporter, target }) {
   const buildChatContextText = async ({ game_id, session_id }) => {
     if (!game_id || !session_id) return null;
     try {
-      const msgs = await api.get(`/chat?game_id=${game_id}&session_id=${session_id}`);
+      const msgs = await getChatMessages(game_id, session_id);
       const lines = (msgs || []).slice(0, CONTEXT_LIMIT).map((m) => {
         const ts = m.created_at ? format(new Date(m.created_at), "dd/MM HH:mm:ss") : "";
         const who = m.user_name || m.user_email || "unknown";
@@ -57,7 +58,7 @@ export default function ReportDialog({ open, onOpenChange, reporter, target }) {
         context_text = await buildChatContextText({ game_id: target.game_id, session_id: target.session_id });
       }
 
-      await api.post("/reports", {
+      await createReport({
         target_kind: target.target_kind,
         target_id: target.target_id,
         game_id: target.game_id,

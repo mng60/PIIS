@@ -1,6 +1,6 @@
 import React, { useState, useMemo } from "react";
-import { api } from "@/api/client";
 import { getGames, updateGame, deleteGame as deleteGameApi } from "@/api/games";
+import { getUsers, updateUser } from "@/api/users";
 import { useAuth } from "@/lib/AuthContext";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { Link } from "react-router-dom";
@@ -254,7 +254,7 @@ export default function Admin() {
 
   const { data: users = [] } = useQuery({
     queryKey: ["adminUsers"],
-    queryFn: () => api.get("/users"),
+    queryFn: getUsers,
     enabled: user?.role === "admin"
   });
 
@@ -277,7 +277,7 @@ export default function Admin() {
   };
 
   const toggleUserBan = async (targetUser) => {
-    await api.patch(`/users/${targetUser.id}`, { is_banned: !targetUser.is_banned });
+    await updateUser(targetUser.id, { is_banned: !targetUser.is_banned });
     queryClient.invalidateQueries(["adminUsers"]);
     toast.success(targetUser.is_banned ? "Usuario desbaneado" : "Usuario baneado");
   };
@@ -294,19 +294,19 @@ export default function Admin() {
   };
 
   const clearChatMute = async (targetUser) => {
-    await api.patch(`/users/${targetUser.id}`, { chat_muted_until: null });
+    await updateUser(targetUser.id, { chat_muted_until: null });
     queryClient.invalidateQueries(["adminUsers"]);
     toast.success("Silencio de chat eliminado");
   };
 
   const clearPlayBan = async (targetUser) => {
-    await api.patch(`/users/${targetUser.id}`, { play_banned_until: null });
+    await updateUser(targetUser.id, { play_banned_until: null });
     queryClient.invalidateQueries(["adminUsers"]);
     toast.success("Bloqueo de jugar eliminado");
   };
 
   const changeUserRole = async (targetUser, newRole) => {
-    await api.patch(`/users/${targetUser.id}`, { role: newRole });
+    await updateUser(targetUser.id, { role: newRole });
     queryClient.invalidateQueries(["adminUsers"]);
     toast.success("Rol actualizado");
   };

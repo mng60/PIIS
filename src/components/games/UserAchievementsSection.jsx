@@ -1,5 +1,6 @@
 import React, { useEffect, useMemo, useState } from "react";
-import { api } from "@/api/client";
+import { getAchievementDefinitions, getUserAchievements } from "@/api/achievements";
+import { getGames } from "@/api/games";
 import { useQuery } from "@tanstack/react-query";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
@@ -21,19 +22,19 @@ export default function UserAchievementsSection({ userEmail }) {
 
   const { data: userAchievements = [] } = useQuery({
     queryKey: ["userAchievementsAll", userEmail],
-    queryFn: () => api.get("/achievements/user"),
+    queryFn: getUserAchievements,
     enabled: !!userEmail,
   });
 
   const { data: definitions = [] } = useQuery({
     queryKey: ["allAchievementDefs"],
-    queryFn: () => api.get("/achievements/definitions"),
+    queryFn: () => getAchievementDefinitions(),
     enabled: !!userEmail,
   });
 
   const { data: games = [] } = useQuery({
     queryKey: ["games-for-achievements"],
-    queryFn: async () => { const r = await api.get("/games?limit=200"); return r.games || []; },
+    queryFn: async () => { const r = await getGames("?limit=200"); return r.games || []; },
     enabled: !!userEmail,
   });
 

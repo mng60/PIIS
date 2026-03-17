@@ -1,5 +1,5 @@
 import React, { useEffect, useRef, useState } from "react";
-import { api } from "@/api/client";
+import { createChessRoom, getChessRoom, updateChessRoom, deleteChessRoom } from "@/api/chess";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Card } from "@/components/ui/card";
@@ -118,7 +118,7 @@ export default function ChessOnlineGame({ user, onScoreUpdate, onRoomCodeChange,
     pollIntervalRef.current = setInterval(async () => {
       if (!roomCodeRef.current) return;
       try {
-        const room = await api.get(`/chess/${roomCodeRef.current}`);
+        const room = await getChessRoom(roomCodeRef.current);
         if (room.updated_at !== lastUpdatedRef.current) applyRoomUpdate(room);
       } catch {}
     }, 1200);
@@ -136,7 +136,7 @@ export default function ChessOnlineGame({ user, onScoreUpdate, onRoomCodeChange,
     metaRef.current = nextMeta;
     setClock(nextMeta.clock);
 
-    api.patch(`/chess/${room.room_code}`, {
+    updateChessRoom(room.room_code, {
       board_state: packBoardState(boardFromRoom, nextMeta),
     }).catch(() => {});
   };
@@ -222,7 +222,7 @@ export default function ChessOnlineGame({ user, onScoreUpdate, onRoomCodeChange,
         }
 
         try {
-          await api.patch(`/chess/${roomCodeRef.current}`, {
+          await updateChessRoom(roomCodeRef.current, {
             status: "finished",
             winner: winnerEmail,
             board_state: packBoardState(board, meta),
@@ -270,7 +270,7 @@ export default function ChessOnlineGame({ user, onScoreUpdate, onRoomCodeChange,
             const winnerEmail = timeoutWinner === "white" ? hostEmailRef.current : guestEmailRef.current;
             if (winnerEmail) {
               didAwardRef.current = false;
-              await api.patch(`/chess/${roomCodeRef.current}`, {
+              await updateChessRoom(roomCodeRef.current, {
                 status: "finished",
                 winner: winnerEmail,
                 board_state: packBoardState(board, nextMeta),
@@ -303,13 +303,13 @@ export default function ChessOnlineGame({ user, onScoreUpdate, onRoomCodeChange,
         try {
           if (capturedPiece && getPieceType(capturedPiece) === "K") {
             didAwardRef.current = false;
-            await api.patch(`/chess/${roomCodeRef.current}`, {
+            await updateChessRoom(roomCodeRef.current, {
               board_state: packBoardState(newBoard, nextMeta),
               status: "finished",
               winner: user.email,
             });
           } else {
-            await api.patch(`/chess/${roomCodeRef.current}`, {
+            await updateChessRoom(roomCodeRef.current, {
               board_state: packBoardState(newBoard, nextMeta),
               current_turn: nextTurn,
             });
@@ -358,7 +358,7 @@ export default function ChessOnlineGame({ user, onScoreUpdate, onRoomCodeChange,
         clock: initClockFromMinutes(minutes),
       };
 
-      const room = await api.post("/chess", {
+      const room = await createChessRoom({
         room_code: code,
         host_email: user.email,
         host_name: user.full_name || user.email.split("@")[0],
@@ -403,14 +403,14 @@ export default function ChessOnlineGame({ user, onScoreUpdate, onRoomCodeChange,
     setError("");
 
     try {
-      const room = await api.get(`/chess/${joinCode.toUpperCase()}`);
+      const room = await getChessRoom(joinCode.toUpperCase());
       if (!room || room.status !== "waiting") {
         setError("Sala no encontrada o ya empezada");
         setLoading(false);
         return;
       }
 
-      const updatedRoom = await api.patch(`/chess/${joinCode.toUpperCase()}`, {
+      const updatedRoom = await updateChessRoom(joinCode.toUpperCase(), {
         guest_email: user.email,
         guest_name: user.full_name || user.email.split("@")[0],
         status: "playing",
@@ -461,7 +461,7 @@ export default function ChessOnlineGame({ user, onScoreUpdate, onRoomCodeChange,
         meta.drawOfferAt = null;
         metaRef.current = meta;
 
-        await api.patch(`/chess/${roomCodeRef.current}`, { board_state: packBoardState(board, meta) });
+        await updateChessRoom(roomCodeRef.current, { board_state: packBoardState(board, meta) });
         toast.message("Oferta de tablas cancelada");
       } else {
         setIncomingDrawOpen(true);
@@ -473,7 +473,7 @@ export default function ChessOnlineGame({ user, onScoreUpdate, onRoomCodeChange,
     meta.drawOfferAt = nowISO();
     metaRef.current = meta;
 
-    await api.patch(`/chess/${roomCodeRef.current}`, { board_state: packBoardState(board, meta) });
+    await updateChessRoom(roomCodeRef.current, { board_state: packBoardState(board, meta) });
     toast.message("Tablas ofrecidas");
   };
 
@@ -487,7 +487,7 @@ export default function ChessOnlineGame({ user, onScoreUpdate, onRoomCodeChange,
 
     didAwardRef.current = false;
 
-    await api.patch(`/chess/${roomCodeRef.current}`, {
+    await updateChessRoom(roomCodeRef.current, {
       board_state: packBoardState(board, meta),
       status: "finished",
       winner: "draw",
@@ -504,7 +504,7 @@ export default function ChessOnlineGame({ user, onScoreUpdate, onRoomCodeChange,
     meta.drawOfferAt = null;
     metaRef.current = meta;
 
-    await api.patch(`/chess/${roomCodeRef.current}`, { board_state: packBoardState(board, meta) });
+    await updateChessRoom(roomCodeRef.current, { board_state: packBoardState(board, meta) });
 
     setIncomingDrawOpen(false);
     toast.message("Tablas rechazadas");
@@ -520,7 +520,7 @@ export default function ChessOnlineGame({ user, onScoreUpdate, onRoomCodeChange,
       }
 
       if (gameStatus === "waiting") {
-        await api.delete(`/chess/${roomCodeRef.current}`);
+        await deleteChessRoom(roomCodeRef.current);
         toast.message("Sala cerrada");
         resetLocal();
         return;
@@ -532,13 +532,13 @@ export default function ChessOnlineGame({ user, onScoreUpdate, onRoomCodeChange,
 
       if (opponentEmail) {
         didAwardRef.current = false;
-        await api.patch(`/chess/${roomCodeRef.current}`, {
+        await updateChessRoom(roomCodeRef.current, {
           status: "finished",
           winner: opponentEmail,
           board_state: packBoardState(board, { ...(metaRef.current || {}), drawOfferBy: null, drawOfferAt: null }),
         });
       } else {
-        await api.delete(`/chess/${roomCodeRef.current}`);
+        await deleteChessRoom(roomCodeRef.current);
       }
 
       resetLocal();

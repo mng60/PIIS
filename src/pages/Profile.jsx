@@ -1,7 +1,7 @@
 import React, { useState } from "react";
-import { api } from "@/api/client";
 import { getFavorites } from "@/api/favorites";
 import { getUserScores } from "@/api/scores";
+import { updateMe } from "@/api/users";
 import { useAuth } from "@/lib/AuthContext";
 import { useQuery } from "@tanstack/react-query";
 import {
@@ -39,7 +39,7 @@ export default function Profile() {
   const handleSave = async () => {
     setIsSaving(true);
     try {
-      await api.patch("/users/me", editData);
+      await updateMe(editData);
       toast.success("Perfil actualizado");
       setIsEditing(false);
     } catch {
