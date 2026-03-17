@@ -44,6 +44,23 @@ router.post('/login', async (req, res) => {
   res.json({ token: signToken(user), user: sanitize(user) });
 });
 
+// PATCH /api/auth/change-password
+router.patch('/change-password', requireAuth, async (req, res) => {
+  const { current_password, new_password } = req.body;
+  if (!current_password || !new_password) {
+    return res.status(400).json({ error: 'Faltan campos obligatorios' });
+  }
+  if (new_password.length < 6) {
+    return res.status(400).json({ error: 'La nueva contraseña debe tener mínimo 6 caracteres' });
+  }
+  const user = await prisma.user.findUnique({ where: { id: req.user.id } });
+  const valid = await bcrypt.compare(current_password, user.password);
+  if (!valid) return res.status(401).json({ error: 'Contraseña actual incorrecta' });
+  const hashed = await bcrypt.hash(new_password, 10);
+  await prisma.user.update({ where: { id: req.user.id }, data: { password: hashed } });
+  res.json({ ok: true });
+});
+
 // GET /api/auth/me
 router.get('/me', requireAuth, async (req, res) => {
   const user = await prisma.user.findUnique({ where: { id: req.user.id } });

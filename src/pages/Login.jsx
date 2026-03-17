@@ -7,6 +7,8 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { toast } from "sonner";
 
+const DOMAIN = "@playcraft.com";
+
 export default function Login() {
   const { login, register, isAuthenticated } = useAuth();
   const navigate = useNavigate();
@@ -17,10 +19,9 @@ export default function Login() {
   );
   const [loading, setLoading] = useState(false);
   const [showPassword, setShowPassword] = useState(false);
-  const [form, setForm] = useState({ email: "", password: "", full_name: "" });
+  const [form, setForm] = useState({ identifier: "", password: "", full_name: "" });
   const [errors, setErrors] = useState({});
 
-  // If already logged in, redirect to home
   if (isAuthenticated) {
     const redirect = new URLSearchParams(location.search).get("redirect") || "/";
     navigate(redirect, { replace: true });
@@ -29,8 +30,11 @@ export default function Login() {
 
   const validate = () => {
     const e = {};
-    if (!form.email.trim()) e.email = "Email obligatorio";
-    else if (!/\S+@\S+\.\S+/.test(form.email)) e.email = "Email inválido";
+    if (!form.identifier.trim()) {
+      e.identifier = "Identificador obligatorio";
+    } else if (!/^[a-zA-Z0-9_.-]+$/.test(form.identifier.trim())) {
+      e.identifier = "Solo letras, números, guiones bajos, puntos y guiones";
+    }
     if (!form.password) e.password = "Contraseña obligatoria";
     else if (form.password.length < 6) e.password = "Mínimo 6 caracteres";
     if (mode === "register" && !form.full_name.trim()) e.full_name = "Nombre obligatorio";
@@ -43,19 +47,24 @@ export default function Login() {
     if (Object.keys(errs).length) { setErrors(errs); return; }
     setErrors({});
     setLoading(true);
+    const email = `${form.identifier.trim().toLowerCase()}${DOMAIN}`;
     try {
       if (mode === "login") {
-        await login(form.email, form.password);
+        await login(email, form.password);
         toast.success("¡Bienvenido!");
       } else {
-        await register(form.email, form.password, form.full_name);
+        await register(email, form.password, form.full_name);
         toast.success("Cuenta creada. ¡Bienvenido!");
       }
       const redirect = new URLSearchParams(location.search).get("redirect") || "/";
       navigate(redirect, { replace: true });
     } catch (err) {
       const msg = err?.message || "Error al procesar la solicitud";
-      toast.error(msg);
+      // Translate backend collision error
+      const friendly = msg.includes("ya está registrado")
+        ? "Este identificador ya existe. Elige otro."
+        : msg;
+      toast.error(friendly);
     } finally {
       setLoading(false);
     }
@@ -85,6 +94,13 @@ export default function Login() {
 
       {/* Card */}
       <div className="w-full max-w-md bg-white/5 border border-white/10 rounded-2xl p-8 backdrop-blur-sm">
+        {/* Beta badge */}
+        <div className="flex justify-center mb-5">
+          <span className="text-xs px-3 py-1 rounded-full bg-purple-500/15 border border-purple-500/30 text-purple-300">
+            Beta cerrada · Acceso universitario
+          </span>
+        </div>
+
         {/* Mode toggle */}
         <div className="flex rounded-xl overflow-hidden border border-white/10 mb-7">
           <button
@@ -115,11 +131,11 @@ export default function Login() {
           {/* Full name (register only) */}
           {mode === "register" && (
             <div className="space-y-1.5">
-              <Label className="text-gray-300 text-sm">Nombre completo</Label>
+              <Label className="text-gray-300 text-sm">Nombre o nick visible</Label>
               <Input
                 value={form.full_name}
                 onChange={e => f("full_name", e.target.value)}
-                placeholder="Tu nombre"
+                placeholder="Tu nombre en la plataforma"
                 autoComplete="name"
                 className="bg-white/5 border-white/10 text-white placeholder:text-gray-600 focus:border-purple-500"
               />
@@ -127,18 +143,30 @@ export default function Login() {
             </div>
           )}
 
-          {/* Email */}
+          {/* Identifier + domain */}
           <div className="space-y-1.5">
-            <Label className="text-gray-300 text-sm">Email</Label>
-            <Input
-              type="email"
-              value={form.email}
-              onChange={e => f("email", e.target.value)}
-              placeholder="tu@email.com"
-              autoComplete="email"
-              className="bg-white/5 border-white/10 text-white placeholder:text-gray-600 focus:border-purple-500"
-            />
-            {errors.email && <p className="text-xs text-red-400">{errors.email}</p>}
+            <Label className="text-gray-300 text-sm">
+              {mode === "register" ? "Identificador de cuenta" : "Identificador"}
+            </Label>
+            <div className="flex items-center bg-white/5 border border-white/10 rounded-md overflow-hidden focus-within:border-purple-500 transition-colors">
+              <input
+                type="text"
+                value={form.identifier}
+                onChange={e => f("identifier", e.target.value.replace(/\s/g, "").toLowerCase())}
+                placeholder="tu_identificador"
+                autoComplete="username"
+                autoCapitalize="none"
+                spellCheck={false}
+                className="flex-1 bg-transparent px-3 py-2 text-white placeholder:text-gray-600 outline-none text-sm min-w-0"
+              />
+              <span className="text-gray-500 text-sm pr-3 shrink-0 select-none">{DOMAIN}</span>
+            </div>
+            {errors.identifier && <p className="text-xs text-red-400">{errors.identifier}</p>}
+            {mode === "register" && !errors.identifier && (
+              <p className="text-xs text-gray-600">
+                Tu cuenta será: <span className="text-gray-400">{form.identifier || "…"}{DOMAIN}</span>
+              </p>
+            )}
           </div>
 
           {/* Password */}
@@ -184,7 +212,7 @@ export default function Login() {
             onClick={() => setMode(mode === "login" ? "register" : "login")}
             className="text-purple-400 hover:text-purple-300 underline underline-offset-2"
           >
-            {mode === "login" ? "Regístrate gratis" : "Inicia sesión"}
+            {mode === "login" ? "Regístrate" : "Inicia sesión"}
           </button>
         </p>
       </div>

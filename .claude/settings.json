@@ -8,7 +8,8 @@
       "WebSearch",
       "Bash(npm uninstall:*)",
       "Bash(npx vite:*)",
-      "Bash(grep -r \"from ''''@/api/client''''\" src/ --include=\"*.jsx\" --include=\"*.js\")"
+      "Bash(grep -r \"from ''''@/api/client''''\" src/ --include=\"*.jsx\" --include=\"*.js\")",
+      "Bash(find c:UsersmigueDocuments4oPIISserversrcroutes -type f -name *.js)"
     ],
     "additionalDirectories": [
       "c:\\Users\\migue\\.claude\\projects\\c--Users-migue-Documents-4o-PIIS\\memory"

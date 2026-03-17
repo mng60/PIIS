@@ -1,6 +1,6 @@
 import React, { useState, useMemo } from "react";
 import { getGames, updateGame, deleteGame as deleteGameApi } from "@/api/games";
-import { getUsers, updateUser } from "@/api/users";
+import { getUsers, updateUser, adminResetPassword } from "@/api/users";
 import { useAuth } from "@/lib/AuthContext";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { Link } from "react-router-dom";
@@ -19,7 +19,9 @@ import {
   Play,
   MessageSquare,
   Star,
-  Trophy
+  Trophy,
+  KeyRound,
+  Wrench,
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
@@ -49,11 +51,78 @@ import { format } from "date-fns";
 import { Flag } from "lucide-react";
 import AdminReportsSection from "@/components/moderation/AdminReportsSection";
 import TournamentsTab from "@/components/admin/TournamentsTab";
+import AdminMaintenanceTab from "@/components/admin/AdminMaintenanceTab";
 import { Input } from "@/components/ui/input";
 import { Search } from "lucide-react";
+import {
+  Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter,
+} from "@/components/ui/dialog";
+
+function ResetPasswordDialog({ targetUser, onClose }) {
+  const [newPw, setNewPw] = useState("");
+  const [saving, setSaving] = useState(false);
+  const [error, setError] = useState("");
+
+  const handleReset = async () => {
+    if (!newPw || newPw.length < 6) { setError("Mínimo 6 caracteres"); return; }
+    setSaving(true);
+    try {
+      await adminResetPassword(targetUser.id, newPw);
+      toast.success(`Contraseña de "${targetUser.full_name || targetUser.email}" actualizada`);
+      onClose();
+    } catch (err) {
+      toast.error(err?.message || "Error al resetear contraseña");
+    } finally {
+      setSaving(false);
+    }
+  };
+
+  return (
+    <Dialog open onOpenChange={onClose}>
+      <DialogContent className="bg-[#0f0f18] border-white/10 text-white max-w-sm">
+        <DialogHeader>
+          <DialogTitle className="flex items-center gap-2">
+            <KeyRound className="w-4 h-4 text-purple-400" />
+            Resetear contraseña
+          </DialogTitle>
+        </DialogHeader>
+        <p className="text-sm text-gray-400">
+          Usuario: <span className="text-white">{targetUser.full_name || targetUser.email}</span>
+        </p>
+        <p className="text-xs text-gray-500">
+          Establece una contraseña temporal. El usuario deberá cambiarla desde su perfil.
+        </p>
+        <div className="space-y-1">
+          <Input
+            type="text"
+            value={newPw}
+            onChange={e => { setNewPw(e.target.value); setError(""); }}
+            placeholder="Nueva contraseña temporal"
+            className="bg-white/5 border-white/10 text-white placeholder:text-gray-600 font-mono"
+            autoComplete="off"
+          />
+          {error && <p className="text-xs text-red-400">{error}</p>}
+        </div>
+        <DialogFooter>
+          <Button variant="outline" onClick={onClose} className="border-white/10">
+            Cancelar
+          </Button>
+          <Button
+            onClick={handleReset}
+            disabled={saving}
+            className="bg-gradient-to-r from-purple-600 to-cyan-500 border-0"
+          >
+            {saving ? <Loader2 className="w-4 h-4 animate-spin" /> : "Guardar"}
+          </Button>
+        </DialogFooter>
+      </DialogContent>
+    </Dialog>
+  );
+}
 
 function UsersTabContent({ users, user, queryClient, clearChatMute, clearPlayBan, changeUserRole, toggleUserBan, isActiveUntil, parseDate }) {
   const [searchQuery, setSearchQuery] = useState("");
+  const [resetPwTarget, setResetPwTarget] = useState(null);
 
   const filteredUsers = useMemo(() => {
     if (!searchQuery.trim()) return users;
@@ -66,6 +135,9 @@ function UsersTabContent({ users, user, queryClient, clearChatMute, clearPlayBan
 
   return (
     <>
+      {resetPwTarget && (
+        <ResetPasswordDialog targetUser={resetPwTarget} onClose={() => setResetPwTarget(null)} />
+      )}
       <div className="mb-4">
         <div className="relative">
           <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400" />
@@ -196,7 +268,7 @@ function UsersTabContent({ users, user, queryClient, clearChatMute, clearPlayBan
                       )}
 
                       {u.email !== user.email && (
-                        <div className="flex gap-2">
+                        <div className="flex gap-2 flex-wrap">
                           {u.role !== "admin" && (
                             <Button
                               variant="ghost"
@@ -227,6 +299,15 @@ function UsersTabContent({ users, user, queryClient, clearChatMute, clearPlayBan
                               → Usuario
                             </Button>
                           )}
+                          <Button
+                            variant="ghost"
+                            size="icon"
+                            onClick={() => setResetPwTarget(u)}
+                            className="text-yellow-400 hover:text-yellow-300"
+                            title="Resetear contraseña"
+                          >
+                            <KeyRound className="w-4 h-4" />
+                          </Button>
                         </div>
                       )}
                     </div>
@@ -413,6 +494,10 @@ export default function Admin() {
             <Flag className="w-4 h-4 mr-2" />
             Reportes
           </TabsTrigger>
+          <TabsTrigger value="maintenance" className="data-[state=active]:bg-purple-600">
+            <Wrench className="w-4 h-4 mr-2" />
+            Mantenimiento
+          </TabsTrigger>
         </TabsList>
 
         {/* Games Tab */}
@@ -568,6 +653,9 @@ export default function Admin() {
         </TabsContent>
         <TabsContent value="reports">
           <AdminReportsSection adminUser={user} />
+        </TabsContent>
+        <TabsContent value="maintenance">
+          <AdminMaintenanceTab games={games} users={users} />
         </TabsContent>
       </Tabs>
     </div>

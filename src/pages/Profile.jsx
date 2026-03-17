@@ -1,11 +1,11 @@
 import React, { useRef, useState } from "react";
 import { getFavorites } from "@/api/favorites";
 import { getUserScores } from "@/api/scores";
-import { updateMe } from "@/api/users";
+import { updateMe, changePassword } from "@/api/users";
 import { useAuth } from "@/lib/AuthContext";
 import { useQuery } from "@tanstack/react-query";
 import {
-  Loader2, User, Mail, Calendar, Trophy, Heart, Gamepad2, Edit2, Save, Camera
+  Loader2, User, Mail, Calendar, Trophy, Heart, Gamepad2, Edit2, Save, Camera, Lock
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -25,6 +25,10 @@ export default function Profile() {
   const [isSaving, setIsSaving] = useState(false);
   const [isUploadingAvatar, setIsUploadingAvatar] = useState(false);
   const avatarInputRef = useRef(null);
+
+  const [pwForm, setPwForm] = useState({ current: "", next: "", confirm: "" });
+  const [pwErrors, setPwErrors] = useState({});
+  const [isChangingPw, setIsChangingPw] = useState(false);
 
   const { data: favorites = [] } = useQuery({
     queryKey: ["favorites", user?.email],
@@ -57,6 +61,27 @@ export default function Profile() {
     } finally {
       setIsUploadingAvatar(false);
       e.target.value = "";
+    }
+  };
+
+  const handleChangePassword = async () => {
+    const e = {};
+    if (!pwForm.current) e.current = "Obligatorio";
+    if (!pwForm.next) e.next = "Obligatorio";
+    else if (pwForm.next.length < 6) e.next = "Mínimo 6 caracteres";
+    if (pwForm.next && pwForm.next !== pwForm.confirm) e.confirm = "Las contraseñas no coinciden";
+    setPwErrors(e);
+    if (Object.keys(e).length) return;
+    setIsChangingPw(true);
+    try {
+      await changePassword(pwForm.current, pwForm.next);
+      toast.success("Contraseña actualizada");
+      setPwForm({ current: "", next: "", confirm: "" });
+    } catch (err) {
+      const msg = err?.message || "Error al cambiar contraseña";
+      toast.error(msg);
+    } finally {
+      setIsChangingPw(false);
     }
   };
 
@@ -190,6 +215,61 @@ export default function Profile() {
           </CardContent>
         </Card>
       </div>
+
+      {/* Change password */}
+      <Card className="bg-white/5 border-white/10 mb-8">
+        <CardHeader>
+          <CardTitle className="text-white flex items-center gap-2 text-base">
+            <Lock className="w-4 h-4 text-purple-400" />
+            Cambiar contraseña
+          </CardTitle>
+        </CardHeader>
+        <CardContent>
+          <div className="grid sm:grid-cols-3 gap-4 max-w-2xl">
+            <div className="space-y-1.5">
+              <label className="text-xs text-gray-400">Contraseña actual</label>
+              <input
+                type="password"
+                value={pwForm.current}
+                onChange={e => setPwForm(p => ({ ...p, current: e.target.value }))}
+                placeholder="••••••"
+                className="w-full bg-white/5 border border-white/10 rounded-md px-3 py-2 text-white text-sm placeholder:text-gray-600 focus:outline-none focus:border-purple-500"
+              />
+              {pwErrors.current && <p className="text-xs text-red-400">{pwErrors.current}</p>}
+            </div>
+            <div className="space-y-1.5">
+              <label className="text-xs text-gray-400">Nueva contraseña</label>
+              <input
+                type="password"
+                value={pwForm.next}
+                onChange={e => setPwForm(p => ({ ...p, next: e.target.value }))}
+                placeholder="Mínimo 6 caracteres"
+                className="w-full bg-white/5 border border-white/10 rounded-md px-3 py-2 text-white text-sm placeholder:text-gray-600 focus:outline-none focus:border-purple-500"
+              />
+              {pwErrors.next && <p className="text-xs text-red-400">{pwErrors.next}</p>}
+            </div>
+            <div className="space-y-1.5">
+              <label className="text-xs text-gray-400">Confirmar nueva</label>
+              <input
+                type="password"
+                value={pwForm.confirm}
+                onChange={e => setPwForm(p => ({ ...p, confirm: e.target.value }))}
+                placeholder="Repetir contraseña"
+                className="w-full bg-white/5 border border-white/10 rounded-md px-3 py-2 text-white text-sm placeholder:text-gray-600 focus:outline-none focus:border-purple-500"
+              />
+              {pwErrors.confirm && <p className="text-xs text-red-400">{pwErrors.confirm}</p>}
+            </div>
+          </div>
+          <Button
+            onClick={handleChangePassword}
+            disabled={isChangingPw}
+            className="mt-4 bg-gradient-to-r from-purple-600 to-cyan-500 border-0"
+            size="sm"
+          >
+            {isChangingPw ? <Loader2 className="w-4 h-4 animate-spin" /> : "Guardar contraseña"}
+          </Button>
+        </CardContent>
+      </Card>
 
       <UserAchievementsSection userEmail={user.email} />
 

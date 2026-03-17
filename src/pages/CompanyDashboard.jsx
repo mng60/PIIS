@@ -1,7 +1,7 @@
-import { useMemo } from "react";
+import { useMemo, useState } from "react";
 import { getMyGames } from "@/api/games";
 import { useAuth } from "@/lib/AuthContext";
-import { useQuery } from "@tanstack/react-query";
+import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { Link } from "react-router-dom";
 import {
   Loader2,
@@ -11,6 +11,8 @@ import {
   TrendingUp,
   Star,
   Play,
+  RotateCcw,
+  Trophy,
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
@@ -23,16 +25,39 @@ import {
   TableHeader,
   TableRow,
 } from "@/components/ui/table";
+import {
+  AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent,
+  AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle,
+  AlertDialogTrigger,
+} from "@/components/ui/alert-dialog";
+import { toast } from "sonner";
+import { resetGameScores, resetGamePlays, resetGameFull } from "@/api/maintenance";
 
 export default function CompanyDashboard() {
   const { user, isLoadingAuth } = useAuth();
+  const queryClient = useQueryClient();
+  const [busy, setBusy] = useState(null);
 
-  const { data: gamesData = {} } = useQuery({
+  const { data: gamesData = {}, refetch: refetchGames } = useQuery({
     queryKey: ["companyGames", user?.email],
     queryFn: getMyGames,
     enabled: !!user && user.role === "empresa",
   });
   const allGames = gamesData.games || [];
+
+  const runMaintenance = async (key, fn, msg) => {
+    setBusy(key);
+    try {
+      await fn();
+      await refetchGames();
+      queryClient.invalidateQueries(["scores"]);
+      toast.success(msg);
+    } catch (err) {
+      toast.error(err?.message || "Error al ejecutar la acción");
+    } finally {
+      setBusy(null);
+    }
+  };
 
   const totalStats = useMemo(() => {
     const totalPlays = allGames.reduce((sum, g) => sum + (g.plays_count || 0), 0);
@@ -128,7 +153,7 @@ export default function CompanyDashboard() {
       {/* Games Table */}
       <Card className="bg-white/5 border-white/10">
         <CardHeader>
-          <CardTitle className="text-white">Estadísticas por Juego</CardTitle>
+          <CardTitle className="text-white">Estadísticas y mantenimiento</CardTitle>
         </CardHeader>
         <CardContent>
           <div className="overflow-x-auto">
@@ -139,12 +164,13 @@ export default function CompanyDashboard() {
                   <TableHead className="text-gray-400">Estado</TableHead>
                   <TableHead className="text-gray-400">Partidas</TableHead>
                   <TableHead className="text-gray-400">Valoración</TableHead>
+                  <TableHead className="text-gray-400 text-right">Mantenimiento</TableHead>
                 </TableRow>
               </TableHeader>
               <TableBody>
                 {allGames.length === 0 ? (
                   <TableRow>
-                    <TableCell colSpan={4} className="text-center text-gray-400 py-8">
+                    <TableCell colSpan={5} className="text-center text-gray-400 py-8">
                       No tienes juegos publicados. Sube tu primer juego para ver estadísticas.
                     </TableCell>
                   </TableRow>
@@ -192,6 +218,75 @@ export default function CompanyDashboard() {
                           <div className="flex items-center gap-1.5">
                             <Star className="w-4 h-4 text-yellow-400 fill-yellow-400" />
                             {avgRating} ({game.rating_count || 0})
+                          </div>
+                        </TableCell>
+                        <TableCell>
+                          <div className="flex gap-2 justify-end flex-wrap">
+                            <AlertDialog>
+                              <AlertDialogTrigger asChild>
+                                <Button size="sm" variant="outline" disabled={busy === `scores_${game.id}`}
+                                  className="border-white/10 text-orange-400 hover:text-orange-300 hover:bg-white/5 text-xs">
+                                  <Trophy className="w-3 h-3 mr-1" /> Scores
+                                </Button>
+                              </AlertDialogTrigger>
+                              <AlertDialogContent className="bg-[#0f0f18] border-white/10">
+                                <AlertDialogHeader>
+                                  <AlertDialogTitle className="text-white">¿Borrar scores de "{game.title}"?</AlertDialogTitle>
+                                  <AlertDialogDescription>Se eliminarán todas las puntuaciones. No se puede deshacer.</AlertDialogDescription>
+                                </AlertDialogHeader>
+                                <AlertDialogFooter>
+                                  <AlertDialogCancel className="bg-white/5 border-white/10">Cancelar</AlertDialogCancel>
+                                  <AlertDialogAction className="bg-red-600 hover:bg-red-700"
+                                    onClick={() => runMaintenance(`scores_${game.id}`, () => resetGameScores(game.id), `Scores de "${game.title}" borrados`)}>
+                                    Confirmar
+                                  </AlertDialogAction>
+                                </AlertDialogFooter>
+                              </AlertDialogContent>
+                            </AlertDialog>
+
+                            <AlertDialog>
+                              <AlertDialogTrigger asChild>
+                                <Button size="sm" variant="outline" disabled={busy === `plays_${game.id}`}
+                                  className="border-white/10 text-cyan-400 hover:text-cyan-300 hover:bg-white/5 text-xs">
+                                  <Play className="w-3 h-3 mr-1" /> Partidas
+                                </Button>
+                              </AlertDialogTrigger>
+                              <AlertDialogContent className="bg-[#0f0f18] border-white/10">
+                                <AlertDialogHeader>
+                                  <AlertDialogTitle className="text-white">¿Resetear partidas de "{game.title}"?</AlertDialogTitle>
+                                  <AlertDialogDescription>Se pondrá a 0 el contador de partidas.</AlertDialogDescription>
+                                </AlertDialogHeader>
+                                <AlertDialogFooter>
+                                  <AlertDialogCancel className="bg-white/5 border-white/10">Cancelar</AlertDialogCancel>
+                                  <AlertDialogAction className="bg-orange-600 hover:bg-orange-700"
+                                    onClick={() => runMaintenance(`plays_${game.id}`, () => resetGamePlays(game.id), `Partidas de "${game.title}" reseteadas`)}>
+                                    Confirmar
+                                  </AlertDialogAction>
+                                </AlertDialogFooter>
+                              </AlertDialogContent>
+                            </AlertDialog>
+
+                            <AlertDialog>
+                              <AlertDialogTrigger asChild>
+                                <Button size="sm" variant="outline" disabled={busy === `full_${game.id}`}
+                                  className="border-white/10 text-red-400 hover:text-red-300 hover:bg-white/5 text-xs">
+                                  <RotateCcw className="w-3 h-3 mr-1" /> Todo
+                                </Button>
+                              </AlertDialogTrigger>
+                              <AlertDialogContent className="bg-[#0f0f18] border-white/10">
+                                <AlertDialogHeader>
+                                  <AlertDialogTitle className="text-white">¿Resetear todo de "{game.title}"?</AlertDialogTitle>
+                                  <AlertDialogDescription>Se borrarán scores y se reseteará el contador de partidas. No se puede deshacer.</AlertDialogDescription>
+                                </AlertDialogHeader>
+                                <AlertDialogFooter>
+                                  <AlertDialogCancel className="bg-white/5 border-white/10">Cancelar</AlertDialogCancel>
+                                  <AlertDialogAction className="bg-red-600 hover:bg-red-700"
+                                    onClick={() => runMaintenance(`full_${game.id}`, () => resetGameFull(game.id), `"${game.title}" reseteado completamente`)}>
+                                    Confirmar
+                                  </AlertDialogAction>
+                                </AlertDialogFooter>
+                              </AlertDialogContent>
+                            </AlertDialog>
                           </div>
                         </TableCell>
                       </TableRow>

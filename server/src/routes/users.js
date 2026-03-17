@@ -1,4 +1,5 @@
 import { Router } from 'express';
+import bcrypt from 'bcryptjs';
 import { PrismaClient } from '@prisma/client';
 import { requireAuth, requireAdmin } from '../middleware/auth.js';
 
@@ -30,6 +31,17 @@ router.patch('/me', requireAuth, async (req, res) => {
     select: { id: true, email: true, full_name: true, role: true, avatar_url: true },
   });
   res.json(user);
+});
+
+// PATCH /api/users/:id/reset-password (admin)
+router.patch('/:id/reset-password', requireAdmin, async (req, res) => {
+  const { new_password } = req.body;
+  if (!new_password || new_password.length < 6) {
+    return res.status(400).json({ error: 'La contraseña debe tener mínimo 6 caracteres' });
+  }
+  const hashed = await bcrypt.hash(new_password, 10);
+  await prisma.user.update({ where: { id: req.params.id }, data: { password: hashed } });
+  res.json({ ok: true });
 });
 
 // PATCH /api/users/:id (admin)
