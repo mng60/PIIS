@@ -50,7 +50,10 @@ export const AuthProvider = ({ children }) => {
     localStorage.removeItem('token');
     setUser(null);
     setIsAuthenticated(false);
+    window.location.href = '/login';
   };
+
+  const updateUserData = (data) => setUser((prev) => ({ ...prev, ...data }));
 
   return (
     <AuthContext.Provider value={{
@@ -60,6 +63,7 @@ export const AuthProvider = ({ children }) => {
       login,
       register,
       logout,
+      updateUserData,
     }}>
       {children}
     </AuthContext.Provider>

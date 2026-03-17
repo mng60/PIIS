@@ -88,9 +88,9 @@ function cellStyle(cell) {
 
 // ── Component ──────────────────────────────────────────────────────────────
 
-export default function SnakeGame({ onScoreUpdate, onGameStart }) {
+export default function SnakeGame({ onScoreUpdate, onGameStart, user }) {
   const { gameState, score, highScore, scoreRef, startGame, addPoints, endGame, resetGame } =
-    useSinglePlayerGame({ onScoreUpdate, storageKey: "snake" });
+    useSinglePlayerGame({ onScoreUpdate, storageKey: "snake", userEmail: user?.email });
 
   const [difficulty, setDifficulty] = useState("normal");
   const [wallWrap,   setWallWrap]   = useState(false);
@@ -234,6 +234,7 @@ export default function SnakeGame({ onScoreUpdate, onGameStart }) {
     const KEYS = new Set(["ArrowUp","ArrowDown","ArrowLeft","ArrowRight","w","s","a","d","W","S","A","D"]);
     const onKey = (e) => {
       if (!KEYS.has(e.key)) return;
+      if (document.activeElement?.matches('input, textarea, select, [contenteditable]')) return;
       e.preventDefault();
       const d = dirRef.current;
       if ((e.key==="ArrowUp"    || e.key==="w" || e.key==="W") && d.y !==  1) nextDirRef.current = { x:  0, y: -1 };

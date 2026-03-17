@@ -20,11 +20,12 @@ import { useState, useCallback, useRef } from "react";
  *   addPoints  - Suma puntos al marcador actual
  *   endGame    - Termina la partida, guarda el récord y llama a onScoreUpdate
  */
-export function useSinglePlayerGame({ onScoreUpdate, storageKey }) {
+export function useSinglePlayerGame({ onScoreUpdate, storageKey, userEmail }) {
+  const hsKey = `hs_${storageKey}_${userEmail ?? 'guest'}`;
   const [gameState, setGameState] = useState("idle");
   const [score, setScore] = useState(0);
   const [highScore, setHighScore] = useState(() =>
-    parseInt(localStorage.getItem(`hs_${storageKey}`) || "0")
+    parseInt(localStorage.getItem(hsKey) || "0")
   );
 
   // Ref para acceso síncrono desde el game loop (evita problemas de closure)
@@ -51,12 +52,12 @@ export function useSinglePlayerGame({ onScoreUpdate, storageKey }) {
     if (final > 0) onScoreUpdateRef.current?.(final);
     setHighScore((prev) => {
       if (final > prev) {
-        localStorage.setItem(`hs_${storageKey}`, String(final));
+        localStorage.setItem(hsKey, String(final));
         return final;
       }
       return prev;
     });
-  }, [storageKey]);
+  }, [hsKey]);
 
   const resetGame = useCallback(() => {
     scoreRef.current = 0;

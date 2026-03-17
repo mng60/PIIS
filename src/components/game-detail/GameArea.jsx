@@ -66,7 +66,7 @@ export default function GameArea({
 
   const renderGame = () => {
     if (game.game_code === 'snake') {
-      return <SnakeGame onScoreUpdate={onScoreUpdate} onGameStart={onGameStart} />;
+      return <SnakeGame onScoreUpdate={onScoreUpdate} onGameStart={onGameStart} user={user} />;
     }
     if (game.game_code === 'pong') {
       return <PongGame onScoreUpdate={onScoreUpdate} onGameStart={onGameStart} />;

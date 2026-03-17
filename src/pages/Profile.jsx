@@ -1,11 +1,11 @@
-import React, { useState } from "react";
+import React, { useRef, useState } from "react";
 import { getFavorites } from "@/api/favorites";
 import { getUserScores } from "@/api/scores";
 import { updateMe } from "@/api/users";
 import { useAuth } from "@/lib/AuthContext";
 import { useQuery } from "@tanstack/react-query";
 import {
-  Loader2, User, Mail, Calendar, Trophy, Heart, Gamepad2, Edit2, Save
+  Loader2, User, Mail, Calendar, Trophy, Heart, Gamepad2, Edit2, Save, Camera
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -19,10 +19,12 @@ import UserAchievementsSection from "@/components/games/UserAchievementsSection"
 import { toast } from "sonner";
 
 export default function Profile() {
-  const { user, isLoadingAuth } = useAuth();
+  const { user, isLoadingAuth, updateUserData } = useAuth();
   const [isEditing, setIsEditing] = useState(false);
   const [editData, setEditData] = useState({ full_name: "", bio: "" });
   const [isSaving, setIsSaving] = useState(false);
+  const [isUploadingAvatar, setIsUploadingAvatar] = useState(false);
+  const avatarInputRef = useRef(null);
 
   const { data: favorites = [] } = useQuery({
     queryKey: ["favorites", user?.email],
@@ -35,6 +37,28 @@ export default function Profile() {
     queryFn: () => getUserScores(user.email),
     enabled: !!user,
   });
+
+  const handleAvatarChange = async (e) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+    setIsUploadingAvatar(true);
+    try {
+      const base64 = await new Promise((resolve, reject) => {
+        const reader = new FileReader();
+        reader.onload = () => resolve(reader.result);
+        reader.onerror = reject;
+        reader.readAsDataURL(file);
+      });
+      await updateMe({ avatar_url: base64 });
+      updateUserData({ avatar_url: base64 });
+      toast.success("Avatar actualizado");
+    } catch {
+      toast.error("No se pudo actualizar el avatar");
+    } finally {
+      setIsUploadingAvatar(false);
+      e.target.value = "";
+    }
+  };
 
   const handleSave = async () => {
     setIsSaving(true);
@@ -77,12 +101,26 @@ export default function Profile() {
       <Card className="bg-gradient-to-br from-purple-900/30 to-cyan-900/30 border-white/10 mb-8">
         <CardContent className="p-8">
           <div className="flex flex-col md:flex-row items-center gap-6">
-            <Avatar className="w-28 h-28 border-4 border-purple-500/50">
-              <AvatarImage src={user.avatar_url} />
-              <AvatarFallback className="bg-gradient-to-br from-purple-600 to-cyan-500 text-3xl">
-                {(user.full_name || user.email)?.[0]?.toUpperCase()}
-              </AvatarFallback>
-            </Avatar>
+            <div className="relative group cursor-pointer" onClick={() => avatarInputRef.current?.click()}>
+              <Avatar className="w-28 h-28 border-4 border-purple-500/50">
+                <AvatarImage src={user.avatar_url} />
+                <AvatarFallback className="bg-gradient-to-br from-purple-600 to-cyan-500 text-3xl">
+                  {(user.full_name || user.email)?.[0]?.toUpperCase()}
+                </AvatarFallback>
+              </Avatar>
+              <div className="absolute inset-0 rounded-full bg-black/50 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity">
+                {isUploadingAvatar
+                  ? <Loader2 className="w-6 h-6 text-white animate-spin" />
+                  : <Camera className="w-6 h-6 text-white" />}
+              </div>
+              <input
+                ref={avatarInputRef}
+                type="file"
+                accept="image/*"
+                className="hidden"
+                onChange={handleAvatarChange}
+              />
+            </div>
 
             <div className="flex-1 text-center md:text-left">
               {isEditing ? (

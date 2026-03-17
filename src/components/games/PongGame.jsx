@@ -193,6 +193,7 @@ export default function PongGame({ onScoreUpdate }) {
 
   useEffect(() => {
     const handleKeyDown = (e) => {
+      if (document.activeElement?.matches('input, textarea, select, [contenteditable]')) return;
       keysRef.current[e.key] = true;
       if (["ArrowUp", "ArrowDown", "w", "s"].includes(e.key)) {
         e.preventDefault();
