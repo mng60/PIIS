@@ -2,7 +2,6 @@ import React from "react";
 import { api } from "@/api/client";
 import { useAuth } from "@/lib/AuthContext";
 import { useQuery } from "@tanstack/react-query";
-import { createPageUrl } from "@/utils";
 import { Loader2, Heart, Gamepad2 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import GameCard from "@/components/games/GameCard";
@@ -43,7 +42,7 @@ export default function Favorites() {
         <p className="text-gray-400 mb-6">
           Necesitas iniciar sesión para ver tus juegos favoritos
         </p>
-        <Link to={createPageUrl("Home")}>
+        <Link to={"/"}>
           <Button className="bg-gradient-to-r from-purple-600 to-cyan-500">
             Ir al inicio
           </Button>

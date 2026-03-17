@@ -1,6 +1,5 @@
 import React from "react";
 import { Link } from "react-router-dom";
-import { createPageUrl } from "../../utils";
 import { Star, Play, Gamepad } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
 
@@ -25,7 +24,7 @@ export default function GameCard({ game }) {
 
   return (
     <Link
-      to={createPageUrl(`GameDetail?id=${game.id}`)}
+      to={`/game/${game.id}`}
       className="group block"
     >
       <div className="game-card relative bg-gradient-to-b from-white/5 to-white/[0.02] border border-white/10 rounded-2xl overflow-hidden transition-all duration-300 hover:border-purple-500/50">

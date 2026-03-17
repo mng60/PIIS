@@ -8,6 +8,9 @@
       "WebSearch",
       "Bash(npm uninstall:*)",
       "Bash(npx vite:*)"
+    ],
+    "additionalDirectories": [
+      "c:\\Users\\migue\\.claude\\projects\\c--Users-migue-Documents-4o-PIIS\\memory"
     ]
   }
 }

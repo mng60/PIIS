@@ -3,7 +3,6 @@ import { api } from "@/api/client";
 import { useQuery } from "@tanstack/react-query";
 import { Loader2, ArrowRight } from "lucide-react";
 import { Link } from "react-router-dom";
-import { createPageUrl } from "../utils";
 import { Button } from "@/components/ui/button";
 import FeaturedCarousel from "@/components/home/FeaturedCarousel";
 import NewGamesSlider from "@/components/home/NewGamesSlider";
@@ -71,7 +70,7 @@ export default function Home() {
         <p className="text-gray-300 text-base sm:text-lg mb-5 sm:mb-6 max-w-2xl mx-auto px-2">
           Explora nuestro catálogo completo con {games.length} juegos disponibles
         </p>
-        <Link to={createPageUrl("Games")}>
+        <Link to={"/games"}>
           <Button className="bg-gradient-to-r from-purple-600 to-cyan-500 hover:opacity-90 text-base sm:text-lg px-6 py-4 sm:px-8 sm:py-6">
             Ver Catálogo Completo
             <ArrowRight className="w-4 h-4 sm:w-5 sm:h-5 ml-2" />

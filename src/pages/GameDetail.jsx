@@ -2,8 +2,7 @@ import React, { useState, useEffect, useRef } from "react";
 import { api } from "@/api/client";
 import { useAuth } from "@/lib/AuthContext";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
-import { Link } from "react-router-dom";
-import { createPageUrl } from "@/utils";
+import { Link, useParams } from "react-router-dom";
 import {
   Loader2, ArrowLeft, Star, Play, Heart, Share2,
   Trophy, MessageSquare, Gamepad, MessageCircle, Users
@@ -46,8 +45,7 @@ export default function GameDetail() {
   const lastDeliveredIdxRef = useRef(-1);
   const whiteNotifiedRef    = useRef(false);
 
-  const urlParams = new URLSearchParams(window.location.search);
-  const gameId = urlParams.get("id");
+  const { id: gameId } = useParams();
 
   const { data: game, isLoading: gameLoading } = useQuery({
     queryKey: ["game", gameId],
@@ -248,7 +246,7 @@ export default function GameDetail() {
         <Gamepad className="w-16 h-16 mx-auto mb-4 text-gray-600" />
         <h2 className="text-2xl font-bold text-white mb-2">Juego no encontrado</h2>
         <p className="text-gray-400 mb-6">El juego que buscas no existe o fue eliminado.</p>
-        <Link to={createPageUrl("Home")}><Button className="bg-gradient-to-r from-purple-600 to-cyan-500">Volver al inicio</Button></Link>
+        <Link to={"/"}><Button className="bg-gradient-to-r from-purple-600 to-cyan-500">Volver al inicio</Button></Link>
       </div>
     );
   }
@@ -318,7 +316,7 @@ export default function GameDetail() {
         onDeny={() => { setAgeGateOpen(false); setPendingStart(false); toast.error("Debes ser mayor de 18 años."); }}
       />
 
-      <Link to={createPageUrl("Home")} className="inline-flex items-center gap-2 text-gray-400 hover:text-white mb-6 transition-colors text-sm">
+      <Link to={"/"} className="inline-flex items-center gap-2 text-gray-400 hover:text-white mb-6 transition-colors text-sm">
         <ArrowLeft className="w-4 h-4" /> Volver al catálogo
       </Link>
 

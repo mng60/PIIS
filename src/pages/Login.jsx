@@ -1,7 +1,6 @@
 import { useState } from "react";
 import { Link, useNavigate, useLocation } from "react-router-dom";
 import { useAuth } from "@/lib/AuthContext";
-import { createPageUrl } from "@/utils";
 import { Gamepad2, Eye, EyeOff, Loader2 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -23,7 +22,7 @@ export default function Login() {
 
   // If already logged in, redirect to home
   if (isAuthenticated) {
-    const redirect = new URLSearchParams(location.search).get("redirect") || createPageUrl("Home");
+    const redirect = new URLSearchParams(location.search).get("redirect") || "/";
     navigate(redirect, { replace: true });
     return null;
   }
@@ -52,7 +51,7 @@ export default function Login() {
         await register(form.email, form.password, form.full_name);
         toast.success("Cuenta creada. ¡Bienvenido!");
       }
-      const redirect = new URLSearchParams(location.search).get("redirect") || createPageUrl("Home");
+      const redirect = new URLSearchParams(location.search).get("redirect") || "/";
       navigate(redirect, { replace: true });
     } catch (err) {
       const msg = err?.message || "Error al procesar la solicitud";
@@ -73,7 +72,7 @@ export default function Login() {
       </div>
 
       {/* Logo */}
-      <Link to={createPageUrl("Home")} className="flex items-center gap-3 mb-10 group">
+      <Link to={"/"} className="flex items-center gap-3 mb-10 group">
         <div className="p-2.5 rounded-xl bg-gradient-to-br from-purple-600 to-cyan-500 group-hover:scale-105 transition-transform"
           style={{ boxShadow: "0 0 20px rgba(139,92,246,0.4), 0 0 40px rgba(6,182,212,0.2)" }}>
           <Gamepad2 className="w-7 h-7 text-white" />
@@ -191,7 +190,7 @@ export default function Login() {
       </div>
 
       <Link
-        to={createPageUrl("Home")}
+        to={"/"}
         className="mt-6 text-sm text-gray-500 hover:text-gray-300 transition-colors"
       >
         ← Volver al inicio

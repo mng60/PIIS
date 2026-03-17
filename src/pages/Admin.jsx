@@ -3,7 +3,6 @@ import { api } from "@/api/client";
 import { useAuth } from "@/lib/AuthContext";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { Link } from "react-router-dom";
-import { createPageUrl } from "@/utils";
 import {
   Loader2,
   Shield,
@@ -327,7 +326,7 @@ export default function Admin() {
         <p className="text-gray-400 mb-6">
           Solo los administradores pueden acceder a esta sección
         </p>
-        <Link to={createPageUrl("Home")}>
+        <Link to={"/"}>
           <Button className="bg-gradient-to-r from-purple-600 to-cyan-500">
             Volver al inicio
           </Button>
@@ -349,7 +348,7 @@ export default function Admin() {
           </h1>
           <p className="text-gray-400 mt-1">Gestiona juegos y usuarios</p>
         </div>
-        <Link to={createPageUrl("UploadGame")}>
+        <Link to={"/upload-game"}>
           <Button className="bg-gradient-to-r from-purple-600 to-cyan-500">
             <Plus className="w-4 h-4 mr-2" />
             Subir Juego
@@ -499,7 +498,7 @@ export default function Admin() {
                             >
                               {game.is_active ? <EyeOff className="w-4 h-4" /> : <Eye className="w-4 h-4" />}
                             </Button>
-                            <Link to={createPageUrl(`UploadGame?edit=${game.id}`)}>
+                            <Link to={`/upload-game?edit=${game.id}`}>
                               <Button
                                 variant="ghost"
                                 size="icon"

@@ -1,8 +1,7 @@
 import React, { useState, useEffect } from "react";
 import { api } from "@/api/client";
 import { useAuth } from "@/lib/AuthContext";
-import { Link } from "react-router-dom";
-import { createPageUrl } from "@/utils";
+import { Link, useNavigate, useSearchParams } from "react-router-dom";
 import {
   Loader2,
   Shield,
@@ -28,6 +27,8 @@ import AchievementManager from "@/components/games/AchievementManager";
 
 export default function UploadGame() {
   const { user, isLoadingAuth } = useAuth();
+  const navigate = useNavigate();
+  const [searchParams] = useSearchParams();
   const [isSaving, setIsSaving] = useState(false);
 
   const [formData, setFormData] = useState({
@@ -42,8 +43,7 @@ export default function UploadGame() {
     is_multiplayer: false,
   });
 
-  const urlParams = new URLSearchParams(window.location.search);
-  const editId = urlParams.get("edit");
+  const editId = searchParams.get("edit");
 
   // Load game data if editing
   useEffect(() => {
@@ -80,7 +80,7 @@ export default function UploadGame() {
         await api.post("/games", formData);
         toast.success("Juego publicado");
       }
-      window.location.href = createPageUrl("Admin");
+      navigate("/admin");
     } catch {
       toast.error("Error al guardar el juego");
     }
@@ -103,7 +103,7 @@ export default function UploadGame() {
         <p className="text-gray-400 mb-6">
           Solo los administradores pueden subir juegos
         </p>
-        <Link to={createPageUrl("Home")}>
+        <Link to={"/"}>
           <Button className="bg-gradient-to-r from-purple-600 to-cyan-500">
             Volver al inicio
           </Button>
@@ -116,7 +116,7 @@ export default function UploadGame() {
     <div className="max-w-4xl mx-auto px-4 py-8">
       {/* Back Button */}
       <Link
-        to={createPageUrl("Admin")}
+        to={"/admin"}
         className="inline-flex items-center gap-2 text-gray-400 hover:text-white mb-6 transition-colors"
       >
         <ArrowLeft className="w-4 h-4" />

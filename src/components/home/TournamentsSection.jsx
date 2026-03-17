@@ -3,7 +3,6 @@ import { Trophy, Calendar, Users, ChevronLeft, ChevronRight, Gift } from "lucide
 import { useQuery } from "@tanstack/react-query";
 import { api } from "@/api/client";
 import { Link } from "react-router-dom";
-import { createPageUrl } from "../../utils";
 import { Card } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
@@ -113,7 +112,7 @@ export default function TournamentsSection() {
                 </div>
                 {game && (
                   <div className="mt-4 pt-4 border-t border-white/10">
-                    <Link to={createPageUrl(`GameDetail?id=${game.id}`)}>
+                    <Link to={`/game/${game.id}`}>
                       <Button variant="outline" className="w-full border-yellow-500/30 text-yellow-400 hover:bg-yellow-500/10">
                         Ver Juego
                       </Button>

@@ -1,6 +1,5 @@
 import React, { useState } from "react";
 import { Link, useLocation } from "react-router-dom";
-import { createPageUrl } from "./utils";
 import { useAuth } from "@/lib/AuthContext";
 import {
   Gamepad2,
@@ -18,8 +17,9 @@ import {
 import { Button } from "@/components/ui/button";
 import { Sheet, SheetContent, SheetTrigger } from "@/components/ui/sheet";
 
-export default function Layout({ children, currentPageName }) {
+export default function Layout({ children }) {
   const { user, logout } = useAuth();
+  const location = useLocation();
   const [isOpen, setIsOpen] = useState(false);
   const [isDark, setIsDark] = useState(() => {
     const saved = localStorage.getItem("playcraft-theme");
@@ -38,19 +38,19 @@ export default function Layout({ children, currentPageName }) {
   }, [isDark]);
 
   const navItems = [
-    { name: "Inicio", page: "Home", icon: Home },
-    { name: "Juegos", page: "Games", icon: Gamepad2 },
+    { name: "Inicio", path: "/", icon: Home },
+    { name: "Juegos", path: "/games", icon: Gamepad2 },
   ];
 
   if (user) {
     if (user.role !== "admin" && user.role !== "empresa") {
-      navItems.push({ name: "Favoritos", page: "Favorites", icon: Heart });
+      navItems.push({ name: "Favoritos", path: "/favorites", icon: Heart });
     }
-    navItems.push({ name: "Perfil", page: "Profile", icon: User });
+    navItems.push({ name: "Perfil", path: "/profile", icon: User });
     if (user.role === "admin") {
-      navItems.push({ name: "Admin", page: "Admin", icon: Shield });
+      navItems.push({ name: "Admin", path: "/admin", icon: Shield });
     } else if (user.role === "empresa") {
-      navItems.push({ name: "Mi Empresa", page: "CompanyDashboard", icon: Settings });
+      navItems.push({ name: "Mi Empresa", path: "/company-dashboard", icon: Settings });
     }
   }
 
@@ -58,11 +58,11 @@ export default function Layout({ children, currentPageName }) {
     <div className={mobile ? "flex flex-col gap-2" : "hidden md:flex items-center gap-1"}>
       {navItems.map((item) => {
         const Icon = item.icon;
-        const isActive = currentPageName === item.page;
+        const isActive = location.pathname === item.path;
         return (
           <Link
-            key={item.page}
-            to={createPageUrl(item.page)}
+            key={item.path}
+            to={item.path}
             onClick={() => mobile && setIsOpen(false)}
             className={`flex items-center gap-2 px-4 py-2.5 rounded-lg transition-all duration-300 ${
               isActive
@@ -164,7 +164,7 @@ export default function Layout({ children, currentPageName }) {
       {/* Header */}
       <header className={`sticky top-0 z-50 border-b backdrop-blur-xl ${isDark ? "border-white/5 bg-[#0a0a0f]/80" : "border-gray-200 bg-white/90"}`}>
         <div className="max-w-7xl mx-auto px-4 py-4 flex items-center justify-between">
-          <Link to={createPageUrl("Home")} className="flex items-center gap-3 group">
+          <Link to="/" className="flex items-center gap-3 group">
             <div className="p-2 rounded-xl bg-gradient-to-br from-purple-600 to-cyan-500 neon-glow group-hover:scale-105 transition-transform">
               <Gamepad2 className="w-6 h-6 text-white" />
             </div>

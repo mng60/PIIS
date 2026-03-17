@@ -2,7 +2,6 @@ import React, { useState } from "react";
 import { api } from "@/api/client";
 import { useAuth } from "@/lib/AuthContext";
 import { useQuery } from "@tanstack/react-query";
-import { createPageUrl } from "@/utils";
 import {
   Loader2, User, Mail, Calendar, Trophy, Heart, Gamepad2, Edit2, Save
 } from "lucide-react";
@@ -62,7 +61,7 @@ export default function Profile() {
         <User className="w-16 h-16 mx-auto mb-4 text-gray-600" />
         <h2 className="text-2xl font-bold text-white mb-2">Inicia sesión</h2>
         <p className="text-gray-400 mb-6">Necesitas iniciar sesión para ver tu perfil</p>
-        <Link to={createPageUrl("Home")}>
+        <Link to={"/"}>
           <Button className="bg-gradient-to-r from-purple-600 to-cyan-500">Ir al inicio</Button>
         </Link>
       </div>

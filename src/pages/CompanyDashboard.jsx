@@ -3,7 +3,6 @@ import { api } from "@/api/client";
 import { useAuth } from "@/lib/AuthContext";
 import { useQuery } from "@tanstack/react-query";
 import { Link } from "react-router-dom";
-import { createPageUrl } from "@/utils";
 import {
   Loader2,
   Building2,
@@ -59,7 +58,7 @@ export default function CompanyDashboard() {
         <p className="text-gray-400 mb-6">
           Solo las cuentas de empresa pueden acceder a esta sección
         </p>
-        <Link to={createPageUrl("Home")}>
+        <Link to={"/"}>
           <Button className="bg-gradient-to-r from-purple-600 to-cyan-500">
             Volver al inicio
           </Button>
@@ -79,7 +78,7 @@ export default function CompanyDashboard() {
           </h1>
           <p className="text-gray-400 mt-1">Estadísticas de tus juegos</p>
         </div>
-        <Link to={createPageUrl("UploadGame")}>
+        <Link to={"/upload-game"}>
           <Button className="bg-gradient-to-r from-purple-600 to-cyan-500">
             <Plus className="w-4 h-4 mr-2" />
             Subir Juego

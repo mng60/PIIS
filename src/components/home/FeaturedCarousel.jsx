@@ -1,7 +1,6 @@
 import React, { useState, useEffect } from "react";
 import { ChevronLeft, ChevronRight, Play } from "lucide-react";
 import { Link } from "react-router-dom";
-import { createPageUrl } from "../../utils";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 
@@ -73,7 +72,7 @@ export default function FeaturedCarousel({ games }) {
             {currentGame.description || currentGame.full_description}
           </p>
 
-          <Link to={createPageUrl(`GameDetail?id=${currentGame.id}`)}>
+          <Link to={`/game/${currentGame.id}`}>
             <Button className="bg-gradient-to-r from-purple-600 to-cyan-500 hover:opacity-90 text-sm sm:text-base md:text-lg px-4 py-3 sm:px-6 sm:py-4 md:px-8 md:py-6">
               <Play className="w-4 h-4 sm:w-5 sm:h-5 mr-1 sm:mr-2 fill-white" />
               Jugar Ahora
