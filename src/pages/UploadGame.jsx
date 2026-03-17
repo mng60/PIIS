@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from "react";
-import { api } from "@/api/client";
+import { getGameById, createGame, updateGame } from "@/api/games";
 import { useAuth } from "@/lib/AuthContext";
 import { Link, useNavigate, useSearchParams } from "react-router-dom";
 import {
@@ -48,7 +48,7 @@ export default function UploadGame() {
   // Load game data if editing
   useEffect(() => {
     if (editId && user?.role === "admin") {
-      api.get(`/games/${editId}`).then((game) => {
+      getGameById(editId).then((game) => {
         setFormData({
           title: game.title || "",
           description: game.description || "",
@@ -74,10 +74,10 @@ export default function UploadGame() {
     setIsSaving(true);
     try {
       if (editId) {
-        await api.patch(`/games/${editId}`, formData);
+        await updateGame(editId, formData);
         toast.success("Juego actualizado");
       } else {
-        await api.post("/games", formData);
+        await createGame(formData);
         toast.success("Juego publicado");
       }
       navigate("/admin");

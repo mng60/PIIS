@@ -1,12 +1,13 @@
 # PlayCraft
 
-Plataforma de videojuegos web — Proyecto Universitario PIIS.
+Plataforma de juegos web — Proyecto Universitario PIIS.
 
 ## Stack
 
 - **Frontend:** React 18 + Vite + Tailwind CSS + shadcn/ui
 - **Backend:** Node.js + Express + Prisma ORM
 - **Base de datos:** PostgreSQL
+- **Auth:** JWT (localStorage)
 
 ---
 
@@ -26,19 +27,18 @@ cd PIIS
 npm install
 
 # Backend
-cd server
-npm install
+cd server && npm install
 ```
 
 ### 3. Variables de entorno
 
-**Frontend** — crear `.env` en la raíz del proyecto:
+**Frontend** — `.env` en la raíz:
 
 ```env
 VITE_API_URL="http://localhost:3001/api"
 ```
 
-**Backend** — crear `server/.env`:
+**Backend** — `server/.env`:
 
 ```env
 DATABASE_URL="postgresql://TU_USUARIO:TU_PASSWORD@localhost:5432/playcraft"
@@ -49,20 +49,10 @@ PORT=3001
 
 ### 4. Base de datos
 
-Asegúrate de tener PostgreSQL instalado y crea la base de datos `playcraft`. Luego aplica el esquema:
-
 ```bash
 cd server
 npx prisma db push
-```
-
-### 5. Usuarios de prueba
-
-Ejecuta el seed para crear los 3 usuarios de prueba:
-
-```bash
-cd server
-node prisma/seed.js
+node prisma/seed.js   # crea 3 usuarios de prueba
 ```
 
 | Rol | Email | Contraseña |
@@ -71,20 +61,18 @@ node prisma/seed.js
 | Usuario | usuario@playcraft.com | user1234 |
 | Empresa | empresa@playcraft.com | empresa123 |
 
-### 6. Arrancar los servidores
-
-En dos terminales separadas:
+### 5. Arrancar
 
 ```bash
-# Terminal 1 — Backend (desde /server)
-npm run dev
+# Terminal 1 — Backend
+cd server && npm run dev
 
-# Terminal 2 — Frontend (desde la raíz)
+# Terminal 2 — Frontend
 npm run dev
 ```
 
 - Frontend: http://localhost:5173
-- Backend API: http://localhost:3001/api
+- API: http://localhost:3001/api
 
 ---
 
@@ -92,53 +80,117 @@ npm run dev
 
 ```
 PIIS/
-├── src/                  # Frontend React
-│   ├── pages/            # Páginas de la app
-│   ├── components/       # Componentes reutilizables
-│   ├── hooks/            # Hooks reutilizables (useGameRoom, etc.)
-│   ├── api/              # Cliente HTTP
-│   └── lib/              # Auth context, utilidades
-└── server/               # Backend Express
-    ├── src/routes/       # Rutas de la API
-    ├── src/middleware/   # Auth middleware
-    └── prisma/           # Schema y migraciones
+├── src/
+│   ├── pages/                   # Páginas (coordinan datos + componentes)
+│   ├── components/
+│   │   ├── game-detail/         # Componentes específicos de GameDetail
+│   │   ├── games/               # Componentes de juego (GameCard, Leaderboard, etc.)
+│   │   ├── home/                # Secciones de la home
+│   │   ├── admin/               # Panel de administración
+│   │   ├── moderation/          # Reportes y moderación
+│   │   └── ui/                  # shadcn/ui (no modificar)
+│   ├── hooks/                   # Hooks reutilizables
+│   ├── api/                     # Capa API por dominio
+│   └── lib/                     # AuthContext, query-client, utilidades
+└── server/
+    ├── src/
+    │   ├── routes/              # Endpoints Express
+    │   └── middleware/          # Auth JWT
+    └── prisma/                  # Schema y migraciones
 ```
 
 ---
 
-## Crear un juego multijugador
+## Capa API (`src/api/`)
 
-PlayCraft incluye infraestructura común para juegos online. Para crear uno nuevo solo hay que usar el hook `useGameRoom` y los componentes genéricos.
+Cada módulo agrupa las llamadas HTTP de un dominio. Las páginas y hooks importan desde aquí — nunca llaman a `api.get/post` directamente para dominios que tienen módulo.
 
-### Componentes disponibles
+| Módulo | Funciones principales |
+|--------|----------------------|
+| `client.js` | `api.get/post/patch/delete` — cliente HTTP base con JWT |
+| `games.js` | `getGames`, `getGameById`, `getMyGames`, `createGame`, `updateGame`, `deleteGame`, `recordPlay` |
+| `scores.js` | `getGameScores`, `getUserScores`, `submitScore` |
+| `comments.js` | `getGameComments`, `addComment`, `deleteComment` |
+| `favorites.js` | `getFavorites`, `addFavorite`, `removeFavorite` |
+| `sessions.js` | `createSession`, `getSession`, `updateSession`, `deleteSession` |
 
-| Componente | Ruta | Descripción |
-|---|---|---|
-| `OnlineGameLobby` | `@/components/games/OnlineGameLobby` | Pantalla de crear/unirse a sala |
-| `OnlineGamePlayerZone` | `@/components/games/OnlineGamePlayerZone` | Marcador de jugadores con turno activo |
-| `OnlineGameMoveHistory` | `@/components/games/OnlineGameMoveHistory` | Lista de últimos movimientos |
-| `ChatSection` | `@/components/games/ChatSection` | Chat en directo de la partida |
+> Dominios sin módulo propio todavía (usan `api` directamente): `/users`, `/achievements`, `/chess`, `/tournaments`, `/chat`, `/reports`.
 
-### Hook `useGameRoom`
+---
 
-Gestiona toda la lógica de sala: crear, unirse, sincronizar estado vía polling, turno y abandonar.
+## Hooks (`src/hooks/`)
 
-```jsx
+### Hooks de datos
+
+| Hook | Dónde se usa | Qué hace |
+|------|-------------|----------|
+| `useGameDetail` | `GameDetail.jsx` | Queries de juego, puntuaciones, comentarios y favoritos |
+
+### Hooks para juegos de un jugador
+
+| Hook | Dónde se usa | Qué hace |
+|------|-------------|----------|
+| `useSinglePlayerGame` | `SnakeGame.jsx` | Ciclo idle → playing → gameover, marcador, récord en localStorage |
+
+### Hooks para juegos multijugador
+
+PlayCraft tiene dos sistemas según el tipo de juego multijugador:
+
+#### Sistema 1 — Relay de iframe (`useTurnGameRelay` + `useChessGame`)
+
+Para juegos que se ejecutan dentro de un **iframe** y se comunican con el host vía `postMessage`.
+
+```
+GameArea
+  └── useChessGame          ← config específica de ajedrez
+        └── useTurnGameRelay  ← infraestructura genérica de sala + relay
+              └── src/api/sessions.js
+```
+
+`useTurnGameRelay` gestiona:
+- `CREATE_ROOM` → crea sesión en BD, responde `ROOM_CREATED`
+- `JOIN_ROOM` → valida y une al guest
+- `[actionType]` → almacena la acción del jugador en `game_state.actions`
+- Polling cada 1.5 s → entrega acciones del oponente al iframe
+
+`useChessGame` configura el relay para ajedrez:
+- Tipo de acción: `CHESS_MOVE` → `{ from, to, promo }`
+- Mensaje al oponente: `CHESS_OPPONENT_MOVE`
+- `PLAYER_INFO` con `color: 'black'` al guest y `color: 'white'` al host
+
+**Para añadir un nuevo juego de mesa con iframe:**
+
+```js
+// src/hooks/useDominoGame.js
+import { useTurnGameRelay } from './useTurnGameRelay';
+
+export function useDominoGame({ isPlaying, user, gameId, iframeRef, onRoomCodeChange }) {
+  useTurnGameRelay({
+    isPlaying, user, gameId, iframeRef, onRoomCodeChange,
+    actionType: 'DOMINO_PLACE',
+    extractAction:        (msg)    => ({ piece: msg.piece, position: msg.position }),
+    buildOpponentMessage: (action) => ({ type: 'OPPONENT_PLACED', ...action }),
+    onGuestJoined:        (session, iframeRef, user) => { /* player info al guest */ },
+    onHostGameStart:      (session, iframeRef, user) => { /* player info al host */ },
+  });
+}
+```
+
+---
+
+#### Sistema 2 — Sala React (`useGameRoom`)
+
+Para juegos implementados como **componentes React** (sin iframe). Gestiona la sala completa: lobby, espera, turno activo, abandono.
+
+```js
 import { useGameRoom } from "@/hooks/useGameRoom";
-import OnlineGameLobby from "@/components/games/OnlineGameLobby";
-import OnlineGamePlayerZone from "@/components/games/OnlineGamePlayerZone";
-import OnlineGameMoveHistory from "@/components/games/OnlineGameMoveHistory";
-import ChatSection from "@/components/games/ChatSection";
 
 export default function MiJuegoOnline({ user, gameId }) {
   const room = useGameRoom({ gameId, user });
 
-  // Pantalla de lobby (crear / unirse)
   if (room.phase === "lobby") {
     return (
       <OnlineGameLobby
-        title="Mi Juego Online"
-        description="Juega en tiempo real con otro jugador"
         onCreateRoom={() => room.createRoom({ /* estado inicial */ })}
         onJoinRoom={room.joinRoom}
         joinCode={room.joinCode}
@@ -151,7 +203,6 @@ export default function MiJuegoOnline({ user, gameId }) {
 
   return (
     <div>
-      {/* Marcador: a quién le toca */}
       <OnlineGamePlayerZone
         topPlayer={{ name: room.opponentName }}
         bottomPlayer={{ name: user?.full_name || "Tú" }}
@@ -159,43 +210,50 @@ export default function MiJuegoOnline({ user, gameId }) {
         isBottomPlayerActive={room.isMyTurn}
       />
 
-      {/* Tu lógica de juego aquí.
-          Accedes al estado con room.gameState y lo actualizas con room.updateState().
-          Para pasar el turno: room.passTurn()
-          Para terminar: room.finishGame(winnerEmail) o room.finishGame("draw") */}
+      {/* Lógica del juego con room.gameState y room.updateState() */}
+      {/* Para pasar turno: room.passTurn() */}
+      {/* Para terminar: room.finishGame(winnerEmail) o room.finishGame("draw") */}
 
-      {/* Chat de partida */}
       <ChatSection gameId={gameId} user={user} sessionId={room.roomCode} />
-
-      {/* Historial de movimientos (gestiona tu propio array de moves) */}
       <OnlineGameMoveHistory moves={[]} />
-
       <button onClick={room.leaveRoom}>Salir</button>
     </div>
   );
 }
 ```
 
-### API del hook
+**API de `useGameRoom`:**
 
 | Propiedad | Tipo | Descripción |
-|---|---|---|
-| `phase` | `"lobby" \| "waiting" \| "playing" \| "finished"` | Estado actual de la sala |
-| `roomCode` | `string` | Código de 6 letras de la sala |
-| `myRole` | `"host" \| "guest" \| null` | Rol del jugador actual |
-| `isMyTurn` | `boolean` | Si es el turno del jugador actual |
-| `gameState` | `object` | Estado JSON libre del juego (sincronizado con BD) |
+|-----------|------|-------------|
+| `phase` | `"lobby" \| "waiting" \| "playing" \| "finished"` | Estado de la sala |
+| `roomCode` | `string` | Código de 6 letras |
+| `myRole` | `"host" \| "guest" \| null` | Rol del jugador |
+| `isMyTurn` | `boolean` | Si es tu turno |
+| `gameState` | `object` | Estado JSON del juego (sincronizado con BD) |
 | `currentTurn` | `"host" \| "guest"` | A quién le toca |
 | `winner` | `string \| null` | Email del ganador, `"draw"`, o null |
-| `hostPlayer` | `{ email, name }` | Datos del host |
-| `guestPlayer` | `{ email, name } \| null` | Datos del guest |
+| `hostPlayer` / `guestPlayer` | `{ email, name }` | Datos de cada jugador |
 | `opponentName` | `string` | Nombre del rival |
 
 | Función | Descripción |
-|---|---|
-| `createRoom(initialState?)` | Crea sala; el usuario es host |
-| `joinRoom(code?)` | Se une a sala existente como guest |
+|---------|-------------|
+| `createRoom(initialState?)` | Crea sala como host |
+| `joinRoom(code?)` | Se une como guest |
 | `updateState(patch)` | Actualiza `game_state` en BD (merge) |
 | `passTurn()` | Cambia el turno: host ↔ guest |
 | `finishGame(winner)` | Marca la partida como terminada |
-| `leaveRoom()` | Sale o abandona (el rival gana si estaba jugando) |
+| `leaveRoom()` | Abandona (el rival gana si estaba jugando) |
+
+---
+
+## Componentes genéricos de sala (`src/components/games/`)
+
+Disponibles para cualquier juego multijugador:
+
+| Componente | Descripción |
+|------------|-------------|
+| `OnlineGameLobby` | Pantalla de crear/unirse a sala |
+| `OnlineGamePlayerZone` | Indicador de turno activo para ambos jugadores |
+| `OnlineGameMoveHistory` | Lista de movimientos de la partida |
+| `ChatSection` | Chat en tiempo real de la sesión |

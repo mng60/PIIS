@@ -1,5 +1,5 @@
 import React, { useMemo } from "react";
-import { api } from "@/api/client";
+import { getGames } from "@/api/games";
 import { useQuery } from "@tanstack/react-query";
 import { Loader2, ArrowRight } from "lucide-react";
 import { Link } from "react-router-dom";
@@ -12,7 +12,7 @@ import TournamentsSection from "@/components/home/TournamentsSection";
 export default function Home() {
   const { data: { games = [] } = {}, isLoading } = useQuery({
     queryKey: ["games"],
-    queryFn: () => api.get("/games?limit=100"),
+    queryFn: () => getGames("?limit=100"),
   });
 
   const featuredGames = useMemo(() => games.filter(g => g.is_featured), [games]);

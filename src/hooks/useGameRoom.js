@@ -90,7 +90,7 @@
  */
 
 import { useState, useRef, useEffect, useCallback } from "react";
-import { api } from "@/api/client";
+import { createSession, getSession, updateSession, deleteSession } from "@/api/sessions";
 
 const POLL_MS = 1500;
 
@@ -136,7 +136,7 @@ export function useGameRoom({ gameId, user, pollInterval = POLL_MS } = {}) {
     pollRef.current = setInterval(async () => {
       if (!roomCodeRef.current) return;
       try {
-        const room = await api.get(`/sessions/${roomCodeRef.current}`);
+        const room = await getSession(roomCodeRef.current);
         if (room.updated_at !== lastUpdatedRef.current) applyRoom(room);
       } catch { /* ignorar errores de red durante polling */ }
     }, pollInterval);
@@ -175,12 +175,7 @@ export function useGameRoom({ gameId, user, pollInterval = POLL_MS } = {}) {
     setError("");
     try {
       const code = generateCode();
-      const room = await api.post("/sessions", {
-        room_code: code,
-        game_id: gameId,
-        game_state: initialState,
-        current_turn: "host",
-      });
+      const room = await createSession(code, gameId, initialState);
       roomCodeRef.current = code;
       myRoleRef.current = "host";
       lastUpdatedRef.current = room.updated_at;
@@ -204,12 +199,12 @@ export function useGameRoom({ gameId, user, pollInterval = POLL_MS } = {}) {
     setLoading(true);
     setError("");
     try {
-      const room = await api.get(`/sessions/${roomCode}`);
+      const room = await getSession(roomCode);
       if (!room || room.status !== "waiting") {
         setError("Sala no encontrada o ya empezada");
         return;
       }
-      const updated = await api.patch(`/sessions/${roomCode}`, {
+      const updated = await updateSession(roomCode, {
         guest_email: user.email,
         guest_name: user.full_name || user.email,
         status: "playing",
@@ -238,9 +233,7 @@ export function useGameRoom({ gameId, user, pollInterval = POLL_MS } = {}) {
     if (!roomCodeRef.current) return;
     const merged = { ...gameState, ...patch };
     try {
-      const room = await api.patch(`/sessions/${roomCodeRef.current}`, {
-        game_state: merged,
-      });
+      const room = await updateSession(roomCodeRef.current, { game_state: merged });
       setGameState(room.game_state ?? merged);
       lastUpdatedRef.current = room.updated_at;
     } catch (e) {
@@ -254,9 +247,7 @@ export function useGameRoom({ gameId, user, pollInterval = POLL_MS } = {}) {
     if (!roomCodeRef.current) return;
     const next = currentTurn === "host" ? "guest" : "host";
     try {
-      const room = await api.patch(`/sessions/${roomCodeRef.current}`, {
-        current_turn: next,
-      });
+      const room = await updateSession(roomCodeRef.current, { current_turn: next });
       setCurrentTurn(next);
       lastUpdatedRef.current = room.updated_at;
     } catch (e) {
@@ -269,10 +260,7 @@ export function useGameRoom({ gameId, user, pollInterval = POLL_MS } = {}) {
   const finishGame = useCallback(async (winnerValue) => {
     if (!roomCodeRef.current) return;
     try {
-      await api.patch(`/sessions/${roomCodeRef.current}`, {
-        status: "finished",
-        winner: winnerValue ?? null,
-      });
+      await updateSession(roomCodeRef.current, { status: "finished", winner: winnerValue ?? null });
       setWinner(winnerValue ?? null);
       setPhase("finished");
     } catch (e) {
@@ -286,7 +274,7 @@ export function useGameRoom({ gameId, user, pollInterval = POLL_MS } = {}) {
     if (!roomCodeRef.current) { resetLocal(); return; }
     try {
       if (phase === "waiting") {
-        await api.delete(`/sessions/${roomCodeRef.current}`);
+        await deleteSession(roomCodeRef.current);
       } else if (phase === "playing") {
         // el rival gana por abandono
         const opponentEmail =
@@ -294,12 +282,9 @@ export function useGameRoom({ gameId, user, pollInterval = POLL_MS } = {}) {
             ? guestPlayer?.email
             : hostPlayer?.email;
         if (opponentEmail) {
-          await api.patch(`/sessions/${roomCodeRef.current}`, {
-            status: "finished",
-            winner: opponentEmail,
-          });
+          await updateSession(roomCodeRef.current, { status: "finished", winner: opponentEmail });
         } else {
-          await api.delete(`/sessions/${roomCodeRef.current}`);
+          await deleteSession(roomCodeRef.current);
         }
       }
     } catch { /* si falla la petición, igualmente limpiamos */ }

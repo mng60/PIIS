@@ -1,5 +1,7 @@
 import React, { useState } from "react";
 import { api } from "@/api/client";
+import { getFavorites } from "@/api/favorites";
+import { getUserScores } from "@/api/scores";
 import { useAuth } from "@/lib/AuthContext";
 import { useQuery } from "@tanstack/react-query";
 import {
@@ -24,13 +26,13 @@ export default function Profile() {
 
   const { data: favorites = [] } = useQuery({
     queryKey: ["favorites", user?.email],
-    queryFn: () => api.get("/favorites"),
+    queryFn: getFavorites,
     enabled: !!user,
   });
 
   const { data: scores = [] } = useQuery({
     queryKey: ["userScores", user?.email],
-    queryFn: () => api.get(`/scores?user_email=${user.email}&limit=50`),
+    queryFn: () => getUserScores(user.email),
     enabled: !!user,
   });
 

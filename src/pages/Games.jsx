@@ -1,5 +1,5 @@
 import React, { useState, useMemo } from "react";
-import { api } from "@/api/client";
+import { getGames } from "@/api/games";
 import { useAuth } from "@/lib/AuthContext";
 import { useQuery } from "@tanstack/react-query";
 import { Loader2, Gamepad2, Search } from "lucide-react";
@@ -23,7 +23,7 @@ export default function Games() {
 
   const { data: { games = [] } = {}, isLoading } = useQuery({
     queryKey: ["games"],
-    queryFn: () => api.get("/games?limit=200"),
+    queryFn: () => getGames("?limit=200"),
   });
 
   const filteredGames = useMemo(() => {

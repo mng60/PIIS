@@ -1,7 +1,9 @@
 import { api } from './client';
 
-export const createSession = (roomCode, gameId) =>
-  api.post('/sessions', { room_code: roomCode, game_id: gameId, game_state: { moves: [] }, current_turn: 'host' });
+// initialState defaults to {} — each game defines its own structure
+export const createSession = (roomCode, gameId, initialState = {}) =>
+  api.post('/sessions', { room_code: roomCode, game_id: gameId, game_state: initialState, current_turn: 'host' });
 
 export const getSession    = (code)       => api.get(`/sessions/${code}`);
 export const updateSession = (code, data) => api.patch(`/sessions/${code}`, data);
+export const deleteSession = (code)       => api.delete(`/sessions/${code}`);

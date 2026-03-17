@@ -1,5 +1,6 @@
 import React, { useState, useMemo } from "react";
 import { api } from "@/api/client";
+import { getGames, updateGame, deleteGame as deleteGameApi } from "@/api/games";
 import { useAuth } from "@/lib/AuthContext";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { Link } from "react-router-dom";
@@ -246,7 +247,7 @@ export default function Admin() {
 
   const { data: gamesData = {}, refetch: refetchGames } = useQuery({
     queryKey: ["adminGames"],
-    queryFn: () => api.get("/games?limit=500&all=true"),
+    queryFn: () => getGames("?limit=500&all=true"),
     enabled: user?.role === "admin"
   });
   const games = gamesData.games || [];
@@ -258,19 +259,19 @@ export default function Admin() {
   });
 
   const toggleGameVisibility = async (game) => {
-    await api.patch(`/games/${game.id}`, { is_active: !game.is_active });
+    await updateGame(game.id, { is_active: !game.is_active });
     refetchGames();
     toast.success(game.is_active ? "Juego ocultado" : "Juego visible");
   };
 
   const toggleGameFeatured = async (game) => {
-    await api.patch(`/games/${game.id}`, { is_featured: !game.is_featured });
+    await updateGame(game.id, { is_featured: !game.is_featured });
     refetchGames();
     toast.success(game.is_featured ? "Quitado de destacados" : "Marcado como destacado");
   };
 
-  const deleteGame = async (gameId) => {
-    await api.delete(`/games/${gameId}`);
+  const handleDeleteGame = async (gameId) => {
+    await deleteGameApi(gameId);
     refetchGames();
     toast.success("Juego eliminado");
   };
@@ -532,7 +533,7 @@ export default function Admin() {
                                     Cancelar
                                   </AlertDialogCancel>
                                   <AlertDialogAction
-                                    onClick={() => deleteGame(game.id)}
+                                    onClick={() => handleDeleteGame(game.id)}
                                     className="bg-red-600 hover:bg-red-700"
                                   >
                                     Eliminar

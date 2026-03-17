@@ -1,5 +1,5 @@
 import { useMemo } from "react";
-import { api } from "@/api/client";
+import { getMyGames } from "@/api/games";
 import { useAuth } from "@/lib/AuthContext";
 import { useQuery } from "@tanstack/react-query";
 import { Link } from "react-router-dom";
@@ -29,7 +29,7 @@ export default function CompanyDashboard() {
 
   const { data: gamesData = {} } = useQuery({
     queryKey: ["companyGames", user?.email],
-    queryFn: () => api.get("/games/mine"),
+    queryFn: getMyGames,
     enabled: !!user && user.role === "empresa",
   });
   const allGames = gamesData.games || [];

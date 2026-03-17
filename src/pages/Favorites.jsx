@@ -1,5 +1,6 @@
 import React from "react";
-import { api } from "@/api/client";
+import { getGames } from "@/api/games";
+import { getFavorites } from "@/api/favorites";
 import { useAuth } from "@/lib/AuthContext";
 import { useQuery } from "@tanstack/react-query";
 import { Loader2, Heart, Gamepad2 } from "lucide-react";
@@ -12,13 +13,13 @@ export default function Favorites() {
 
   const { data: favorites = [], isLoading: favsLoading } = useQuery({
     queryKey: ["favorites", user?.email],
-    queryFn: () => api.get("/favorites"),
+    queryFn: getFavorites,
     enabled: !!user,
   });
 
   const { data: { games: allGames = [] } = {}, isLoading: gamesLoading } = useQuery({
     queryKey: ["games"],
-    queryFn: () => api.get("/games?limit=200"),
+    queryFn: () => getGames("?limit=200"),
     enabled: !!user,
   });
 
