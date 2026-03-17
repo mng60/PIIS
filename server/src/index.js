@@ -14,6 +14,7 @@ import chatRoutes from './routes/chat.js';
 import sessionsRoutes from './routes/sessions.js';
 import chessRoutes from './routes/chess.js';
 import usersRoutes from './routes/users.js';
+import newsRoutes from './routes/news.js';
 
 const app = express();
 const PORT = process.env.PORT || 3001;
@@ -34,6 +35,7 @@ app.use('/api/reports', reportsRoutes);
 app.use('/api/chat', chatRoutes);
 app.use('/api/sessions', sessionsRoutes);
 app.use('/api/chess', chessRoutes);
+app.use('/api/news', newsRoutes);
 
 app.get('/api/health', (_req, res) => res.json({ ok: true }));
 

@@ -2,14 +2,11 @@ import React, { useState, useMemo } from "react";
 import { getGames } from "@/api/games";
 import { useAuth } from "@/lib/AuthContext";
 import { useQuery } from "@tanstack/react-query";
-import { Loader2, Gamepad2, Search, ShieldAlert } from "lucide-react";
+import { Loader2, Gamepad2, Search } from "lucide-react";
 import GameCard from "@/components/games/GameCard";
 import RecommendationSection from "@/components/games/RecommendationSection";
-import AgeGateDialog from "@/components/AgeGateDialog";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
-
-const AGE_KEY = "playcraft_age_confirmed";
 
 const categories = [
   { value: "all", label: "Todas" },
@@ -23,8 +20,6 @@ export default function Games() {
   const { user } = useAuth();
   const [searchQuery, setSearchQuery] = useState("");
   const [selectedCategory, setSelectedCategory] = useState("all");
-  const [showAdult, setShowAdult] = useState(() => localStorage.getItem(AGE_KEY) === "yes");
-  const [ageGateOpen, setAgeGateOpen] = useState(false);
 
   const { data: { games = [] } = {}, isLoading } = useQuery({
     queryKey: ["games"],
@@ -33,7 +28,6 @@ export default function Games() {
 
   const filteredGames = useMemo(() => {
     return games.filter((game) => {
-      if (game.is_adult && !showAdult) return false;
       const matchesSearch =
         game.title?.toLowerCase().includes(searchQuery.toLowerCase()) ||
         game.description?.toLowerCase().includes(searchQuery.toLowerCase());
@@ -41,12 +35,7 @@ export default function Games() {
         selectedCategory === "all" || game.category === selectedCategory;
       return matchesSearch && matchesCategory;
     });
-  }, [games, searchQuery, selectedCategory, showAdult]);
-
-  const adultCount = useMemo(
-    () => games.filter((g) => g.is_adult).length,
-    [games]
-  );
+  }, [games, searchQuery, selectedCategory]);
 
   if (isLoading) {
     return (
@@ -58,16 +47,6 @@ export default function Games() {
 
   return (
     <div className="max-w-7xl mx-auto px-4 py-8">
-      <AgeGateDialog
-        open={ageGateOpen}
-        onConfirm={() => {
-          localStorage.setItem(AGE_KEY, "yes");
-          setShowAdult(true);
-          setAgeGateOpen(false);
-        }}
-        onDeny={() => setAgeGateOpen(false)}
-      />
-
       <div className="mb-8">
         <h1 className="text-3xl font-bold text-white mb-2 flex items-center gap-3">
           <Gamepad2 className="w-8 h-8 text-purple-400" />
@@ -107,32 +86,6 @@ export default function Games() {
             </Button>
           ))}
         </div>
-
-        {adultCount > 0 && (
-          <div className="flex items-center gap-3 p-3 rounded-lg bg-red-900/20 border border-red-500/20">
-            <ShieldAlert className="w-4 h-4 text-red-400 shrink-0" />
-            <span className="text-sm text-red-300">
-              {showAdult
-                ? `Mostrando contenido +18 (${adultCount} juegos)`
-                : `${adultCount} juegos con contenido para mayores de 18 están ocultos`}
-            </span>
-            <Button
-              size="sm"
-              variant="ghost"
-              className="ml-auto text-red-300 hover:text-white hover:bg-red-500/20 border border-red-500/30 text-xs"
-              onClick={() => {
-                if (showAdult) {
-                  localStorage.removeItem(AGE_KEY);
-                  setShowAdult(false);
-                } else {
-                  setAgeGateOpen(true);
-                }
-              }}
-            >
-              {showAdult ? "Ocultar +18" : "Ver contenido +18"}
-            </Button>
-          </div>
-        )}
       </div>
 
       {filteredGames.length === 0 ? (

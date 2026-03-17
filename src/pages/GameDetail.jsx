@@ -16,11 +16,10 @@ import { evaluateAndUpdateAchievements } from '@/components/achievements';
 import { recordPlay } from '@/api/games';
 import { submitScore } from '@/api/scores';
 
-const AGE_KEY = 'playcraft_age_confirmed';
-
 export default function GameDetail() {
   const { id: gameId } = useParams();
   const { user } = useAuth();
+  const ageKey = user ? `playcraft_age_${user.email}_${gameId}` : null;
   const queryClient = useQueryClient();
 
   const { game, gameLoading, scores, comments, refetchComments, isFavorite, toggleFavorite, invalidateGame } =
@@ -44,7 +43,7 @@ export default function GameDetail() {
   const handlePlay = async () => {
     if (!user) { toast.error('¡Inicia sesión para jugar!'); return; }
     if (user.is_banned) { toast.error('Tu cuenta está baneada'); return; }
-    if (game?.is_adult && localStorage.getItem(AGE_KEY) !== 'yes') {
+    if (game?.is_adult && localStorage.getItem(ageKey) !== 'yes') {
       setPendingStart(true); setAgeGateOpen(true); return;
     }
     doStart();
@@ -53,7 +52,7 @@ export default function GameDetail() {
   const handleGameStart = async () => {
     if (!user) { toast.error('¡Inicia sesión para jugar!'); return false; }
     if (user.is_banned) { toast.error('Tu cuenta está baneada'); return false; }
-    if (game?.is_adult && localStorage.getItem(AGE_KEY) !== 'yes') {
+    if (game?.is_adult && localStorage.getItem(ageKey) !== 'yes') {
       setPendingStart(true); setAgeGateOpen(true); return false;
     }
     await recordPlay(gameId);
@@ -99,7 +98,7 @@ export default function GameDetail() {
       <AgeGateDialog
         open={ageGateOpen}
         onConfirm={() => {
-          localStorage.setItem(AGE_KEY, 'yes');
+          localStorage.setItem(ageKey, 'yes');
           setAgeGateOpen(false);
           if (pendingStart) { setPendingStart(false); doStart(); }
         }}
