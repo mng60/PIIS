@@ -15,8 +15,9 @@ router.get('/', async (req, res) => {
       ...(user_email && { user_email }),
     },
     orderBy: { score: 'desc' },
-    // distinct + orderBy desc → primera aparición de cada usuario = su mejor score
-    ...(game_id && { distinct: ['user_email'] }),
+    // distinct solo para leaderboard (game_id sin user_email) → mejor score por usuario
+    // cuando hay user_email se quieren TODOS los registros del usuario (para plays_count de logros)
+    ...(game_id && !user_email && { distinct: ['user_email'] }),
     take: parseInt(limit),
   });
   res.json(scores);

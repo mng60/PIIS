@@ -2,7 +2,7 @@ import React, { useMemo, useState } from "react";
 import { getReports, updateReport } from "@/api/reports";
 import { deleteComment } from "@/api/comments";
 import { deleteChatMessage } from "@/api/chat";
-import { updateUser } from "@/api/users";
+import { updateUser, getUsers } from "@/api/users";
 import { getGames } from "@/api/games";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
@@ -56,11 +56,23 @@ export default function AdminReportsSection({ adminUser }) {
     enabled: adminUser?.role === "admin",
   });
 
+  const { data: allUsers = [] } = useQuery({
+    queryKey: ["adminReportsUsers"],
+    queryFn: getUsers,
+    enabled: adminUser?.role === "admin",
+  });
+
   const gameById = useMemo(() => {
     const m = new Map();
     games.forEach((g) => m.set(g.id, g));
     return m;
   }, [games]);
+
+  const userIdByEmail = useMemo(() => {
+    const m = {};
+    allUsers.forEach((u) => { m[u.email] = u.id; });
+    return m;
+  }, [allUsers]);
 
   const counts = useMemo(() => {
     const c = { open: 0, reviewing: 0, resolved: 0, dismissed: 0 };
@@ -104,7 +116,8 @@ export default function AdminReportsSection({ adminUser }) {
       }
 
       if (action === "ban_account") {
-        await updateUser(selected.reported_user_id || "noop", { is_banned: true }).catch(() => {});
+        const uid = userIdByEmail[selected.reported_user_email];
+        if (uid) await updateUser(uid, { is_banned: true }).catch(() => {});
         await resolveReport({ status: "resolved", admin_action: "ban_account", admin_notes: adminNotes || null });
         toast.success("Usuario baneado");
         close();
@@ -114,6 +127,13 @@ export default function AdminReportsSection({ adminUser }) {
       if (action === "mute_chat" || action === "ban_play") {
         const h = Number(durationHours || 0);
         const until = addHours(h);
+        const uid = userIdByEmail[selected.reported_user_email];
+        if (uid) {
+          const userPatch = action === "mute_chat"
+            ? { chat_muted_until: until }
+            : { play_banned_until: until };
+          await updateUser(uid, userPatch).catch(() => {});
+        }
         await resolveReport({ status: "resolved", admin_action: action, action_until: until, admin_notes: adminNotes || null });
         toast.success(`Acción aplicada ${h}h`);
         close();

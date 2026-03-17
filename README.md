@@ -215,49 +215,20 @@ GameArea.jsx
 
 ---
 
-### `useGameRoom` — sala React genérica *(disponible, sin uso actual)*
+### `useGameRoom` — sala React genérica *(sin uso actual)*
 
-Hook de infraestructura para juegos multijugador implementados como **componentes
-React** (sin iframe). Gestiona lobby → espera → partida → finalización usando
-`sessions.js`, igual que `useTurnGameRelay`, pero exponiendo estado React en lugar
-de depender de `postMessage`.
+Infraestructura para futuros juegos multijugador implementados como componentes React
+propios (sin iframe). Expone el mismo ciclo lobby → espera → partida → finalización
+que `useTurnGameRelay`, pero mediante estado React en lugar de `postMessage`.
 
-**Ningún componente lo usa actualmente.** Está disponible para implementar futuros
-juegos de mesa como componentes React propios.
-
-API completa:
-
-| Propiedad | Tipo | Descripción |
-|-----------|------|-------------|
-| `phase` | `"lobby" \| "waiting" \| "playing" \| "finished"` | Estado de la sala |
-| `roomCode` | `string` | Código de 6 letras |
-| `myRole` | `"host" \| "guest" \| null` | Rol del jugador |
-| `isMyTurn` | `boolean` | Si es tu turno |
-| `gameState` | `object` | Estado JSON del juego (sincronizado con BD) |
-| `currentTurn` | `"host" \| "guest"` | A quién le toca |
-| `winner` | `string \| null` | Email del ganador, `"draw"`, o null |
-| `hostPlayer` / `guestPlayer` | `{ email, name }` | Datos de cada jugador |
-| `opponentName` | `string` | Nombre del rival |
-
-| Función | Descripción |
-|---------|-------------|
-| `createRoom(initialState?)` | Crea sala como host |
-| `joinRoom(code?)` | Se une como guest |
-| `updateState(patch)` | Actualiza `game_state` en BD (merge) |
-| `passTurn()` | Cambia el turno: host ↔ guest |
-| `finishGame(winner)` | Marca la partida como terminada |
-| `leaveRoom()` | Abandona (el rival gana si estaba jugando) |
+**Ningún componente lo importa actualmente.**
 
 ---
 
 ## Añadir un juego multijugador
 
-Hay dos caminos según cómo esté implementado el juego:
-
-### Camino A — Juego externo en iframe (usa `useTurnGameRelay`)
-
-El juego corre dentro de un `<iframe>` y se comunica con PlayCraft vía `postMessage`.
-Crea un hook específico que envuelva `useTurnGameRelay`:
+El camino activo es el iframe relay (`useTurnGameRelay`). Crea un hook específico
+que lo envuelva con el protocolo de mensajes de tu juego:
 
 ```js
 // src/hooks/useDominoGame.js
@@ -275,63 +246,12 @@ export function useDominoGame({ isPlaying, user, gameId, iframeRef, onRoomCodeCh
 }
 ```
 
-Luego llama al hook en `GameArea.jsx` igual que `useChessGame`.
+Llama al hook en `GameArea.jsx` igual que `useChessGame`. El iframe debe enviar
+`CREATE_ROOM` o `JOIN_ROOM` para arrancar la sala, y el `actionType` configurado
+para cada acción de juego.
 
-El iframe debe enviar `CREATE_ROOM` o `JOIN_ROOM` para arrancar la sala, y
-`DOMINO_PLACE` (o el tipo que hayas configurado) para cada acción de juego.
-
----
-
-### Camino B — Juego React sin iframe (usa `useGameRoom`)
-
-El juego es un componente React propio. Usa `useGameRoom` para gestionar la sala
-y sincronizar el estado entre los dos jugadores:
-
-```js
-import { useGameRoom } from "@/hooks/useGameRoom";
-
-export default function MiJuegoOnline({ user, gameId }) {
-  const room = useGameRoom({ gameId, user });
-
-  if (room.phase === "lobby") {
-    return (
-      <OnlineGameLobby
-        onCreateRoom={() => room.createRoom({ /* estado inicial */ })}
-        onJoinRoom={room.joinRoom}
-        joinCode={room.joinCode}
-        onJoinCodeChange={room.setJoinCode}
-        loading={room.loading}
-        error={room.error}
-      />
-    );
-  }
-
-  // room.gameState  — estado JSON libre, sincronizado con BD
-  // room.isMyTurn   — boolean
-  // room.myRole     — "host" | "guest"
-  // room.phase      — "waiting" | "playing" | "finished"
-  // room.winner     — email del ganador, "draw", o null
-  //
-  // room.updateState(patch)      — actualiza game_state en BD (merge)
-  // room.passTurn()              — cambia turno host ↔ guest
-  // room.finishGame(winner)      — marca la partida como terminada
-  // room.leaveRoom()             — abandona (el rival gana si había empezado)
-
-  return (
-    <div>
-      <OnlineGamePlayerZone
-        topPlayer={{ name: room.opponentName }}
-        bottomPlayer={{ name: user?.full_name || "Tú" }}
-        isTopPlayerActive={!room.isMyTurn}
-        isBottomPlayerActive={room.isMyTurn}
-      />
-      {/* tu lógica de juego aquí */}
-      <ChatSection gameId={gameId} user={user} sessionId={room.roomCode} />
-      <button onClick={room.leaveRoom}>Salir</button>
-    </div>
-  );
-}
-```
+> Para juegos implementados como componentes React propios (sin iframe) existe
+> `useGameRoom`, pero actualmente no lo usa ningún componente.
 
 ---
 
