@@ -6,7 +6,7 @@ import PongGame from '@/components/games/PongGame';
 import ChessOnlineGame from '@/components/games/ChessOnlineGame';
 import ChatSection from '@/components/games/ChatSection';
 import OnlineGameMoveHistory from '@/components/games/OnlineGameMoveHistory';
-import { useChessRelay } from '@/hooks/useChessRelay';
+import { useChessGame } from '@/hooks/useChessGame';
 
 export default function GameArea({
   game,
@@ -25,7 +25,7 @@ export default function GameArea({
   const iframeRef = useRef(null);
   const [iframeSrcDoc, setIframeSrcDoc] = useState(null);
 
-  useChessRelay({ isPlaying, user, gameId, iframeRef, onRoomCodeChange: onChatSessionIdChange });
+  useChessGame({ isPlaying, user, gameId, iframeRef, onRoomCodeChange: onChatSessionIdChange });
 
   // Fetch HTML5 game content
   useEffect(() => {
