@@ -74,6 +74,12 @@ export default function AdminReportsSection({ adminUser }) {
     return m;
   }, [allUsers]);
 
+  const userRoleByEmail = useMemo(() => {
+    const m = {};
+    allUsers.forEach((u) => { m[u.email] = u.role; });
+    return m;
+  }, [allUsers]);
+
   const counts = useMemo(() => {
     const c = { open: 0, reviewing: 0, resolved: 0, dismissed: 0 };
     reports.forEach((r) => { if (c[r.status] !== undefined) c[r.status]++; });
@@ -100,6 +106,12 @@ export default function AdminReportsSection({ adminUser }) {
 
   const applyAction = async () => {
     if (!selected) return;
+
+    const punitiveActions = ["warn", "mute_chat", "ban_play", "ban_account"];
+    if (punitiveActions.includes(action) && userRoleByEmail[selected.reported_user_email] === "admin") {
+      return toast.error("No se pueden aplicar sanciones a una cuenta de administrador.");
+    }
+
     try {
       if (action === "delete_content") {
         try {
