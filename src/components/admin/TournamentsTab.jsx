@@ -215,7 +215,7 @@ export default function TournamentsTab() {
 
   const { data: tournaments = [], isLoading } = useQuery({
     queryKey: ["adminTournaments"],
-    queryFn: getTournaments,
+    queryFn: () => getTournaments(),
   });
 
   const { data: gamesData = {} } = useQuery({

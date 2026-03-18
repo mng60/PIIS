@@ -15,7 +15,7 @@ export default function TournamentsSection() {
 
   const { data: tournaments = [] } = useQuery({
     queryKey: ["tournaments"],
-    queryFn: getTournaments,
+    queryFn: () => getTournaments(),
   });
 
   const { data: { games = [] } = {} } = useQuery({
