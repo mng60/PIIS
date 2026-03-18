@@ -1,11 +1,12 @@
 import React, { useState, useMemo } from "react";
 import { getGames } from "@/api/games";
 import { getUsers } from "@/api/users";
+import { getTickets, resolveTicket } from "@/api/tickets";
 import { useAuth } from "@/lib/AuthContext";
-import { useQuery } from "@tanstack/react-query";
+import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { Link } from "react-router-dom";
 import {
-  Loader2, Shield, Users, Gamepad2, Plus, Play, Star, Trophy, Flag,
+  Loader2, Shield, Users, Gamepad2, Plus, Play, Trophy, Flag, Ticket, CheckCheck, KeyRound,
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
@@ -16,10 +17,162 @@ import {
 } from "@/components/ui/table";
 import { Input } from "@/components/ui/input";
 import { Search } from "lucide-react";
+import { toast } from "sonner";
 import AdminReportsSection from "@/components/moderation/AdminReportsSection";
 import TournamentsTab from "@/components/admin/TournamentsTab";
 import UserManageDialog from "@/components/admin/UserManageDialog";
 import GameManageDialog from "@/components/admin/GameManageDialog";
+
+// ── Tickets tab ────────────────────────────────────────────────────────────
+
+function TicketsTab({ users, currentUser }) {
+  const queryClient = useQueryClient();
+  const [selectedUser, setSelectedUser] = useState(null);
+  const [filter, setFilter] = useState("open");
+  const [resolving, setResolving] = useState(null);
+
+  const { data: tickets = [], isLoading } = useQuery({
+    queryKey: ["adminTickets", filter],
+    queryFn: () => getTickets(filter),
+  });
+
+  const handleResolve = async (ticket) => {
+    setResolving(ticket.id);
+    try {
+      await resolveTicket(ticket.id);
+      queryClient.invalidateQueries({ queryKey: ["adminTickets"] });
+      toast.success("Ticket marcado como resuelto");
+    } catch {
+      toast.error("Error al resolver el ticket");
+    } finally {
+      setResolving(null);
+    }
+  };
+
+  const openUserDialog = (ticket) => {
+    const user = users.find(u => u.email === ticket.user_email);
+    if (user) {
+      setSelectedUser(user);
+    } else {
+      toast.error("Usuario no encontrado en el sistema");
+    }
+  };
+
+  return (
+    <>
+      {selectedUser && (
+        <UserManageDialog
+          targetUser={selectedUser}
+          currentUser={currentUser}
+          onClose={() => setSelectedUser(null)}
+        />
+      )}
+
+      <div className="flex gap-2 mb-4">
+        <Button
+          size="sm"
+          variant={filter === "open" ? "default" : "outline"}
+          onClick={() => setFilter("open")}
+          className={filter === "open"
+            ? "bg-purple-600 hover:bg-purple-700"
+            : "border-white/10 text-gray-300 hover:text-white hover:bg-white/5"}
+        >
+          Pendientes
+        </Button>
+        <Button
+          size="sm"
+          variant={filter === "resolved" ? "default" : "outline"}
+          onClick={() => setFilter("resolved")}
+          className={filter === "resolved"
+            ? "bg-purple-600 hover:bg-purple-700"
+            : "border-white/10 text-gray-300 hover:text-white hover:bg-white/5"}
+        >
+          Resueltos
+        </Button>
+      </div>
+
+      {isLoading ? (
+        <div className="flex justify-center py-12">
+          <Loader2 className="w-6 h-6 animate-spin text-purple-400" />
+        </div>
+      ) : tickets.length === 0 ? (
+        <div className="text-center py-12 text-gray-500">
+          <Ticket className="w-10 h-10 mx-auto mb-3 opacity-30" />
+          <p>No hay tickets {filter === "open" ? "pendientes" : "resueltos"}</p>
+        </div>
+      ) : (
+        <div className="overflow-x-auto">
+          <Table>
+            <TableHeader>
+              <TableRow className="border-white/10">
+                <TableHead className="text-gray-400">Usuario</TableHead>
+                <TableHead className="text-gray-400">Identificador</TableHead>
+                <TableHead className="text-gray-400">Solicitado</TableHead>
+                {filter === "resolved" && (
+                  <TableHead className="text-gray-400">Resuelto por</TableHead>
+                )}
+                <TableHead className="text-gray-400 w-48" />
+              </TableRow>
+            </TableHeader>
+            <TableBody>
+              {tickets.map(ticket => (
+                <TableRow key={ticket.id} className="border-white/5 hover:bg-white/[0.02]">
+                  <TableCell className="font-medium text-white">
+                    {ticket.user_name || "—"}
+                  </TableCell>
+                  <TableCell className="text-gray-400 text-sm">
+                    {ticket.user_email.replace("@playcraft.com", "")}
+                    <span className="text-gray-600">@playcraft.com</span>
+                  </TableCell>
+                  <TableCell className="text-gray-500 text-sm">
+                    {new Date(ticket.created_at).toLocaleDateString("es-ES", {
+                      day: "2-digit", month: "short", year: "numeric",
+                      hour: "2-digit", minute: "2-digit",
+                    })}
+                  </TableCell>
+                  {filter === "resolved" && (
+                    <TableCell className="text-gray-500 text-sm">
+                      {ticket.resolved_by
+                        ? ticket.resolved_by.replace("@playcraft.com", "")
+                        : "—"}
+                    </TableCell>
+                  )}
+                  <TableCell>
+                    <div className="flex gap-2">
+                      <Button
+                        size="sm"
+                        variant="outline"
+                        onClick={() => openUserDialog(ticket)}
+                        className="h-7 text-xs border-white/10 text-gray-300 hover:text-white hover:bg-white/5 gap-1"
+                      >
+                        <KeyRound className="w-3 h-3" />
+                        Gestionar
+                      </Button>
+                      {filter === "open" && (
+                        <Button
+                          size="sm"
+                          variant="outline"
+                          onClick={() => handleResolve(ticket)}
+                          disabled={resolving === ticket.id}
+                          className="h-7 text-xs border-green-500/30 text-green-400 hover:bg-green-500/10 gap-1"
+                        >
+                          {resolving === ticket.id
+                            ? <Loader2 className="w-3 h-3 animate-spin" />
+                            : <CheckCheck className="w-3 h-3" />}
+                          Resolver
+                        </Button>
+                      )}
+                    </div>
+                  </TableCell>
+                </TableRow>
+              ))}
+            </TableBody>
+          </Table>
+        </div>
+      )}
+    </>
+  );
+}
 
 // ── Users tab ──────────────────────────────────────────────────────────────
 
@@ -288,6 +441,9 @@ export default function Admin() {
           <TabsTrigger value="tournaments" className="data-[state=active]:bg-purple-600">
             <Trophy className="w-4 h-4 mr-2" />Torneos
           </TabsTrigger>
+          <TabsTrigger value="tickets" className="data-[state=active]:bg-purple-600">
+            <Ticket className="w-4 h-4 mr-2" />Tickets
+          </TabsTrigger>
           <TabsTrigger value="reports" className="data-[state=active]:bg-purple-600">
             <Flag className="w-4 h-4 mr-2" />Reportes
           </TabsTrigger>
@@ -317,6 +473,17 @@ export default function Admin() {
 
         <TabsContent value="tournaments">
           <TournamentsTab />
+        </TabsContent>
+
+        <TabsContent value="tickets">
+          <Card className="bg-white/5 border-white/10">
+            <CardHeader>
+              <CardTitle className="text-white">Tickets de recuperación de contraseña</CardTitle>
+            </CardHeader>
+            <CardContent>
+              <TicketsTab users={users} currentUser={user} />
+            </CardContent>
+          </Card>
         </TabsContent>
 
         <TabsContent value="reports">

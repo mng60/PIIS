@@ -16,6 +16,7 @@ import Profile from './pages/Profile';
 import Admin from './pages/Admin';
 import UploadGame from './pages/UploadGame';
 import CompanyDashboard from './pages/CompanyDashboard';
+import UserSanctionOverlay from './components/UserSanctionOverlay';
 
 const AppRoutes = () => {
   const { isLoadingAuth } = useAuth();
@@ -29,18 +30,21 @@ const AppRoutes = () => {
   }
 
   return (
-    <Routes>
-      <Route path="/login" element={<Login />} />
-      <Route path="/" element={<Layout><Home /></Layout>} />
-      <Route path="/games" element={<Layout><Games /></Layout>} />
-      <Route path="/games/:id" element={<Layout><GameDetail /></Layout>} />
-      <Route path="/favorites" element={<Layout><Favorites /></Layout>} />
-      <Route path="/profile" element={<Layout><Profile /></Layout>} />
-      <Route path="/admin" element={<Layout><Admin /></Layout>} />
-      <Route path="/upload-game" element={<Layout><UploadGame /></Layout>} />
-      <Route path="/company-dashboard" element={<Layout><CompanyDashboard /></Layout>} />
-      <Route path="*" element={<PageNotFound />} />
-    </Routes>
+    <>
+      <UserSanctionOverlay />
+      <Routes>
+        <Route path="/login" element={<Login />} />
+        <Route path="/" element={<Layout><Home /></Layout>} />
+        <Route path="/games" element={<Layout><Games /></Layout>} />
+        <Route path="/games/:id" element={<Layout><GameDetail /></Layout>} />
+        <Route path="/favorites" element={<Layout><Favorites /></Layout>} />
+        <Route path="/profile" element={<Layout><Profile /></Layout>} />
+        <Route path="/admin" element={<Layout><Admin /></Layout>} />
+        <Route path="/upload-game" element={<Layout><UploadGame /></Layout>} />
+        <Route path="/company-dashboard" element={<Layout><CompanyDashboard /></Layout>} />
+        <Route path="*" element={<PageNotFound />} />
+      </Routes>
+    </>
   );
 };
 

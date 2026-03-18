@@ -24,6 +24,12 @@ router.post('/', requireAuth, async (req, res) => {
   }
   if (message.length > 300) return res.status(400).json({ error: 'Mensaje demasiado largo' });
 
+  // Enforce chat mute
+  const sender = await prisma.user.findUnique({ where: { email: req.user.email }, select: { chat_muted_until: true } });
+  if (sender?.chat_muted_until && new Date(sender.chat_muted_until) > new Date()) {
+    return res.status(403).json({ error: 'Estás silenciado en el chat', until: sender.chat_muted_until });
+  }
+
   const msg = await prisma.chatMessage.create({
     data: {
       game_id,

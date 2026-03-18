@@ -1,7 +1,7 @@
 import { useState } from "react";
 import { Link, useNavigate, useLocation } from "react-router-dom";
 import { useAuth } from "@/lib/AuthContext";
-import { Gamepad2, Eye, EyeOff, Loader2 } from "lucide-react";
+import { Gamepad2, Eye, EyeOff, Loader2, CheckCircle2 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -9,6 +9,7 @@ import { toast } from "sonner";
 import {
   Dialog, DialogContent, DialogHeader, DialogTitle,
 } from "@/components/ui/dialog";
+import { createPasswordResetTicket } from "@/api/tickets";
 
 const DOMAIN = "@playcraft.com";
 
@@ -25,12 +26,28 @@ export default function Login() {
   const [form, setForm] = useState({ identifier: "", password: "", full_name: "" });
   const [errors, setErrors] = useState({});
   const [showForgotDialog, setShowForgotDialog] = useState(false);
+  const [forgotIdentifier, setForgotIdentifier] = useState("");
+  const [forgotLoading, setForgotLoading] = useState(false);
+  const [forgotSent, setForgotSent] = useState(false);
 
   if (isAuthenticated) {
     const redirect = new URLSearchParams(location.search).get("redirect") || "/";
     navigate(redirect, { replace: true });
     return null;
   }
+
+  const handleForgotSubmit = async () => {
+    if (!forgotIdentifier.trim()) return;
+    setForgotLoading(true);
+    try {
+      await createPasswordResetTicket(forgotIdentifier.trim());
+    } catch (_) {
+      // Silently succeed regardless of errors
+    } finally {
+      setForgotLoading(false);
+      setForgotSent(true);
+    }
+  };
 
   const validate = () => {
     const e = {};
@@ -234,23 +251,63 @@ export default function Login() {
 
       {/* Forgot password dialog */}
       {showForgotDialog && (
-        <Dialog open onOpenChange={(open) => { if (!open) setShowForgotDialog(false); }}>
+        <Dialog open onOpenChange={(open) => {
+          if (!open) {
+            setShowForgotDialog(false);
+            setForgotSent(false);
+            setForgotIdentifier("");
+          }
+        }}>
           <DialogContent className="bg-[#0f0f18] border-white/10 text-white max-w-sm">
             <DialogHeader>
               <DialogTitle>¿Has olvidado tu contraseña?</DialogTitle>
             </DialogHeader>
-            <p className="text-sm text-gray-400 leading-relaxed">
-              Esta es una beta cerrada. No existe recuperación automática por correo.
-            </p>
-            <p className="text-sm text-gray-300">
-              Contacta con un administrador para que te asigne una nueva contraseña temporal. Luego podrás cambiarla desde tu perfil.
-            </p>
-            <Button
-              onClick={() => setShowForgotDialog(false)}
-              className="w-full bg-gradient-to-r from-purple-600 to-cyan-500 border-0 mt-2"
-            >
-              Entendido
-            </Button>
+
+            {forgotSent ? (
+              <div className="flex flex-col items-center gap-3 py-4 text-center">
+                <CheckCircle2 className="w-12 h-12 text-green-400" />
+                <p className="text-white font-semibold">Aviso enviado al administrador</p>
+                <p className="text-sm text-gray-400">
+                  En cuanto lo gestione recibirás una contraseña temporal. Podrás cambiarla desde tu perfil.
+                </p>
+                <Button
+                  onClick={() => { setShowForgotDialog(false); setForgotSent(false); setForgotIdentifier(""); }}
+                  className="w-full bg-gradient-to-r from-purple-600 to-cyan-500 border-0 mt-2"
+                >
+                  Cerrar
+                </Button>
+              </div>
+            ) : (
+              <div className="flex flex-col gap-3">
+                <p className="text-sm text-gray-400">
+                  Indica tu identificador y avisaremos al administrador para que te asigne una contraseña temporal.
+                </p>
+                <div className="flex flex-col gap-1.5">
+                  <Label className="text-gray-300 text-sm">Identificador</Label>
+                  <div className="flex items-center gap-0">
+                    <Input
+                      value={forgotIdentifier}
+                      onChange={e => setForgotIdentifier(e.target.value)}
+                      placeholder="tu.nombre"
+                      className="rounded-r-none bg-white/5 border-white/10 text-white placeholder:text-gray-600"
+                      onKeyDown={e => {
+                        if (e.key === "Enter" && forgotIdentifier.trim()) handleForgotSubmit();
+                      }}
+                    />
+                    <span className="h-10 flex items-center px-3 rounded-r-md border border-l-0 border-white/10 bg-white/[0.03] text-gray-500 text-sm whitespace-nowrap">
+                      @playcraft.com
+                    </span>
+                  </div>
+                </div>
+                <Button
+                  onClick={handleForgotSubmit}
+                  disabled={forgotLoading || !forgotIdentifier.trim()}
+                  className="w-full bg-gradient-to-r from-purple-600 to-cyan-500 border-0 mt-1"
+                >
+                  {forgotLoading ? <Loader2 className="w-4 h-4 animate-spin" /> : "Avisar al administrador"}
+                </Button>
+              </div>
+            )}
           </DialogContent>
         </Dialog>
       )}

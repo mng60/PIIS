@@ -19,6 +19,7 @@ model User {
   is_banned         Boolean   @default(false)
   chat_muted_until  DateTime?
   play_banned_until DateTime?
+  pending_warning   String?   @db.VarChar(800)
   created_at        DateTime  @default(now())
   updated_at        DateTime  @updatedAt
 }
@@ -288,4 +289,21 @@ enum AdminAction {
   ban_play
   ban_account
   delete_content
+}
+
+// ─── Password Reset Tickets ───────────────────────────────────────────────────
+
+model PasswordResetTicket {
+  id          String       @id @default(cuid())
+  user_email  String
+  user_name   String?
+  status      TicketStatus @default(open)
+  resolved_by String?
+  resolved_at DateTime?
+  created_at  DateTime     @default(now())
+}
+
+enum TicketStatus {
+  open
+  resolved
 }

@@ -10,7 +10,7 @@ const USER_SELECT = {
   id: true, email: true, full_name: true, role: true,
   avatar_url: true, is_banned: true,
   chat_muted_until: true, play_banned_until: true,
-  created_at: true,
+  pending_warning: true, created_at: true,
 };
 
 // GET /api/users (admin)
@@ -20,6 +20,15 @@ router.get('/', requireAdmin, async (_req, res) => {
     orderBy: { created_at: 'desc' },
   });
   res.json(users);
+});
+
+// DELETE /api/users/me/warning — clear pending_warning after user acknowledges (must be before /:id)
+router.delete('/me/warning', requireAuth, async (_req, res) => {
+  await prisma.user.update({
+    where: { id: _req.user.id },
+    data: { pending_warning: null },
+  });
+  res.json({ ok: true });
 });
 
 // PATCH /api/users/me - update own profile (must be before /:id)
@@ -46,7 +55,7 @@ router.patch('/:id/reset-password', requireAdmin, async (req, res) => {
 
 // PATCH /api/users/:id (admin)
 router.patch('/:id', requireAdmin, async (req, res) => {
-  const { role, is_banned, chat_muted_until, play_banned_until } = req.body;
+  const { role, is_banned, chat_muted_until, play_banned_until, pending_warning } = req.body;
   const user = await prisma.user.update({
     where: { id: req.params.id },
     data: {
@@ -54,6 +63,7 @@ router.patch('/:id', requireAdmin, async (req, res) => {
       ...(is_banned !== undefined && { is_banned }),
       ...(chat_muted_until !== undefined && { chat_muted_until: chat_muted_until ? new Date(chat_muted_until) : null }),
       ...(play_banned_until !== undefined && { play_banned_until: play_banned_until ? new Date(play_banned_until) : null }),
+      ...(pending_warning !== undefined && { pending_warning: pending_warning || null }),
     },
     select: USER_SELECT,
   });

@@ -69,6 +69,7 @@ router.get('/me', requireAuth, async (req, res) => {
 });
 
 function sanitize({ password: _pw, ...user }) {
+  // Expose all fields except password (includes pending_warning, chat_muted_until, etc.)
   return user;
 }
 

@@ -142,8 +142,10 @@ export default function AdminReportsSection({ adminUser }) {
 
       if (action === "warn") {
         if (!warnMessage.trim()) return toast.error("Escribe un mensaje de aviso");
+        const uid = userIdByEmail[selected.reported_user_email];
+        if (uid) await updateUser(uid, { pending_warning: warnMessage.trim() }).catch(() => {});
         await resolveReport({ status: "resolved", admin_action: "warn", admin_notes: adminNotes || null });
-        toast.success("Aviso registrado");
+        toast.success("Aviso enviado al usuario");
         close();
         return;
       }
