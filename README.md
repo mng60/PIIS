@@ -2,11 +2,27 @@
 
 Plataforma de juegos web — Proyecto Universitario PIIS.
 
+## Producción
+
+| | URL |
+|---|---|
+| **Frontend** | https://playcraft-sigma.vercel.app |
+| **API** | https://piis-production.up.railway.app/api |
+
+## Infraestructura
+
+| Servicio | Plataforma | Descripción |
+|---|---|---|
+| Frontend | [Vercel](https://vercel.com) | Deploy automático desde `main` |
+| Backend | [Railway](https://railway.app) | Directorio raíz: `server/` |
+| Base de datos | [Neon](https://neon.tech) | PostgreSQL serverless |
+| Imágenes | [Cloudinary](https://cloudinary.com) | Cloud name: `dchurarst` |
+
 ## Stack
 
 - **Frontend:** React 18 + Vite + Tailwind CSS + shadcn/ui
 - **Backend:** Node.js + Express + Prisma ORM
-- **Base de datos:** PostgreSQL
+- **Base de datos:** PostgreSQL (Neon)
 - **Auth:** JWT (localStorage)
 
 ---
