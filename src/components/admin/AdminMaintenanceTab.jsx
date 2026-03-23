@@ -1,6 +1,6 @@
 import React, { useState } from "react";
 import { useQueryClient } from "@tanstack/react-query";
-import { Gamepad2, RotateCcw, Trophy, Play, Users } from "lucide-react";
+import { Gamepad2, RotateCcw, Trophy, Play, Users, Zap } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import {
@@ -12,7 +12,7 @@ import {
   AlertDialogTrigger,
 } from "@/components/ui/alert-dialog";
 import { toast } from "sonner";
-import { resetGameScores, resetGamePlays, resetGameFull, resetUserScores } from "@/api/maintenance";
+import { resetGameScores, resetGamePlays, resetGameFull, resetUserScores, resetUserXp } from "@/api/maintenance";
 
 function ConfirmAction({ label, description, onConfirm, variant = "destructive", children }) {
   return (
@@ -156,12 +156,12 @@ export default function AdminMaintenanceTab({ games, users }) {
         <CardHeader>
           <CardTitle className="text-white flex items-center gap-2">
             <Users className="w-5 h-5 text-cyan-400" />
-            Borrar scores de usuario
+            Mantenimiento de usuario
           </CardTitle>
         </CardHeader>
         <CardContent>
           <p className="text-xs text-gray-500 mb-4">
-            Elimina todos los scores de un usuario en todos los juegos. El usuario permanece activo.
+            Acciones por usuario. "Borrar scores" elimina partidas y logros desbloqueados. "Reset XP" pone la XP a 0.
           </p>
           <div className="overflow-x-auto">
             <Table>
@@ -169,7 +169,7 @@ export default function AdminMaintenanceTab({ games, users }) {
                 <TableRow className="border-white/10">
                   <TableHead className="text-gray-400">Usuario</TableHead>
                   <TableHead className="text-gray-400">Cuenta</TableHead>
-                  <TableHead className="text-gray-400 text-right">Acción</TableHead>
+                  <TableHead className="text-gray-400 text-right">Acciones</TableHead>
                 </TableRow>
               </TableHeader>
               <TableBody>
@@ -180,12 +180,12 @@ export default function AdminMaintenanceTab({ games, users }) {
                     </TableCell>
                     <TableCell className="text-gray-400 text-sm">{u.email}</TableCell>
                     <TableCell>
-                      <div className="flex justify-end">
+                      <div className="flex gap-2 justify-end flex-wrap">
                         <ConfirmAction
-                          label="¿Borrar scores de este usuario?"
-                          description={`Se eliminarán todas las puntuaciones de "${u.full_name || u.email}" en todos los juegos.`}
+                          label="¿Borrar scores y logros?"
+                          description={`Se eliminarán todas las partidas y logros desbloqueados de "${u.full_name || u.email}". No se puede deshacer.`}
                           onConfirm={() =>
-                            run(`user_${u.id}`, () => resetUserScores(u.email), `Scores de "${u.full_name || u.email}" borrados`)
+                            run(`user_${u.id}`, () => resetUserScores(u.email), `Scores y logros de "${u.full_name || u.email}" borrados`)
                           }
                         >
                           <Button
@@ -196,6 +196,25 @@ export default function AdminMaintenanceTab({ games, users }) {
                           >
                             <RotateCcw className="w-3 h-3 mr-1" />
                             Borrar scores
+                          </Button>
+                        </ConfirmAction>
+
+                        <ConfirmAction
+                          label="¿Resetear XP?"
+                          description={`Se pondrá la XP de "${u.full_name || u.email}" a 0. El nivel bajará a Novato.`}
+                          variant="orange"
+                          onConfirm={() =>
+                            run(`xp_${u.id}`, () => resetUserXp(u.email), `XP de "${u.full_name || u.email}" reseteada`)
+                          }
+                        >
+                          <Button
+                            size="sm"
+                            variant="outline"
+                            disabled={busy === `xp_${u.id}`}
+                            className="border-white/10 text-orange-400 hover:text-orange-300 hover:bg-white/5 text-xs"
+                          >
+                            <Zap className="w-3 h-3 mr-1" />
+                            Reset XP
                           </Button>
                         </ConfirmAction>
                       </div>

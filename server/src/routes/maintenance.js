@@ -71,12 +71,29 @@ router.post('/reset-game', requireAuth, requireAdminOrEmpresa, async (req, res) 
 });
 
 // POST /api/maintenance/reset-user-scores  body: { user_email }  — admin only
+// Borra stats de partidas Y logros desbloqueados del usuario
 router.post('/reset-user-scores', requireAuth, async (req, res) => {
   if (req.user.role !== 'admin') return res.status(403).json({ error: 'Solo administradores' });
   const { user_email } = req.body;
   if (!user_email) return res.status(400).json({ error: 'Falta user_email' });
   try {
-    await prisma.userGameStats.deleteMany({ where: { user_email } });
+    await Promise.all([
+      prisma.userGameStats.deleteMany({ where: { user_email } }),
+      prisma.userAchievement.deleteMany({ where: { user_email } }),
+    ]);
+    res.json({ ok: true });
+  } catch {
+    res.status(500).json({ error: 'Error interno' });
+  }
+});
+
+// POST /api/maintenance/reset-user-xp  body: { user_email }  — admin only
+router.post('/reset-user-xp', requireAuth, async (req, res) => {
+  if (req.user.role !== 'admin') return res.status(403).json({ error: 'Solo administradores' });
+  const { user_email } = req.body;
+  if (!user_email) return res.status(400).json({ error: 'Falta user_email' });
+  try {
+    await prisma.user.update({ where: { email: user_email }, data: { xp: 0 } });
     res.json({ ok: true });
   } catch {
     res.status(500).json({ error: 'Error interno' });
