@@ -14,7 +14,7 @@ import CommentSection from '@/components/games/CommentSection';
 import AgeGateDialog from '@/components/AgeGateDialog';
 import { evaluateAndUpdateAchievements } from '@/components/achievements';
 import { recordPlay } from '@/api/games';
-import { submitScore } from '@/api/scores';
+import { submitScore, recordGamePlay } from '@/api/scores';
 
 export default function GameDetail() {
   const { id: gameId } = useParams();
@@ -62,7 +62,15 @@ export default function GameDetail() {
 
   const handleScoreUpdate = async (score) => {
     if (!user) return;
-    await submitScore(gameId, score);
+    const timePlayed = sessionStart ? Math.floor((Date.now() - sessionStart) / 1000) : 0;
+    const minimal = game?.show_leaderboard === false && game?.show_achievements === false;
+
+    if (minimal) {
+      await recordGamePlay(gameId, timePlayed);
+      return;
+    }
+
+    await submitScore(gameId, score, timePlayed);
     queryClient.invalidateQueries(['scores', gameId]);
     await evaluateAndUpdateAchievements({ userEmail: user.email, gameId });
     queryClient.invalidateQueries(['userAchievements', user.email]);
@@ -138,15 +146,21 @@ export default function GameDetail() {
           </div>
         )}
 
-        <div className="grid sm:grid-cols-2 gap-4">
-          <div className="bg-white/5 rounded-xl border border-white/10 p-5">
-            <h2 className="text-base font-semibold text-white mb-4 flex items-center gap-2">
-              <Trophy className="w-4 h-4 text-yellow-500" /> Top 5
-            </h2>
-            <Leaderboard scores={scores} />
+        {(game.show_leaderboard !== false || game.show_achievements !== false) && (
+          <div className="grid sm:grid-cols-2 gap-4">
+            {game.show_leaderboard !== false && (
+              <div className="bg-white/5 rounded-xl border border-white/10 p-5">
+                <h2 className="text-base font-semibold text-white mb-4 flex items-center gap-2">
+                  <Trophy className="w-4 h-4 text-yellow-500" /> Top 5
+                </h2>
+                <Leaderboard scores={scores} />
+              </div>
+            )}
+            {game.show_achievements !== false && (
+              <AchievementsSection gameId={gameId} user={user} />
+            )}
           </div>
-          <AchievementsSection gameId={gameId} user={user} />
-        </div>
+        )}
 
         <div className="bg-white/5 rounded-xl border border-white/10 p-5">
           <h2 className="text-base font-semibold text-white mb-4 flex items-center gap-2">

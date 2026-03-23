@@ -11,7 +11,7 @@ import { useQueryClient } from "@tanstack/react-query";
 import { toast } from "sonner";
 import {
   Loader2, Gamepad2, Trophy, Play, RotateCcw, Edit,
-  Star, Eye, EyeOff, AlertTriangle, Trash2,
+  Star, Eye, EyeOff, AlertTriangle, Trash2, BarChart2, Medal,
 } from "lucide-react";
 
 export default function GameManageDialog({ game: initial, isAdmin, onClose }) {
@@ -112,9 +112,11 @@ export default function GameManageDialog({ game: initial, isAdmin, onClose }) {
           {isAdmin && (
             <div className="space-y-2">
               {[
-                { field: "is_featured", label: "Destacado",    icon: Star,          activeClass: "text-yellow-400", inactiveClass: "text-gray-400", activeLabel: "Quitar de destacados", inactiveLabel: "Marcar como destacado" },
-                { field: "is_active",   label: "Visibilidad",  icon: game.is_active ? EyeOff : Eye, activeClass: "text-gray-400", inactiveClass: "text-gray-400", activeLabel: "Ocultar juego", inactiveLabel: "Activar juego" },
-                { field: "is_adult",    label: "+18",           icon: AlertTriangle, activeClass: "text-red-400",    inactiveClass: "text-gray-400", activeLabel: "Quitar marca +18",  inactiveLabel: "Marcar como +18" },
+                { field: "is_featured",       icon: Star,                              activeClass: "text-yellow-400", inactiveClass: "text-gray-400", activeLabel: "Quitar de destacados",   inactiveLabel: "Marcar como destacado" },
+                { field: "is_active",         icon: game.is_active ? EyeOff : Eye,    activeClass: "text-gray-400",   inactiveClass: "text-gray-400", activeLabel: "Ocultar juego",          inactiveLabel: "Activar juego" },
+                { field: "is_adult",          icon: AlertTriangle,                    activeClass: "text-red-400",    inactiveClass: "text-gray-400", activeLabel: "Quitar marca +18",       inactiveLabel: "Marcar como +18" },
+                { field: "show_leaderboard",  icon: BarChart2,                        activeClass: "text-cyan-400",   inactiveClass: "text-gray-500", activeLabel: "Ocultar top/ranking",    inactiveLabel: "Mostrar top/ranking" },
+                { field: "show_achievements", icon: Medal,                            activeClass: "text-yellow-400", inactiveClass: "text-gray-500", activeLabel: "Ocultar logros",         inactiveLabel: "Mostrar logros" },
               ].map(({ field, icon: Icon, activeClass, inactiveClass, activeLabel, inactiveLabel }) => (
                 <Button key={field} variant="outline" disabled={busy === field}
                   onClick={() => toggle(field, field.replace("is_", ""))}

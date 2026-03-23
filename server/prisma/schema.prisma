@@ -49,8 +49,10 @@ model Game {
   is_featured      Boolean      @default(false)
   is_active        Boolean      @default(true)
   is_adult         Boolean      @default(false)
-  is_multiplayer   Boolean      @default(false)
-  publisher        String?
+  is_multiplayer      Boolean      @default(false)
+  show_leaderboard    Boolean      @default(true)
+  show_achievements   Boolean      @default(true)
+  publisher           String?
   created_by       String?
   created_at       DateTime     @default(now())
   updated_at       DateTime     @updatedAt
@@ -82,15 +84,26 @@ model Comment {
   updated_at DateTime @updatedAt
 }
 
-// ─── Scores ──────────────────────────────────────────────────────────────────
+// ─── User Game Stats ──────────────────────────────────────────────────────────
+// Una fila por usuario+juego. Se actualiza en cada partida (upsert).
+// Reemplaza la tabla Score, que crecía sin límite.
 
-model Score {
-  id         String   @id @default(cuid())
-  game_id    String
-  user_email String
-  user_name  String
-  score      Float
-  created_at DateTime @default(now())
+model UserGameStats {
+  id          String   @id @default(cuid())
+  user_email  String
+  user_name   String
+  game_id     String
+  plays_count Int      @default(0)   // nº de partidas jugadas
+  best_score  Float    @default(0)   // mejor puntuación histórica
+  last_score  Float    @default(0)   // puntuación de la última partida
+  wins_count  Int      @default(0)   // partidas con score > 0
+  total_score Float    @default(0)   // suma acumulada de todos los scores
+  time_played Int      @default(0)   // segundos acumulados jugando
+  last_played DateTime @default(now())
+  created_at  DateTime @default(now())
+  updated_at  DateTime @updatedAt
+
+  @@unique([user_email, game_id])
 }
 
 // ─── Favorites ───────────────────────────────────────────────────────────────

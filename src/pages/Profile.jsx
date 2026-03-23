@@ -127,7 +127,8 @@ export default function Profile() {
     );
   }
 
-  const bestScore = scores.length > 0 ? Math.max(...scores.map(s => s.score)) : 0;
+  const totalPlays = scores.reduce((sum, s) => sum + (s.plays_count || 0), 0);
+  const bestScore  = scores.length > 0 ? Math.max(...scores.map(s => s.best_score || 0)) : 0;
 
   return (
     <div className="max-w-4xl mx-auto px-4 py-8">
@@ -184,7 +185,7 @@ export default function Profile() {
                     >
                       <Edit2 className="w-4 h-4" />
                     </Button>
-                    <DropdownMenu>
+                    <DropdownMenu modal={false}>
                       <DropdownMenuTrigger asChild>
                         <Button variant="ghost" size="icon" className="text-gray-400 hover:text-white">
                           <MoreVertical className="w-4 h-4" />
@@ -220,7 +221,7 @@ export default function Profile() {
         <Card className="bg-white/5 border-white/10">
           <CardContent className="p-6 text-center">
             <Gamepad2 className="w-8 h-8 mx-auto mb-2 text-purple-400" />
-            <p className="text-3xl font-bold text-white">{scores.length}</p>
+            <p className="text-3xl font-bold text-white">{totalPlays}</p>
             <p className="text-gray-400 text-sm">Partidas jugadas</p>
           </CardContent>
         </Card>
@@ -305,16 +306,16 @@ export default function Profile() {
           {scores.length === 0 ? (
             <p className="text-gray-500 text-center py-8">Aún no has jugado ninguna partida</p>
           ) : (
-            <div className="space-y-3">
-              {scores.slice(0, 10).map((score) => (
-                <div key={score.id} className="flex items-center justify-between p-3 bg-white/5 rounded-lg">
+            <div className="max-h-[336px] overflow-y-auto space-y-3 pr-1 [&::-webkit-scrollbar]:hidden [scrollbar-width:none]">
+              {scores.map((stat) => (
+                <div key={stat.id} className="flex items-center justify-between p-3 bg-white/5 rounded-lg">
                   <div>
-                    <p className="font-medium text-white">Puntuación</p>
+                    <p className="font-medium text-white">{stat.game_title ?? 'Juego'}</p>
                     <p className="text-xs text-gray-500">
-                      {format(new Date(score.created_at), "d MMM yyyy", { locale: es })}
+                      {format(new Date(stat.last_played), "d MMM yyyy", { locale: es })}
                     </p>
                   </div>
-                  <span className="text-xl font-bold text-purple-400">{score.score.toLocaleString()}</span>
+                  <span className="text-xl font-bold text-purple-400">{(stat.last_score || 0).toLocaleString()}</span>
                 </div>
               ))}
             </div>

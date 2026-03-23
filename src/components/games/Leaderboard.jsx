@@ -12,16 +12,8 @@ export default function Leaderboard({ scores }) {
     );
   }
 
-  // Agrupar por usuario y quedarse solo con la mejor puntuación de cada uno
-  const bestScoresByUser = scores.reduce((acc, score) => {
-    if (!acc[score.user_email] || acc[score.user_email].score < score.score) {
-      acc[score.user_email] = score;
-    }
-    return acc;
-  }, {});
-
-  // Convertir a array y ordenar por puntuación descendente
-  const uniqueScores = Object.values(bestScoresByUser).sort((a, b) => b.score - a.score);
+  // UserGameStats ya tiene una fila por usuario+juego con best_score
+  const uniqueScores = [...scores].sort((a, b) => (b.best_score || 0) - (a.best_score || 0));
 
   const getMedalColor = (index) => {
     switch (index) {
@@ -57,7 +49,7 @@ export default function Leaderboard({ scores }) {
           </div>
           <div className="text-right">
             <span className={`font-bold ${index === 0 ? "text-yellow-500" : "text-white"}`}>
-              {score.score.toLocaleString()}
+              {(score.best_score || 0).toLocaleString()}
             </span>
           </div>
         </div>

@@ -1,46 +1,61 @@
 import { getAchievementDefinitions, getUserAchievements, upsertUserAchievement } from "@/api/achievements";
-import { getUserScores, getUserGameScores } from "@/api/scores";
+import { getUserGameScores, getUserScores } from "@/api/scores";
 import { toast } from "sonner";
 
 /**
- * Evaluates relevant achievement definitions for a user/game
- * and creates/updates UserAchievement records accordingly.
+ * Lee UserGameStats en vez de registros de Score individuales.
+ *
+ * Para logros de juego concreto:  usa el stat del juego  (plays_count, best_score, wins_count)
+ * Para logros globales:           agrega todos los stats del usuario
  */
 export async function evaluateAndUpdateAchievements({ userEmail, gameId }) {
   try {
     const allDefinitions = await getAchievementDefinitions();
-    const relevant = allDefinitions.filter((a) => a.game_id === gameId || !a.game_id);
-    if (relevant.length === 0) return;
+    const relevant = allDefinitions.filter(a => a.game_id === gameId || !a.game_id);
+    if (!relevant.length) return;
 
-    const [gameScores, allScores, existing] = await Promise.all([
-      getUserGameScores(userEmail, gameId),
-      getUserScores(userEmail, 1000),
+    const [gameStatsArr, allStats, existing] = await Promise.all([
+      getUserGameScores(userEmail, gameId),  // [stat] o []
+      getUserScores(userEmail, 1000),        // stats de todos los juegos del usuario
       getUserAchievements(),
     ]);
 
-    for (const def of relevant) {
-      const scores = def.game_id ? gameScores : allScores;
+    const gameStat = gameStatsArr[0] ?? null;
 
+    for (const def of relevant) {
+      const isGlobal = !def.game_id;
       const scale = Number(def.score_scale ?? 1);
       const offset = Number(def.score_offset ?? 0);
       const threshold = Number(def.threshold || 0);
 
       let rawProgress = 0;
-      if (def.metric === "plays_count") {
-        rawProgress = scores.length;
-      } else if (def.metric === "best_score" || def.metric === "single_run_score") {
-        if (scores.length > 0) {
-          rawProgress = Math.max(...scores.map((s) => Number(s.score) * scale + offset));
+
+      if (isGlobal) {
+        if (def.metric === "plays_count") {
+          rawProgress = allStats.reduce((sum, s) => sum + (s.plays_count || 0), 0);
+        } else if (def.metric === "best_score" || def.metric === "single_run_score") {
+          rawProgress = allStats.length
+            ? Math.max(...allStats.map(s => (s.best_score || 0) * scale + offset))
+            : 0;
+        } else if (def.metric === "wins_count") {
+          rawProgress = allStats.reduce((sum, s) => sum + (s.wins_count || 0), 0);
         }
-      } else if (def.metric === "wins_count") {
-        const winMin = Number(def.win_score_min ?? 0);
-        rawProgress = scores.filter((s) => Number(s.score) >= winMin).length;
+      } else {
+        if (!gameStat) {
+          rawProgress = 0;
+        } else if (def.metric === "plays_count") {
+          rawProgress = gameStat.plays_count || 0;
+        } else if (def.metric === "best_score" || def.metric === "single_run_score") {
+          rawProgress = (gameStat.best_score || 0) * scale + offset;
+        } else if (def.metric === "wins_count") {
+          rawProgress = gameStat.wins_count || 0;
+        }
       }
 
       const unlocked = threshold > 0 && rawProgress >= threshold;
       const progress = threshold > 0 ? Math.min(rawProgress, threshold) : rawProgress;
 
-      const found = existing.find((ua) => ua.achievement_id === def.id);
+      const found = existing.find(ua => ua.achievement_id === def.id);
 
       if (found) {
         const wasUnlocked = !!found.unlocked;
