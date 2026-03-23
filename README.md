@@ -29,6 +29,8 @@ Plataforma de juegos web — Proyecto Universitario PIIS.
 
 ## Puesta en marcha
 
+No hace falta instalar PostgreSQL. Cada desarrollador usa su propia base de datos gratuita en Neon (el mismo servicio que usa producción).
+
 ### 1. Clonar el repositorio
 
 ```bash
@@ -46,30 +48,46 @@ npm install
 cd server && npm install
 ```
 
-### 3. Variables de entorno
+### 3. Crear tu base de datos en Neon
 
-**Frontend** — `.env` en la raíz:
+1. Entra en [neon.tech](https://neon.tech) y crea una cuenta gratuita.
+2. Crea un nuevo proyecto (el nombre da igual).
+3. En el dashboard del proyecto, ve a **Connection Details** y copia la **Connection string**. Tiene este aspecto:
+   ```
+   postgresql://usuario:password@ep-xxxx.eu-central-1.aws.neon.tech/neondb?sslmode=require
+   ```
+   Esa cadena es tu `DATABASE_URL`.
+
+### 4. Variables de entorno
+
+**Frontend** — crea `.env` en la raíz del proyecto:
 
 ```env
 VITE_API_URL="http://localhost:3001/api"
 ```
 
-**Backend** — `server/.env` (no commitear; copiar desde `server/.env.example`):
+**Backend** — crea `server/.env` (no commitear nunca este archivo):
 
 ```env
-DATABASE_URL="postgresql://TU_USUARIO:TU_PASSWORD@localhost:5432/playcraft"
+DATABASE_URL="postgresql://usuario:password@ep-xxxx.eu-central-1.aws.neon.tech/neondb?sslmode=require"
 JWT_SECRET="una_clave_secreta_larga"
 FRONTEND_URL="http://localhost:5173"
 PORT=3001
 ```
 
-### 4. Base de datos
+Sustituye `DATABASE_URL` por la connection string que copiaste de Neon.
+
+### 5. Inicializar la base de datos
 
 ```bash
 cd server
-npx prisma db push
-node prisma/seed.js   # crea 3 usuarios de prueba
+npx prisma db push   # crea todas las tablas en tu BD de Neon
+node prisma/seed.js  # rellena los datos de desarrollo
 ```
+
+El seed hace dos cosas:
+
+1. **Crea 3 usuarios de prueba** — solo existen en tu BD local, no en producción:
 
 | Rol | Email | Contraseña |
 |-----|-------|------------|
@@ -77,7 +95,11 @@ node prisma/seed.js   # crea 3 usuarios de prueba
 | Usuario | usuario@playcraft.com | user1234 |
 | Empresa | empresa@playcraft.com | empresa123 |
 
-### 5. Arrancar
+2. **Importa los juegos de producción** — descarga todos los juegos de la API de prod y los inserta en tu BD con `plays_count`, `rating_sum` y `rating_count` a 0. Los scores y comentarios de prod no se importan, así que esos contadores no tendrían sentido. Si ya tienes los juegos y vuelves a ejecutar el seed, solo actualiza los campos de contenido sin tocar tus contadores locales.
+
+El resto de tablas (`Score`, `Comment`, `Favorite`, `Tournament`, `GameSession`, `ChessRoom`, `ChatMessage`, `Report`…) se quedan vacías y se van rellenando mientras pruebas en local.
+
+### 6. Arrancar
 
 ```bash
 # Terminal 1 — Backend
