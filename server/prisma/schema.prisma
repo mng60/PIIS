@@ -16,6 +16,7 @@ model User {
   full_name         String
   role              Role      @default(user)
   avatar_url        String?
+  xp                Int       @default(0)
   is_banned         Boolean   @default(false)
   chat_muted_until  DateTime?
   play_banned_until DateTime?
@@ -52,6 +53,7 @@ model Game {
   is_multiplayer      Boolean      @default(false)
   show_leaderboard    Boolean      @default(true)
   show_achievements   Boolean      @default(true)
+  xp_per_play         Int          @default(10)
   publisher           String?
   created_by       String?
   created_at       DateTime     @default(now())
@@ -144,7 +146,7 @@ enum TournamentStatus {
 // ─── Achievements ────────────────────────────────────────────────────────────
 
 model AchievementDefinition {
-  id            String          @id @default(cuid())
+  id            String             @id @default(cuid())
   game_id       String?
   title         String
   description   String?
@@ -152,12 +154,19 @@ model AchievementDefinition {
   metric        AchievementMetric
   threshold     Float
   win_score_min Float?
-  score_scale   Float           @default(1)
-  score_offset  Float           @default(0)
-  is_active     Boolean         @default(true)
-  sort_order    Int             @default(0)
-  created_at    DateTime        @default(now())
-  updated_at    DateTime        @updatedAt
+  score_scale   Float              @default(1)
+  score_offset  Float              @default(0)
+  rarity        AchievementRarity  @default(bronze)
+  is_active     Boolean            @default(true)
+  sort_order    Int                @default(0)
+  created_at    DateTime           @default(now())
+  updated_at    DateTime           @updatedAt
+}
+
+enum AchievementRarity {
+  bronze
+  silver
+  gold
 }
 
 enum AchievementMetric {

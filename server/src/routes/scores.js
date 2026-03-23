@@ -58,13 +58,21 @@ router.post('/', requireAuth, async (req, res) => {
   const timeSecs = parseInt(time_played) || 0;
   const base     = { user_email: req.user.email, game_id };
 
+  // Obtener datos del juego para XP
+  const game = await prisma.game.findUnique({
+    where:  { id: game_id },
+    select: { xp_per_play: true, is_multiplayer: true },
+  });
+
   if (minimal) {
     const stats = await prisma.userGameStats.upsert({
       where:  { user_email_game_id: base },
       create: { ...base, user_name: req.user.full_name || req.user.email, plays_count: 1, time_played: timeSecs, last_played: new Date() },
       update: { plays_count: { increment: 1 }, time_played: { increment: timeSecs }, last_played: new Date() },
     });
-    return res.status(201).json(stats);
+    const xpGained = game?.xp_per_play ?? 10;
+    await prisma.user.update({ where: { email: req.user.email }, data: { xp: { increment: xpGained } } });
+    return res.status(201).json({ ...stats, xpGained });
   }
 
   if (score === undefined) return res.status(400).json({ error: 'Falta score' });
@@ -100,7 +108,13 @@ router.post('/', requireAuth, async (req, res) => {
     update,
   });
 
-  res.status(201).json(stats);
+  // Calcular y sumar XP al usuario
+  const xpFromPlay  = game?.xp_per_play ?? 10;
+  const xpFromScore = game?.is_multiplayer ? 0 : Math.floor(scoreVal / 100);
+  const xpGained    = xpFromPlay + xpFromScore;
+  await prisma.user.update({ where: { email: req.user.email }, data: { xp: { increment: xpGained } } });
+
+  res.status(201).json({ ...stats, xpGained });
 });
 
 export default router;

@@ -29,7 +29,7 @@ Plataforma de juegos web — Proyecto Universitario PIIS.
 
 ## Puesta en marcha
 
-No hace falta instalar PostgreSQL. Cada desarrollador usa su propia base de datos gratuita en Neon (el mismo servicio que usa producción).
+No hace falta instalar PostgreSQL. Cada uno que use su propia base de datos con Neon.
 
 ### 1. Clonar el repositorio
 
@@ -97,7 +97,7 @@ El seed hace dos cosas:
 
 2. **Importa los juegos de producción** — descarga todos los juegos de la API de prod y los inserta en tu BD con `plays_count`, `rating_sum` y `rating_count` a 0. Los scores y comentarios de prod no se importan, así que esos contadores no tendrían sentido. Si ya tienes los juegos y vuelves a ejecutar el seed, solo actualiza los campos de contenido sin tocar tus contadores locales.
 
-El resto de tablas (`Score`, `Comment`, `Favorite`, `Tournament`, `GameSession`, `ChessRoom`, `ChatMessage`, `Report`…) se quedan vacías y se van rellenando mientras pruebas en local.
+El resto de tablas (`Comment`, `Favorite`, `Tournament`, `GameSession`, `ChessRoom`, `ChatMessage`, `Report`, `UserAchievement`…) se quedan vacías y se van rellenando mientras pruebas en local.
 
 ### 6. Arrancar
 
@@ -300,6 +300,69 @@ para cada acción de juego.
 
 > Para juegos React sin iframe existe `useGameRoom`, pero no tiene ninguna
 > implementación activa en el proyecto.
+
+---
+
+## Sistema de gamificación
+
+### Niveles
+
+El nivel del usuario se calcula en tiempo real a partir de su XP acumulado. No se guarda en la BD; se deriva con `getLevelFromXP(xp)` en `src/lib/levels.js`.
+
+| Nivel | Nombre | XP requerida | Color |
+|-------|--------|-------------|-------|
+| 1 | Novato | 0 | Gris |
+| 2 | Casual | 200 | Cyan |
+| 3 | Veterano | 1 000 | Morado |
+| 4 | Maestro | 4 000 | Ámbar |
+| 5 | Leyenda | 12 000 | Rosa |
+
+### Fuentes de XP
+
+| Fuente | XP |
+|--------|----|
+| Jugar una partida | `xp_per_play` del juego (defecto: 10) |
+| Score de la partida (solo juegos no multijugador) | `floor(score / 100)` |
+| Desbloquear logro Bronce | +25 |
+| Desbloquear logro Plata | +75 |
+| Desbloquear logro Oro | +200 |
+
+> El XP por partida es configurable por juego desde el panel admin (`xp_per_play`). Útil para dar más XP a juegos complejos (Catan, Ajedrez) que a juegos cortos (Snake).
+>
+> Los juegos multijugador locales con `show_leaderboard=false` + `show_achievements=false` usan **modo minimal**: solo guardan `plays_count` y `time_played`, sin score ni logros. Aun así suman `xp_per_play` al usuario.
+
+### Logros
+
+Cada juego puede tener logros definidos desde el panel admin (o perfil de empresa). Los logros se evalúan en el frontend al guardar una partida y se sincronizan con el backend vía `POST /api/achievements/user`.
+
+#### Métricas disponibles
+
+| Métrica | Qué mide |
+|---------|----------|
+| `plays_count` | Nº de partidas jugadas |
+| `wins_count` | Partidas con `score ≥ win_score_min` |
+| `best_score` | Mejor puntuación histórica (con scale/offset) |
+| `single_run_score` | Puntuación de la última partida (con scale/offset) |
+
+#### Transformación de score
+
+Para `best_score` y `single_run_score` el sistema aplica:
+
+```
+valor = score × score_scale + score_offset
+```
+
+Permite adaptar la unidad del score del juego al umbral del logro sin modificar el juego (ej. convertir puntos a metros, niveles, etc.).
+
+#### Rareza y XP
+
+La rareza se asigna al crear el logro. La XP se suma al usuario **una sola vez**, cuando se desbloquea por primera vez.
+
+| Rareza | XP |
+|--------|----|
+| Bronce | +25 |
+| Plata | +75 |
+| Oro | +200 |
 
 ---
 

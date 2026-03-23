@@ -23,6 +23,7 @@ import { es } from "date-fns/locale";
 import { Link } from "react-router-dom";
 import UserAchievementsSection from "@/components/games/UserAchievementsSection";
 import { toast } from "sonner";
+import { getLevelFromXP, getNextLevel, getLevelProgress } from "@/lib/levels";
 
 export default function Profile() {
   const { user, isLoadingAuth, updateUserData } = useAuth();
@@ -127,8 +128,12 @@ export default function Profile() {
     );
   }
 
-  const totalPlays = scores.reduce((sum, s) => sum + (s.plays_count || 0), 0);
-  const bestScore  = scores.length > 0 ? Math.max(...scores.map(s => s.best_score || 0)) : 0;
+  const totalPlays   = scores.reduce((sum, s) => sum + (s.plays_count || 0), 0);
+  const bestScore    = scores.length > 0 ? Math.max(...scores.map(s => s.best_score || 0)) : 0;
+  const xp           = user.xp ?? 0;
+  const currentLevel = getLevelFromXP(xp);
+  const nextLevel    = getNextLevel(xp);
+  const levelPct     = Math.round(getLevelProgress(xp) * 100);
 
   return (
     <div className="max-w-4xl mx-auto px-4 py-8">
@@ -209,6 +214,35 @@ export default function Profile() {
                   <div className="flex items-center justify-center md:justify-start gap-2 text-gray-500 text-sm mt-3">
                     <Calendar className="w-4 h-4" />
                     <span>Miembro desde {format(new Date(user.created_at), "MMMM yyyy", { locale: es })}</span>
+                  </div>
+
+                  {/* Level + XP */}
+                  <div className="mt-4 max-w-xs mx-auto md:mx-0">
+                    <div className="flex items-center justify-between mb-1.5">
+                      <span
+                        className="text-sm font-bold"
+                        style={{ color: currentLevel.color }}
+                      >
+                        Nv.{currentLevel.level} {currentLevel.name}
+                      </span>
+                      <span className="text-xs text-gray-400">
+                        {xp.toLocaleString()} XP
+                        {nextLevel && ` / ${nextLevel.xpRequired.toLocaleString()}`}
+                      </span>
+                    </div>
+                    <div className="h-2 rounded-full bg-white/10 overflow-hidden">
+                      <div
+                        className="h-full rounded-full transition-all duration-500"
+                        style={{ width: `${levelPct}%`, backgroundColor: currentLevel.color }}
+                      />
+                    </div>
+                    {nextLevel ? (
+                      <p className="text-[11px] text-gray-500 mt-1">
+                        {(nextLevel.xpRequired - xp).toLocaleString()} XP para {nextLevel.name}
+                      </p>
+                    ) : (
+                      <p className="text-[11px] mt-1" style={{ color: currentLevel.color }}>Nivel máximo alcanzado</p>
+                    )}
                   </div>
                 </>
               )}

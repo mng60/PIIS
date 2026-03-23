@@ -39,16 +39,37 @@ router.get('/user', requireAuth, async (req, res) => {
   res.json(achievements);
 });
 
+const RARITY_XP = { bronze: 25, silver: 75, gold: 200 };
+
 // POST /api/achievements/user - upsert progress
 router.post('/user', requireAuth, async (req, res) => {
   const { achievement_id, game_id, progress, unlocked, unlocked_date } = req.body;
   if (!achievement_id) return res.status(400).json({ error: 'achievement_id requerido' });
+
+  // Comprobar si ya estaba desbloqueado antes de actualizar
+  const existing = await prisma.userAchievement.findUnique({
+    where: { achievement_id_user_email: { achievement_id, user_email: req.user.email } },
+  });
+  const wasUnlocked = existing?.unlocked ?? false;
+
   const ua = await prisma.userAchievement.upsert({
     where: { achievement_id_user_email: { achievement_id, user_email: req.user.email } },
     create: { achievement_id, user_email: req.user.email, game_id, progress: progress ?? 0, unlocked: unlocked ?? false, unlocked_date: unlocked_date ? new Date(unlocked_date) : null },
     update: { progress, unlocked, unlocked_date: unlocked_date ? new Date(unlocked_date) : undefined, game_id },
   });
-  res.json(ua);
+
+  // Sumar XP solo cuando se desbloquea por primera vez
+  let xpGained = 0;
+  if (unlocked && !wasUnlocked) {
+    const def = await prisma.achievementDefinition.findUnique({
+      where:  { id: achievement_id },
+      select: { rarity: true },
+    });
+    xpGained = RARITY_XP[def?.rarity ?? 'bronze'] ?? 25;
+    await prisma.user.update({ where: { email: req.user.email }, data: { xp: { increment: xpGained } } });
+  }
+
+  res.json({ ...ua, xpGained });
 });
 
 export default router;

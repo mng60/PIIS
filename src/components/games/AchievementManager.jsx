@@ -17,6 +17,8 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { toast } from "sonner";
 import { Plus, Pencil, Trash2, Loader2, Trophy, X, Save } from "lucide-react";
 
+import { RARITY_CONFIG } from "@/lib/levels";
+
 const EMPTY_FORM = {
   title: "",
   description: "",
@@ -26,6 +28,7 @@ const EMPTY_FORM = {
   score_scale: 1,
   score_offset: 0,
   icon_url: "",
+  rarity: "bronze",
   is_active: true,
   sort_order: 0
 };
@@ -62,6 +65,7 @@ export default function AchievementManager({ gameId }) {
       score_scale: a.score_scale ?? 1,
       score_offset: a.score_offset ?? 0,
       icon_url: a.icon_url || "",
+      rarity: a.rarity || "bronze",
       is_active: a.is_active !== false,
       sort_order: a.sort_order ?? 0
     });
@@ -84,6 +88,7 @@ export default function AchievementManager({ gameId }) {
       score_scale: Number(form.score_scale) || 1,
       score_offset: Number(form.score_offset) || 0,
       icon_url: form.icon_url,
+      rarity: form.rarity,
       is_active: form.is_active,
       sort_order: Number(form.sort_order) || 0,
       ...(form.metric === "wins_count" && form.win_score_min !== ""
@@ -227,6 +232,27 @@ export default function AchievementManager({ gameId }) {
               </div>
 
               <div className="space-y-1">
+                <Label className="text-white text-xs">Rareza</Label>
+                <div className="flex gap-2">
+                  {Object.entries(RARITY_CONFIG).map(([key, cfg]) => (
+                    <button
+                      key={key}
+                      type="button"
+                      onClick={() => f("rarity", key)}
+                      className={`flex-1 py-1.5 rounded-lg text-xs font-semibold border transition-colors ${
+                        form.rarity === key
+                          ? "border-transparent text-white"
+                          : "border-white/10 text-gray-400 bg-white/5 hover:bg-white/10"
+                      }`}
+                      style={form.rarity === key ? { backgroundColor: cfg.color + "33", borderColor: cfg.color, color: cfg.color } : {}}
+                    >
+                      {cfg.label} · +{cfg.xp} XP
+                    </button>
+                  ))}
+                </div>
+              </div>
+
+              <div className="space-y-1">
                 <Label className="text-white text-xs">Sort order</Label>
                 <Input
                   type="number"
@@ -288,7 +314,7 @@ export default function AchievementManager({ gameId }) {
                 <li>
                   <b>Métrica</b>: qué se mide para el progreso.
                   <div className="mt-1 text-gray-400">
-                    <b>plays_count</b> = nº de partidas guardadas (nº de Scores).<br />
+                    <b>plays_count</b> = nº de partidas jugadas.<br />
                     <b>wins_count</b> = nº de partidas con score ≥ “score mínimo victoria”.<br />
                     <b>best_score / single_run_score</b> = mejor puntuación del usuario (aplica scale/offset).
                   </div>
@@ -346,8 +372,16 @@ export default function AchievementManager({ gameId }) {
                   ) : "🏆"}
                 </span>
                 <div className="flex-1 min-w-0">
-                  <div className="flex items-center gap-2">
+                  <div className="flex items-center gap-2 flex-wrap">
                     <p className="font-medium text-white text-sm truncate">{a.title}</p>
+                    {RARITY_CONFIG[a.rarity] && (
+                      <span
+                        className="text-xs font-semibold px-1.5 py-0.5 rounded"
+                        style={{ backgroundColor: RARITY_CONFIG[a.rarity].color + "22", color: RARITY_CONFIG[a.rarity].color, border: `1px solid ${RARITY_CONFIG[a.rarity].color}55` }}
+                      >
+                        {RARITY_CONFIG[a.rarity].label} · +{RARITY_CONFIG[a.rarity].xp} XP
+                      </span>
+                    )}
                     {!a.is_active && (
                       <span className="text-xs text-gray-500 bg-white/5 px-2 py-0.5 rounded">
                         inactivo

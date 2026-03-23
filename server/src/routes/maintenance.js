@@ -23,11 +23,16 @@ async function getOwnedGame(gameId, user) {
 }
 
 // POST /api/maintenance/reset-scores  body: { game_id }
+// Resetea los campos de puntuación de todos los usuarios para ese juego
+// (conserva plays_count y time_played para la gamificación)
 router.post('/reset-scores', requireAuth, requireAdminOrEmpresa, async (req, res) => {
   try {
     const result = await getOwnedGame(req.body.game_id, req.user);
     if (result.error) return res.status(result.status).json({ error: result.error });
-    await prisma.score.deleteMany({ where: { game_id: req.body.game_id } });
+    await prisma.userGameStats.updateMany({
+      where: { game_id: req.body.game_id },
+      data:  { best_score: 0, last_score: 0, total_score: 0, wins_count: 0 },
+    });
     res.json({ ok: true });
   } catch {
     res.status(500).json({ error: 'Error interno' });
@@ -35,24 +40,30 @@ router.post('/reset-scores', requireAuth, requireAdminOrEmpresa, async (req, res
 });
 
 // POST /api/maintenance/reset-plays  body: { game_id }
+// Resetea el contador global de partidas del juego y el plays_count por usuario
 router.post('/reset-plays', requireAuth, requireAdminOrEmpresa, async (req, res) => {
   try {
     const result = await getOwnedGame(req.body.game_id, req.user);
     if (result.error) return res.status(result.status).json({ error: result.error });
-    await prisma.game.update({ where: { id: req.body.game_id }, data: { plays_count: 0 } });
+    await Promise.all([
+      prisma.game.update({ where: { id: req.body.game_id }, data: { plays_count: 0 } }),
+      prisma.userGameStats.updateMany({ where: { game_id: req.body.game_id }, data: { plays_count: 0, time_played: 0 } }),
+    ]);
     res.json({ ok: true });
   } catch {
     res.status(500).json({ error: 'Error interno' });
   }
 });
 
-// POST /api/maintenance/reset-game  body: { game_id }  — scores + plays
+// POST /api/maintenance/reset-game  body: { game_id }  — borra todo del juego
 router.post('/reset-game', requireAuth, requireAdminOrEmpresa, async (req, res) => {
   try {
     const result = await getOwnedGame(req.body.game_id, req.user);
     if (result.error) return res.status(result.status).json({ error: result.error });
-    await prisma.score.deleteMany({ where: { game_id: req.body.game_id } });
-    await prisma.game.update({ where: { id: req.body.game_id }, data: { plays_count: 0 } });
+    await Promise.all([
+      prisma.userGameStats.deleteMany({ where: { game_id: req.body.game_id } }),
+      prisma.game.update({ where: { id: req.body.game_id }, data: { plays_count: 0 } }),
+    ]);
     res.json({ ok: true });
   } catch {
     res.status(500).json({ error: 'Error interno' });
@@ -65,7 +76,7 @@ router.post('/reset-user-scores', requireAuth, async (req, res) => {
   const { user_email } = req.body;
   if (!user_email) return res.status(400).json({ error: 'Falta user_email' });
   try {
-    await prisma.score.deleteMany({ where: { user_email } });
+    await prisma.userGameStats.deleteMany({ where: { user_email } });
     res.json({ ok: true });
   } catch {
     res.status(500).json({ error: 'Error interno' });
