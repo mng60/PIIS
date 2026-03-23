@@ -31,6 +31,14 @@ router.patch('/definitions/:id', requireAdmin, async (req, res) => {
   res.json(def);
 });
 
+// DELETE /api/achievements/definitions/:id (admin)
+router.delete('/definitions/:id', requireAdmin, async (req, res) => {
+  const { id } = req.params;
+  await prisma.userAchievement.deleteMany({ where: { achievement_id: id } });
+  await prisma.achievementDefinition.delete({ where: { id } });
+  res.status(204).end();
+});
+
 // GET /api/achievements/user - own achievements
 router.get('/user', requireAuth, async (req, res) => {
   const achievements = await prisma.userAchievement.findMany({

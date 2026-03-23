@@ -1,4 +1,4 @@
-import { useState, useCallback, useRef } from "react";
+import { useState, useCallback, useRef, useEffect } from "react";
 
 /**
  * Hook base para juegos de un solo jugador.
@@ -20,13 +20,23 @@ import { useState, useCallback, useRef } from "react";
  *   addPoints  - Suma puntos al marcador actual
  *   endGame    - Termina la partida, guarda el récord y llama a onScoreUpdate
  */
-export function useSinglePlayerGame({ onScoreUpdate, storageKey, userEmail }) {
+export function useSinglePlayerGame({ onScoreUpdate, storageKey, userEmail, serverBestScore }) {
   const hsKey = `hs_${storageKey}_${userEmail ?? 'guest'}`;
   const [gameState, setGameState] = useState("idle");
   const [score, setScore] = useState(0);
   const [highScore, setHighScore] = useState(() =>
     parseInt(localStorage.getItem(hsKey) || "0")
   );
+
+  // Sync localStorage with server: if BD was reset, local record should drop too
+  useEffect(() => {
+    if (serverBestScore == null) return;
+    const local = parseInt(localStorage.getItem(hsKey) || "0");
+    if (local > serverBestScore) {
+      localStorage.setItem(hsKey, String(serverBestScore));
+      setHighScore(serverBestScore);
+    }
+  }, [serverBestScore, hsKey]);
 
   // Ref para acceso síncrono desde el game loop (evita problemas de closure)
   const scoreRef = useRef(0);

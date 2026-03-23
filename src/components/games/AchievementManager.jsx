@@ -14,6 +14,10 @@ import {
   Select, SelectContent, SelectItem, SelectTrigger, SelectValue
 } from "@/components/ui/select";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import {
+  AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent,
+  AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle,
+} from "@/components/ui/alert-dialog";
 import { toast } from "sonner";
 import { Plus, Pencil, Trash2, Loader2, Trophy, X, Save } from "lucide-react";
 
@@ -46,6 +50,7 @@ export default function AchievementManager({ gameId }) {
   const [editingId, setEditingId] = useState(null);
   const [form, setForm] = useState(EMPTY_FORM);
   const [saving, setSaving] = useState(false);
+  const [deleteId, setDeleteId] = useState(null);
 
   const { data: achievements = [], isLoading } = useQuery({
     queryKey: ["achievementMgr", gameId],
@@ -112,11 +117,12 @@ export default function AchievementManager({ gameId }) {
     setSaving(false);
   };
 
-  const handleDelete = async (id) => {
-    if (!window.confirm("¿Eliminar este logro?")) return;
-    await deleteAchievementDefinition(id);
+  const handleDelete = async () => {
+    if (!deleteId) return;
+    await deleteAchievementDefinition(deleteId);
     qc.invalidateQueries(["achievementMgr", gameId]);
     qc.invalidateQueries(["achievementDefs", gameId]);
+    setDeleteId(null);
     toast.success("Logro eliminado");
   };
 
@@ -369,7 +375,9 @@ export default function AchievementManager({ gameId }) {
                 <span className="text-xl flex-shrink-0">
                   {a.icon_url ? (
                     <img src={a.icon_url} alt="" className="w-7 h-7 rounded object-cover" />
-                  ) : "🏆"}
+                  ) : (
+                    <Trophy className="w-6 h-6" style={{ color: RARITY_CONFIG[a.rarity]?.color ?? '#cd7f32' }} />
+                  )}
                 </span>
                 <div className="flex-1 min-w-0">
                   <div className="flex items-center gap-2 flex-wrap">
@@ -379,7 +387,7 @@ export default function AchievementManager({ gameId }) {
                         className="text-xs font-semibold px-1.5 py-0.5 rounded"
                         style={{ backgroundColor: RARITY_CONFIG[a.rarity].color + "22", color: RARITY_CONFIG[a.rarity].color, border: `1px solid ${RARITY_CONFIG[a.rarity].color}55` }}
                       >
-                        {RARITY_CONFIG[a.rarity].label} · +{RARITY_CONFIG[a.rarity].xp} XP
+                        +{RARITY_CONFIG[a.rarity].xp} XP
                       </span>
                     )}
                     {!a.is_active && (
@@ -404,7 +412,7 @@ export default function AchievementManager({ gameId }) {
                   <Button
                     size="icon"
                     variant="ghost"
-                    onClick={() => handleDelete(a.id)}
+                    onClick={() => setDeleteId(a.id)}
                     className="h-7 w-7 text-gray-400 hover:text-red-400"
                   >
                     <Trash2 className="w-3.5 h-3.5" />
@@ -415,6 +423,23 @@ export default function AchievementManager({ gameId }) {
           </div>
         )}
       </CardContent>
+
+      <AlertDialog open={!!deleteId} onOpenChange={(open) => { if (!open) setDeleteId(null); }}>
+        <AlertDialogContent className="bg-[#0f0f18] border-white/10">
+          <AlertDialogHeader>
+            <AlertDialogTitle className="text-white">¿Eliminar este logro?</AlertDialogTitle>
+            <AlertDialogDescription>
+              Se borrará el logro y el progreso de todos los usuarios que lo tuvieran. Esta acción no se puede deshacer.
+            </AlertDialogDescription>
+          </AlertDialogHeader>
+          <AlertDialogFooter>
+            <AlertDialogCancel className="bg-white/5 border-white/10 text-white">Cancelar</AlertDialogCancel>
+            <AlertDialogAction onClick={handleDelete} className="bg-red-600 hover:bg-red-700">
+              Eliminar
+            </AlertDialogAction>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
     </Card>
   );
 }

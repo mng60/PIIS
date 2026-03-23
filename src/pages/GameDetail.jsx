@@ -1,7 +1,7 @@
 import { useState } from 'react';
 import { Link, useParams } from 'react-router-dom';
 import { useAuth } from '@/lib/AuthContext';
-import { useQueryClient } from '@tanstack/react-query';
+import { useQueryClient, useQuery } from '@tanstack/react-query';
 import { Loader2, Gamepad, Trophy, MessageSquare } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { toast } from 'sonner';
@@ -14,16 +14,23 @@ import CommentSection from '@/components/games/CommentSection';
 import AgeGateDialog from '@/components/AgeGateDialog';
 import { evaluateAndUpdateAchievements } from '@/components/achievements';
 import { recordPlay } from '@/api/games';
-import { submitScore, recordGamePlay } from '@/api/scores';
+import { submitScore, recordGamePlay, getUserGameScores } from '@/api/scores';
 
 export default function GameDetail() {
   const { id: gameId } = useParams();
-  const { user } = useAuth();
+  const { user, updateUserData } = useAuth();
   const ageKey = user ? `playcraft_age_${user.email}_${gameId}` : null;
   const queryClient = useQueryClient();
 
   const { game, gameLoading, scores, comments, refetchComments, isFavorite, toggleFavorite, invalidateGame } =
     useGameDetail(gameId, user);
+
+  const { data: userGameStatsArr = [] } = useQuery({
+    queryKey: ['userGameStats', user?.email, gameId],
+    queryFn: () => getUserGameScores(user.email, gameId),
+    enabled: !!user && !!gameId,
+  });
+  const serverBestScore = userGameStatsArr[0]?.best_score ?? 0;
 
   const [isPlaying,       setIsPlaying]       = useState(false);
   const [sessionStart,    setSessionStart]     = useState(null);
@@ -66,13 +73,22 @@ export default function GameDetail() {
     const minimal = game?.show_leaderboard === false && game?.show_achievements === false;
 
     if (minimal) {
-      await recordGamePlay(gameId, timePlayed);
+      const result = await recordGamePlay(gameId, timePlayed);
+      if (result?.xpGained) updateUserData({ xp: (user.xp ?? 0) + result.xpGained });
       return;
     }
 
-    await submitScore(gameId, score, timePlayed);
+    let totalXp = 0;
+    const result = await submitScore(gameId, score, timePlayed);
+    totalXp += result?.xpGained ?? 0;
+
     queryClient.invalidateQueries(['scores', gameId]);
-    await evaluateAndUpdateAchievements({ userEmail: user.email, gameId });
+    await evaluateAndUpdateAchievements({
+      userEmail: user.email,
+      gameId,
+      onXpGained: (xp) => { totalXp += xp; },
+    });
+    if (totalXp > 0) updateUserData({ xp: (user.xp ?? 0) + totalXp });
     queryClient.invalidateQueries(['userAchievements', user.email]);
     queryClient.invalidateQueries(['userAchievementsAll', user.email]);
   };
@@ -135,6 +151,7 @@ export default function GameDetail() {
           chessMoveHistory={chessMoveHistory}
           onChessMoveHistoryChange={setChessMoveHistory}
           onChatSessionIdChange={setChatSessionId}
+          serverBestScore={serverBestScore}
         />
 
         {(game.full_description || game.description) && (

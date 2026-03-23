@@ -21,6 +21,7 @@ export default function GameArea({
   chessMoveHistory,
   onChessMoveHistoryChange,
   onChatSessionIdChange,
+  serverBestScore,
 }) {
   const iframeRef = useRef(null);
   const [iframeSrcDoc, setIframeSrcDoc] = useState(null);
@@ -66,7 +67,7 @@ export default function GameArea({
 
   const renderGame = () => {
     if (game.game_code === 'snake') {
-      return <SnakeGame onScoreUpdate={onScoreUpdate} onGameStart={onGameStart} user={user} />;
+      return <SnakeGame onScoreUpdate={onScoreUpdate} onGameStart={onGameStart} user={user} serverBestScore={serverBestScore} />;
     }
     if (game.game_code === 'pong') {
       return <PongGame onScoreUpdate={onScoreUpdate} onGameStart={onGameStart} />;

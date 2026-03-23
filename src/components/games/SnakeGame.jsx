@@ -88,9 +88,9 @@ function cellStyle(cell) {
 
 // ── Component ──────────────────────────────────────────────────────────────
 
-export default function SnakeGame({ onScoreUpdate, onGameStart, user }) {
+export default function SnakeGame({ onScoreUpdate, onGameStart, user, serverBestScore }) {
   const { gameState, score, highScore, scoreRef, startGame, addPoints, endGame, resetGame } =
-    useSinglePlayerGame({ onScoreUpdate, storageKey: "snake", userEmail: user?.email });
+    useSinglePlayerGame({ onScoreUpdate, storageKey: "snake", userEmail: user?.email, serverBestScore });
 
   const [difficulty, setDifficulty] = useState("normal");
   const [wallWrap,   setWallWrap]   = useState(false);

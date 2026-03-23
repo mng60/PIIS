@@ -12,6 +12,7 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import { Trophy, Star, ChevronRight, ArrowLeft } from "lucide-react";
+import { RARITY_CONFIG } from "@/lib/levels";
 import { format } from "date-fns";
 import { es } from "date-fns/locale";
 
@@ -243,65 +244,47 @@ export default function UserAchievementsSection({ userEmail }) {
                   ? Math.min(100, Math.round((displayProgress / threshold) * 100))
                   : 0;
 
+              const cfg = RARITY_CONFIG[def.rarity ?? 'bronze'];
               return (
                 <div
                   key={def.id}
-                  className={`flex items-start gap-3 p-4 rounded-xl border ${
-                    unlocked
-                      ? "bg-yellow-500/10 border-yellow-500/20"
-                      : "bg-white/5 border-white/10"
-                  }`}
+                  className="flex items-start gap-3 p-4 rounded-xl border"
+                  style={unlocked
+                    ? { backgroundColor: cfg.color + '18', borderColor: cfg.color + '50' }
+                    : { backgroundColor: 'rgba(255,255,255,0.05)', borderColor: 'rgba(255,255,255,0.1)' }}
                 >
-                  <div
-                    className={`text-2xl flex-shrink-0 ${
-                      !unlocked ? "grayscale opacity-50" : ""
-                    }`}
-                  >
+                  <div className={`flex-shrink-0 ${!unlocked ? "opacity-30" : ""}`}>
                     {def.icon_url ? (
-                      <img
-                        src={def.icon_url}
-                        alt=""
-                        className="w-10 h-10 rounded object-cover"
-                      />
+                      <img src={def.icon_url} alt="" className="w-10 h-10 rounded object-cover" />
                     ) : (
-                      <span>{unlocked ? "🏆" : "🔒"}</span>
+                      <Trophy className="w-9 h-9" style={{ color: unlocked ? cfg.color : '#6b7280' }} />
                     )}
                   </div>
 
                   <div className="flex-1 min-w-0">
                     <div className="flex items-center gap-2">
-                      <p
-                        className={`font-semibold truncate ${
-                          unlocked ? "text-yellow-400" : "text-white"
-                        }`}
-                      >
+                      <p className="font-semibold truncate" style={unlocked ? { color: cfg.color } : { color: 'white' }}>
                         {def.title}
                       </p>
                       {unlocked && (
-                        <Star className="w-4 h-4 text-yellow-500 fill-yellow-500 flex-shrink-0" />
+                        <Star className="w-4 h-4 flex-shrink-0" style={{ color: cfg.color, fill: cfg.color }} />
                       )}
                     </div>
 
                     {def.description && (
-                      <p className="text-sm text-gray-300/80 mt-1">
-                        {def.description}
-                      </p>
+                      <p className="text-sm text-gray-300/80 mt-1">{def.description}</p>
                     )}
 
                     {threshold > 0 && (
                       <div className="mt-3">
                         <div className="flex justify-between text-xs text-gray-300/70 mb-1">
-                          <span>
-                            {Math.floor(displayProgress)} / {threshold}
-                          </span>
+                          <span>{Math.floor(displayProgress)} / {threshold}</span>
                           <span>{pct}%</span>
                         </div>
                         <div className="w-full h-2 bg-white/10 rounded-full overflow-hidden">
                           <div
-                            className={`h-full rounded-full transition-all duration-500 ${
-                              unlocked ? "bg-yellow-500" : "bg-purple-500"
-                            }`}
-                            style={{ width: `${pct}%` }}
+                            className="h-full rounded-full transition-all duration-500"
+                            style={{ width: `${pct}%`, backgroundColor: unlocked ? cfg.color : '#a855f7' }}
                           />
                         </div>
                       </div>
@@ -310,9 +293,7 @@ export default function UserAchievementsSection({ userEmail }) {
                     {unlocked && ua?.unlocked_date && (
                       <p className="text-xs text-gray-300/60 mt-2">
                         Completado el{" "}
-                        {format(new Date(ua.unlocked_date), "d MMM yyyy", {
-                          locale: es,
-                        })}
+                        {format(new Date(ua.unlocked_date), "d MMM yyyy", { locale: es })}
                       </p>
                     )}
                   </div>

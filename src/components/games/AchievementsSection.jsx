@@ -2,6 +2,7 @@ import React from "react";
 import { getAchievementDefinitions, getUserAchievements } from "@/api/achievements";
 import { useQuery } from "@tanstack/react-query";
 import { Trophy, Star } from "lucide-react";
+import { RARITY_CONFIG } from "@/lib/levels";
 
 const METRIC_LABELS = {
   plays_count: "partidas",
@@ -45,29 +46,29 @@ export default function AchievementsSection({ gameId, user }) {
           const progress = threshold > 0 ? Math.min(rawProgress, threshold) : rawProgress;
           const pct = threshold > 0 ? Math.min(100, Math.round((progress / threshold) * 100)) : 0;
 
+          const cfg = RARITY_CONFIG[def.rarity ?? 'bronze'];
           return (
             <div
               key={def.id}
-              className={`p-4 rounded-lg border transition-all ${
-                unlocked
-                  ? "bg-yellow-500/10 border-yellow-500/30"
-                  : "bg-white/3 border-white/10"
-              }`}
+              className="p-4 rounded-lg border transition-all"
+              style={unlocked
+                ? { backgroundColor: cfg.color + '18', borderColor: cfg.color + '55' }
+                : { backgroundColor: 'rgba(255,255,255,0.03)', borderColor: 'rgba(255,255,255,0.1)' }}
             >
               <div className="flex items-start gap-3">
-                <div className={`text-2xl flex-shrink-0 mt-0.5 ${!unlocked && "grayscale opacity-40"}`}>
+                <div className={`flex-shrink-0 mt-0.5 ${!unlocked && "opacity-30"}`}>
                   {def.icon_url ? (
                     <img src={def.icon_url} alt="" className="w-8 h-8 rounded object-cover" />
                   ) : (
-                    <span>{unlocked ? "🏆" : "🔒"}</span>
+                    <Trophy className="w-7 h-7" style={{ color: unlocked ? cfg.color : '#6b7280' }} />
                   )}
                 </div>
                 <div className="flex-1 min-w-0">
                   <div className="flex items-center gap-1.5">
-                    <p className={`font-semibold text-sm truncate ${unlocked ? "text-yellow-400" : "text-white"}`}>
+                    <p className="font-semibold text-sm truncate" style={unlocked ? { color: cfg.color } : { color: 'white' }}>
                       {def.title}
                     </p>
-                    {unlocked && <Star className="w-3 h-3 text-yellow-500 fill-yellow-500 flex-shrink-0" />}
+                    {unlocked && <Star className="w-3 h-3 flex-shrink-0" style={{ color: cfg.color, fill: cfg.color }} />}
                   </div>
                   {def.description && (
                     <p className="text-xs text-gray-400 mt-0.5 line-clamp-2">{def.description}</p>
@@ -82,10 +83,8 @@ export default function AchievementsSection({ gameId, user }) {
                       </div>
                       <div className="w-full h-1.5 bg-white/10 rounded-full overflow-hidden">
                         <div
-                          className={`h-full rounded-full transition-all duration-500 ${
-                            unlocked ? "bg-yellow-500" : "bg-purple-500"
-                          }`}
-                          style={{ width: `${pct}%` }}
+                          className="h-full rounded-full transition-all duration-500"
+                          style={{ width: `${pct}%`, backgroundColor: unlocked ? cfg.color : '#a855f7' }}
                         />
                       </div>
                     </div>
