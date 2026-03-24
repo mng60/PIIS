@@ -103,9 +103,9 @@ export default function GameDetail() {
     }
   };
 
-  const showLevelUpIfNeeded = (oldLevel, newLevel) => {
-    if (newLevel.level <= oldLevel.level) return;
-    toast.custom(() => (
+  const showLevelUpIfNeeded = (oldLevel, newLevel, delay = 0) => {
+    if (newLevel.level <= oldLevel.level) return false;
+    setTimeout(() => toast.custom(() => (
       <div style={{ backgroundColor: '#0d0d1a', border: `2px solid ${newLevel.color}`, borderRadius: '1rem', padding: '20px 24px', display: 'flex', alignItems: 'center', gap: '18px', minWidth: '340px', boxShadow: `0 0 40px ${newLevel.color}55` }}>
         <div style={{ width: 56, height: 56, borderRadius: '50%', backgroundColor: newLevel.color + '22', border: `2px solid ${newLevel.color}88`, display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0, fontSize: 26 }}>
           ⬆️
@@ -116,7 +116,8 @@ export default function GameDetail() {
           <p style={{ color: '#6b7280', fontSize: '0.75rem', margin: '4px 0 0' }}>Sigue jugando para llegar más lejos</p>
         </div>
       </div>
-    ), { duration: 6000 });
+    ), { duration: 6000 }), delay);
+    return true;
   };
 
   const handleScoreUpdate = async (score) => {
@@ -133,7 +134,7 @@ export default function GameDetail() {
       if (result?.xpGained) {
         const newXp = (user.xp ?? 0) + result.xpGained;
         updateUserData({ xp: newXp });
-        showLevelUpIfNeeded(oldLevel, getLevelFromXP(newXp));
+        showLevelUpIfNeeded(oldLevel, getLevelFromXP(newXp), 0);
         checkNewMedals(prevMedalIds, newXp);
       }
       return;
@@ -150,11 +151,11 @@ export default function GameDetail() {
       onXpGained: (xp) => { totalXp += xp; },
     });
     const newXp = (user.xp ?? 0) + totalXp;
-    if (totalXp > 0) {
-      updateUserData({ xp: newXp });
-      showLevelUpIfNeeded(oldLevel, getLevelFromXP(newXp));
-    }
-    checkNewMedals(prevMedalIds, newXp, (achievementToasts ?? 0) * 3000);
+    const leveledUp = totalXp > 0
+      ? showLevelUpIfNeeded(oldLevel, getLevelFromXP(newXp), (achievementToasts ?? 0) * 3000)
+      : false;
+    if (totalXp > 0) updateUserData({ xp: newXp });
+    checkNewMedals(prevMedalIds, newXp, ((achievementToasts ?? 0) + (leveledUp ? 1 : 0)) * 3000);
     queryClient.invalidateQueries(['userAchievements', user.email]);
     queryClient.invalidateQueries(['userAchievementsAll', user.email]);
   };
