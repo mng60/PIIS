@@ -6,7 +6,7 @@ import { useAuth } from "@/lib/AuthContext";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { Link } from "react-router-dom";
 import {
-  Loader2, Shield, Users, Gamepad2, Plus, Play, Trophy, Flag, Ticket, CheckCheck, KeyRound,
+  Loader2, Shield, Users, Gamepad2, Plus, Play, Trophy, Flag, Ticket, CheckCheck, KeyRound, SlidersHorizontal, X,
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
@@ -18,6 +18,8 @@ import {
 import { Input } from "@/components/ui/input";
 import { Search } from "lucide-react";
 import { toast } from "sonner";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from "@/components/ui/dialog";
 import AdminReportsSection from "@/components/moderation/AdminReportsSection";
 import TournamentsTab from "@/components/admin/TournamentsTab";
 import UserManageDialog from "@/components/admin/UserManageDialog";
@@ -264,6 +266,74 @@ function UsersTab({ users, currentUser }) {
 
 function GamesTab({ games }) {
   const [selected, setSelected] = useState(null);
+  const [search, setSearch] = useState("");
+  const [filterCategory, setFilterCategory] = useState("all");
+  const [filterState, setFilterState] = useState("all");
+  const [filterType, setFilterType] = useState("all");
+  const [filterAdult, setFilterAdult] = useState("all");
+  const [filterFeatured, setFilterFeatured] = useState("all");
+  const [filtersOpen, setFiltersOpen] = useState(false);
+
+  // Valores temporales dentro del modal (se aplican al cerrar con "Aplicar")
+  const [tmpCategory, setTmpCategory] = useState("all");
+  const [tmpState, setTmpState] = useState("all");
+  const [tmpType, setTmpType] = useState("all");
+  const [tmpAdult, setTmpAdult] = useState("all");
+  const [tmpFeatured, setTmpFeatured] = useState("all");
+
+  const categories = useMemo(() =>
+    [...new Set(games.map(g => g.category).filter(Boolean))].sort()
+  , [games]);
+
+  const filtered = useMemo(() => {
+    return games.filter(g => {
+      if (search.trim() && !g.title?.toLowerCase().includes(search.toLowerCase())) return false;
+      if (filterCategory !== "all" && g.category !== filterCategory) return false;
+      if (filterState === "active" && !g.is_active) return false;
+      if (filterState === "hidden" && g.is_active) return false;
+      if (filterType === "multi" && !g.is_multiplayer) return false;
+      if (filterType === "single" && g.is_multiplayer) return false;
+      if (filterAdult === "yes" && !g.is_adult) return false;
+      if (filterAdult === "no" && g.is_adult) return false;
+      if (filterFeatured === "yes" && !g.is_featured) return false;
+      if (filterFeatured === "no" && g.is_featured) return false;
+      return true;
+    });
+  }, [games, search, filterCategory, filterState, filterType, filterAdult, filterFeatured]);
+
+  const activeFilters = [
+    filterCategory !== "all" && { key: "category", label: filterCategory,                                    clear: () => setFilterCategory("all") },
+    filterState    !== "all" && { key: "state",    label: filterState    === "active" ? "Activo" : "Oculto",  clear: () => setFilterState("all") },
+    filterType     !== "all" && { key: "type",     label: filterType     === "multi"  ? "Multijugador" : "Un jugador", clear: () => setFilterType("all") },
+    filterAdult    !== "all" && { key: "adult",    label: filterAdult    === "yes"    ? "+18" : "Sin +18",     clear: () => setFilterAdult("all") },
+    filterFeatured !== "all" && { key: "featured", label: filterFeatured === "yes"    ? "Destacados" : "No destacados", clear: () => setFilterFeatured("all") },
+  ].filter(Boolean);
+
+  const openFilters = () => {
+    setTmpCategory(filterCategory);
+    setTmpState(filterState);
+    setTmpType(filterType);
+    setTmpAdult(filterAdult);
+    setTmpFeatured(filterFeatured);
+    setFiltersOpen(true);
+  };
+
+  const applyFilters = () => {
+    setFilterCategory(tmpCategory);
+    setFilterState(tmpState);
+    setFilterType(tmpType);
+    setFilterAdult(tmpAdult);
+    setFilterFeatured(tmpFeatured);
+    setFiltersOpen(false);
+  };
+
+  const clearAll = () => {
+    setTmpCategory("all");
+    setTmpState("all");
+    setTmpType("all");
+    setTmpAdult("all");
+    setTmpFeatured("all");
+  };
 
   return (
     <>
@@ -273,6 +343,137 @@ function GamesTab({ games }) {
           isAdmin
           onClose={() => setSelected(null)}
         />
+      )}
+
+      {/* Modal de filtros */}
+      <Dialog open={filtersOpen} onOpenChange={setFiltersOpen}>
+        <DialogContent className="bg-zinc-950 border-white/10 text-white sm:max-w-md">
+          <DialogHeader>
+            <DialogTitle>Filtros</DialogTitle>
+          </DialogHeader>
+
+          <div className="flex flex-col gap-5 py-2">
+            <div className="flex flex-col gap-1.5">
+              <label className="text-sm text-gray-400">Categoría</label>
+              <Select value={tmpCategory} onValueChange={setTmpCategory}>
+                <SelectTrigger className="bg-white/5 border-white/10 text-white">
+                  <SelectValue />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="all">Todas</SelectItem>
+                  {categories.map(cat => (
+                    <SelectItem key={cat} value={cat}>{cat}</SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+            </div>
+
+            <div className="flex flex-col gap-1.5">
+              <label className="text-sm text-gray-400">Estado</label>
+              <Select value={tmpState} onValueChange={setTmpState}>
+                <SelectTrigger className="bg-white/5 border-white/10 text-white">
+                  <SelectValue />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="all">Todos</SelectItem>
+                  <SelectItem value="active">Activo</SelectItem>
+                  <SelectItem value="hidden">Oculto</SelectItem>
+                </SelectContent>
+              </Select>
+            </div>
+
+            <div className="flex flex-col gap-1.5">
+              <label className="text-sm text-gray-400">Tipo</label>
+              <Select value={tmpType} onValueChange={setTmpType}>
+                <SelectTrigger className="bg-white/5 border-white/10 text-white">
+                  <SelectValue />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="all">Todos</SelectItem>
+                  <SelectItem value="multi">Multijugador</SelectItem>
+                  <SelectItem value="single">Un jugador</SelectItem>
+                </SelectContent>
+              </Select>
+            </div>
+
+            <div className="flex flex-col gap-1.5">
+              <label className="text-sm text-gray-400">Contenido +18</label>
+              <Select value={tmpAdult} onValueChange={setTmpAdult}>
+                <SelectTrigger className="bg-white/5 border-white/10 text-white">
+                  <SelectValue />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="all">Todos</SelectItem>
+                  <SelectItem value="yes">Solo +18</SelectItem>
+                  <SelectItem value="no">Sin +18</SelectItem>
+                </SelectContent>
+              </Select>
+            </div>
+
+            <div className="flex flex-col gap-1.5">
+              <label className="text-sm text-gray-400">Destacados</label>
+              <Select value={tmpFeatured} onValueChange={setTmpFeatured}>
+                <SelectTrigger className="bg-white/5 border-white/10 text-white">
+                  <SelectValue />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="all">Todos</SelectItem>
+                  <SelectItem value="yes">Solo destacados</SelectItem>
+                  <SelectItem value="no">No destacados</SelectItem>
+                </SelectContent>
+              </Select>
+            </div>
+          </div>
+
+          <DialogFooter className="gap-2">
+            <Button variant="ghost" onClick={clearAll} className="text-gray-400 hover:text-white">
+              Limpiar filtros
+            </Button>
+            <Button onClick={applyFilters} className="bg-gradient-to-r from-purple-600 to-cyan-500 hover:opacity-90">
+              Aplicar
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
+
+      {/* Barra de búsqueda + botón filtros */}
+      <div className="flex gap-2 mb-3">
+        <div className="relative flex-1">
+          <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400" />
+          <Input
+            placeholder="Buscar por nombre..."
+            value={search}
+            onChange={e => setSearch(e.target.value)}
+            className="pl-10 bg-white/5 border-white/10 text-white placeholder:text-gray-500"
+          />
+        </div>
+        <Button
+          variant="outline"
+          onClick={openFilters}
+          className="border-white/10 text-gray-300 hover:text-white hover:bg-white/5 gap-2"
+        >
+          <SlidersHorizontal className="w-4 h-4" />
+          Filtros
+          {activeFilters.length > 0 && (
+            <span className="bg-purple-600 text-white text-xs rounded-full w-5 h-5 flex items-center justify-center">
+              {activeFilters.length}
+            </span>
+          )}
+        </Button>
+      </div>
+
+      {/* Chips de filtros activos */}
+      {activeFilters.length > 0 && (
+        <div className="flex flex-wrap gap-2 mb-4">
+          {activeFilters.map(f => (
+            <span key={f.key} className="flex items-center gap-1.5 bg-purple-500/15 border border-purple-500/30 text-purple-300 text-xs px-2.5 py-1 rounded-full">
+              {f.label}
+              <button type="button" onClick={f.clear} className="hover:text-white transition-colors">
+                <X className="w-3 h-3" />
+              </button>
+            </span>
+          ))}
+        </div>
       )}
 
       <div className="overflow-x-auto">
@@ -287,7 +488,7 @@ function GamesTab({ games }) {
             </TableRow>
           </TableHeader>
           <TableBody>
-            {games.map(game => (
+            {filtered.map(game => (
               <TableRow key={game.id} className="border-white/5 hover:bg-white/[0.02]">
                 <TableCell>
                   <div className="flex items-center gap-3">

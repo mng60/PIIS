@@ -44,7 +44,9 @@ export default function Leaderboard({ scores }) {
           </div>
           <div className="flex-1 min-w-0">
             <p className="font-medium text-white truncate">
-              {score.user_name || "Anónimo"}
+              {score.user_name
+                ? score.user_name.includes('@') ? score.user_name.split('@')[0] : score.user_name
+                : "Anónimo"}
             </p>
           </div>
           <div className="text-right">

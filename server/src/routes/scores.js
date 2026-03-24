@@ -58,16 +58,17 @@ router.post('/', requireAuth, async (req, res) => {
   const timeSecs = parseInt(time_played) || 0;
   const base     = { user_email: req.user.email, game_id };
 
-  // Obtener datos del juego para XP
-  const game = await prisma.game.findUnique({
-    where:  { id: game_id },
-    select: { xp_per_play: true, is_multiplayer: true },
-  });
+  // Obtener datos del juego y nombre del usuario en paralelo
+  const [game, dbUser] = await Promise.all([
+    prisma.game.findUnique({ where: { id: game_id }, select: { xp_per_play: true, is_multiplayer: true } }),
+    prisma.user.findUnique({ where: { id: req.user.id }, select: { full_name: true } }),
+  ]);
+  const displayName = dbUser?.full_name || req.user.email.split('@')[0];
 
   if (minimal) {
     const stats = await prisma.userGameStats.upsert({
       where:  { user_email_game_id: base },
-      create: { ...base, user_name: req.user.full_name || req.user.email, plays_count: 1, time_played: timeSecs, last_played: new Date() },
+      create: { ...base, user_name: displayName, plays_count: 1, time_played: timeSecs, last_played: new Date() },
       update: { plays_count: { increment: 1 }, time_played: { increment: timeSecs }, last_played: new Date() },
     });
     const xpGained = game?.is_multiplayer ? 35 : (game?.xp_per_play ?? 10);
@@ -82,7 +83,7 @@ router.post('/', requireAuth, async (req, res) => {
   const existing = await prisma.userGameStats.findUnique({ where: { user_email_game_id: base } });
 
   const update = {
-    user_name:   req.user.full_name || req.user.email,
+    user_name:   displayName,
     plays_count: { increment: 1 },
     best_score:  !existing || scoreVal > existing.best_score ? scoreVal : existing.best_score,
     last_score:  scoreVal,
@@ -96,7 +97,7 @@ router.post('/', requireAuth, async (req, res) => {
     where:  { user_email_game_id: base },
     create: {
       ...base,
-      user_name:   req.user.full_name || req.user.email,
+      user_name:   displayName,
       plays_count: 1,
       best_score:  scoreVal,
       last_score:  scoreVal,

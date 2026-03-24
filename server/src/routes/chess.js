@@ -5,6 +5,18 @@ import { requireAuth } from '../middleware/auth.js';
 const router = Router();
 const prisma = new PrismaClient();
 
+async function cleanupChatMessages(room_code) {
+  try {
+    const messages = await prisma.chatMessage.findMany({ where: { session_id: room_code }, select: { id: true } });
+    if (!messages.length) return;
+    const ids = messages.map(m => m.id);
+    const reported = await prisma.report.findMany({ where: { target_id: { in: ids }, target_kind: 'chat_message' }, select: { target_id: true } });
+    const reportedIds = new Set(reported.map(r => r.target_id));
+    const toDelete = ids.filter(id => !reportedIds.has(id));
+    if (toDelete.length) await prisma.chatMessage.deleteMany({ where: { id: { in: toDelete } } });
+  } catch { /* silencioso */ }
+}
+
 // GET /api/chess/:room_code
 router.get('/:room_code', async (req, res) => {
   const room = await prisma.chessRoom.findUnique({ where: { room_code: req.params.room_code } });
@@ -33,11 +45,13 @@ router.patch('/:room_code', requireAuth, async (req, res) => {
     where: { room_code: req.params.room_code },
     data: req.body,
   });
+  if (req.body.status === 'finished') cleanupChatMessages(req.params.room_code);
   res.json(room);
 });
 
 // DELETE /api/chess/:room_code
 router.delete('/:room_code', requireAuth, async (req, res) => {
+  await cleanupChatMessages(req.params.room_code);
   await prisma.chessRoom.delete({ where: { room_code: req.params.room_code } });
   res.status(204).end();
 });

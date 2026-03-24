@@ -48,6 +48,15 @@ const BOARD_THEMES = {
 
 const nowISO = () => new Date().toISOString();
 
+const PIECE_NAMES_ES = { K: 'Rey', Q: 'Reina', R: 'Torre', B: 'Alfil', N: 'Caballo', '': 'Peón' };
+
+// Always show display name, never raw email
+const nickName = (name) => {
+  if (!name) return null;
+  if (name.includes('@')) return name.split('@')[0];
+  return name;
+};
+
 export default function ChessOnlineGame({ user, onScoreUpdate, onRoomCodeChange, onMoveHistoryChange }) {
   const [screen, setScreen] = useState("lobby");
   const [roomCode, setRoomCode] = useState("");
@@ -92,9 +101,11 @@ export default function ChessOnlineGame({ user, onScoreUpdate, onRoomCodeChange,
   const didAwardRef = useRef(false);
   const metaRef = useRef({});
   const lastOfferSeenRef = useRef(null);
+  const didSyncNameRef = useRef(false);
 
   const hostEmailRef = useRef(null);
   const guestEmailRef = useRef(null);
+  const lastSeenMoveIdRef = useRef(null);
 
   const clockStartGuardRef = useRef(false);
   const timeoutDeclaredRef = useRef(false);
@@ -164,6 +175,16 @@ export default function ChessOnlineGame({ user, onScoreUpdate, onRoomCodeChange,
       if (room.status === "playing") {
         maybeStartClockIfHost(room, b, meta);
       }
+
+      // Detect opponent moves via lastMove stored in meta (must be inside this block where meta is in scope)
+      if (meta?.lastMove && meta.lastMove.id !== lastSeenMoveIdRef.current) {
+        lastSeenMoveIdRef.current = meta.lastMove.id;
+        setMoveHistory(prev => {
+          const updated = [...prev, { move: meta.lastMove.notation, player: meta.lastMove.player }];
+          onMoveHistoryChange?.(updated);
+          return updated;
+        });
+      }
     }
 
     setCurrentTurn(room.current_turn || "white");
@@ -171,7 +192,16 @@ export default function ChessOnlineGame({ user, onScoreUpdate, onRoomCodeChange,
 
     if (room.status !== "waiting") {
       const opp = user?.email === room.host_email ? (room.guest_name || "Rival") : (room.host_name || "Rival");
-      setOpponentName(opp);
+      setOpponentName(nickName(opp) || "Rival");
+    }
+
+    // Self-heal: cuando el host ve la partida en curso, actualiza host_name con el nombre actual (una sola vez)
+    if (room.status === "playing" && user?.email === room.host_email && !didSyncNameRef.current) {
+      didSyncNameRef.current = true;
+      const currentName = nickName(user.full_name) || user.email.split('@')[0];
+      if (room.host_name !== currentName) {
+        updateChessRoom(room.room_code, { host_name: currentName }).catch(() => {});
+      }
     }
 
     if (room.status === "finished") {
@@ -185,8 +215,10 @@ export default function ChessOnlineGame({ user, onScoreUpdate, onRoomCodeChange,
           onScoreUpdate?.(1);
           toast.success("¡Victoria! +1 punto");
         } else if (w === "draw" || !w) {
+          onScoreUpdate?.(0);
           toast.info("Tablas");
         } else {
+          onScoreUpdate?.(0);
           toast.info("Derrota");
         }
       }
@@ -290,15 +322,18 @@ export default function ChessOnlineGame({ user, onScoreUpdate, onRoomCodeChange,
         const pieceSymbol = getPieceType(piece);
         const fromSquare = `${FILES[selectedSquare.col]}${8 - selectedSquare.row}`;
         const toSquare = `${FILES[col]}${8 - row}`;
-        const moveNotation = `${pieceSymbol}${fromSquare}-${toSquare}`;
-        const newHistory = [...moveHistory, {
-          move: moveNotation,
-          player: currentTurn === "white" ? "Blancas" : "Negras"
-        }];
+        const pieceName = PIECE_NAMES_ES[pieceSymbol] ?? 'Peón';
+        const capturedType = capturedPiece ? getPieceType(capturedPiece) : null;
+        const moveNotation = capturedType !== null
+          ? `${pieceName} ${fromSquare} come ${PIECE_NAMES_ES[capturedType] ?? 'Pieza'} en ${toSquare}`
+          : `${pieceName} ${fromSquare}→${toSquare}`;
+        const moveId = Date.now();
+        const moveEntry = { move: moveNotation, player: currentTurn === "white" ? "Blancas" : "Negras" };
+        nextMeta.lastMove = { id: moveId, notation: moveNotation, player: moveEntry.player };
+        lastSeenMoveIdRef.current = moveId;
+        const newHistory = [...moveHistory, moveEntry];
         setMoveHistory(newHistory);
-        if (onMoveHistoryChange) {
-          onMoveHistoryChange(newHistory);
-        }
+        if (onMoveHistoryChange) onMoveHistoryChange(newHistory);
 
         try {
           if (capturedPiece && getPieceType(capturedPiece) === "K") {
@@ -361,7 +396,7 @@ export default function ChessOnlineGame({ user, onScoreUpdate, onRoomCodeChange,
       const room = await createChessRoom({
         room_code: code,
         host_email: user.email,
-        host_name: user.full_name || user.email.split("@")[0],
+        host_name: nickName(user.full_name) || user.email.split("@")[0],
         status: "waiting",
         board_state: packBoardState(initBoard(), meta),
         current_turn: "white",
@@ -412,7 +447,7 @@ export default function ChessOnlineGame({ user, onScoreUpdate, onRoomCodeChange,
 
       const updatedRoom = await updateChessRoom(joinCode.toUpperCase(), {
         guest_email: user.email,
-        guest_name: user.full_name || user.email.split("@")[0],
+        guest_name: nickName(user.full_name) || user.email.split("@")[0],
         status: "playing",
       });
 
@@ -578,6 +613,8 @@ export default function ChessOnlineGame({ user, onScoreUpdate, onRoomCodeChange,
     guestEmailRef.current = null;
     clockStartGuardRef.current = false;
     timeoutDeclaredRef.current = false;
+    lastSeenMoveIdRef.current = null;
+    didSyncNameRef.current = false;
   };
 
   if (screen === "lobby") {
@@ -628,7 +665,7 @@ export default function ChessOnlineGame({ user, onScoreUpdate, onRoomCodeChange,
         }}
         bottomPlayer={{
           label: flip ? "Negras" : "Blancas",
-          name: user?.full_name || "Tú",
+          name: nickName(user?.full_name) || "Tú",
           time: formatMs(clock ? Math.max(0, myMs) : null)
         }}
         isTopPlayerActive={isTopPlayerActive}

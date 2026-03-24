@@ -73,7 +73,7 @@ export default function ChatSection({ gameId, user, sessionId }) {
 
   return (
     <div className="flex flex-col flex-1 min-h-0 gap-2">
-      <div ref={containerRef} className="flex-1 min-h-0 overflow-y-auto space-y-2 pr-1">
+      <div ref={containerRef} className="flex-1 min-h-0 overflow-y-auto space-y-2 pr-1 [&::-webkit-scrollbar]:hidden [scrollbar-width:none]">
         {messages.length === 0 ? (
           <div className="text-center py-8 text-gray-500"><p>Sé el primero en enviar un mensaje</p></div>
         ) : (

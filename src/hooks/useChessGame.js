@@ -11,7 +11,7 @@ const playerName = (user) => user.full_name || user.email.split('@')[0];
  *   - Host player info:  PLAYER_INFO { color: 'white', ... }  (sent once on game start)
  */
 export function useChessGame({ isPlaying, user, gameId, iframeRef, onRoomCodeChange }) {
-  useTurnGameRelay({
+  return useTurnGameRelay({
     isPlaying,
     user,
     gameId,

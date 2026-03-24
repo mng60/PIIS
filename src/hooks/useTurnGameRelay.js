@@ -1,4 +1,4 @@
-import { useRef, useEffect } from 'react';
+import { useRef, useEffect, useState } from 'react';
 import { createSession, getSession, updateSession } from '@/api/sessions';
 
 /**
@@ -21,18 +21,18 @@ import { createSession, getSession, updateSession } from '@/api/sessions';
  * @param {React.RefObject} opts.iframeRef   - Ref attached to the game iframe
  * @param {function} opts.onRoomCodeChange   - Called with the room code when created/joined
  *
- * @param {string}   opts.actionType         - Incoming message type that stores an action
- *                                             (default: 'GAME_ACTION')
- * @param {function} opts.extractAction      - (msg) => object  — what to persist per action
+ * @param {string}   opts.actionType           - Incoming message type that stores an action
+ *                                               (default: 'GAME_ACTION')
+ * @param {function} opts.extractAction        - (msg) => object  — what to persist per action
  * @param {function} opts.buildOpponentMessage - (action) => postMessage payload sent to opponent
+ * @param {function} [opts.formatMoveLabel]    - (action) => string  — label for move history display.
+ *                                               If provided, actions are exposed via the returned
+ *                                               `moveHistory` array as { move, player } objects.
  *
  * @param {function} [opts.onGuestJoined]    - (session, iframeRef, user) => void
- *                                             Called once when this client joins as guest.
- *                                             Use it to send game-specific player info.
  * @param {function} [opts.onHostGameStart]  - (session, iframeRef, user) => void
- *                                             Called once (via polling) when the host detects
- *                                             a guest has joined and the game moves to 'playing'.
- *                                             Use it to send game-specific player info to the host.
+ *
+ * @returns {{ moveHistory: Array<{move: string, player: string}> }}
  */
 export function useTurnGameRelay({
   isPlaying,
@@ -44,10 +44,12 @@ export function useTurnGameRelay({
   actionType = 'GAME_ACTION',
   extractAction,
   buildOpponentMessage,
+  formatMoveLabel,
 
   onGuestJoined,
   onHostGameStart,
 }) {
+  const [moveHistory, setMoveHistory] = useState([]);
   const sessionRef          = useRef(null);
   const roleRef             = useRef(null);       // 'host' | 'guest'
   const lastDeliveredIdxRef = useRef(-1);
@@ -99,9 +101,13 @@ export function useTurnGameRelay({
       if (msg.type === actionType && sessionRef.current) {
         try {
           const s       = sessionRef.current;
-          const actions = [...(s.game_state?.actions || []), { ...extractAction(msg), player: roleRef.current }];
+          const action  = { ...extractAction(msg), player: roleRef.current };
+          const actions = [...(s.game_state?.actions || []), action];
           await updateSession(s.room_code, { game_state: { actions } });
           sessionRef.current = { ...s, game_state: { actions } };
+          if (formatMoveLabel) {
+            setMoveHistory(prev => [...prev, { move: formatMoveLabel(action), player: action.player }]);
+          }
         } catch (e) { console.error('[useTurnGameRelay] action error:', e); }
       }
     };
@@ -133,11 +139,12 @@ export function useTurnGameRelay({
 
         // Deliver any opponent actions not yet delivered to the iframe
         for (let i = lastDeliveredIdxRef.current + 1; i < actions.length; i++) {
-          if (actions[i].player !== myRole) {
-            iframeRef.current?.contentWindow?.postMessage(
-              buildOpponentMessage(actions[i]),
-              '*'
-            );
+          const action = actions[i];
+          if (action.player !== myRole) {
+            iframeRef.current?.contentWindow?.postMessage(buildOpponentMessage(action), '*');
+            if (formatMoveLabel) {
+              setMoveHistory(prev => [...prev, { move: formatMoveLabel(action), player: action.player }]);
+            }
           }
           lastDeliveredIdxRef.current = i;
         }
@@ -147,4 +154,6 @@ export function useTurnGameRelay({
     const id = setInterval(poll, 1500);
     return () => clearInterval(id);
   }, [isPlaying, user]);
+
+  return { moveHistory };
 }

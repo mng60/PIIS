@@ -1,5 +1,4 @@
-import React from "react";
-import { ScrollArea } from "@/components/ui/scroll-area";
+import React, { useEffect, useRef } from "react";
 
 /**
  * Componente común para mostrar historial de jugadas en juegos online
@@ -20,6 +19,13 @@ export default function OnlineGameMoveHistory({
   maxHeight = "300px",
   renderMove = null,
 }) {
+  const scrollRef = useRef(null);
+  useEffect(() => {
+    if (scrollRef.current) {
+      scrollRef.current.scrollTop = scrollRef.current.scrollHeight;
+    }
+  }, [moves]);
+
   const defaultRenderMove = (move, index) => (
     <div 
       key={index}
@@ -41,24 +47,24 @@ export default function OnlineGameMoveHistory({
   );
 
   return (
-    <div className="bg-white/5 border border-white/10 rounded-lg overflow-hidden">
-      <div className="px-3 py-2 border-b border-white/10 bg-white/5">
+    <div className="bg-white/5 border border-white/10 rounded-lg overflow-hidden h-full flex flex-col">
+      <div className="px-3 py-2 border-b border-white/10 bg-white/5 flex-shrink-0">
         <h3 className="text-sm font-semibold text-gray-300">{title}</h3>
       </div>
-      
-      <ScrollArea style={{ maxHeight }}>
+
+      <div ref={scrollRef} className="flex-1 min-h-0 overflow-y-auto [&::-webkit-scrollbar]:hidden [scrollbar-width:none]">
         {moves.length === 0 ? (
           <div className="px-3 py-8 text-center text-sm text-gray-500">
             {emptyMessage}
           </div>
         ) : (
           <div className="divide-y divide-white/5">
-            {moves.map((move, index) => 
+            {moves.map((move, index) =>
               renderMove ? renderMove(move, index) : defaultRenderMove(move, index)
             )}
           </div>
         )}
-      </ScrollArea>
+      </div>
     </div>
   );
 }

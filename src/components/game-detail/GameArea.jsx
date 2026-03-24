@@ -122,9 +122,10 @@ export default function GameArea({
       )}
 
       {game.is_multiplayer && isPlaying && (
-        <div className="flex flex-col gap-4">
-          <div className="bg-white/5 rounded-xl border border-white/10 p-4 flex flex-col flex-1" style={{ minHeight: 260 }}>
-            <h2 className="text-sm font-semibold text-white mb-3 flex items-center gap-2 flex-shrink-0">
+        <div className="flex flex-col gap-2 h-full">
+          {/* Chat: 65% */}
+          <div className="bg-white/5 rounded-xl border border-white/10 p-3 flex flex-col min-h-0" style={{ flex: '13 0 0' }}>
+            <h2 className="text-sm font-semibold text-white mb-2 flex items-center gap-2 flex-shrink-0">
               <MessageCircle className="w-4 h-4 text-purple-400" /> Chat de partida
             </h2>
             <ChatSection
@@ -134,14 +135,14 @@ export default function GameArea({
               key={chatSessionId || sessionStart}
             />
           </div>
-          {chessMoveHistory.length > 0 && (
+          {/* History: 35% */}
+          <div className="min-h-0" style={{ flex: '7 0 0' }}>
             <OnlineGameMoveHistory
               moves={chessMoveHistory}
               title="Historial de jugadas"
               emptyMessage="Aún no hay movimientos"
-              maxHeight="220px"
             />
-          )}
+          </div>
         </div>
       )}
     </div>

@@ -226,16 +226,22 @@ El polling cada 1.5 s entrega al iframe las acciones del oponente que aún no ha
 recibido. El comportamiento específico de cada juego se inyecta vía callbacks:
 
 ```js
-useTurnGameRelay({
+const { moveHistory } = useTurnGameRelay({
   isPlaying, user, gameId, iframeRef, onRoomCodeChange,
 
   actionType,            // tipo de mensaje que representa una acción (ej. 'CHESS_MOVE')
   extractAction,         // (msg) => objeto a persistir
   buildOpponentMessage,  // (action) => payload de postMessage al oponente
 
+  // Opcional: si se proporciona, el hook acumula el historial de jugadas
+  formatMoveLabel,       // (action) => string — etiqueta legible por jugada
+
   onGuestJoined,         // (session, iframeRef, user) => void — info al guest al unirse
   onHostGameStart,       // (session, iframeRef, user) => void — info al host cuando empieza
 })
+// moveHistory: Array<{ move: string, player: 'host'|'guest' }>
+// Contiene las jugadas de ambos jugadores en orden de llegada.
+// Solo se rellena si se pasa formatMoveLabel.
 ```
 
 ---
@@ -283,16 +289,22 @@ con el protocolo de mensajes de tu juego:
 import { useTurnGameRelay } from './useTurnGameRelay';
 
 export function useDominoGame({ isPlaying, user, gameId, iframeRef, onRoomCodeChange }) {
-  useTurnGameRelay({
+  return useTurnGameRelay({
     isPlaying, user, gameId, iframeRef, onRoomCodeChange,
     actionType: 'DOMINO_PLACE',
     extractAction:        (msg)    => ({ piece: msg.piece, position: msg.position }),
     buildOpponentMessage: (action) => ({ type: 'OPPONENT_PLACED', ...action }),
+
+    // Opcional: activa el historial de jugadas
+    formatMoveLabel: (action) => `Ficha ${action.piece} en ${action.position}`,
+
     onGuestJoined:    (session, ref, user) => { /* postMessage con info del jugador */ },
     onHostGameStart:  (session, ref, user) => { /* postMessage con info del jugador */ },
   });
 }
 ```
+
+El hook devuelve `{ moveHistory }` — pásalo a `<OnlineGameMoveHistory moves={moveHistory} />` para mostrar el historial. Si no necesitas historial, omite `formatMoveLabel` y el array no se acumula.
 
 Llama al hook en `GameArea.jsx` igual que `useChessGame`. El iframe debe enviar
 `CREATE_ROOM` o `JOIN_ROOM` para arrancar la sala, y el `actionType` configurado
@@ -430,5 +442,5 @@ Disponibles para cualquier juego multijugador:
 |------------|-------------|
 | `OnlineGameLobby` | Pantalla de crear/unirse a sala |
 | `OnlineGamePlayerZone` | Indicador de turno activo para ambos jugadores |
-| `OnlineGameMoveHistory` | Lista de movimientos de la partida |
+| `OnlineGameMoveHistory` | Lista de movimientos de la partida (props: `moves`, `title`, `emptyMessage`, `maxHeight`, `renderMove`) |
 | `ChatSection` | Chat en tiempo real de la sesión |
