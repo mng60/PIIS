@@ -14,7 +14,9 @@ import CommentSection from '@/components/games/CommentSection';
 import AgeGateDialog from '@/components/AgeGateDialog';
 import { evaluateAndUpdateAchievements } from '@/components/achievements';
 import { recordPlay } from '@/api/games';
-import { submitScore, recordGamePlay, getUserGameScores } from '@/api/scores';
+import { submitScore, recordGamePlay, getUserGameScores, getUserScores } from '@/api/scores';
+import { getLevelFromXP } from '@/lib/levels';
+import { evaluateMedals } from '@/lib/medals';
 
 export default function GameDetail() {
   const { id: gameId } = useParams();
@@ -67,14 +69,73 @@ export default function GameDetail() {
     return true;
   };
 
+  const toMedalInput = (stats, xp) => ({
+    totalPlays:      stats.reduce((s, r) => s + (r.plays_count || 0), 0),
+    totalWins:       stats.reduce((s, r) => s + (r.wins_count || 0), 0),
+    totalTimePlayed: stats.reduce((s, r) => s + (r.time_played || 0), 0),
+    bestScore:       stats.length ? Math.max(...stats.map(r => r.best_score || 0)) : 0,
+    gamesPlayed:     stats.length,
+    level:           getLevelFromXP(xp).level,
+  });
+
+  const checkNewMedals = async (prevMedalIds, newXp, baseDelay = 0) => {
+    try {
+      const newStats  = await getUserScores(user.email);
+      const fresh     = evaluateMedals(toMedalInput(newStats, newXp)).filter(m => !prevMedalIds.has(m.id));
+      fresh.forEach((medal, i) => {
+        const isUrl = /^https?:\/\/|^\/|^data:/.test(medal.icon) || /\.(png|svg|jpg|webp|gif)$/i.test(medal.icon);
+        setTimeout(() => toast.custom(() => (
+          <div style={{ backgroundColor: '#0d0d1a', border: `2px solid ${medal.color}`, borderRadius: '1rem', padding: '18px 22px', display: 'flex', alignItems: 'center', gap: '16px', minWidth: '320px', boxShadow: `0 0 30px ${medal.color}44` }}>
+            <div style={{ width: 50, height: 50, borderRadius: '50%', backgroundColor: medal.color + '22', border: `2px solid ${medal.color}88`, display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0 }}>
+              {isUrl ? <img src={medal.icon} alt="" style={{ width: 28, height: 28, objectFit: 'contain' }} />
+                     : <span style={{ fontSize: 24 }}>{medal.icon}</span>}
+            </div>
+            <div>
+              <p style={{ color: '#9ca3af', fontWeight: 600, fontSize: '0.75rem', margin: 0, textTransform: 'uppercase', letterSpacing: '0.08em' }}>¡Medalla desbloqueada!</p>
+              <p style={{ color: medal.color, fontWeight: 800, fontSize: '1.1rem', margin: '2px 0 0' }}>{medal.name}</p>
+              <p style={{ color: '#6b7280', fontSize: '0.75rem', margin: '3px 0 0' }}>{medal.description}</p>
+            </div>
+          </div>
+        ), { duration: 5000 }), baseDelay + i * 3000);
+      });
+    } catch {
+      // silencioso — las medallas no son críticas
+    }
+  };
+
+  const showLevelUpIfNeeded = (oldLevel, newLevel) => {
+    if (newLevel.level <= oldLevel.level) return;
+    toast.custom(() => (
+      <div style={{ backgroundColor: '#0d0d1a', border: `2px solid ${newLevel.color}`, borderRadius: '1rem', padding: '20px 24px', display: 'flex', alignItems: 'center', gap: '18px', minWidth: '340px', boxShadow: `0 0 40px ${newLevel.color}55` }}>
+        <div style={{ width: 56, height: 56, borderRadius: '50%', backgroundColor: newLevel.color + '22', border: `2px solid ${newLevel.color}88`, display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0, fontSize: 26 }}>
+          ⬆️
+        </div>
+        <div>
+          <p style={{ color: '#9ca3af', fontWeight: 600, fontSize: '0.78rem', margin: 0, textTransform: 'uppercase', letterSpacing: '0.08em' }}>¡Subida de nivel!</p>
+          <p style={{ color: newLevel.color, fontWeight: 800, fontSize: '1.25rem', margin: '2px 0 0', lineHeight: 1.2 }}>Nv.{newLevel.level} {newLevel.name}</p>
+          <p style={{ color: '#6b7280', fontSize: '0.75rem', margin: '4px 0 0' }}>Sigue jugando para llegar más lejos</p>
+        </div>
+      </div>
+    ), { duration: 6000 });
+  };
+
   const handleScoreUpdate = async (score) => {
     if (!user) return;
     const timePlayed = sessionStart ? Math.floor((Date.now() - sessionStart) / 1000) : 0;
     const minimal = game?.show_leaderboard === false && game?.show_achievements === false;
 
+    const oldLevel = getLevelFromXP(user.xp ?? 0);
+    const prevStats = await getUserScores(user.email).catch(() => []);
+    const prevMedalIds = new Set(evaluateMedals(toMedalInput(prevStats, user.xp ?? 0)).map(m => m.id));
+
     if (minimal) {
       const result = await recordGamePlay(gameId, timePlayed);
-      if (result?.xpGained) updateUserData({ xp: (user.xp ?? 0) + result.xpGained });
+      if (result?.xpGained) {
+        const newXp = (user.xp ?? 0) + result.xpGained;
+        updateUserData({ xp: newXp });
+        showLevelUpIfNeeded(oldLevel, getLevelFromXP(newXp));
+        checkNewMedals(prevMedalIds, newXp);
+      }
       return;
     }
 
@@ -83,12 +144,17 @@ export default function GameDetail() {
     totalXp += result?.xpGained ?? 0;
 
     queryClient.invalidateQueries(['scores', gameId]);
-    await evaluateAndUpdateAchievements({
+    const achievementToasts = await evaluateAndUpdateAchievements({
       userEmail: user.email,
       gameId,
       onXpGained: (xp) => { totalXp += xp; },
     });
-    if (totalXp > 0) updateUserData({ xp: (user.xp ?? 0) + totalXp });
+    const newXp = (user.xp ?? 0) + totalXp;
+    if (totalXp > 0) {
+      updateUserData({ xp: newXp });
+      showLevelUpIfNeeded(oldLevel, getLevelFromXP(newXp));
+    }
+    checkNewMedals(prevMedalIds, newXp, (achievementToasts ?? 0) * 3000);
     queryClient.invalidateQueries(['userAchievements', user.email]);
     queryClient.invalidateQueries(['userAchievementsAll', user.email]);
   };

@@ -70,7 +70,7 @@ router.post('/', requireAuth, async (req, res) => {
       create: { ...base, user_name: req.user.full_name || req.user.email, plays_count: 1, time_played: timeSecs, last_played: new Date() },
       update: { plays_count: { increment: 1 }, time_played: { increment: timeSecs }, last_played: new Date() },
     });
-    const xpGained = game?.xp_per_play ?? 10;
+    const xpGained = game?.is_multiplayer ? 35 : (game?.xp_per_play ?? 10);
     await prisma.user.update({ where: { email: req.user.email }, data: { xp: { increment: xpGained } } });
     return res.status(201).json({ ...stats, xpGained });
   }
@@ -90,7 +90,7 @@ router.post('/', requireAuth, async (req, res) => {
     time_played: { increment: timeSecs },
     last_played: new Date(),
   };
-  if (scoreVal > 0) update.wins_count = { increment: 1 };
+  if (scoreVal > 0 && game?.is_multiplayer) update.wins_count = { increment: 1 };
 
   const stats = await prisma.userGameStats.upsert({
     where:  { user_email_game_id: base },
@@ -100,7 +100,7 @@ router.post('/', requireAuth, async (req, res) => {
       plays_count: 1,
       best_score:  scoreVal,
       last_score:  scoreVal,
-      wins_count:  scoreVal > 0 ? 1 : 0,
+      wins_count:  (scoreVal > 0 && game?.is_multiplayer) ? 1 : 0,
       total_score: scoreVal,
       time_played: timeSecs,
       last_played: new Date(),
@@ -109,7 +109,7 @@ router.post('/', requireAuth, async (req, res) => {
   });
 
   // Calcular y sumar XP al usuario
-  const xpFromPlay  = game?.xp_per_play ?? 10;
+  const xpFromPlay  = game?.is_multiplayer ? 35 : (game?.xp_per_play ?? 10);
   const xpFromScore = game?.is_multiplayer ? 0 : Math.floor(scoreVal / 100);
   const xpGained    = xpFromPlay + xpFromScore;
   await prisma.user.update({ where: { email: req.user.email }, data: { xp: { increment: xpGained } } });

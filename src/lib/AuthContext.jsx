@@ -55,6 +55,13 @@ export const AuthProvider = ({ children }) => {
 
   const updateUserData = (data) => setUser((prev) => ({ ...prev, ...data }));
 
+  const refreshUser = async () => {
+    try {
+      const currentUser = await api.get('/auth/me');
+      setUser(currentUser);
+    } catch { /* silencioso */ }
+  };
+
   return (
     <AuthContext.Provider value={{
       user,
@@ -64,6 +71,7 @@ export const AuthProvider = ({ children }) => {
       register,
       logout,
       updateUserData,
+      refreshUser,
     }}>
       {children}
     </AuthContext.Provider>

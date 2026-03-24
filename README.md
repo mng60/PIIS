@@ -364,6 +364,62 @@ La rareza se asigna al crear el logro. La XP se suma al usuario **una sola vez**
 | Plata | +75 |
 | Oro | +200 |
 
+### Medallas
+
+Las medallas son insignias globales del perfil del usuario. A diferencia de los logros (por juego, guardados en BD), las medallas se calculan en tiempo real en el frontend a partir de los datos acumulados del usuario. No tienen tabla propia en la BD.
+
+**Archivo de configuración:** `src/lib/medals.js`
+
+#### Stats disponibles para las condiciones
+
+| Stat | Descripción |
+|------|-------------|
+| `totalPlays` | Total de partidas jugadas en todos los juegos |
+| `totalWins` | Total de victorias |
+| `bestScore` | Mejor puntuación individual histórica |
+| `totalTimePlayed` | Tiempo total jugado en segundos |
+| `gamesPlayed` | Número de juegos distintos jugados |
+| `level` | Nivel actual de gamificación (1–5) |
+
+#### Medallas predefinidas
+
+| Medalla | Condición |
+|---------|-----------|
+| Primera partida | 1 partida jugada |
+| Habitual | 25 partidas jugadas |
+| Adicto | 100 partidas jugadas |
+| Primera victoria | 1 victoria |
+| Imparable | 50 victorias |
+| Maratonista | 1 hora de juego total |
+| Sin vida | 10 horas de juego total |
+| Explorador | 5 juegos distintos |
+| Coleccionista | 10 juegos distintos |
+| Casual / Veterano / Maestro / Leyenda | Alcanzar el nivel correspondiente |
+
+#### Añadir una medalla nueva
+
+Edita `src/lib/medals.js` y añade un objeto al array `MEDALS`:
+
+```js
+{
+  id: 'mi_medalla',           // identificador único, sin espacios
+  name: 'Nombre visible',
+  description: 'Cómo se consigue',
+  icon: '🎯',                 // emoji  O  ruta/URL a imagen PNG/SVG
+  color: '#22d3ee',           // color del borde y fondo del badge
+  condition: s => s.totalPlays >= 50,  // función con los stats disponibles
+}
+```
+
+El campo `icon` acepta tanto emojis como rutas a imágenes (`/medals/mi-medalla.png`, `https://...`). El componente detecta automáticamente si es URL y renderiza un `<img>` en vez de texto.
+
+#### Resetear medallas de un usuario
+
+Las medallas no tienen datos propios, se derivan de stats existentes. Para resetearlas usa el panel admin → Gestionar usuario:
+
+- **Borrar scores y logros** → elimina `UserGameStats` → desaparecen medallas de partidas, victorias, tiempo y juegos distintos
+- **Resetear XP** → pone XP a 0 → desaparecen las medallas de nivel
+
 ---
 
 ## Componentes genéricos de sala (`src/components/games/`)

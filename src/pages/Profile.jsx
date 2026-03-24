@@ -1,4 +1,4 @@
-import React, { useRef, useState } from "react";
+import React, { useRef, useState, useEffect } from "react";
 import { getFavorites } from "@/api/favorites";
 import { getUserScores } from "@/api/scores";
 import { updateMe, changePassword } from "@/api/users";
@@ -24,9 +24,12 @@ import { Link } from "react-router-dom";
 import UserAchievementsSection from "@/components/games/UserAchievementsSection";
 import { toast } from "sonner";
 import { getLevelFromXP, getNextLevel, getLevelProgress } from "@/lib/levels";
+import { evaluateMedals } from "@/lib/medals";
 
 export default function Profile() {
-  const { user, isLoadingAuth, updateUserData } = useAuth();
+  const { user, isLoadingAuth, updateUserData, refreshUser } = useAuth();
+
+  useEffect(() => { refreshUser(); }, []);
   const [isEditing, setIsEditing] = useState(false);
   const [editData, setEditData] = useState({ full_name: "", bio: "" });
   const [isSaving, setIsSaving] = useState(false);
@@ -128,12 +131,16 @@ export default function Profile() {
     );
   }
 
-  const totalPlays   = scores.reduce((sum, s) => sum + (s.plays_count || 0), 0);
-  const bestScore    = scores.length > 0 ? Math.max(...scores.map(s => s.best_score || 0)) : 0;
-  const xp           = user.xp ?? 0;
+  const totalPlays      = scores.reduce((sum, s) => sum + (s.plays_count || 0), 0);
+  const totalWins       = scores.reduce((sum, s) => sum + (s.wins_count || 0), 0);
+  const totalTimePlayed = scores.reduce((sum, s) => sum + (s.time_played || 0), 0);
+  const bestScore       = scores.length > 0 ? Math.max(...scores.map(s => s.best_score || 0)) : 0;
+  const gamesPlayed     = scores.length;
+  const xp              = user.xp ?? 0;
   const currentLevel = getLevelFromXP(xp);
   const nextLevel    = getNextLevel(xp);
   const levelPct     = Math.round(getLevelProgress(xp) * 100);
+  const earnedMedals = evaluateMedals({ totalPlays, totalWins, bestScore, totalTimePlayed, gamesPlayed, level: currentLevel.level });
 
   return (
     <div className="max-w-4xl mx-auto px-4 py-8">
@@ -268,9 +275,9 @@ export default function Profile() {
         </Card>
         <Card className="bg-white/5 border-white/10">
           <CardContent className="p-6 text-center">
-            <Trophy className="w-8 h-8 mx-auto mb-2 text-yellow-400" />
-            <p className="text-3xl font-bold text-white">{bestScore}</p>
-            <p className="text-gray-400 text-sm">Mejor puntuación</p>
+            <span className="text-3xl block mb-2">🎖️</span>
+            <p className="text-3xl font-bold text-white">{earnedMedals.length}</p>
+            <p className="text-gray-400 text-sm">Medallas obtenidas</p>
           </CardContent>
         </Card>
       </div>
@@ -327,7 +334,43 @@ export default function Profile() {
         </Dialog>
       )}
 
-      <UserAchievementsSection userEmail={user.email} />
+      <div className="mb-6">
+        <UserAchievementsSection userEmail={user.email} />
+      </div>
+
+      {/* Medallas */}
+      <Card className="bg-white/5 border-white/10 mb-6">
+        <CardHeader>
+          <CardTitle className="text-white flex items-center gap-2">
+            <span className="text-xl">🎖️</span>
+            Mis medallas
+          </CardTitle>
+        </CardHeader>
+        <CardContent>
+          {earnedMedals.length === 0 ? (
+            <p className="text-gray-500 text-center py-6">Aún no has conseguido ninguna medalla</p>
+          ) : (
+            <div className="max-h-[336px] overflow-y-auto space-y-2 pr-1 [&::-webkit-scrollbar]:hidden [scrollbar-width:none]">
+              {earnedMedals.map((medal) => {
+                const isUrl = /^https?:\/\/|^\/|^data:/.test(medal.icon) || /\.(png|svg|jpg|webp|gif)$/i.test(medal.icon);
+                return (
+                  <div key={medal.id} className="flex items-center gap-3 p-3 rounded-lg" style={{ backgroundColor: medal.color + '11', border: `1px solid ${medal.color}33` }}>
+                    <div className="w-10 h-10 rounded-full flex items-center justify-center flex-shrink-0 text-xl" style={{ backgroundColor: medal.color + '22' }}>
+                      {isUrl
+                        ? <img src={medal.icon} alt="" className="w-7 h-7 object-contain" />
+                        : medal.icon}
+                    </div>
+                    <div className="min-w-0">
+                      <p className="font-semibold text-sm text-white">{medal.name}</p>
+                      <p className="text-xs text-gray-400 truncate">{medal.description}</p>
+                    </div>
+                  </div>
+                );
+              })}
+            </div>
+          )}
+        </CardContent>
+      </Card>
 
       <Card className="bg-white/5 border-white/10">
         <CardHeader>

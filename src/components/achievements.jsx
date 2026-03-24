@@ -12,6 +12,7 @@ import { RARITY_CONFIG } from "@/lib/levels";
  * Para logros globales:           agrega todos los stats del usuario
  */
 export async function evaluateAndUpdateAchievements({ userEmail, gameId, onXpGained }) {
+  let toastsShown = 0;
   try {
     const allDefinitions = await getAchievementDefinitions();
     const relevant = allDefinitions.filter(a => a.game_id === gameId || !a.game_id);
@@ -68,7 +69,9 @@ export async function evaluateAndUpdateAchievements({ userEmail, gameId, onXpGai
         if (progressChanged || unlockedChanged) {
           if (unlocked && !wasUnlocked) {
             const cfg = RARITY_CONFIG[def.rarity ?? 'bronze'];
-            toast.custom(() => (
+            const delay = toastsShown * 3000;
+            toastsShown++;
+            setTimeout(() => toast.custom(() => (
               <div style={{ backgroundColor: '#12121f', border: `1px solid ${cfg.color}55`, borderRadius: '0.75rem', padding: '14px 18px', display: 'flex', alignItems: 'center', gap: '14px', minWidth: '320px', boxShadow: `0 4px 24px ${cfg.color}33` }}>
                 <div style={{ width: 44, height: 44, borderRadius: '50%', backgroundColor: cfg.color + '22', display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0 }}>
                   <Trophy style={{ width: 22, height: 22, color: cfg.color }} />
@@ -79,7 +82,7 @@ export async function evaluateAndUpdateAchievements({ userEmail, gameId, onXpGai
                   <p style={{ color: '#9ca3af', fontSize: '0.75rem', margin: '1px 0 0' }}>{cfg.label} · +{cfg.xp} XP</p>
                 </div>
               </div>
-            ), { duration: 5000 });
+            ), { duration: 5000 }), delay);
           }
           const res = await upsertUserAchievement({
             achievement_id: def.id,
@@ -93,7 +96,9 @@ export async function evaluateAndUpdateAchievements({ userEmail, gameId, onXpGai
       } else {
         if (unlocked) {
           const cfg = RARITY_CONFIG[def.rarity ?? 'bronze'];
-          toast.custom(() => (
+          const delay = toastsShown * 3000;
+          toastsShown++;
+          setTimeout(() => toast.custom(() => (
             <div style={{ backgroundColor: '#12121f', border: `1px solid ${cfg.color}55`, borderRadius: '0.75rem', padding: '14px 18px', display: 'flex', alignItems: 'center', gap: '14px', minWidth: '320px', boxShadow: `0 4px 24px ${cfg.color}33` }}>
               <div style={{ width: 44, height: 44, borderRadius: '50%', backgroundColor: cfg.color + '22', display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0 }}>
                 <Trophy style={{ width: 22, height: 22, color: cfg.color }} />
@@ -104,7 +109,7 @@ export async function evaluateAndUpdateAchievements({ userEmail, gameId, onXpGai
                 <p style={{ color: '#9ca3af', fontSize: '0.75rem', margin: '1px 0 0' }}>{cfg.label} · +{cfg.xp} XP</p>
               </div>
             </div>
-          ), { duration: 5000 });
+          ), { duration: 5000 }), delay);
         }
         const res = await upsertUserAchievement({
           achievement_id: def.id,
@@ -120,4 +125,5 @@ export async function evaluateAndUpdateAchievements({ userEmail, gameId, onXpGai
   } catch (e) {
     console.error("[achievements] evaluateAndUpdateAchievements error:", e);
   }
+  return toastsShown;
 }
