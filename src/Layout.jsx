@@ -16,6 +16,9 @@ import {
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Sheet, SheetContent, SheetTrigger } from "@/components/ui/sheet";
+import "@/styles/userBackgrounds.css";
+import "@/styles/StylesLevels/level1.css";
+import { getLevelFromXP } from "@/lib/levels";
 
 export default function Layout({ children }) {
   const { user, logout } = useAuth();
@@ -42,6 +45,13 @@ export default function Layout({ children }) {
     { name: "Juegos", path: "/games", icon: Gamepad2 },
   ];
 
+  const isRestrictedArea =
+    location.pathname === "/admin" ||
+    location.pathname === "/company-dashboard" ||
+    location.pathname === "/upload-game";
+  const isRegularUser = user && user.role !== "admin" && user.role !== "empresa";
+  const isLevel1User = isRegularUser && getLevelFromXP(user.xp ?? 0).level === 1;
+
   if (user) {
     if (user.role !== "admin" && user.role !== "empresa") {
       navItems.push({ name: "Favoritos", path: "/favorites", icon: Heart });
@@ -66,7 +76,9 @@ export default function Layout({ children }) {
             onClick={() => mobile && setIsOpen(false)}
             className={`flex items-center gap-2 px-4 py-2.5 rounded-lg transition-all duration-300 ${
               isActive
-                ? "bg-gradient-to-r from-purple-600 to-cyan-500 text-white shadow-lg shadow-purple-500/25"
+                ? isLevel1User
+                  ? "user-level-1-nav-active"
+                  : "bg-gradient-to-r from-purple-600 to-cyan-500 text-white shadow-lg shadow-purple-500/25"
                 : isDark
                   ? "text-gray-400 hover:text-white hover:bg-white/5"
                   : "text-gray-600 hover:text-gray-900 hover:bg-gray-100"
@@ -81,7 +93,7 @@ export default function Layout({ children }) {
   );
 
   return (
-    <div className={`min-h-screen ${isDark ? "bg-[#0a0a0f] text-white" : "bg-[#f0f1f8] text-gray-900"}`}>
+    <div className={`min-h-screen ${isDark ? "bg-[#0a0a0f] text-white" : "bg-[#f0f1f8] text-gray-900"} ${isRestrictedArea ? "" : "user-screen-background"} ${isLevel1User ? "user-level-1-shell" : ""}`}>
       <style>{`
         :root {
           --background: 0 0% 4%;
@@ -165,10 +177,10 @@ export default function Layout({ children }) {
       <header className={`sticky top-0 z-50 border-b backdrop-blur-xl ${isDark ? "border-white/5 bg-[#0a0a0f]/80" : "border-gray-200 bg-white/90"}`}>
         <div className="max-w-7xl mx-auto px-4 py-4 flex items-center justify-between">
           <Link to="/" className="flex items-center gap-3 group">
-            <div className="p-2 rounded-xl bg-gradient-to-br from-purple-600 to-cyan-500 neon-glow group-hover:scale-105 transition-transform">
+            <div className={`p-2 rounded-xl bg-gradient-to-br from-purple-600 to-cyan-500 neon-glow group-hover:scale-105 transition-transform ${isLevel1User ? "user-level-1-logo-box" : ""}`}>
               <Gamepad2 className="w-6 h-6 text-white" />
             </div>
-            <span className="text-xl font-bold bg-gradient-to-r from-purple-400 to-cyan-400 bg-clip-text text-transparent neon-text">
+            <span className={`text-xl font-bold bg-gradient-to-r from-purple-400 to-cyan-400 bg-clip-text text-transparent neon-text ${isLevel1User ? "user-level-1-logo-text" : ""}`}>
               PlayCraft
             </span>
           </Link>

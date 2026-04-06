@@ -4,8 +4,11 @@ import { getGames } from "@/api/games";
 import { useQuery } from "@tanstack/react-query";
 import { Sparkles, ChevronLeft, ChevronRight } from "lucide-react";
 import GameCard from "./GameCard";
+import { useAuth } from "@/lib/AuthContext";
+import { getLevelFromXP } from "@/lib/levels";
 
 export default function RecommendationSection({ userEmail, currentGameId = null }) {
+  const { user } = useAuth();
   const { data: scores = [], isLoading: scoresLoading } = useQuery({
     queryKey: ["user-scores", userEmail],
     queryFn: () => getUserScores(userEmail),
@@ -81,6 +84,8 @@ export default function RecommendationSection({ userEmail, currentGameId = null 
   const scrollRef = useRef(null);
   const [canLeft, setCanLeft] = useState(false);
   const [canRight, setCanRight] = useState(false);
+  const isRegularUser = user && user.role !== "admin" && user.role !== "empresa";
+  const isLevel1User = isRegularUser && getLevelFromXP(user.xp ?? 0).level === 1;
 
   const updateArrows = useCallback(() => {
     const el = scrollRef.current;
@@ -109,8 +114,8 @@ export default function RecommendationSection({ userEmail, currentGameId = null 
   return (
     <div className="mb-12">
       <div className="flex items-center gap-2 mb-6">
-        <Sparkles className="w-5 h-5 text-purple-400" />
-        <h2 className="text-2xl font-bold text-white">Recomendado para ti</h2>
+        <Sparkles className={`w-5 h-5 ${isLevel1User ? "user-level-1-games-icon" : "text-purple-400"}`} />
+        <h2 className={`text-2xl font-bold text-white ${isLevel1User ? "user-level-1-games-title" : ""}`}>Recomendado para ti</h2>
       </div>
       <div className="relative">
         {recommendations.length > 3 && (

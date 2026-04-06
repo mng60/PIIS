@@ -3,17 +3,28 @@ import { ChevronLeft, ChevronRight, Play } from "lucide-react";
 import { Link } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
+import { useAuth } from "@/lib/AuthContext";
+import { getLevelFromXP } from "@/lib/levels";
 
 const categoryLabels = {
-  accion: "Acción",
+  accion: "Accion",
   puzzle: "Puzzle",
   arcade: "Arcade",
   estrategia: "Estrategia"
 };
 
+function getLevel1CategoryClass(category) {
+  if (category === "arcade") return "user-level-1-category-arcade";
+  if (category === "estrategia") return "user-level-1-category-estrategia";
+  return "user-level-1-category-default";
+}
+
 export default function FeaturedCarousel({ games }) {
+  const { user } = useAuth();
   const [currentIndex, setCurrentIndex] = useState(0);
   const [isAutoPlaying, setIsAutoPlaying] = useState(true);
+  const isRegularUser = user && user.role !== "admin" && user.role !== "empresa";
+  const isLevel1User = isRegularUser && getLevelFromXP(user.xp ?? 0).level === 1;
 
   useEffect(() => {
     if (!isAutoPlaying || games.length <= 1) return;
@@ -38,7 +49,7 @@ export default function FeaturedCarousel({ games }) {
   const currentGame = games[currentIndex];
 
   return (
-    <div className="relative rounded-2xl md:rounded-3xl overflow-hidden group">
+    <div className={`relative rounded-2xl md:rounded-3xl overflow-hidden group ${isLevel1User ? "user-level-1-featured-card" : ""}`}>
       <div className="relative aspect-video md:aspect-[21/9] bg-gradient-to-br from-purple-900/50 to-cyan-900/50">
         {currentGame.thumbnail ? (
           <img
@@ -47,40 +58,37 @@ export default function FeaturedCarousel({ games }) {
             className="w-full h-full object-cover"
           />
         ) : null}
-        
-        {/* Gradient Overlay */}
+
         <div className="absolute inset-0 bg-gradient-to-t from-black via-black/50 to-transparent" />
 
-        {/* Content */}
         <div className="absolute bottom-0 left-0 right-0 p-4 sm:p-6 md:p-12">
           <div className="mb-2 md:mb-3">
-            <Badge className="bg-gradient-to-r from-purple-600 to-cyan-500 border-0 text-white text-xs">
+            <Badge className={`${isLevel1User ? getLevel1CategoryClass(currentGame.category) : "bg-gradient-to-r from-purple-600 to-cyan-500"} border-0 text-white text-xs`}>
               {categoryLabels[currentGame.category] || currentGame.category}
             </Badge>
             {currentGame.is_adult && (
-              <Badge className="ml-2 bg-red-600/80 border-red-500/50 text-white font-bold text-xs">
+              <Badge className={`ml-2 text-white font-bold text-xs ${isLevel1User ? "user-level-1-adult-badge" : "bg-red-600/80 border-red-500/50"}`}>
                 +18
               </Badge>
             )}
           </div>
-          
+
           <h2 className="text-xl sm:text-2xl md:text-4xl lg:text-5xl font-bold text-white mb-2 md:mb-3 line-clamp-2">
             {currentGame.title}
           </h2>
-          
+
           <p className="text-gray-200 text-sm sm:text-base md:text-lg mb-3 md:mb-6 max-w-2xl line-clamp-2 hidden sm:block">
             {currentGame.description || currentGame.full_description}
           </p>
 
           <Link to={`/games/${currentGame.id}`}>
-            <Button className="bg-gradient-to-r from-purple-600 to-cyan-500 hover:opacity-90 text-sm sm:text-base md:text-lg px-4 py-3 sm:px-6 sm:py-4 md:px-8 md:py-6">
+            <Button className={`${isLevel1User ? "user-level-1-hero-button" : "bg-gradient-to-r from-purple-600 to-cyan-500 hover:opacity-90"} text-sm sm:text-base md:text-lg px-4 py-3 sm:px-6 sm:py-4 md:px-8 md:py-6`}>
               <Play className="w-4 h-4 sm:w-5 sm:h-5 mr-1 sm:mr-2 fill-white" />
               Jugar Ahora
             </Button>
           </Link>
         </div>
 
-        {/* Navigation Arrows */}
         {games.length > 1 && (
           <>
             <button
@@ -98,7 +106,6 @@ export default function FeaturedCarousel({ games }) {
           </>
         )}
 
-        {/* Indicators */}
         {games.length > 1 && (
           <div className="absolute bottom-4 left-1/2 -translate-x-1/2 flex gap-2">
             {games.map((_, idx) => (

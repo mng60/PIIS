@@ -1,0 +1,26 @@
+.user-screen-background {
+  background-image:
+    linear-gradient(rgba(10, 10, 15, 0.5), rgba(10, 10, 15, 0.62)),
+    url("/user-backgrounds/background-level1.jpeg");
+  background-position: center -80px;
+  background-repeat: no-repeat;
+  background-size: auto;
+  background-attachment: scroll;
+}
+
+.user-screen-login {
+  background-image:
+    linear-gradient(rgba(9, 10, 13, 0.42), rgba(9, 10, 13, 0.56)),
+    url("/user-backgrounds/background-level1.jpeg");
+  background-position: center -80px;
+  background-repeat: no-repeat;
+  background-size: auto;
+  background-attachment: scroll;
+}
+
+@media (max-width: 768px) {
+  .user-screen-background,
+  .user-screen-login {
+    background-attachment: scroll;
+  }
+}

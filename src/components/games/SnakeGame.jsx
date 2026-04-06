@@ -1,67 +1,73 @@
 import React, { useCallback, useEffect, useRef, useState } from "react";
 import { useSinglePlayerGame } from "@/hooks/useSinglePlayerGame";
-import { Play, RotateCcw, ChevronUp, ChevronDown, ChevronLeft, ChevronRight } from "lucide-react";
-
-// ── Constants ──────────────────────────────────────────────────────────────
+import { Play, ChevronUp, ChevronDown, ChevronLeft, ChevronRight } from "lucide-react";
+import { useAuth } from "@/lib/AuthContext";
+import { getLevelFromXP } from "@/lib/levels";
 
 const COLS = 20;
 const ROWS = 20;
 
 const DIFFICULTIES = [
-  { id: "facil",   label: "Fácil",   ms: 160 },
-  { id: "normal",  label: "Normal",  ms: 110 },
-  { id: "dificil", label: "Difícil", ms: 68  },
-  { id: "extremo", label: "Extremo", ms: 40  },
+  { id: "facil", label: "Facil", ms: 160 },
+  { id: "normal", label: "Normal", ms: 110 },
+  { id: "dificil", label: "Dificil", ms: 68 },
+  { id: "extremo", label: "Extremo", ms: 40 },
 ];
-
-// ── Helpers ────────────────────────────────────────────────────────────────
 
 function randomPos(exclude = []) {
   let p;
   do {
     p = { x: Math.floor(Math.random() * COLS), y: Math.floor(Math.random() * ROWS) };
-  } while (exclude.some(e => e.x === p.x && e.y === p.y));
+  } while (exclude.some((e) => e.x === p.x && e.y === p.y));
   return p;
 }
 
-/**
- * Build a flat lookup: "x,y" -> cell descriptor.
- * Cheap to compute (no DOM work) — React diffs the grid.
- */
 function buildCells(snake, food, bonus) {
   const map = {};
-  // Body first (head will overwrite if overlapping)
   for (let i = snake.length - 1; i >= 1; i--) {
     map[`${snake[i].x},${snake[i].y}`] = { t: "body", pct: 1 - i / snake.length };
   }
   if (snake[0]) map[`${snake[0].x},${snake[0].y}`] = { t: "head" };
-  if (food)     map[`${food.x},${food.y}`]           = { t: "food" };
-  if (bonus)    map[`${bonus.x},${bonus.y}`]          = { t: "bonus" };
+  if (food) map[`${food.x},${food.y}`] = { t: "food" };
+  if (bonus) map[`${bonus.x},${bonus.y}`] = { t: "bonus" };
   return map;
 }
 
-// ── Cell styles (no className strings in hot path, plain objects) ──────────
-
 const CELL_BASE = {
-  width: "100%", height: "100%",
+  width: "100%",
+  height: "100%",
   transition: "background-color 60ms ease",
 };
 
-function cellStyle(cell) {
+function cellStyle(cell, isLevel1User) {
   if (!cell) return { ...CELL_BASE, backgroundColor: "#0f172a" };
 
-  if (cell.t === "head") return {
-    ...CELL_BASE,
-    backgroundColor: "#4ade80",
-    borderRadius: "30%",
-    boxShadow: "0 0 6px 1px rgba(74,222,128,0.55)",
-  };
+  if (cell.t === "head") {
+    return {
+      ...CELL_BASE,
+      backgroundColor: isLevel1User ? "#9c702f" : "#4ade80",
+      borderRadius: "30%",
+      boxShadow: isLevel1User
+        ? "0 0 6px 1px rgba(156,112,47,0.55)"
+        : "0 0 6px 1px rgba(74,222,128,0.55)",
+    };
+  }
 
   if (cell.t === "body") {
-    // Fade from bright green (near head) to deep green (tail)
-    const r = Math.round(22  + cell.pct * 52);   // 22 → 74
-    const g = Math.round(101 + cell.pct * 96);   // 101 → 197
-    const b = Math.round(52  + cell.pct * 40);   // 52 → 92
+    if (isLevel1User) {
+      const r = Math.round(111 + cell.pct * 74);
+      const g = Math.round(77 + cell.pct * 49);
+      const b = Math.round(49 + cell.pct * 26);
+      return {
+        ...CELL_BASE,
+        backgroundColor: `rgb(${r},${g},${b})`,
+        borderRadius: "20%",
+      };
+    }
+
+    const r = Math.round(22 + cell.pct * 52);
+    const g = Math.round(101 + cell.pct * 96);
+    const b = Math.round(52 + cell.pct * 40);
     return {
       ...CELL_BASE,
       backgroundColor: `rgb(${r},${g},${b})`,
@@ -69,53 +75,56 @@ function cellStyle(cell) {
     };
   }
 
-  if (cell.t === "food") return {
-    ...CELL_BASE,
-    backgroundColor: "#f87171",
-    borderRadius: "50%",
-    boxShadow: "0 0 8px 2px rgba(248,113,113,0.6)",
-  };
+  if (cell.t === "food") {
+    return {
+      ...CELL_BASE,
+      backgroundColor: "#f87171",
+      borderRadius: "50%",
+      boxShadow: "0 0 8px 2px rgba(248,113,113,0.6)",
+    };
+  }
 
-  if (cell.t === "bonus") return {
-    ...CELL_BASE,
-    backgroundColor: "#fbbf24",
-    borderRadius: "50%",
-    boxShadow: "0 0 10px 3px rgba(251,191,36,0.65)",
-  };
+  if (cell.t === "bonus") {
+    return {
+      ...CELL_BASE,
+      backgroundColor: "#fbbf24",
+      borderRadius: "50%",
+      boxShadow: "0 0 10px 3px rgba(251,191,36,0.65)",
+    };
+  }
 
   return { ...CELL_BASE, backgroundColor: "#0f172a" };
 }
 
-// ── Component ──────────────────────────────────────────────────────────────
-
 export default function SnakeGame({ onScoreUpdate, onGameStart, user, serverBestScore }) {
+  const { user: authUser } = useAuth();
   const { gameState, score, highScore, scoreRef, startGame, addPoints, endGame, resetGame } =
     useSinglePlayerGame({ onScoreUpdate, storageKey: "snake", userEmail: user?.email, serverBestScore });
 
-  const [difficulty, setDifficulty] = useState("normal");
-  const [wallWrap,   setWallWrap]   = useState(false);
-  const [level,      setLevel]      = useState(1);
-  const [cells,      setCells]      = useState({});
+  const levelUser = authUser ?? user;
+  const isRegularUser = levelUser && levelUser.role !== "admin" && levelUser.role !== "empresa";
+  const isLevel1User = isRegularUser && getLevelFromXP(levelUser.xp ?? 0).level === 1;
 
-  // ── Mutable game state (refs — no re-renders from the game loop) ──────────
-  const snakeRef   = useRef([]);
-  const dirRef     = useRef({ x: 1, y: 0 });
+  const [difficulty, setDifficulty] = useState("normal");
+  const [wallWrap, setWallWrap] = useState(false);
+  const [level, setLevel] = useState(1);
+  const [cells, setCells] = useState({});
+
+  const snakeRef = useRef([]);
+  const dirRef = useRef({ x: 1, y: 0 });
   const nextDirRef = useRef({ x: 1, y: 0 });
-  const foodRef    = useRef(null);
-  const bonusRef   = useRef(null);
-  const wrapRef    = useRef(false);
-  const baseMsRef  = useRef(110);
-  const levelRef   = useRef(1);
-  const tickRef    = useRef(null);
+  const foodRef = useRef(null);
+  const bonusRef = useRef(null);
+  const wrapRef = useRef(false);
+  const baseMsRef = useRef(110);
+  const levelRef = useRef(1);
+  const tickRef = useRef(null);
   const intervalId = useRef(null);
-  const bonusT1    = useRef(null);
-  const bonusT2    = useRef(null);
+  const bonusT1 = useRef(null);
+  const bonusT2 = useRef(null);
   const touchStart = useRef(null);
 
-  // ── Helpers ───────────────────────────────────────────────────────────────
-
-  const flush = () =>
-    setCells(buildCells(snakeRef.current, foodRef.current, bonusRef.current));
+  const flush = () => setCells(buildCells(snakeRef.current, foodRef.current, bonusRef.current));
 
   const stopLoop = () => {
     clearInterval(intervalId.current);
@@ -123,15 +132,12 @@ export default function SnakeGame({ onScoreUpdate, onGameStart, user, serverBest
     clearTimeout(bonusT2.current);
   };
 
-  // Stable self-referencing bonus scheduler
   const scheduleBonusRef = useRef(null);
   const scheduleBonus = useCallback(() => {
     clearTimeout(bonusT1.current);
     clearTimeout(bonusT2.current);
     bonusT1.current = setTimeout(() => {
-      bonusRef.current = randomPos(
-        [...snakeRef.current, foodRef.current].filter(Boolean)
-      );
+      bonusRef.current = randomPos([...snakeRef.current, foodRef.current].filter(Boolean));
       flush();
       bonusT2.current = setTimeout(() => {
         bonusRef.current = null;
@@ -139,10 +145,8 @@ export default function SnakeGame({ onScoreUpdate, onGameStart, user, serverBest
         scheduleBonusRef.current?.();
       }, 5000);
     }, 12000 + Math.random() * 8000);
-  }, []); // only uses refs and stable setters
+  }, []);
   scheduleBonusRef.current = scheduleBonus;
-
-  // ── Tick (reassigned each render so it always has fresh closures) ─────────
 
   const doTick = () => {
     dirRef.current = { ...nextDirRef.current };
@@ -158,7 +162,7 @@ export default function SnakeGame({ onScoreUpdate, onGameStart, user, serverBest
       return;
     }
 
-    if (snakeRef.current.some(s => s.x === nx && s.y === ny)) {
+    if (snakeRef.current.some((s) => s.x === nx && s.y === ny)) {
       stopLoop();
       endGame();
       return;
@@ -180,7 +184,6 @@ export default function SnakeGame({ onScoreUpdate, onGameStart, user, serverBest
 
     if (!ate) snakeRef.current.pop();
 
-    // Level up
     const newLvl = Math.floor(scoreRef.current / 50) + 1;
     if (newLvl > levelRef.current) {
       levelRef.current = newLvl;
@@ -193,10 +196,7 @@ export default function SnakeGame({ onScoreUpdate, onGameStart, user, serverBest
     flush();
   };
 
-  // Always keep tickRef pointing at the freshest doTick
   tickRef.current = doTick;
-
-  // ── Game start ────────────────────────────────────────────────────────────
 
   const initGame = async () => {
     if (onGameStart) {
@@ -205,17 +205,17 @@ export default function SnakeGame({ onScoreUpdate, onGameStart, user, serverBest
     }
 
     stopLoop();
-    wrapRef.current  = wallWrap;
+    wrapRef.current = wallWrap;
     levelRef.current = 1;
     setLevel(1);
 
-    snakeRef.current   = [{ x: Math.floor(COLS / 2), y: Math.floor(ROWS / 2) }];
-    dirRef.current     = { x: 1, y: 0 };
+    snakeRef.current = [{ x: Math.floor(COLS / 2), y: Math.floor(ROWS / 2) }];
+    dirRef.current = { x: 1, y: 0 };
     nextDirRef.current = { x: 1, y: 0 };
-    foodRef.current    = randomPos(snakeRef.current);
-    bonusRef.current   = null;
+    foodRef.current = randomPos(snakeRef.current);
+    bonusRef.current = null;
 
-    const diff = DIFFICULTIES.find(d => d.id === difficulty) ?? DIFFICULTIES[1];
+    const diff = DIFFICULTIES.find((d) => d.id === difficulty) ?? DIFFICULTIES[1];
     baseMsRef.current = diff.ms;
 
     startGame();
@@ -224,29 +224,23 @@ export default function SnakeGame({ onScoreUpdate, onGameStart, user, serverBest
     intervalId.current = setInterval(() => tickRef.current(), diff.ms);
   };
 
-  // ── Cleanup ───────────────────────────────────────────────────────────────
-
   useEffect(() => () => stopLoop(), []);
 
-  // ── Keyboard input ────────────────────────────────────────────────────────
-
   useEffect(() => {
-    const KEYS = new Set(["ArrowUp","ArrowDown","ArrowLeft","ArrowRight","w","s","a","d","W","S","A","D"]);
+    const KEYS = new Set(["ArrowUp", "ArrowDown", "ArrowLeft", "ArrowRight", "w", "s", "a", "d", "W", "S", "A", "D"]);
     const onKey = (e) => {
       if (!KEYS.has(e.key)) return;
-      if (document.activeElement?.matches('input, textarea, select, [contenteditable]')) return;
+      if (document.activeElement?.matches("input, textarea, select, [contenteditable]")) return;
       e.preventDefault();
       const d = dirRef.current;
-      if ((e.key==="ArrowUp"    || e.key==="w" || e.key==="W") && d.y !==  1) nextDirRef.current = { x:  0, y: -1 };
-      if ((e.key==="ArrowDown"  || e.key==="s" || e.key==="S") && d.y !== -1) nextDirRef.current = { x:  0, y:  1 };
-      if ((e.key==="ArrowLeft"  || e.key==="a" || e.key==="A") && d.x !==  1) nextDirRef.current = { x: -1, y:  0 };
-      if ((e.key==="ArrowRight" || e.key==="d" || e.key==="D") && d.x !== -1) nextDirRef.current = { x:  1, y:  0 };
+      if ((e.key === "ArrowUp" || e.key === "w" || e.key === "W") && d.y !== 1) nextDirRef.current = { x: 0, y: -1 };
+      if ((e.key === "ArrowDown" || e.key === "s" || e.key === "S") && d.y !== -1) nextDirRef.current = { x: 0, y: 1 };
+      if ((e.key === "ArrowLeft" || e.key === "a" || e.key === "A") && d.x !== 1) nextDirRef.current = { x: -1, y: 0 };
+      if ((e.key === "ArrowRight" || e.key === "d" || e.key === "D") && d.x !== -1) nextDirRef.current = { x: 1, y: 0 };
     };
     window.addEventListener("keydown", onKey);
     return () => window.removeEventListener("keydown", onKey);
   }, []);
-
-  // ── Touch input ───────────────────────────────────────────────────────────
 
   const onTouchStart = (e) => {
     const t = e.touches[0];
@@ -262,51 +256,45 @@ export default function SnakeGame({ onScoreUpdate, onGameStart, user, serverBest
     if (Math.abs(dx) < 12 && Math.abs(dy) < 12) return;
     const d = dirRef.current;
     if (Math.abs(dx) > Math.abs(dy)) {
-      if (dx > 0 && d.x !== -1) nextDirRef.current = { x:  1, y:  0 };
-      else if (dx < 0 && d.x !== 1) nextDirRef.current = { x: -1, y:  0 };
+      if (dx > 0 && d.x !== -1) nextDirRef.current = { x: 1, y: 0 };
+      else if (dx < 0 && d.x !== 1) nextDirRef.current = { x: -1, y: 0 };
     } else {
-      if (dy > 0 && d.y !== -1) nextDirRef.current = { x:  0, y:  1 };
-      else if (dy < 0 && d.y !== 1) nextDirRef.current = { x:  0, y: -1 };
+      if (dy > 0 && d.y !== -1) nextDirRef.current = { x: 0, y: 1 };
+      else if (dy < 0 && d.y !== 1) nextDirRef.current = { x: 0, y: -1 };
     }
   };
 
-  // D-pad button handler (mobile)
   const dpad = (dx, dy) => {
     const d = dirRef.current;
-    if (dx ===  1 && d.x !== -1) nextDirRef.current = { x:  1, y:  0 };
-    if (dx === -1 && d.x !==  1) nextDirRef.current = { x: -1, y:  0 };
-    if (dy ===  1 && d.y !== -1) nextDirRef.current = { x:  0, y:  1 };
-    if (dy === -1 && d.y !==  1) nextDirRef.current = { x:  0, y: -1 };
+    if (dx === 1 && d.x !== -1) nextDirRef.current = { x: 1, y: 0 };
+    if (dx === -1 && d.x !== 1) nextDirRef.current = { x: -1, y: 0 };
+    if (dy === 1 && d.y !== -1) nextDirRef.current = { x: 0, y: 1 };
+    if (dy === -1 && d.y !== 1) nextDirRef.current = { x: 0, y: -1 };
   };
 
-  // ── Render ────────────────────────────────────────────────────────────────
-
   return (
-    <div className="flex flex-col gap-3 w-full select-none">
-
-      {/* Score bar */}
+    <div className={`flex flex-col gap-3 w-full select-none ${isLevel1User ? "user-level-1-snake-shell" : ""}`}>
       <div className="flex items-center justify-between px-2">
-        <Stat label="Puntos" value={score} color="text-white" />
-        <Stat label="Nivel"  value={level} color="text-green-400" />
-        <Stat label="Récord" value={highScore} color="text-amber-400" />
+        <Stat label="Puntos" value={score} color={isLevel1User ? "user-level-1-snake-points" : "text-white"} labelClass={isLevel1User ? "user-level-1-snake-title" : ""} />
+        <Stat label="Nivel" value={level} color={isLevel1User ? "user-level-1-snake-value-highlight" : "text-green-400"} labelClass={isLevel1User ? "user-level-1-snake-title" : ""} />
+        <Stat label="Record" value={highScore} color={isLevel1User ? "user-level-1-snake-record" : "text-amber-400"} labelClass={isLevel1User ? "user-level-1-snake-title" : ""} />
       </div>
 
-      {/* Grid area */}
       <div
         className="relative w-full"
         style={{ aspectRatio: "1 / 1" }}
         onTouchStart={onTouchStart}
         onTouchEnd={onTouchEnd}
       >
-        {/* CSS Grid */}
         <div
           style={{
-            width: "100%", height: "100%",
+            width: "100%",
+            height: "100%",
             display: "grid",
             gridTemplateColumns: `repeat(${COLS}, 1fr)`,
-            gridTemplateRows:    `repeat(${ROWS}, 1fr)`,
+            gridTemplateRows: `repeat(${ROWS}, 1fr)`,
             gap: "1px",
-            backgroundColor: "#1e293b",  // grid line color
+            backgroundColor: "#1e293b",
             borderRadius: "12px",
             overflow: "hidden",
             padding: "2px",
@@ -316,13 +304,10 @@ export default function SnakeGame({ onScoreUpdate, onGameStart, user, serverBest
           {Array.from({ length: ROWS * COLS }, (_, i) => {
             const x = i % COLS;
             const y = Math.floor(i / COLS);
-            return (
-              <div key={i} style={cellStyle(cells[`${x},${y}`])} />
-            );
+            return <div key={i} style={cellStyle(cells[`${x},${y}`], isLevel1User)} />;
           })}
         </div>
 
-        {/* Overlay: idle / gameover */}
         {gameState !== "playing" && (
           <div
             className="absolute inset-0 rounded-xl flex flex-col items-center justify-center gap-4 p-6"
@@ -332,10 +317,10 @@ export default function SnakeGame({ onScoreUpdate, onGameStart, user, serverBest
               <div className="text-center">
                 <p className="text-3xl font-bold text-red-400 mb-1">Game Over</p>
                 <p className="text-gray-300 text-sm">
-                  Puntuación: <span className="font-bold text-white">{score}</span>
+                  Puntuacion: <span className="font-bold text-white">{score}</span>
                 </p>
                 {score > 0 && score >= highScore && (
-                  <p className="text-amber-400 font-semibold mt-1 text-sm">¡Nuevo récord!</p>
+                  <p className="text-amber-400 font-semibold mt-1 text-sm">Nuevo record</p>
                 )}
               </div>
             )}
@@ -344,15 +329,21 @@ export default function SnakeGame({ onScoreUpdate, onGameStart, user, serverBest
               <div className="flex flex-col items-center gap-3 w-full max-w-xs">
                 <p className="text-xs text-gray-500 uppercase tracking-widest">Dificultad</p>
                 <div className="flex gap-2 flex-wrap justify-center">
-                  {DIFFICULTIES.map(d => (
+                  {DIFFICULTIES.map((d) => (
                     <button
                       key={d.id}
                       onClick={() => setDifficulty(d.id)}
                       className="px-3 py-1.5 rounded-lg text-xs font-medium border transition-all"
                       style={{
-                        borderColor: difficulty === d.id ? "rgba(74,222,128,0.5)" : "rgba(255,255,255,0.1)",
-                        backgroundColor: difficulty === d.id ? "rgba(74,222,128,0.15)" : "transparent",
-                        color: difficulty === d.id ? "#86efac" : "#9ca3af",
+                        borderColor: difficulty === d.id
+                          ? (isLevel1User ? "rgba(156,112,47,0.5)" : "rgba(74,222,128,0.5)")
+                          : "rgba(255,255,255,0.1)",
+                        backgroundColor: difficulty === d.id
+                          ? (isLevel1User ? "rgba(156,112,47,0.18)" : "rgba(74,222,128,0.15)")
+                          : "transparent",
+                        color: difficulty === d.id
+                          ? (isLevel1User ? "#e3c496" : "#86efac")
+                          : (isLevel1User ? "#e3c496" : "#9ca3af"),
                       }}
                     >
                       {d.label}
@@ -363,8 +354,8 @@ export default function SnakeGame({ onScoreUpdate, onGameStart, user, serverBest
                   <input
                     type="checkbox"
                     checked={wallWrap}
-                    onChange={e => setWallWrap(e.target.checked)}
-                    className="w-4 h-4 accent-green-500 rounded"
+                    onChange={(e) => setWallWrap(e.target.checked)}
+                    className={`w-4 h-4 rounded ${isLevel1User ? "user-level-1-snake-checkbox" : "accent-green-500"}`}
                   />
                   Paredes teletransportadoras
                 </label>
@@ -378,13 +369,13 @@ export default function SnakeGame({ onScoreUpdate, onGameStart, user, serverBest
                   className="px-5 py-2 rounded-lg text-sm text-gray-300 hover:text-white transition-colors"
                   style={{ border: "1px solid rgba(255,255,255,0.15)" }}
                 >
-                  Menú
+                  Menu
                 </button>
               )}
               <button
                 onClick={initGame}
-                className="flex items-center gap-2 px-7 py-2 rounded-lg font-semibold text-sm text-black transition-all hover:opacity-90"
-                style={{ backgroundColor: "#4ade80" }}
+                className={`flex items-center gap-2 px-7 py-2 rounded-lg font-semibold text-sm transition-all hover:opacity-90 ${isLevel1User ? "user-level-1-snake-button text-white" : "text-black"}`}
+                style={isLevel1User ? undefined : { backgroundColor: "#4ade80" }}
               >
                 <Play className="w-4 h-4 fill-current" />
                 {gameState === "idle" ? "Jugar" : "Reintentar"}
@@ -400,7 +391,6 @@ export default function SnakeGame({ onScoreUpdate, onGameStart, user, serverBest
         )}
       </div>
 
-      {/* Mobile D-pad — only when playing */}
       {gameState === "playing" && (
         <div className="flex flex-col items-center gap-1 sm:hidden mt-1">
           <DPadBtn onClick={() => dpad(0, -1)}><ChevronUp className="w-5 h-5" /></DPadBtn>
@@ -414,18 +404,16 @@ export default function SnakeGame({ onScoreUpdate, onGameStart, user, serverBest
       )}
 
       <p className="hidden sm:block text-xs text-gray-600 text-center">
-        Flechas / WASD · Móvil: desliza en el tablero
+        Flechas / WASD · Movil: desliza en el tablero
       </p>
     </div>
   );
 }
 
-// ── Small sub-components ───────────────────────────────────────────────────
-
-function Stat({ label, value, color }) {
+function Stat({ label, value, color, labelClass = "" }) {
   return (
     <div className="text-center min-w-[60px]">
-      <p className="text-[10px] text-gray-500 uppercase tracking-widest">{label}</p>
+      <p className={`text-[10px] text-gray-500 uppercase tracking-widest ${labelClass}`}>{label}</p>
       <p className={`text-xl font-bold tabular-nums ${color}`}>{value}</p>
     </div>
   );
@@ -434,7 +422,7 @@ function Stat({ label, value, color }) {
 function DPadBtn({ onClick, children }) {
   return (
     <button
-      onPointerDown={e => { e.preventDefault(); onClick(); }}
+      onPointerDown={(e) => { e.preventDefault(); onClick(); }}
       className="w-11 h-11 rounded-xl flex items-center justify-center text-gray-300 active:text-white"
       style={{ backgroundColor: "rgba(255,255,255,0.08)", border: "1px solid rgba(255,255,255,0.1)" }}
     >

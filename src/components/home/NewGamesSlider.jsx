@@ -2,9 +2,14 @@ import React, { useRef } from "react";
 import { ChevronLeft, ChevronRight, Sparkles } from "lucide-react";
 import GameCard from "@/components/games/GameCard";
 import { Button } from "@/components/ui/button";
+import { useAuth } from "@/lib/AuthContext";
+import { getLevelFromXP } from "@/lib/levels";
 
 export default function NewGamesSlider({ games }) {
+  const { user } = useAuth();
   const scrollRef = useRef(null);
+  const isRegularUser = user && user.role !== "admin" && user.role !== "empresa";
+  const isLevel1User = isRegularUser && getLevelFromXP(user.xp ?? 0).level === 1;
 
   const scroll = (direction) => {
     if (scrollRef.current) {
@@ -30,8 +35,8 @@ export default function NewGamesSlider({ games }) {
   return (
     <div className="relative">
       <h2 className="text-2xl md:text-3xl font-bold mb-6 flex items-center gap-3">
-        <Sparkles className="w-7 h-7 text-cyan-400" />
-        Novedades
+        <Sparkles className={`w-7 h-7 ${isLevel1User ? "user-level-1-new-games-icon" : "text-cyan-400"}`} />
+        <span className={isLevel1User ? "user-level-1-new-games-heading" : ""}>Novedades</span>
       </h2>
       
       {games.length > 4 && (

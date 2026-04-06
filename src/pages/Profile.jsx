@@ -28,6 +28,8 @@ import { evaluateMedals } from "@/lib/medals";
 
 export default function Profile() {
   const { user, isLoadingAuth, updateUserData, refreshUser } = useAuth();
+  const isRegularUser = user && user.role !== "admin" && user.role !== "empresa";
+  const isLevel1User = isRegularUser && getLevelFromXP(user.xp ?? 0).level === 1;
 
   useEffect(() => { refreshUser(); }, []);
   const [isEditing, setIsEditing] = useState(false);
@@ -143,14 +145,14 @@ export default function Profile() {
   const earnedMedals = evaluateMedals({ totalPlays, totalWins, bestScore, totalTimePlayed, gamesPlayed, level: currentLevel.level });
 
   return (
-    <div className="max-w-4xl mx-auto px-4 py-8">
-      <Card className="bg-gradient-to-br from-purple-900/30 to-cyan-900/30 border-white/10 mb-8">
+    <div className={`max-w-4xl mx-auto px-4 py-8 ${isLevel1User ? "user-level-1-profile-page" : ""}`}>
+      <Card className={`bg-gradient-to-br from-purple-900/30 to-cyan-900/30 border-white/10 mb-8 ${isLevel1User ? "user-level-1-game-card" : ""}`}>
         <CardContent className="p-8">
           <div className="flex flex-col md:flex-row items-center gap-6">
             <div className="relative group cursor-pointer" onClick={() => avatarInputRef.current?.click()}>
-              <Avatar className="w-28 h-28 border-4 border-purple-500/50">
+              <Avatar className={`w-28 h-28 border-4 border-purple-500/50 ${isLevel1User ? "user-level-1-profile-avatar" : ""}`}>
                 <AvatarImage src={user.avatar_url} />
-                <AvatarFallback className="bg-gradient-to-br from-purple-600 to-cyan-500 text-3xl">
+                <AvatarFallback className={`bg-gradient-to-br from-purple-600 to-cyan-500 text-3xl ${isLevel1User ? "user-level-1-profile-avatar-fallback" : ""}`}>
                   {(user.full_name || user.email)?.[0]?.toUpperCase()}
                 </AvatarFallback>
               </Avatar>
@@ -189,37 +191,37 @@ export default function Profile() {
               ) : (
                 <>
                   <div className="flex items-center justify-center md:justify-start gap-3 mb-2">
-                    <h1 className="text-2xl font-bold text-white">{user.full_name || "Usuario"}</h1>
+                    <h1 className={`text-2xl font-bold text-white ${isLevel1User ? "user-level-1-profile-name" : ""}`}>{user.full_name || "Usuario"}</h1>
                     <Button
                       variant="ghost" size="icon"
                       onClick={() => { setEditData({ full_name: user.full_name || "" }); setIsEditing(true); }}
-                      className="text-gray-400 hover:text-white"
+                      className={isLevel1User ? "user-level-1-profile-action-button" : "text-gray-400 hover:text-white"}
                     >
                       <Edit2 className="w-4 h-4" />
                     </Button>
                     <DropdownMenu modal={false}>
                       <DropdownMenuTrigger asChild>
-                        <Button variant="ghost" size="icon" className="text-gray-400 hover:text-white">
+                        <Button variant="ghost" size="icon" className={isLevel1User ? "user-level-1-profile-action-button" : "text-gray-400 hover:text-white"}>
                           <MoreVertical className="w-4 h-4" />
                         </Button>
                       </DropdownMenuTrigger>
                       <DropdownMenuContent align="start" className="bg-[#0f0f18] border-white/10 text-white">
                         <DropdownMenuItem
                           onClick={() => { setPwForm({ current: "", next: "", confirm: "" }); setPwErrors({}); setShowPwDialog(true); }}
-                          className="cursor-pointer hover:bg-white/5 gap-2"
+                          className={isLevel1User ? "user-level-1-profile-menu-item" : "cursor-pointer hover:bg-white/5 gap-2"}
                         >
-                          <Lock className="w-4 h-4 text-purple-400" />
+                          <Lock className={`w-4 h-4 ${isLevel1User ? "user-level-1-profile-icon-soft" : "text-purple-400"}`} />
                           Cambiar contraseña
                         </DropdownMenuItem>
                       </DropdownMenuContent>
                     </DropdownMenu>
                   </div>
-                  <div className="flex items-center justify-center md:justify-start gap-2 text-gray-400 mb-2">
-                    <Mail className="w-4 h-4" />
+                  <div className={`flex items-center justify-center md:justify-start gap-2 text-gray-400 mb-2 ${isLevel1User ? "user-level-1-profile-meta" : ""}`}>
+                    <Mail className={`w-4 h-4 ${isLevel1User ? "user-level-1-profile-icon-soft" : ""}`} />
                     <span>{user.email}</span>
                   </div>
-                  <div className="flex items-center justify-center md:justify-start gap-2 text-gray-500 text-sm mt-3">
-                    <Calendar className="w-4 h-4" />
+                  <div className={`flex items-center justify-center md:justify-start gap-2 text-gray-500 text-sm mt-3 ${isLevel1User ? "user-level-1-profile-meta-muted" : ""}`}>
+                    <Calendar className={`w-4 h-4 ${isLevel1User ? "user-level-1-profile-icon-muted" : ""}`} />
                     <span>Miembro desde {format(new Date(user.created_at), "MMMM yyyy", { locale: es })}</span>
                   </div>
 
@@ -227,28 +229,28 @@ export default function Profile() {
                   <div className="mt-4 max-w-xs mx-auto md:mx-0">
                     <div className="flex items-center justify-between mb-1.5">
                       <span
-                        className="text-sm font-bold"
-                        style={{ color: currentLevel.color }}
+                        className={`text-sm font-bold ${isLevel1User ? "user-level-1-profile-level-label" : ""}`}
+                        style={isLevel1User ? undefined : { color: currentLevel.color }}
                       >
                         Nv.{currentLevel.level} {currentLevel.name}
                       </span>
-                      <span className="text-xs text-gray-400">
+                      <span className={`text-xs text-gray-400 ${isLevel1User ? "user-level-1-profile-xp-label" : ""}`}>
                         {xp.toLocaleString()} XP
                         {nextLevel && ` / ${nextLevel.xpRequired.toLocaleString()}`}
                       </span>
                     </div>
-                    <div className="h-2 rounded-full bg-white/10 overflow-hidden">
+                    <div className={`h-2 rounded-full bg-white/10 overflow-hidden ${isLevel1User ? "user-level-1-profile-progress-track" : ""}`}>
                       <div
-                        className="h-full rounded-full transition-all duration-500"
-                        style={{ width: `${levelPct}%`, backgroundColor: currentLevel.color }}
+                        className={`h-full rounded-full transition-all duration-500 ${isLevel1User ? "user-level-1-profile-progress-fill" : ""}`}
+                        style={isLevel1User ? { width: `${levelPct}%` } : { width: `${levelPct}%`, backgroundColor: currentLevel.color }}
                       />
                     </div>
                     {nextLevel ? (
-                      <p className="text-[11px] text-gray-500 mt-1">
+                      <p className={`text-[11px] text-gray-500 mt-1 ${isLevel1User ? "user-level-1-profile-next-level" : ""}`}>
                         {(nextLevel.xpRequired - xp).toLocaleString()} XP para {nextLevel.name}
                       </p>
                     ) : (
-                      <p className="text-[11px] mt-1" style={{ color: currentLevel.color }}>Nivel máximo alcanzado</p>
+                      <p className={`text-[11px] mt-1 ${isLevel1User ? "user-level-1-profile-level-label" : ""}`} style={isLevel1User ? undefined : { color: currentLevel.color }}>Nivel máximo alcanzado</p>
                     )}
                   </div>
                 </>
@@ -259,21 +261,21 @@ export default function Profile() {
       </Card>
 
       <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-8">
-        <Card className="bg-white/5 border-white/10">
+        <Card className={`bg-white/5 border-white/10 ${isLevel1User ? "user-level-1-game-card" : ""}`}>
           <CardContent className="p-6 text-center">
             <Gamepad2 className="w-8 h-8 mx-auto mb-2 text-purple-400" />
             <p className="text-3xl font-bold text-white">{totalPlays}</p>
             <p className="text-gray-400 text-sm">Partidas jugadas</p>
           </CardContent>
         </Card>
-        <Card className="bg-white/5 border-white/10">
+        <Card className={`bg-white/5 border-white/10 ${isLevel1User ? "user-level-1-game-card" : ""}`}>
           <CardContent className="p-6 text-center">
             <Heart className="w-8 h-8 mx-auto mb-2 text-red-400" />
             <p className="text-3xl font-bold text-white">{favorites.length}</p>
             <p className="text-gray-400 text-sm">Juegos favoritos</p>
           </CardContent>
         </Card>
-        <Card className="bg-white/5 border-white/10">
+        <Card className={`bg-white/5 border-white/10 ${isLevel1User ? "user-level-1-game-card" : ""}`}>
           <CardContent className="p-6 text-center">
             <span className="text-3xl block mb-2">🎖️</span>
             <p className="text-3xl font-bold text-white">{earnedMedals.length}</p>
@@ -285,10 +287,10 @@ export default function Profile() {
       {/* Change password dialog */}
       {showPwDialog && (
         <Dialog open onOpenChange={(open) => { if (!open) setShowPwDialog(false); }}>
-          <DialogContent className="bg-[#0f0f18] border-white/10 text-white max-w-sm">
+          <DialogContent className={isLevel1User ? "user-level-1-profile-dialog max-w-sm" : "bg-[#0f0f18] border-white/10 text-white max-w-sm"}>
             <DialogHeader>
-              <DialogTitle className="flex items-center gap-2">
-                <Lock className="w-4 h-4 text-purple-400" />
+              <DialogTitle className={`flex items-center gap-2 ${isLevel1User ? "user-level-1-profile-dialog-title" : ""}`}>
+                <Lock className={`w-4 h-4 ${isLevel1User ? "user-level-1-profile-icon-soft" : "text-purple-400"}`} />
                 Cambiar contraseña
               </DialogTitle>
             </DialogHeader>
@@ -322,11 +324,11 @@ export default function Profile() {
               </div>
             </div>
             <DialogFooter>
-              <Button variant="outline" onClick={() => setShowPwDialog(false)} className="border-white/10">
+              <Button variant="outline" onClick={() => setShowPwDialog(false)} className={isLevel1User ? "user-level-1-profile-dialog-cancel" : "border-white/10"}>
                 Cancelar
               </Button>
               <Button onClick={handleChangePassword} disabled={isChangingPw}
-                className="bg-gradient-to-r from-purple-600 to-cyan-500 border-0">
+                className={isLevel1User ? "user-level-1-profile-dialog-save" : "bg-gradient-to-r from-purple-600 to-cyan-500 border-0"}>
                 {isChangingPw ? <Loader2 className="w-4 h-4 animate-spin" /> : "Guardar"}
               </Button>
             </DialogFooter>
@@ -339,7 +341,7 @@ export default function Profile() {
       </div>
 
       {/* Medallas */}
-      <Card className="bg-white/5 border-white/10 mb-6">
+      <Card className={`bg-white/5 border-white/10 mb-6 ${isLevel1User ? "user-level-1-game-card" : ""}`}>
         <CardHeader>
           <CardTitle className="text-white flex items-center gap-2">
             <span className="text-xl">🎖️</span>
@@ -372,7 +374,7 @@ export default function Profile() {
         </CardContent>
       </Card>
 
-      <Card className="bg-white/5 border-white/10">
+      <Card className={`bg-white/5 border-white/10 ${isLevel1User ? "user-level-1-game-card" : ""}`}>
         <CardHeader>
           <CardTitle className="text-white flex items-center gap-2">
             <Trophy className="w-5 h-5 text-yellow-500" />

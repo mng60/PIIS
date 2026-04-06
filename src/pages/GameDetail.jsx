@@ -33,6 +33,8 @@ export default function GameDetail() {
     enabled: !!user && !!gameId,
   });
   const serverBestScore = userGameStatsArr[0]?.best_score ?? 0;
+  const isRegularUser = user && user.role !== 'admin' && user.role !== 'empresa';
+  const isLevel1User = isRegularUser && getLevelFromXP(user.xp ?? 0).level === 1;
 
   const [isPlaying,       setIsPlaying]       = useState(false);
   const [sessionStart,    setSessionStart]     = useState(null);
@@ -185,7 +187,7 @@ export default function GameDetail() {
   }
 
   return (
-    <div className="max-w-7xl mx-auto px-4 py-6">
+    <div className={`max-w-7xl mx-auto px-4 py-6 ${isLevel1User ? 'user-level-1-game-detail-page' : ''}`}>
       <AgeGateDialog
         open={ageGateOpen}
         onConfirm={() => {
