@@ -1,16 +1,21 @@
 import React, { useEffect, useRef, useState, useCallback } from "react";
 import { Button } from "@/components/ui/button";
 import { Play, RotateCcw, RotateCw } from "lucide-react";
+import { useAuth } from "@/lib/AuthContext";
+import { getLevelFromXP } from "@/lib/levels";
 
 const WIN_OPTIONS = [3, 5, 7, 9];
 
 export default function PongGame({ onScoreUpdate }) {
+  const { user } = useAuth();
   const canvasRef = useRef(null);
   const [gameState, setGameState]   = useState("idle"); // idle | playing | gameover
   const [scores, setScores]         = useState({ player1: 0, player2: 0 });
   const [winner, setWinner]         = useState(null);
   const [winScore, setWinScore]     = useState(5);
   const [isPortrait, setIsPortrait] = useState(false);
+  const isRegularUser = user && user.role !== "admin" && user.role !== "empresa";
+  const isLevel2User = isRegularUser && getLevelFromXP(user.xp ?? 0).level === 2;
 
   // Refs para controlar el loop sin depender del closure de React state
   const isPlayingRef      = useRef(false);
@@ -243,7 +248,7 @@ export default function PongGame({ onScoreUpdate }) {
   if (isPortrait) {
     return (
       <div className="flex flex-col items-center justify-center gap-4 py-16 text-center px-6">
-        <RotateCw className="w-14 h-14 text-purple-400 animate-spin" style={{ animationDuration: "3s" }} />
+        <RotateCw className={`w-14 h-14 animate-spin ${isLevel2User ? "user-level-2-pong-green" : "text-purple-400"}`} style={{ animationDuration: "3s" }} />
         <p className="text-white font-semibold text-lg">Gira la pantalla</p>
         <p className="text-gray-400 text-sm">El Pong necesita modo horizontal para jugarse bien</p>
       </div>
@@ -251,13 +256,13 @@ export default function PongGame({ onScoreUpdate }) {
   }
 
   return (
-    <div className="flex flex-col items-center gap-4">
+    <div className={`flex flex-col items-center gap-4 ${isLevel2User ? "user-level-2-pong" : ""}`}>
 
       {/* Marcador */}
       <div className="flex items-center justify-center gap-8 w-full">
         <div className="text-center">
-          <p className="text-xs text-purple-400 uppercase mb-1">Jugador 1</p>
-          <p className="text-4xl font-bold text-purple-400">{scores.player1}</p>
+          <p className={`text-xs uppercase mb-1 ${isLevel2User ? "user-level-2-pong-green" : "text-purple-400"}`}>Jugador 1</p>
+          <p className={`text-4xl font-bold ${isLevel2User ? "user-level-2-pong-green" : "text-purple-400"}`}>{scores.player1}</p>
           <p className="text-xs text-gray-500 mt-1">W / S</p>
         </div>
         <div className="flex flex-col items-center">
@@ -265,8 +270,8 @@ export default function PongGame({ onScoreUpdate }) {
           <span className="text-xs text-gray-500 mt-1">Primero a {winScoreRef.current || winScore}</span>
         </div>
         <div className="text-center">
-          <p className="text-xs text-cyan-400 uppercase mb-1">Jugador 2</p>
-          <p className="text-4xl font-bold text-cyan-400">{scores.player2}</p>
+          <p className={`text-xs uppercase mb-1 ${isLevel2User ? "user-level-2-pong-blue" : "text-cyan-400"}`}>Jugador 2</p>
+          <p className={`text-4xl font-bold ${isLevel2User ? "user-level-2-pong-blue" : "text-cyan-400"}`}>{scores.player2}</p>
           <p className="text-xs text-gray-500 mt-1">↑ / ↓</p>
         </div>
       </div>
@@ -306,8 +311,12 @@ export default function PongGame({ onScoreUpdate }) {
                     onClick={() => setWinScore(n)}
                     className={`w-8 h-8 rounded-lg text-sm font-bold transition-colors ${
                       winScore === n
-                        ? "bg-purple-600 text-white"
-                        : "bg-white/10 text-gray-400 hover:bg-white/20"
+                        ? isLevel2User
+                          ? "user-level-2-pong-option-active"
+                          : "bg-purple-600 text-white"
+                        : isLevel2User
+                          ? "user-level-2-pong-option"
+                          : "bg-white/10 text-gray-400 hover:bg-white/20"
                     }`}
                   >
                     {n}
@@ -319,7 +328,7 @@ export default function PongGame({ onScoreUpdate }) {
 
             <Button
               onClick={initGame}
-              className="bg-gradient-to-r from-purple-600 to-cyan-500 hover:opacity-90 px-8"
+              className={isLevel2User ? "user-level-2-pong-button px-8" : "bg-gradient-to-r from-purple-600 to-cyan-500 hover:opacity-90 px-8"}
             >
               {gameState === "idle"
                 ? <><Play className="w-4 h-4 mr-2" /> Jugar</>
@@ -330,8 +339,8 @@ export default function PongGame({ onScoreUpdate }) {
       </div>
 
       <p className="text-xs text-gray-500 text-center">
-        <span className="text-purple-400">J1:</span> W/S &nbsp;|&nbsp;
-        <span className="text-cyan-400">J2:</span> ↑/↓ &nbsp;|&nbsp;
+        <span className={isLevel2User ? "user-level-2-pong-green" : "text-purple-400"}>J1:</span> W/S &nbsp;|&nbsp;
+        <span className={isLevel2User ? "user-level-2-pong-blue" : "text-cyan-400"}>J2:</span> ↑/↓ &nbsp;|&nbsp;
         Móvil: Toca cada lado de la pantalla
       </p>
     </div>

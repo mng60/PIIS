@@ -7,6 +7,7 @@ import ChessOnlineGame from '@/components/games/ChessOnlineGame';
 import ChatSection from '@/components/games/ChatSection';
 import OnlineGameMoveHistory from '@/components/games/OnlineGameMoveHistory';
 import { useChessGame } from '@/hooks/useChessGame';
+import { getLevelFromXP } from '@/lib/levels';
 
 export default function GameArea({
   game,
@@ -64,6 +65,8 @@ export default function GameArea({
   };
 
   const isBuiltinSingle = game.game_type === 'builtin' && !game.is_multiplayer;
+  const isRegularUser = user && user.role !== 'admin' && user.role !== 'empresa';
+  const isLevel2User = isRegularUser && getLevelFromXP(user.xp ?? 0).level === 2;
 
   const renderGame = () => {
     if (game.game_code === 'snake') {
@@ -116,7 +119,7 @@ export default function GameArea({
           <div className="w-full max-w-[520px]">{renderGame()}</div>
         </div>
       ) : (
-        <div className="bg-[#0a0a0f] rounded-2xl border border-white/10 overflow-hidden">
+        <div className={`bg-[#0a0a0f] rounded-2xl border border-white/10 overflow-hidden ${isLevel2User ? 'user-level-2-game-surface' : ''}`}>
           {renderGame()}
         </div>
       )}
@@ -124,9 +127,9 @@ export default function GameArea({
       {game.is_multiplayer && isPlaying && (
         <div className="flex flex-col gap-2 h-full">
           {/* Chat: 65% */}
-          <div className="bg-white/5 rounded-xl border border-white/10 p-3 flex flex-col min-h-0" style={{ flex: '13 0 0' }}>
-            <h2 className="text-sm font-semibold text-white mb-2 flex items-center gap-2 flex-shrink-0">
-              <MessageCircle className="w-4 h-4 text-purple-400" /> Chat de partida
+          <div className={`bg-white/5 rounded-xl border border-white/10 p-3 flex flex-col min-h-0 ${isLevel2User ? 'user-level-2-detail-panel' : ''}`} style={{ flex: '13 0 0' }}>
+            <h2 className={`text-sm font-semibold text-white mb-2 flex items-center gap-2 flex-shrink-0 ${isLevel2User ? 'user-level-2-detail-panel-title' : ''}`}>
+              <MessageCircle className={`w-4 h-4 text-purple-400 ${isLevel2User ? 'user-level-2-detail-icon-blue' : ''}`} /> Chat de partida
             </h2>
             <ChatSection
               gameId={gameId}
@@ -140,6 +143,7 @@ export default function GameArea({
             <OnlineGameMoveHistory
               moves={chessMoveHistory}
               title="Historial de jugadas"
+              className={isLevel2User ? 'user-level-2-history' : ''}
               emptyMessage="Aún no hay movimientos"
             />
           </div>
@@ -162,7 +166,7 @@ function GameCover({ game, onPlay }) {
       <div className="absolute inset-0 bg-black/50 flex items-center justify-center">
         <Button
           onClick={onPlay}
-          className="bg-gradient-to-r from-purple-600 to-cyan-500 hover:opacity-90 text-lg px-8 py-6 rounded-xl"
+          className={`bg-gradient-to-r from-purple-600 to-cyan-500 hover:opacity-90 text-lg px-8 py-6 rounded-xl ${isLevel2User ? 'user-level-2-game-launch' : ''}`}
         >
           <Play className="w-6 h-6 mr-2 fill-white" /> Jugar
         </Button>

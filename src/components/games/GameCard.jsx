@@ -31,14 +31,16 @@ export default function GameCard({ game }) {
     ? (game.rating_sum / game.rating_count).toFixed(1)
     : "N/A";
   const isRegularUser = user && user.role !== "admin" && user.role !== "empresa";
-  const isLevel1User = isRegularUser && getLevelFromXP(user.xp ?? 0).level === 1;
+  const userLevel = isRegularUser ? getLevelFromXP(user.xp ?? 0).level : null;
+  const isLevel1User = userLevel === 1;
+  const isLevel2User = userLevel === 2;
 
   return (
     <Link
       to={`/games/${game.id}`}
       className="group block"
     >
-      <div className={`game-card relative bg-gradient-to-b from-white/5 to-white/[0.02] border border-white/10 rounded-2xl overflow-hidden transition-all duration-300 ${isLevel1User ? "user-level-1-game-card" : "hover:border-purple-500/50"}`}>
+      <div className={`game-card relative bg-gradient-to-b from-white/5 to-white/[0.02] border border-white/10 rounded-2xl overflow-hidden transition-all duration-300 ${isLevel1User ? "user-level-1-game-card" : "hover:border-purple-500/50"} ${isLevel2User ? "user-level-2-game-card" : ""}`}>
         <div className="relative aspect-video overflow-hidden">
           {game.thumbnail ? (
             <img
@@ -47,8 +49,8 @@ export default function GameCard({ game }) {
               className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-110"
             />
           ) : (
-            <div className="w-full h-full bg-gradient-to-br from-purple-900/50 to-cyan-900/50 flex items-center justify-center">
-              <Gamepad className="w-12 h-12 text-white/30" />
+            <div className={`w-full h-full bg-gradient-to-br from-purple-900/50 to-cyan-900/50 flex items-center justify-center ${isLevel2User ? "user-level-2-widget-media" : ""}`}>
+              <Gamepad className={`w-12 h-12 text-white/30 ${isLevel2User ? "user-level-2-widget-accent-soft" : ""}`} />
             </div>
           )}
 
@@ -71,7 +73,7 @@ export default function GameCard({ game }) {
         </div>
 
         <div className="p-4">
-          <h3 className="font-bold text-white group-hover:text-purple-300 transition-colors line-clamp-1">
+          <h3 className={`font-bold text-white group-hover:text-purple-300 transition-colors line-clamp-1 ${isLevel2User ? "user-level-2-widget-title" : ""}`}>
             {game.title}
           </h3>
           <p className="text-sm text-gray-400 mt-1 line-clamp-2 h-10">

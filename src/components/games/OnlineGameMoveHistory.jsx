@@ -18,6 +18,7 @@ export default function OnlineGameMoveHistory({
   emptyMessage = "No hay jugadas aún",
   maxHeight = "300px",
   renderMove = null,
+  className = "",
 }) {
   const scrollRef = useRef(null);
   useEffect(() => {
@@ -47,7 +48,7 @@ export default function OnlineGameMoveHistory({
   );
 
   return (
-    <div className="bg-white/5 border border-white/10 rounded-lg overflow-hidden h-full flex flex-col">
+    <div className={`bg-white/5 border border-white/10 rounded-lg overflow-hidden h-full flex flex-col ${className}`}>
       <div className="px-3 py-2 border-b border-white/10 bg-white/5 flex-shrink-0">
         <h3 className="text-sm font-semibold text-gray-300">{title}</h3>
       </div>

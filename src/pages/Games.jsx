@@ -22,7 +22,9 @@ export default function Games() {
   const [searchQuery, setSearchQuery] = useState("");
   const [selectedCategory, setSelectedCategory] = useState("all");
   const isRegularUser = user && user.role !== "admin" && user.role !== "empresa";
-  const isLevel1User = isRegularUser && getLevelFromXP(user.xp ?? 0).level === 1;
+  const userLevel = isRegularUser ? getLevelFromXP(user.xp ?? 0).level : null;
+  const isLevel1User = userLevel === 1;
+  const isLevel2User = userLevel === 2;
 
   const { data: { games = [] } = {}, isLoading } = useQuery({
     queryKey: ["games"],
@@ -49,13 +51,13 @@ export default function Games() {
   }
 
   return (
-    <div className={`max-w-7xl mx-auto px-4 py-8 ${isLevel1User ? "user-level-1-games-page" : ""}`}>
+    <div className={`max-w-7xl mx-auto px-4 py-8 ${isLevel1User ? "user-level-1-games-page" : ""} ${isLevel2User ? "user-level-2-games-page" : ""}`}>
       <div className="mb-8">
-        <h1 className={`text-3xl font-bold text-white mb-2 flex items-center gap-3 ${isLevel1User ? "user-level-1-games-title" : ""}`}>
-          <Gamepad2 className={`w-8 h-8 ${isLevel1User ? "user-level-1-games-icon" : "text-purple-400"}`} />
+        <h1 className={`text-3xl font-bold text-white mb-2 flex items-center gap-3 ${isLevel1User ? "user-level-1-games-title" : ""} ${isLevel2User ? "user-level-2-section-heading" : ""}`}>
+          <Gamepad2 className={`w-8 h-8 ${isLevel1User ? "user-level-1-games-icon" : "text-purple-400"} ${isLevel2User ? "user-level-2-section-icon" : ""}`} />
           Catalogo de Juegos
         </h1>
-        <p className={`text-gray-400 ${isLevel1User ? "user-level-1-games-copy" : ""}`}>
+        <p className={`text-gray-400 ${isLevel1User ? "user-level-1-games-copy" : ""} ${isLevel2User ? "user-level-2-games-copy" : ""}`}>
           Explora nuestra coleccion de {games.length} juegos
         </p>
       </div>
@@ -64,12 +66,12 @@ export default function Games() {
 
       <div className="mb-8 space-y-4">
         <div className="relative">
-          <Search className={`absolute left-3 top-1/2 -translate-y-1/2 w-5 h-5 ${isLevel1User ? "user-level-1-games-search-icon" : "text-gray-400"}`} />
+          <Search className={`absolute left-3 top-1/2 -translate-y-1/2 w-5 h-5 ${isLevel1User ? "user-level-1-games-search-icon" : "text-gray-400"} ${isLevel2User ? "user-level-2-games-search-icon" : ""}`} />
           <Input
             value={searchQuery}
             onChange={(e) => setSearchQuery(e.target.value)}
             placeholder="Buscar juegos..."
-            className={`pl-10 bg-white/5 border-white/10 text-white placeholder:text-gray-500 ${isLevel1User ? "user-level-1-games-search" : ""}`}
+            className={`pl-10 bg-white/5 border-white/10 text-white placeholder:text-gray-500 ${isLevel1User ? "user-level-1-games-search" : ""} ${isLevel2User ? "user-level-2-games-search" : ""}`}
           />
         </div>
 
@@ -83,9 +85,13 @@ export default function Games() {
                 selectedCategory === category.value
                   ? isLevel1User
                     ? "user-level-1-games-filter-active"
+                    : isLevel2User
+                      ? "user-level-2-games-filter-active"
                     : "bg-gradient-to-r from-purple-600 to-cyan-500 border-0"
                   : isLevel1User
                     ? "user-level-1-games-filter"
+                    : isLevel2User
+                      ? "user-level-2-games-filter"
                     : "border-white/20 text-gray-300 hover:text-white hover:bg-white/5"
               }
             >

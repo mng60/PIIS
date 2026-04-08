@@ -21,16 +21,18 @@ function NewsCard({ item }) {
   const date = formatDate(item.date);
   const { user } = useAuth();
   const isRegularUser = user && user.role !== "admin" && user.role !== "empresa";
-  const isLevel1User = isRegularUser && getLevelFromXP(user.xp ?? 0).level === 1;
+  const userLevel = isRegularUser ? getLevelFromXP(user.xp ?? 0).level : null;
+  const isLevel1User = userLevel === 1;
+  const isLevel2User = userLevel === 2;
 
   return (
     <a
       href={item.link}
       target="_blank"
       rel="noopener noreferrer"
-      className={`group flex flex-col bg-white/5 border border-white/10 rounded-xl overflow-hidden hover:bg-white/[0.07] transition-all duration-200 ${isLevel1User ? "user-level-1-news-card" : "hover:border-purple-500/40"}`}
+      className={`group flex flex-col bg-white/5 border border-white/10 rounded-xl overflow-hidden hover:bg-white/[0.07] transition-all duration-200 ${isLevel1User ? "user-level-1-news-card" : "hover:border-purple-500/40"} ${isLevel2User ? "user-level-2-news-card" : ""}`}
     >
-      <div className="aspect-video bg-gradient-to-br from-purple-900/40 to-cyan-900/40 overflow-hidden shrink-0">
+      <div className={`aspect-video bg-gradient-to-br from-purple-900/40 to-cyan-900/40 overflow-hidden shrink-0 ${isLevel2User ? "user-level-2-widget-media" : ""}`}>
         {item.image ? (
           <img
             src={item.image}
@@ -40,14 +42,14 @@ function NewsCard({ item }) {
           />
         ) : (
           <div className="w-full h-full flex items-center justify-center">
-            <Newspaper className="w-8 h-8 text-purple-500/30" />
+            <Newspaper className={`w-8 h-8 text-purple-500/30 ${isLevel2User ? "user-level-2-widget-accent-soft" : ""}`} />
           </div>
         )}
       </div>
 
       <div className="flex flex-col flex-1 p-4 gap-2">
         <div className="flex items-center justify-between gap-2">
-          <span className="text-xs font-medium text-purple-400 uppercase tracking-wide">
+          <span className={`text-xs font-medium text-purple-400 uppercase tracking-wide ${isLevel2User ? "user-level-2-widget-accent" : ""}`}>
             {item.source}
           </span>
           {date && (
@@ -58,7 +60,7 @@ function NewsCard({ item }) {
           )}
         </div>
 
-        <h3 className={`text-sm font-semibold text-white transition-colors line-clamp-2 leading-snug ${isLevel1User ? "user-level-1-news-title" : "group-hover:text-purple-300"}`}>
+        <h3 className={`text-sm font-semibold text-white transition-colors line-clamp-2 leading-snug ${isLevel1User ? "user-level-1-news-title" : "group-hover:text-purple-300"} ${isLevel2User ? "user-level-2-widget-title" : ""}`}>
           {item.title}
         </h3>
 
@@ -68,7 +70,7 @@ function NewsCard({ item }) {
           </p>
         )}
 
-        <div className={`mt-auto pt-2 flex items-center gap-1 text-xs text-gray-500 transition-colors ${isLevel1User ? "user-level-1-news-link" : "group-hover:text-purple-400"}`}>
+        <div className={`mt-auto pt-2 flex items-center gap-1 text-xs text-gray-500 transition-colors ${isLevel1User ? "user-level-1-news-link" : "group-hover:text-purple-400"} ${isLevel2User ? "user-level-2-widget-accent" : ""}`}>
           <ExternalLink className="w-3 h-3" />
           Leer articulo
         </div>
@@ -101,13 +103,15 @@ export default function GamingNews() {
     retry: 1,
   });
   const isRegularUser = user && user.role !== "admin" && user.role !== "empresa";
-  const isLevel1User = isRegularUser && getLevelFromXP(user.xp ?? 0).level === 1;
+  const userLevel = isRegularUser ? getLevelFromXP(user.xp ?? 0).level : null;
+  const isLevel1User = userLevel === 1;
+  const isLevel2User = userLevel === 2;
 
   return (
     <div className="relative">
       <h2 className="text-2xl md:text-3xl font-bold mb-6 flex items-center gap-3">
-        <Newspaper className={`w-7 h-7 ${isLevel1User ? "user-level-1-news-icon" : "text-purple-400"}`} />
-        <span className={isLevel1User ? "user-level-1-news-heading" : ""}>Noticias Gaming</span>
+        <Newspaper className={`w-7 h-7 ${isLevel1User ? "user-level-1-news-icon" : "text-purple-400"} ${isLevel2User ? "user-level-2-section-icon" : ""}`} />
+        <span className={`${isLevel1User ? "user-level-1-news-heading" : ""} ${isLevel2User ? "user-level-2-section-heading" : ""}`}>Noticias Gaming</span>
       </h2>
 
       {isLoading && (

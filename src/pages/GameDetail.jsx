@@ -34,7 +34,9 @@ export default function GameDetail() {
   });
   const serverBestScore = userGameStatsArr[0]?.best_score ?? 0;
   const isRegularUser = user && user.role !== 'admin' && user.role !== 'empresa';
-  const isLevel1User = isRegularUser && getLevelFromXP(user.xp ?? 0).level === 1;
+  const userLevel = isRegularUser ? getLevelFromXP(user.xp ?? 0).level : null;
+  const isLevel1User = userLevel === 1;
+  const isLevel2User = userLevel === 2;
 
   const [isPlaying,       setIsPlaying]       = useState(false);
   const [sessionStart,    setSessionStart]     = useState(null);
@@ -187,7 +189,7 @@ export default function GameDetail() {
   }
 
   return (
-    <div className={`max-w-7xl mx-auto px-4 py-6 ${isLevel1User ? 'user-level-1-game-detail-page' : ''}`}>
+    <div className={`max-w-7xl mx-auto px-4 py-6 ${isLevel1User ? 'user-level-1-game-detail-page' : ''} ${isLevel2User ? 'user-level-2-game-detail-page' : ''}`}>
       <AgeGateDialog
         open={ageGateOpen}
         onConfirm={() => {
@@ -224,8 +226,8 @@ export default function GameDetail() {
         />
 
         {(game.full_description || game.description) && (
-          <div className="bg-white/5 rounded-xl border border-white/10 p-5">
-            <h2 className="text-base font-semibold text-white mb-2">Descripción</h2>
+          <div className={`bg-white/5 rounded-xl border border-white/10 p-5 ${isLevel2User ? 'user-level-2-detail-panel' : ''}`}>
+            <h2 className={`text-base font-semibold text-white mb-2 ${isLevel2User ? 'user-level-2-detail-panel-title' : ''}`}>Descripción</h2>
             <p className="text-gray-300 text-sm leading-relaxed">
               {game.full_description || game.description}
             </p>
@@ -235,9 +237,9 @@ export default function GameDetail() {
         {(game.show_leaderboard !== false || game.show_achievements !== false) && (
           <div className="grid sm:grid-cols-2 gap-4">
             {game.show_leaderboard !== false && (
-              <div className="bg-white/5 rounded-xl border border-white/10 p-5">
-                <h2 className="text-base font-semibold text-white mb-4 flex items-center gap-2">
-                  <Trophy className="w-4 h-4 text-yellow-500" /> Top 5
+              <div className={`bg-white/5 rounded-xl border border-white/10 p-5 ${isLevel2User ? 'user-level-2-detail-panel' : ''}`}>
+                <h2 className={`text-base font-semibold text-white mb-4 flex items-center gap-2 ${isLevel2User ? 'user-level-2-detail-panel-title' : ''}`}>
+                  <Trophy className={`w-4 h-4 text-yellow-500 ${isLevel2User ? 'user-level-2-detail-icon-yellow' : ''}`} /> Top 5
                 </h2>
                 <Leaderboard scores={scores} />
               </div>
@@ -248,9 +250,9 @@ export default function GameDetail() {
           </div>
         )}
 
-        <div className="bg-white/5 rounded-xl border border-white/10 p-5">
-          <h2 className="text-base font-semibold text-white mb-4 flex items-center gap-2">
-            <MessageSquare className="w-4 h-4" /> Comentarios ({comments.length})
+        <div className={`bg-white/5 rounded-xl border border-white/10 p-5 ${isLevel2User ? 'user-level-2-detail-panel' : ''}`}>
+          <h2 className={`text-base font-semibold text-white mb-4 flex items-center gap-2 ${isLevel2User ? 'user-level-2-detail-panel-title' : ''}`}>
+            <MessageSquare className={`w-4 h-4 ${isLevel2User ? 'user-level-2-detail-icon-blue' : ''}`} /> Comentarios ({comments.length})
           </h2>
           <CommentSection
             gameId={gameId}

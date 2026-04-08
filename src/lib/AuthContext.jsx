@@ -2,6 +2,17 @@ import React, { createContext, useState, useContext, useEffect } from 'react';
 import { api } from '@/api/client';
 
 const AuthContext = createContext();
+const TEMP_LEVEL2_XP_OVERRIDE = 220;
+
+function applyTemporaryLevel2XP(user) {
+  if (!user || user.role === 'admin' || user.role === 'empresa') return user;
+
+  return {
+    ...user,
+    // TODO: Quitar este override temporal cuando ya no necesitemos previsualizar el nivel 2.
+    xp: Math.max(user.xp ?? 0, TEMP_LEVEL2_XP_OVERRIDE),
+  };
+}
 
 export const AuthProvider = ({ children }) => {
   const [user, setUser] = useState(null);
@@ -20,7 +31,7 @@ export const AuthProvider = ({ children }) => {
     }
     try {
       const currentUser = await api.get('/auth/me');
-      setUser(currentUser);
+      setUser(applyTemporaryLevel2XP(currentUser));
       setIsAuthenticated(true);
     } catch {
       localStorage.removeItem('token');
@@ -33,17 +44,17 @@ export const AuthProvider = ({ children }) => {
   const login = async (email, password) => {
     const { token, user } = await api.post('/auth/login', { email, password });
     localStorage.setItem('token', token);
-    setUser(user);
+    setUser(applyTemporaryLevel2XP(user));
     setIsAuthenticated(true);
-    return user;
+    return applyTemporaryLevel2XP(user);
   };
 
   const register = async (email, password, full_name) => {
     const { token, user } = await api.post('/auth/register', { email, password, full_name });
     localStorage.setItem('token', token);
-    setUser(user);
+    setUser(applyTemporaryLevel2XP(user));
     setIsAuthenticated(true);
-    return user;
+    return applyTemporaryLevel2XP(user);
   };
 
   const logout = () => {
@@ -58,7 +69,7 @@ export const AuthProvider = ({ children }) => {
   const refreshUser = async () => {
     try {
       const currentUser = await api.get('/auth/me');
-      setUser(currentUser);
+      setUser(applyTemporaryLevel2XP(currentUser));
     } catch { /* silencioso */ }
   };
 

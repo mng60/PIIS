@@ -12,7 +12,9 @@ import { getLevelFromXP } from "@/lib/levels";
 export default function Favorites() {
   const { user, isLoadingAuth } = useAuth();
   const isRegularUser = user && user.role !== "admin" && user.role !== "empresa";
-  const isLevel1User = isRegularUser && getLevelFromXP(user.xp ?? 0).level === 1;
+  const userLevel = isRegularUser ? getLevelFromXP(user.xp ?? 0).level : null;
+  const isLevel1User = userLevel === 1;
+  const isLevel2User = userLevel === 2;
 
   const { data: favorites = [], isLoading: favsLoading } = useQuery({
     queryKey: ["favorites", user?.email],
@@ -56,7 +58,7 @@ export default function Favorites() {
   }
 
   return (
-    <div className={`max-w-7xl mx-auto px-4 py-8 ${isLevel1User ? "user-level-1-favorites-page" : ""}`}>
+    <div className={`max-w-7xl mx-auto px-4 py-8 ${isLevel1User ? "user-level-1-favorites-page" : ""} ${isLevel2User ? "user-level-2-favorites-page" : ""}`}>
       <div className="mb-8">
         <h1 className={`text-3xl font-bold text-white mb-2 flex items-center gap-3 ${isLevel1User ? "user-level-1-favorites-title" : ""}`}>
           <Heart className={`w-8 h-8 ${isLevel1User ? "user-level-1-favorites-icon" : "text-red-500 fill-red-500"}`} />
@@ -69,11 +71,11 @@ export default function Favorites() {
 
       {favoriteGames.length === 0 ? (
         <div className="text-center py-16">
-          <Gamepad2 className={`w-16 h-16 mx-auto mb-4 ${isLevel1User ? "user-level-1-favorites-empty-tone" : "text-gray-600"}`} />
-          <h3 className={`text-xl font-medium text-gray-400 mb-2 ${isLevel1User ? "user-level-1-favorites-empty-tone" : ""}`}>
+          <Gamepad2 className={`w-16 h-16 mx-auto mb-4 ${isLevel1User ? "user-level-1-favorites-empty-tone" : "text-gray-600"} ${isLevel2User ? "user-level-2-favorites-empty-tone" : ""}`} />
+          <h3 className={`text-xl font-medium text-gray-400 mb-2 ${isLevel1User ? "user-level-1-favorites-empty-tone" : ""} ${isLevel2User ? "user-level-2-favorites-empty-tone" : ""}`}>
             No tienes favoritos
           </h3>
-          <p className={`text-gray-500 ${isLevel1User ? "user-level-1-favorites-empty-tone" : ""}`}>
+          <p className={`text-gray-500 ${isLevel1User ? "user-level-1-favorites-empty-tone" : ""} ${isLevel2User ? "user-level-2-favorites-empty-tone" : ""}`}>
             Explora el catalogo y anade juegos a tu lista
           </p>
         </div>

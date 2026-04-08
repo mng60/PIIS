@@ -19,12 +19,18 @@ function getLevel1CategoryClass(category) {
   return "user-level-1-category-default";
 }
 
+function getLevel2CategoryClass() {
+  return "user-level-2-featured-badge";
+}
+
 export default function FeaturedCarousel({ games }) {
   const { user } = useAuth();
   const [currentIndex, setCurrentIndex] = useState(0);
   const [isAutoPlaying, setIsAutoPlaying] = useState(true);
   const isRegularUser = user && user.role !== "admin" && user.role !== "empresa";
-  const isLevel1User = isRegularUser && getLevelFromXP(user.xp ?? 0).level === 1;
+  const userLevel = isRegularUser ? getLevelFromXP(user.xp ?? 0).level : null;
+  const isLevel1User = userLevel === 1;
+  const isLevel2User = userLevel === 2;
 
   useEffect(() => {
     if (!isAutoPlaying || games.length <= 1) return;
@@ -49,8 +55,8 @@ export default function FeaturedCarousel({ games }) {
   const currentGame = games[currentIndex];
 
   return (
-    <div className={`relative rounded-2xl md:rounded-3xl overflow-hidden group ${isLevel1User ? "user-level-1-featured-card" : ""}`}>
-      <div className="relative aspect-video md:aspect-[21/9] bg-gradient-to-br from-purple-900/50 to-cyan-900/50">
+    <div className={`relative rounded-2xl md:rounded-3xl overflow-hidden group ${isLevel1User ? "user-level-1-featured-card" : ""} ${isLevel2User ? "user-level-2-featured-card" : ""}`}>
+      <div className={`relative aspect-video md:aspect-[21/9] bg-gradient-to-br from-purple-900/50 to-cyan-900/50 ${isLevel2User ? "user-level-2-widget-media" : ""}`}>
         {currentGame.thumbnail ? (
           <img
             src={currentGame.thumbnail}
@@ -63,7 +69,7 @@ export default function FeaturedCarousel({ games }) {
 
         <div className="absolute bottom-0 left-0 right-0 p-4 sm:p-6 md:p-12">
           <div className="mb-2 md:mb-3">
-            <Badge className={`${isLevel1User ? getLevel1CategoryClass(currentGame.category) : "bg-gradient-to-r from-purple-600 to-cyan-500"} border-0 text-white text-xs`}>
+            <Badge className={`${isLevel1User ? getLevel1CategoryClass(currentGame.category) : isLevel2User ? getLevel2CategoryClass(currentGame.category) : "bg-gradient-to-r from-purple-600 to-cyan-500"} border-0 text-white text-xs`}>
               {categoryLabels[currentGame.category] || currentGame.category}
             </Badge>
             {currentGame.is_adult && (
@@ -82,7 +88,7 @@ export default function FeaturedCarousel({ games }) {
           </p>
 
           <Link to={`/games/${currentGame.id}`}>
-            <Button className={`${isLevel1User ? "user-level-1-hero-button" : "bg-gradient-to-r from-purple-600 to-cyan-500 hover:opacity-90"} text-sm sm:text-base md:text-lg px-4 py-3 sm:px-6 sm:py-4 md:px-8 md:py-6`}>
+            <Button className={`${isLevel1User ? "user-level-1-hero-button" : isLevel2User ? "user-level-2-featured-button" : "bg-gradient-to-r from-purple-600 to-cyan-500 hover:opacity-90"} text-sm sm:text-base md:text-lg px-4 py-3 sm:px-6 sm:py-4 md:px-8 md:py-6`}>
               <Play className="w-4 h-4 sm:w-5 sm:h-5 mr-1 sm:mr-2 fill-white" />
               Jugar Ahora
             </Button>
