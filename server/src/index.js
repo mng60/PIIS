@@ -13,6 +13,7 @@ import reportsRoutes from './routes/reports.js';
 import chatRoutes from './routes/chat.js';
 import sessionsRoutes from './routes/sessions.js';
 import chessRoutes from './routes/chess.js';
+import eloRoutes from './routes/elo.js';
 import usersRoutes from './routes/users.js';
 import newsRoutes from './routes/news.js';
 import maintenanceRoutes from './routes/maintenance.js';
@@ -27,7 +28,7 @@ const allowedOrigins = process.env.FRONTEND_URL
 
 app.use(cors({
   origin: (origin, callback) => {
-    if (!origin || allowedOrigins.includes(origin)) {
+    if (!origin || allowedOrigins.includes(origin) || /^https:\/\/[\w-]+\.vercel\.app$/.test(origin)) {
       callback(null, true);
     } else {
       callback(new Error(`CORS: origin ${origin} not allowed`));
@@ -50,6 +51,7 @@ app.use('/api/reports', reportsRoutes);
 app.use('/api/chat', chatRoutes);
 app.use('/api/sessions', sessionsRoutes);
 app.use('/api/chess', chessRoutes);
+app.use('/api/elo', eloRoutes);
 app.use('/api/news', newsRoutes);
 app.use('/api/maintenance', maintenanceRoutes);
 app.use('/api/tickets', ticketsRoutes);
