@@ -58,7 +58,7 @@ const nickName = (name) => {
   return name;
 };
 
-export default function ChessOnlineGame({ user, gameId, myEloRating = 1200, onScoreUpdate, onEloApplied, onRoomCodeChange, onMoveHistoryChange }) {
+export default function ChessOnlineGame({ user, gameId, myEloRating = 1200, onScoreUpdate, onEloApplied, onRoomCodeChange, onMoveHistoryChange, initialRoomCode }) {
   const [screen, setScreen] = useState("lobby");
   const [roomCode, setRoomCode] = useState("");
   useEffect(() => {
@@ -263,6 +263,66 @@ export default function ChessOnlineGame({ user, gameId, myEloRating = 1200, onSc
   };
 
   useEffect(() => () => stopSync(), []);
+
+  // Auto-join tournament match room when arriving via ?room=CODE
+  useEffect(() => {
+    if (!initialRoomCode || !user) return;
+    let cancelled = false;
+
+    const autoJoin = async () => {
+      setLoading(true);
+      try {
+        const room = await getChessRoom(initialRoomCode);
+        if (!room || cancelled) return;
+
+        roomCodeRef.current = initialRoomCode;
+        lastUpdatedRef.current = room.updated_at;
+        hostEmailRef.current = room.host_email;
+        guestEmailRef.current = room.guest_email;
+        didAwardRef.current = false;
+        timeoutDeclaredRef.current = false;
+        clockStartGuardRef.current = false;
+        lastOfferSeenRef.current = null;
+
+        const { board: b, meta } = safeParseBoardState(room.board_state);
+        setBoard(b);
+        metaRef.current = meta || {};
+        setCurrentTurn(room.current_turn || "white");
+
+        if (user.email === room.host_email) {
+          setRoomCode(initialRoomCode);
+          setPlayerColor("white");
+          setGameStatus(room.status);
+          setScreen("playing");
+          setWinner(null);
+          startPolling();
+        } else if (user.email === room.guest_email) {
+          let finalRoom = room;
+          if (room.status === "waiting") {
+            finalRoom = await updateChessRoom(initialRoomCode, {
+              guest_name: nickName(user.full_name) || user.email.split("@")[0],
+              guest_avatar_url: user.avatar_url || null,
+              status: "playing",
+            });
+            lastUpdatedRef.current = finalRoom.updated_at;
+          }
+          setRoomCode(initialRoomCode);
+          setPlayerColor("black");
+          setOpponentName(nickName(room.host_name) || "Rival");
+          setGameStatus(finalRoom.status);
+          setScreen("playing");
+          setWinner(null);
+          startPolling();
+        }
+      } catch (e) {
+        if (!cancelled) { console.error(e); setError("Error al unirse a la sala de torneo"); }
+      }
+      if (!cancelled) setLoading(false);
+    };
+
+    autoJoin();
+    return () => { cancelled = true; };
+  }, [initialRoomCode, user?.email]); // eslint-disable-line
 
   // timeout loop
   useEffect(() => {

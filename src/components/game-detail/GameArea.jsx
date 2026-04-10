@@ -24,6 +24,7 @@ export default function GameArea({
   serverBestScore,
   myEloRating,
   onEloApplied,
+  initialRoomCode,
 }) {
   const iframeRef = useRef(null);
   const [iframeSrcDoc, setIframeSrcDoc] = useState(null);
@@ -85,6 +86,7 @@ export default function GameArea({
           onScoreUpdate={onScoreUpdate}
           onRoomCodeChange={code => onChatSessionIdChange(code || null)}
           onMoveHistoryChange={onChessMoveHistoryChange}
+          initialRoomCode={initialRoomCode}
         />
       );
     }

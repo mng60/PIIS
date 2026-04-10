@@ -1,5 +1,5 @@
-import { useState } from 'react';
-import { Link, useParams } from 'react-router-dom';
+import { useState, useEffect } from 'react';
+import { Link, useParams, useSearchParams } from 'react-router-dom';
 import { useAuth } from '@/lib/AuthContext';
 import { useQueryClient, useQuery } from '@tanstack/react-query';
 import { Loader2, Gamepad, Trophy, MessageSquare, TrendingUp } from 'lucide-react';
@@ -25,6 +25,9 @@ export default function GameDetail() {
   const ageKey = user ? `playcraft_age_${user.email}_${gameId}` : null;
   const queryClient = useQueryClient();
 
+  const [searchParams] = useSearchParams();
+  const tournamentRoom = searchParams.get('room') || null;
+
   const { game, gameLoading, scores, comments, refetchComments, isFavorite, toggleFavorite, invalidateGame } =
     useGameDetail(gameId, user);
 
@@ -41,12 +44,19 @@ export default function GameDetail() {
     enabled: !!gameId && !!game?.elo_enabled,
   });
 
-  const [isPlaying,       setIsPlaying]       = useState(false);
+  const [isPlaying,       setIsPlaying]       = useState(!!tournamentRoom);
   const [sessionStart,    setSessionStart]     = useState(null);
   const [chatSessionId,   setChatSessionId]    = useState(null);
   const [ageGateOpen,     setAgeGateOpen]      = useState(false);
   const [pendingStart,    setPendingStart]     = useState(false);
   const [chessMoveHistory, setChessMoveHistory] = useState([]);
+
+  useEffect(() => {
+    if (tournamentRoom && game) {
+      recordPlay(gameId).catch(() => {});
+      invalidateGame();
+    }
+  }, [!!tournamentRoom, !!game]);
 
   const doStart = async () => {
     const now = Date.now();
@@ -229,6 +239,7 @@ export default function GameDetail() {
           serverBestScore={serverBestScore}
           myEloRating={userGameStatsArr[0]?.elo_rating ?? 1200}
           onEloApplied={() => queryClient.invalidateQueries(['userGameStats', user?.email, gameId])}
+          initialRoomCode={tournamentRoom}
         />
 
         {(game.full_description || game.description) && (

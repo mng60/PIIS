@@ -1,7 +1,7 @@
 import { Router } from 'express';
 import { PrismaClient } from '@prisma/client';
 import { requireAuth } from '../middleware/auth.js';
-import { advanceTournamentMatch } from '../lib/tournamentAdvance.js';
+import { advanceTournamentMatch, createMatchRoomForTournament } from '../lib/tournamentAdvance.js';
 
 const router = Router();
 const prisma = new PrismaClient();
@@ -30,16 +30,6 @@ function getSeeds(n) {
   return result;
 }
 
-async function uniqueRoomCode() {
-  let code, attempts = 0;
-  while (attempts < 10) {
-    code = Math.random().toString(36).substring(2, 8).toUpperCase();
-    const exists = await prisma.gameSession.findUnique({ where: { room_code: code } });
-    if (!exists) return code;
-    attempts++;
-  }
-  return code;
-}
 
 // ─── GET /api/tournaments ─────────────────────────────────────────────────────
 router.get('/', async (req, res) => {
@@ -299,20 +289,15 @@ router.post('/:id/activate', requireAuth, async (req, res) => {
 
         let room_code = null;
         if (!isBye && actualP1 && actualP2) {
-          room_code = await uniqueRoomCode();
-          await prisma.gameSession.create({
-            data: {
-              room_code,
-              game_id: tournament.game_id,
-              host_email: actualP1.user_email,
-              host_name: actualP1.user_name || actualP1.user_email,
-              guest_email: actualP2.user_email,
-              guest_name: actualP2.user_name || actualP2.user_email,
-              game_state: {},
-              current_turn: 'host',
-              status: 'waiting',
+          room_code = await createMatchRoomForTournament(
+            {
+              player1_email: actualP1.user_email,
+              player1_name: actualP1.user_name,
+              player2_email: actualP2.user_email,
+              player2_name: actualP2.user_name,
             },
-          });
+            tournament.game_id
+          );
         }
 
         const match = await prisma.tournamentMatch.create({

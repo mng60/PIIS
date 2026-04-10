@@ -4,6 +4,18 @@ const prisma = new PrismaClient();
 
 // ─── Helpers ─────────────────────────────────────────────────────────────────
 
+// Posición inicial del tablero de ajedrez (misma estructura que initBoard() del frontend)
+const INITIAL_CHESS_BOARD = JSON.stringify([
+  ["bR","bN","bB","bQ","bK","bB","bN","bR"],
+  ["bP","bP","bP","bP","bP","bP","bP","bP"],
+  [null,null,null,null,null,null,null,null],
+  [null,null,null,null,null,null,null,null],
+  [null,null,null,null,null,null,null,null],
+  [null,null,null,null,null,null,null,null],
+  ["wP","wP","wP","wP","wP","wP","wP","wP"],
+  ["wR","wN","wB","wQ","wK","wB","wN","wR"],
+]);
+
 function genCode() {
   return Math.random().toString(36).substring(2, 8).toUpperCase();
 }
@@ -12,9 +24,64 @@ async function uniqueRoomCode() {
   let code, attempts = 0;
   while (attempts < 10) {
     code = genCode();
-    const exists = await prisma.gameSession.findUnique({ where: { room_code: code } });
-    if (!exists) return code;
+    // Check both tables
+    const [session, chess] = await Promise.all([
+      prisma.gameSession.findUnique({ where: { room_code: code } }),
+      prisma.chessRoom.findUnique({ where: { room_code: code } }),
+    ]);
+    if (!session && !chess) return code;
     attempts++;
+  }
+  return code;
+}
+
+async function isChessGame(gameId) {
+  const game = await prisma.game.findUnique({ where: { id: gameId }, select: { game_code: true, game_type: true } });
+  return game?.game_code === 'chess-online' || (game?.game_type === 'builtin' && game?.game_code?.includes('chess'));
+}
+
+export async function createMatchRoomForTournament(match, gameId) {
+  return createMatchRoom(match, gameId);
+}
+
+async function createMatchRoom(match, gameId) {
+  const code = await uniqueRoomCode();
+  const chess = await isChessGame(gameId);
+
+  if (chess) {
+    // Obtener datos de los usuarios para el ChessRoom
+    const [p1, p2] = await Promise.all([
+      prisma.user.findUnique({ where: { email: match.player1_email }, select: { full_name: true, avatar_url: true } }),
+      prisma.user.findUnique({ where: { email: match.player2_email }, select: { full_name: true, avatar_url: true } }),
+    ]);
+    await prisma.chessRoom.create({
+      data: {
+        room_code: code,
+        host_email: match.player1_email,
+        host_name: match.player1_name || p1?.full_name || match.player1_email,
+        host_avatar_url: p1?.avatar_url || null,
+        guest_email: match.player2_email,
+        guest_name: match.player2_name || p2?.full_name || match.player2_email,
+        guest_avatar_url: p2?.avatar_url || null,
+        board_state: INITIAL_CHESS_BOARD,
+        status: 'waiting',
+        current_turn: 'white',
+      },
+    });
+  } else {
+    await prisma.gameSession.create({
+      data: {
+        room_code: code,
+        game_id: gameId,
+        host_email: match.player1_email,
+        host_name: match.player1_name || match.player1_email,
+        guest_email: match.player2_email,
+        guest_name: match.player2_name || match.player2_email,
+        game_state: {},
+        current_turn: 'host',
+        status: 'waiting',
+      },
+    });
   }
   return code;
 }
@@ -190,22 +257,9 @@ export async function advanceTournamentMatch(matchId, winnerEmail) {
     });
   }
 
-  // If both players are set, create the session
+  // If both players are set, create the room
   if (nextMatch.player1_email && nextMatch.player2_email) {
-    const code = await uniqueRoomCode();
-    await prisma.gameSession.create({
-      data: {
-        room_code: code,
-        game_id: tournament.game_id,
-        host_email: nextMatch.player1_email,
-        host_name: nextMatch.player1_name || nextMatch.player1_email,
-        guest_email: nextMatch.player2_email,
-        guest_name: nextMatch.player2_name || nextMatch.player2_email,
-        game_state: {},
-        current_turn: 'host',
-        status: 'waiting',
-      },
-    });
+    const code = await createMatchRoom(nextMatch, tournament.game_id);
     await prisma.tournamentMatch.update({
       where: { id: nextMatch.id },
       data: { room_code: code, status: 'playing' },

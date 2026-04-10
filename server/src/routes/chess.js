@@ -1,6 +1,7 @@
 import { Router } from 'express';
 import { PrismaClient } from '@prisma/client';
 import { requireAuth } from '../middleware/auth.js';
+import { advanceTournamentMatch } from '../lib/tournamentAdvance.js';
 
 const router = Router();
 const prisma = new PrismaClient();
@@ -48,6 +49,18 @@ router.patch('/:room_code', requireAuth, async (req, res) => {
   });
   if (req.body.status === 'finished') cleanupChatMessages(req.params.room_code);
   res.json(room);
+
+  // Si la partida termina con ganador, avanzar bracket del torneo (si aplica)
+  if (req.body.status === 'finished' && req.body.winner && req.body.winner !== 'draw') {
+    try {
+      const match = await prisma.tournamentMatch.findFirst({
+        where: { room_code: req.params.room_code, status: { not: 'finished' } },
+      });
+      if (match) await advanceTournamentMatch(match.id, req.body.winner);
+    } catch (err) {
+      console.error('[Tournament] chess advance error:', err);
+    }
+  }
 });
 
 // DELETE /api/chess/:room_code
