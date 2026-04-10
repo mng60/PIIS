@@ -1,5 +1,6 @@
 import React, { useEffect, useRef, useState } from "react";
 import { createChessRoom, getChessRoom, updateChessRoom, deleteChessRoom } from "@/api/chess";
+import { submitChessElo } from "@/api/elo";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Card } from "@/components/ui/card";
@@ -57,7 +58,7 @@ const nickName = (name) => {
   return name;
 };
 
-export default function ChessOnlineGame({ user, onScoreUpdate, onRoomCodeChange, onMoveHistoryChange }) {
+export default function ChessOnlineGame({ user, gameId, myEloRating = 1200, onScoreUpdate, onEloApplied, onRoomCodeChange, onMoveHistoryChange }) {
   const [screen, setScreen] = useState("lobby");
   const [roomCode, setRoomCode] = useState("");
   useEffect(() => {
@@ -75,6 +76,9 @@ export default function ChessOnlineGame({ user, onScoreUpdate, onRoomCodeChange,
   const [selectedSquare, setSelectedSquare] = useState(null);
   const [validMoves, setValidMoves] = useState([]);
   const [opponentName, setOpponentName] = useState("Rival");
+  const [opponentAvatarUrl, setOpponentAvatarUrl] = useState(null);
+  const [opponentEloRating, setOpponentEloRating] = useState(null);
+  const [showTurnFlash, setShowTurnFlash] = useState(false);
   const [gameStatus, setGameStatus] = useState("waiting");
   const [winner, setWinner] = useState(null);
   const [moveHistory, setMoveHistory] = useState([]);
@@ -116,6 +120,18 @@ export default function ChessOnlineGame({ user, onScoreUpdate, onRoomCodeChange,
     const t = setInterval(() => setNowMs(Date.now()), 250);
     return () => clearInterval(t);
   }, [clock, gameStatus]);
+
+  const prevTurnRef = useRef(null);
+  useEffect(() => {
+    if (gameStatus !== "playing") return;
+    if (prevTurnRef.current !== null && prevTurnRef.current !== currentTurn) {
+      prevTurnRef.current = currentTurn;
+      setShowTurnFlash(true);
+      const t = setTimeout(() => setShowTurnFlash(false), 1500);
+      return () => clearTimeout(t);
+    }
+    prevTurnRef.current = currentTurn;
+  }, [currentTurn, gameStatus]);
 
   const stopSync = () => {
     if (pollIntervalRef.current) {
@@ -191,8 +207,18 @@ export default function ChessOnlineGame({ user, onScoreUpdate, onRoomCodeChange,
     setGameStatus(room.status);
 
     if (room.status !== "waiting") {
-      const opp = user?.email === room.host_email ? (room.guest_name || "Rival") : (room.host_name || "Rival");
+      const isHost = user?.email === room.host_email;
+      const opp = isHost ? (room.guest_name || "Rival") : (room.host_name || "Rival");
       setOpponentName(nickName(opp) || "Rival");
+      setOpponentAvatarUrl(isHost ? (room.guest_avatar_url || null) : (room.host_avatar_url || null));
+      const oppEmail = isHost ? room.guest_email : room.host_email;
+      if (oppEmail && gameId) {
+        import("@/api/scores").then(({ getUserGameScores }) =>
+          getUserGameScores(oppEmail, gameId)
+            .then(stats => setOpponentEloRating(stats?.[0]?.elo_rating ?? 1200))
+            .catch(() => {})
+        );
+      }
     }
 
     // Self-heal: cuando el host ve la partida en curso, actualiza host_name con el nombre actual (una sola vez)
@@ -221,6 +247,17 @@ export default function ChessOnlineGame({ user, onScoreUpdate, onRoomCodeChange,
           onScoreUpdate?.(0);
           toast.info("Derrota");
         }
+
+        // Calcular y aplicar ELO (idempotente, el servidor ignora si ya fue procesado)
+        submitChessElo(roomCodeRef.current).then(result => {
+          if (result?.elo_enabled === false || result?.already_processed) return;
+          const me = user?.email;
+          const myData = result.updates?.find(u => u.email === me);
+          if (!myData) return;
+          const sign = myData.delta >= 0 ? "+" : "";
+          toast.info(`ELO: ${myData.before} → ${myData.after} (${sign}${myData.delta})`, { duration: 4000 });
+          onEloApplied?.();
+        }).catch(() => {});
       }
     }
   };
@@ -320,13 +357,16 @@ export default function ChessOnlineGame({ user, onScoreUpdate, onRoomCodeChange,
         const nextTurn = currentTurn === "white" ? "black" : "white";
 
         const pieceSymbol = getPieceType(piece);
-        const fromSquare = `${FILES[selectedSquare.col]}${8 - selectedSquare.row}`;
+        const fromFile = FILES[selectedSquare.col];
         const toSquare = `${FILES[col]}${8 - row}`;
-        const pieceName = PIECE_NAMES_ES[pieceSymbol] ?? 'Peón';
-        const capturedType = capturedPiece ? getPieceType(capturedPiece) : null;
-        const moveNotation = capturedType !== null
-          ? `${pieceName} ${fromSquare} come ${PIECE_NAMES_ES[capturedType] ?? 'Pieza'} en ${toSquare}`
-          : `${pieceName} ${fromSquare}→${toSquare}`;
+        // Notación algebraica estándar (SAN)
+        const moveNotation = pieceSymbol === ''
+          ? capturedPiece
+            ? `${fromFile}x${toSquare}`   // peón captura: exd4
+            : toSquare                     // peón avanza: e4
+          : capturedPiece
+            ? `${pieceSymbol}x${toSquare}` // pieza captura: Nxf3
+            : `${pieceSymbol}${toSquare}`; // pieza mueve: Nf3
         const moveId = Date.now();
         const moveEntry = { move: moveNotation, player: currentTurn === "white" ? "Blancas" : "Negras" };
         nextMeta.lastMove = { id: moveId, notation: moveNotation, player: moveEntry.player };
@@ -397,6 +437,7 @@ export default function ChessOnlineGame({ user, onScoreUpdate, onRoomCodeChange,
         room_code: code,
         host_email: user.email,
         host_name: nickName(user.full_name) || user.email.split("@")[0],
+        host_avatar_url: user.avatar_url || null,
         status: "waiting",
         board_state: packBoardState(initBoard(), meta),
         current_turn: "white",
@@ -448,6 +489,7 @@ export default function ChessOnlineGame({ user, onScoreUpdate, onRoomCodeChange,
       const updatedRoom = await updateChessRoom(joinCode.toUpperCase(), {
         guest_email: user.email,
         guest_name: nickName(user.full_name) || user.email.split("@")[0],
+        guest_avatar_url: user.avatar_url || null,
         status: "playing",
       });
 
@@ -661,12 +703,16 @@ export default function ChessOnlineGame({ user, onScoreUpdate, onRoomCodeChange,
         topPlayer={{
           label: flip ? "Blancas" : "Negras",
           name: opponentName,
-          time: formatMs(clock ? Math.max(0, oppMs) : null)
+          time: formatMs(clock ? Math.max(0, oppMs) : null),
+          avatarUrl: opponentAvatarUrl,
+          elo: opponentEloRating,
         }}
         bottomPlayer={{
           label: flip ? "Negras" : "Blancas",
           name: nickName(user?.full_name) || "Tú",
-          time: formatMs(clock ? Math.max(0, myMs) : null)
+          time: formatMs(clock ? Math.max(0, myMs) : null),
+          avatarUrl: user?.avatar_url || null,
+          elo: myEloRating,
         }}
         isTopPlayerActive={isTopPlayerActive}
         isBottomPlayerActive={isBottomPlayerActive}
@@ -701,7 +747,18 @@ export default function ChessOnlineGame({ user, onScoreUpdate, onRoomCodeChange,
         </div>
       )}
 
-      <div className="grid grid-cols-8 border-2 border-white/10 rounded-lg overflow-hidden shadow-2xl" style={{ width: "min(480px, 90vw)", aspectRatio: "1/1" }}>
+      <div className="relative" style={{ width: "min(480px, 90vw)", aspectRatio: "1/1" }}>
+        {showTurnFlash && (
+          <div className="absolute inset-0 flex items-center justify-center z-20 pointer-events-none">
+            <div
+              className="bg-black/70 backdrop-blur-sm text-white px-6 py-3 rounded-xl text-base font-bold border border-white/20 shadow-xl"
+              style={{ animation: "fadeOutTurn 1.5s ease-out forwards" }}
+            >
+              {isBottomPlayerActive ? "Tu turno" : `Turno de ${opponentName}`}
+            </div>
+          </div>
+        )}
+      <div className="grid grid-cols-8 border-2 border-white/10 rounded-lg overflow-hidden shadow-2xl w-full h-full">
         {Array.from({ length: 8 }).map((_, ri) => {
           const row = flip ? 7 - ri : ri;
           return Array.from({ length: 8 }).map((_, ci) => {
@@ -744,6 +801,7 @@ export default function ChessOnlineGame({ user, onScoreUpdate, onRoomCodeChange,
             );
           });
         })}
+      </div>
       </div>
 
       <div className="flex gap-3">

@@ -9,9 +9,10 @@ import { updateGame, deleteGame } from "@/api/games";
 import { resetGameScores, resetGamePlays, resetGameFull } from "@/api/maintenance";
 import { useQueryClient } from "@tanstack/react-query";
 import { toast } from "sonner";
+import { Input } from "@/components/ui/input";
 import {
   Loader2, Gamepad2, Trophy, Play, RotateCcw, Edit,
-  Star, Eye, EyeOff, AlertTriangle, Trash2, BarChart2, Medal,
+  Star, Eye, EyeOff, AlertTriangle, Trash2, BarChart2, Medal, TrendingUp,
 } from "lucide-react";
 
 export default function GameManageDialog({ game: initial, isAdmin, onClose }) {
@@ -127,6 +128,75 @@ export default function GameManageDialog({ game: initial, isAdmin, onClose }) {
                   {game[field] ? activeLabel : inactiveLabel}
                 </Button>
               ))}
+            </div>
+          )}
+
+          {/* ELO config — solo juegos multijugador */}
+          {isAdmin && game.is_multiplayer && (
+            <div className="border-t border-white/10 pt-2 space-y-2">
+              <p className="text-xs text-gray-500 px-1">Sistema ELO</p>
+              <Button variant="outline" disabled={busy === "elo_enabled"}
+                onClick={() => toggle("elo_enabled", "ELO")}
+                className="w-full border-white/10 text-gray-300 hover:text-white hover:bg-white/5 justify-start gap-2">
+                {busy === "elo_enabled"
+                  ? <Loader2 className="w-4 h-4 animate-spin" />
+                  : <TrendingUp className={`w-4 h-4 ${game.elo_enabled ? "text-green-400" : "text-gray-500"}`} />}
+                {game.elo_enabled ? "Deshabilitar ELO" : "Habilitar ELO"}
+              </Button>
+              {game.elo_enabled && (
+                <div className="grid grid-cols-2 gap-2">
+                  <div className="space-y-1">
+                    <p className="text-xs text-gray-500 px-1">K-factor</p>
+                    <Input
+                      type="number" min={8} max={64}
+                      defaultValue={game.elo_k_factor ?? 32}
+                      className="bg-white/5 border-white/10 text-white h-8 text-sm"
+                      onBlur={e => {
+                        const val = parseInt(e.target.value);
+                        if (!isNaN(val) && val !== game.elo_k_factor)
+                          run("elo_k", () => updateGame(game.id, { elo_k_factor: val }), "K-factor actualizado", { elo_k_factor: val });
+                      }}
+                    />
+                    <p className="text-xs text-gray-600 px-1">32=normal · 16=expertos</p>
+                  </div>
+                  <div className="space-y-1">
+                    <p className="text-xs text-gray-500 px-1">Rating mínimo</p>
+                    <Input
+                      type="number" min={0}
+                      defaultValue={game.elo_min_rating ?? 0}
+                      className="bg-white/5 border-white/10 text-white h-8 text-sm"
+                      onBlur={e => {
+                        const val = parseInt(e.target.value);
+                        if (!isNaN(val) && val !== game.elo_min_rating)
+                          run("elo_min", () => updateGame(game.id, { elo_min_rating: val }), "Rating mínimo actualizado", { elo_min_rating: val });
+                      }}
+                    />
+                    <p className="text-xs text-gray-600 px-1">0 = cualquiera</p>
+                  </div>
+                </div>
+              )}
+              {/* Puntos por posición — solo para 3+ jugadores (sin K-factor) */}
+              {game.elo_enabled && (
+                <div className="space-y-1">
+                  <p className="text-xs text-gray-500 px-1">Puntos por posición <span className="text-gray-600">(solo 3+ jugadores)</span></p>
+                  <Input
+                    type="text"
+                    placeholder='ej: [20,10,-5,-15]'
+                    defaultValue={game.elo_position_points ?? ''}
+                    className="bg-white/5 border-white/10 text-white h-8 text-sm font-mono"
+                    onBlur={e => {
+                      const val = e.target.value.trim();
+                      if (!val) return;
+                      try {
+                        JSON.parse(val); // validar JSON
+                        if (val !== game.elo_position_points)
+                          run("elo_pos", () => updateGame(game.id, { elo_position_points: val }), "Puntos por posición actualizados", { elo_position_points: val });
+                      } catch { toast.error("Formato incorrecto. Usa JSON: [20,10,-5,-15]"); }
+                    }}
+                  />
+                  <p className="text-xs text-gray-600 px-1">Array JSON: 1 valor por posición (1º, 2º, 3º…)</p>
+                </div>
+              )}
             </div>
           )}
 

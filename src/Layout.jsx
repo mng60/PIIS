@@ -12,7 +12,8 @@ import {
   Shield,
   Heart,
   Sun,
-  Moon
+  Moon,
+  Trophy,
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Sheet, SheetContent, SheetTrigger } from "@/components/ui/sheet";
@@ -38,8 +39,9 @@ export default function Layout({ children }) {
   }, [isDark]);
 
   const navItems = [
-    { name: "Inicio", path: "/", icon: Home },
-    { name: "Juegos", path: "/games", icon: Gamepad2 },
+    { name: "Inicio",   path: "/",            icon: Home },
+    { name: "Juegos",   path: "/games",        icon: Gamepad2 },
+    { name: "Torneos",  path: "/tournaments",  icon: Trophy },
   ];
 
   if (user) {

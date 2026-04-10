@@ -34,6 +34,7 @@ router.post('/', requireAuth, async (req, res) => {
       board_state,
       host_email: req.user.email,
       host_name: req.user.full_name || req.user.email,
+      host_avatar_url: req.user.avatar_url || null,
     },
   });
   res.status(201).json(room);

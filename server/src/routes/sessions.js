@@ -1,6 +1,7 @@
 import { Router } from 'express';
 import { PrismaClient } from '@prisma/client';
 import { requireAuth } from '../middleware/auth.js';
+import { advanceTournamentMatch } from '../lib/tournamentAdvance.js';
 
 const router = Router();
 const prisma = new PrismaClient();
@@ -49,6 +50,18 @@ router.patch('/:room_code', requireAuth, async (req, res) => {
     data: req.body,
   });
   res.json(session);
+
+  // Si la sesión termina con ganador, avanzar bracket del torneo (si existe)
+  if (req.body.status === 'finished' && req.body.winner) {
+    try {
+      const match = await prisma.tournamentMatch.findFirst({
+        where: { room_code: req.params.room_code, status: { not: 'finished' } },
+      });
+      if (match) await advanceTournamentMatch(match.id, req.body.winner);
+    } catch (err) {
+      console.error('[Tournament] advance error:', err);
+    }
+  }
 });
 
 // DELETE /api/sessions/:room_code — delete a room

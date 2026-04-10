@@ -2,7 +2,7 @@ import { useState } from 'react';
 import { Link, useParams } from 'react-router-dom';
 import { useAuth } from '@/lib/AuthContext';
 import { useQueryClient, useQuery } from '@tanstack/react-query';
-import { Loader2, Gamepad, Trophy, MessageSquare } from 'lucide-react';
+import { Loader2, Gamepad, Trophy, MessageSquare, TrendingUp } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { toast } from 'sonner';
 import { useGameDetail } from '@/hooks/useGameDetail';
@@ -15,6 +15,7 @@ import AgeGateDialog from '@/components/AgeGateDialog';
 import { evaluateAndUpdateAchievements } from '@/components/achievements';
 import { recordPlay } from '@/api/games';
 import { submitScore, recordGamePlay, getUserGameScores, getUserScores } from '@/api/scores';
+import { getEloLeaderboard } from '@/api/elo';
 import { getLevelFromXP } from '@/lib/levels';
 import { evaluateMedals } from '@/lib/medals';
 
@@ -33,6 +34,12 @@ export default function GameDetail() {
     enabled: !!user && !!gameId,
   });
   const serverBestScore = userGameStatsArr[0]?.best_score ?? 0;
+
+  const { data: eloLeaderboard = [] } = useQuery({
+    queryKey: ['eloLeaderboard', gameId],
+    queryFn: () => getEloLeaderboard(gameId),
+    enabled: !!gameId && !!game?.elo_enabled,
+  });
 
   const [isPlaying,       setIsPlaying]       = useState(false);
   const [sessionStart,    setSessionStart]     = useState(null);
@@ -145,6 +152,7 @@ export default function GameDetail() {
     totalXp += result?.xpGained ?? 0;
 
     queryClient.invalidateQueries(['scores', gameId]);
+    queryClient.invalidateQueries(['userGameStats', user?.email, gameId]);
     const achievementToasts = await evaluateAndUpdateAchievements({
       userEmail: user.email,
       gameId,
@@ -219,6 +227,8 @@ export default function GameDetail() {
           onChessMoveHistoryChange={setChessMoveHistory}
           onChatSessionIdChange={setChatSessionId}
           serverBestScore={serverBestScore}
+          myEloRating={userGameStatsArr[0]?.elo_rating ?? 1200}
+          onEloApplied={() => queryClient.invalidateQueries(['userGameStats', user?.email, gameId])}
         />
 
         {(game.full_description || game.description) && (
@@ -243,6 +253,24 @@ export default function GameDetail() {
             {game.show_achievements !== false && (
               <AchievementsSection gameId={gameId} user={user} />
             )}
+          </div>
+        )}
+
+        {game.elo_enabled && eloLeaderboard.length > 0 && (
+          <div className="bg-white/5 rounded-xl border border-white/10 p-5">
+            <h2 className="text-base font-semibold text-white mb-4 flex items-center gap-2">
+              <TrendingUp className="w-4 h-4 text-cyan-400" /> Ranking ELO
+            </h2>
+            <div className="space-y-2">
+              {eloLeaderboard.slice(0, 10).map((entry, i) => (
+                <div key={entry.id} className="flex items-center gap-3 px-3 py-2 rounded-lg bg-white/5">
+                  <span className="text-xs text-gray-500 w-5 text-right">{i + 1}</span>
+                  <span className="flex-1 text-sm text-white truncate">{entry.user_name}</span>
+                  <span className="text-sm font-mono font-semibold text-cyan-400">{entry.elo_rating}</span>
+                  <span className="text-xs text-gray-500">{entry.elo_games} partidas</span>
+                </div>
+              ))}
+            </div>
           </div>
         )}
 

@@ -22,6 +22,8 @@ export default function GameArea({
   onChessMoveHistoryChange,
   onChatSessionIdChange,
   serverBestScore,
+  myEloRating,
+  onEloApplied,
 }) {
   const iframeRef = useRef(null);
   const [iframeSrcDoc, setIframeSrcDoc] = useState(null);
@@ -77,6 +79,9 @@ export default function GameArea({
       return (
         <ChessOnlineGame
           user={user}
+          gameId={gameId}
+          myEloRating={myEloRating}
+          onEloApplied={onEloApplied}
           onScoreUpdate={onScoreUpdate}
           onRoomCodeChange={code => onChatSessionIdChange(code || null)}
           onMoveHistoryChange={onChessMoveHistoryChange}
@@ -141,6 +146,7 @@ export default function GameArea({
               moves={chessMoveHistory}
               title="Historial de jugadas"
               emptyMessage="Aún no hay movimientos"
+              chessPairs
             />
           </div>
         </div>

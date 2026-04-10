@@ -16,6 +16,8 @@ import Profile from './pages/Profile';
 import Admin from './pages/Admin';
 import UploadGame from './pages/UploadGame';
 import CompanyDashboard from './pages/CompanyDashboard';
+import Tournaments from './pages/Tournaments';
+import TournamentDetail from './pages/TournamentDetail';
 import UserSanctionOverlay from './components/UserSanctionOverlay';
 
 const AppRoutes = () => {
@@ -42,6 +44,8 @@ const AppRoutes = () => {
         <Route path="/admin" element={<Layout><Admin /></Layout>} />
         <Route path="/upload-game" element={<Layout><UploadGame /></Layout>} />
         <Route path="/company-dashboard" element={<Layout><CompanyDashboard /></Layout>} />
+        <Route path="/tournaments" element={<Layout><Tournaments /></Layout>} />
+        <Route path="/tournaments/:id" element={<Layout><TournamentDetail /></Layout>} />
         <Route path="*" element={<PageNotFound />} />
       </Routes>
     </>

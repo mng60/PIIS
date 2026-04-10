@@ -1,11 +1,12 @@
 import React, { useRef, useState, useEffect } from "react";
 import { getFavorites } from "@/api/favorites";
 import { getUserScores } from "@/api/scores";
+import { getUserEloStats } from "@/api/elo";
 import { updateMe, changePassword } from "@/api/users";
 import { useAuth } from "@/lib/AuthContext";
 import { useQuery } from "@tanstack/react-query";
 import {
-  Loader2, User, Mail, Calendar, Trophy, Heart, Gamepad2, Edit2, Save, Camera, Lock, MoreVertical,
+  Loader2, User, Mail, Calendar, Trophy, Heart, Gamepad2, Edit2, Save, Camera, Lock, MoreVertical, TrendingUp,
 } from "lucide-react";
 import {
   DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger,
@@ -25,6 +26,7 @@ import UserAchievementsSection from "@/components/games/UserAchievementsSection"
 import { toast } from "sonner";
 import { getLevelFromXP, getNextLevel, getLevelProgress } from "@/lib/levels";
 import { evaluateMedals } from "@/lib/medals";
+import { getEloRank } from "@/lib/eloRanks";
 
 export default function Profile() {
   const { user, isLoadingAuth, updateUserData, refreshUser } = useAuth();
@@ -50,6 +52,12 @@ export default function Profile() {
   const { data: scores = [] } = useQuery({
     queryKey: ["userScores", user?.email],
     queryFn: () => getUserScores(user.email),
+    enabled: !!user,
+  });
+
+  const { data: eloStats = [] } = useQuery({
+    queryKey: ["userEloStats", user?.email],
+    queryFn: () => getUserEloStats(user.email),
     enabled: !!user,
   });
 
@@ -371,6 +379,33 @@ export default function Profile() {
           )}
         </CardContent>
       </Card>
+
+      {eloStats.length > 0 && (
+        <Card className="bg-white/5 border-white/10 mb-6">
+          <CardHeader>
+            <CardTitle className="text-white flex items-center gap-2">
+              <TrendingUp className="w-5 h-5 text-cyan-400" />
+              Mi ELO
+            </CardTitle>
+          </CardHeader>
+          <CardContent>
+            <div className="max-h-[336px] overflow-y-auto space-y-3 pr-1 [&::-webkit-scrollbar]:hidden [scrollbar-width:none]">
+              {eloStats.map((stat) => {
+                const rank = getEloRank(stat.elo_rating);
+                return (
+                  <div key={stat.id} className="flex items-center justify-between p-3 bg-white/5 rounded-lg">
+                    <div>
+                      <p className="font-medium text-white">{stat.game_title ?? 'Juego'}</p>
+                      <p className="text-xs font-semibold" style={{ color: rank.color }}>{rank.label}</p>
+                    </div>
+                    <span className="text-xl font-bold font-mono" style={{ color: rank.color }}>{stat.elo_rating}</span>
+                  </div>
+                );
+              })}
+            </div>
+          </CardContent>
+        </Card>
+      )}
 
       <Card className="bg-white/5 border-white/10">
         <CardHeader>
