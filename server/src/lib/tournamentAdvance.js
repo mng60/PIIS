@@ -210,13 +210,14 @@ export async function advanceTournamentMatch(matchId, winnerEmail) {
     data: { winner_email: winnerEmail, status: 'finished' },
   });
 
-  // Check if this is the final
+  // Check if this is the final by calculating expected rounds from Round 1 count
   const bracketMatches = await prisma.tournamentMatch.findMany({
     where: { tournament_id: match.tournament_id, bracket_name: match.bracket_name },
   });
-  const maxRound = Math.max(...bracketMatches.map(m => m.round));
+  const round1Count = bracketMatches.filter(m => m.round === 1).length;
+  const numRounds = round1Count > 0 ? Math.ceil(Math.log2(round1Count * 2)) : 1;
 
-  if (match.round === maxRound) {
+  if (match.round >= numRounds) {
     await checkTournamentComplete(tournament);
     return;
   }

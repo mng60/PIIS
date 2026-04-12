@@ -1,5 +1,5 @@
-import { useState, useEffect } from 'react';
-import { Link, useParams, useSearchParams } from 'react-router-dom';
+import { useState, useEffect, useRef } from 'react';
+import { Link, useParams, useSearchParams, useNavigate } from 'react-router-dom';
 import { useAuth } from '@/lib/AuthContext';
 import { useQueryClient, useQuery } from '@tanstack/react-query';
 import { Loader2, Gamepad, Trophy, MessageSquare, TrendingUp } from 'lucide-react';
@@ -25,8 +25,11 @@ export default function GameDetail() {
   const ageKey = user ? `playcraft_age_${user.email}_${gameId}` : null;
   const queryClient = useQueryClient();
 
+  const navigate = useNavigate();
   const [searchParams] = useSearchParams();
   const tournamentRoom = searchParams.get('room') || null;
+  const tournamentId = searchParams.get('tournament') || null;
+  const tournamentRedirectRef = useRef(false);
 
   const { game, gameLoading, scores, comments, refetchComments, isFavorite, toggleFavorite, invalidateGame } =
     useGameDetail(gameId, user);
@@ -176,6 +179,12 @@ export default function GameDetail() {
     checkNewMedals(prevMedalIds, newXp, ((achievementToasts ?? 0) + (leveledUp ? 1 : 0)) * 3000);
     queryClient.invalidateQueries(['userAchievements', user.email]);
     queryClient.invalidateQueries(['userAchievementsAll', user.email]);
+
+    if (tournamentId && !tournamentRedirectRef.current) {
+      tournamentRedirectRef.current = true;
+      toast.info('Redirigiendo al torneo en 10 segundos...', { duration: 10000 });
+      setTimeout(() => navigate(`/tournaments/${tournamentId}`), 10000);
+    }
   };
 
   const handleShare = () => {
