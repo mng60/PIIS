@@ -20,6 +20,8 @@ import { Textarea } from "@/components/ui/textarea";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Link } from "react-router-dom";
+import { format } from "date-fns";
+import { es } from "date-fns/locale";
 import UserAchievementsSection from "@/components/games/UserAchievementsSection";
 import { toast } from "sonner";
 import { getLevelFromXP, getNextLevel, getLevelProgress } from "@/lib/levels";
