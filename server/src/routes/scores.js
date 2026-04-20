@@ -30,7 +30,7 @@ router.get('/', async (req, res) => {
     const gameIds = stats.map(s => s.game_id);
     const games = await prisma.game.findMany({
       where: { id: { in: gameIds } },
-      select: { id: true, title: true, thumbnail: true, category: true },
+      select: { id: true, title: true, thumbnail: true, category: true, is_multiplayer: true },
     });
     const gameMap = Object.fromEntries(games.map(g => [g.id, g]));
     return res.json(stats.map(s => ({
@@ -38,6 +38,7 @@ router.get('/', async (req, res) => {
       game_title: gameMap[s.game_id]?.title ?? 'Juego desconocido',
       game_thumbnail: gameMap[s.game_id]?.thumbnail ?? null,
       game_category: gameMap[s.game_id]?.category ?? null,
+      game_is_multiplayer: gameMap[s.game_id]?.is_multiplayer ?? false,
     })));
   }
 

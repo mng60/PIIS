@@ -67,7 +67,7 @@ router.get('/:email', requireAuth, async (req, res) => {
   const games = gameIds.length > 0
     ? await prisma.game.findMany({
         where: { id: { in: gameIds } },
-        select: { id: true, title: true, thumbnail: true, category: true },
+        select: { id: true, title: true, thumbnail: true, category: true, is_multiplayer: true },
       })
     : [];
   const gameMap = Object.fromEntries(games.map(g => [g.id, g]));
