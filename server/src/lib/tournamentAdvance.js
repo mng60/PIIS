@@ -263,7 +263,11 @@ export async function advanceTournamentMatch(matchId, winnerEmail) {
     const code = await createMatchRoom(nextMatch, tournament.game_id);
     await prisma.tournamentMatch.update({
       where: { id: nextMatch.id },
-      data: { room_code: code, status: 'playing' },
+      data: {
+        room_code: code,
+        status: 'playing',
+        forfeit_after: new Date(Date.now() + 2 * 60 * 1000),
+      },
     });
   }
 }

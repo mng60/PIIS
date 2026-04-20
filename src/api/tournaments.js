@@ -10,3 +10,5 @@ export const deleteTournament     = (id)           => api.delete(`/tournaments/$
 export const joinTournament       = (id)           => api.post(`/tournaments/${id}/join`);
 export const leaveTournament      = (id)           => api.delete(`/tournaments/${id}/join`);
 export const activateTournament   = (id)           => api.post(`/tournaments/${id}/activate`);
+export const getMyActiveMatch     = ()             => api.get('/tournaments/my-active-match');
+export const checkinMatch         = (room_code)    => api.post('/tournaments/matches/checkin', { room_code });

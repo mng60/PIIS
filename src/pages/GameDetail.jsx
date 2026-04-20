@@ -2,7 +2,7 @@ import { useState, useEffect, useRef } from 'react';
 import { Link, useParams, useSearchParams, useNavigate } from 'react-router-dom';
 import { useAuth } from '@/lib/AuthContext';
 import { useQueryClient, useQuery } from '@tanstack/react-query';
-import { Loader2, Gamepad, Trophy, MessageSquare, TrendingUp } from 'lucide-react';
+import { Loader2, Gamepad, Trophy, MessageSquare, TrendingUp, Clock } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { toast } from 'sonner';
 import { useGameDetail } from '@/hooks/useGameDetail';
@@ -18,6 +18,41 @@ import { submitScore, recordGamePlay, getUserGameScores, getUserScores } from '@
 import { getEloLeaderboard } from '@/api/elo';
 import { getLevelFromXP } from '@/lib/levels';
 import { evaluateMedals } from '@/lib/medals';
+import { checkinMatch } from '@/api/tournaments';
+
+// ─── Banner de espera de oponente con countdown ───────────────────────────────
+
+function WaitingForfeitBanner({ forfeitAt, onExpire }) {
+  const [secsLeft, setSecsLeft] = useState(() =>
+    Math.max(0, Math.floor((forfeitAt - Date.now()) / 1000))
+  );
+
+  useEffect(() => {
+    if (secsLeft <= 0) { onExpire(); return; }
+    const id = setInterval(() => {
+      setSecsLeft(prev => {
+        if (prev <= 1) { clearInterval(id); onExpire(); return 0; }
+        return prev - 1;
+      });
+    }, 1000);
+    return () => clearInterval(id);
+  }, []);
+
+  const mm = String(Math.floor(secsLeft / 60)).padStart(2, '0');
+  const ss = String(secsLeft % 60).padStart(2, '0');
+
+  return (
+    <div className="flex items-center gap-3 px-4 py-3 rounded-lg border border-yellow-500/30 bg-yellow-500/10 text-sm">
+      <Clock className="w-4 h-4 text-yellow-400 flex-shrink-0" />
+      <span className="text-yellow-300">
+        Tu oponente aún no ha llegado. Si no aparece en{' '}
+        <span className="font-mono font-bold">{mm}:{ss}</span>, serás declarado ganador.
+      </span>
+    </div>
+  );
+}
+
+// ─── Main page ────────────────────────────────────────────────────────────────
 
 export default function GameDetail() {
   const { id: gameId } = useParams();
@@ -53,6 +88,8 @@ export default function GameDetail() {
   const [ageGateOpen,     setAgeGateOpen]      = useState(false);
   const [pendingStart,    setPendingStart]     = useState(false);
   const [chessMoveHistory, setChessMoveHistory] = useState([]);
+  const [forfeitAt,       setForfeitAt]        = useState(null);
+  const [waitingOpponent, setWaitingOpponent]  = useState(false);
 
   useEffect(() => {
     if (tournamentRoom && game) {
@@ -60,6 +97,19 @@ export default function GameDetail() {
       invalidateGame();
     }
   }, [!!tournamentRoom, !!game]);
+
+  // Checkin de sala de torneo + obtener deadline de forfeit
+  useEffect(() => {
+    if (!tournamentRoom || !user) return;
+    checkinMatch(tournamentRoom)
+      .then(data => {
+        if (data?.ok) {
+          setWaitingOpponent(data.waiting_for_opponent);
+          if (data.forfeit_at) setForfeitAt(new Date(data.forfeit_at));
+        }
+      })
+      .catch(() => {});
+  }, [tournamentRoom, user?.email]);
 
   const doStart = async () => {
     const now = Date.now();
@@ -182,8 +232,21 @@ export default function GameDetail() {
 
     if (tournamentId && !tournamentRedirectRef.current) {
       tournamentRedirectRef.current = true;
-      toast.info('Redirigiendo al torneo en 10 segundos...', { duration: 10000 });
-      setTimeout(() => navigate(`/tournaments/${tournamentId}`), 10000);
+      let remaining = 10;
+      const toastId = 'tournament-redirect';
+      const updateToast = () =>
+        toast.info(`Redirigiendo al torneo en ${remaining}s...`, { id: toastId, duration: Infinity });
+      updateToast();
+      const iv = setInterval(() => {
+        remaining--;
+        if (remaining > 0) {
+          updateToast();
+        } else {
+          clearInterval(iv);
+          toast.dismiss(toastId);
+          navigate(`/tournaments/${tournamentId}`);
+        }
+      }, 1000);
     }
   };
 
@@ -224,6 +287,9 @@ export default function GameDetail() {
       />
 
       <div className="space-y-6">
+        {waitingOpponent && forfeitAt && (
+          <WaitingForfeitBanner forfeitAt={forfeitAt} onExpire={() => setWaitingOpponent(false)} />
+        )}
         <GameHeader
           game={game}
           user={user}

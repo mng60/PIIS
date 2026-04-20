@@ -1,5 +1,5 @@
-import { useState } from "react";
-import { useParams, useNavigate, Link } from "react-router-dom";
+import { useState, useEffect, useRef } from "react";
+import { useParams, useNavigate, Link, useSearchParams } from "react-router-dom";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
 import {
   getTournament, getParticipants, getMatches,
@@ -194,6 +194,9 @@ export default function TournamentDetail() {
   const { user } = useAuth();
   const queryClient = useQueryClient();
   const navigate = useNavigate();
+  const [searchParams] = useSearchParams();
+  const autoplay = searchParams.get('autoplay') === '1';
+  const autoRedirectFiredRef = useRef(false);
   const [joining, setJoining] = useState(false);
   const [leaving, setLeaving] = useState(false);
 
@@ -214,6 +217,21 @@ export default function TournamentDetail() {
   });
 
   const isEnrolled = user && participants.some(p => p.user_email === user.email);
+
+  // Cuando se llega desde la notificación (?autoplay=1), redirigir directamente a la sala
+  const myPlayingMatch = user ? matches.find(
+    m => (m.player1_email === user.email || m.player2_email === user.email) && m.status === 'playing' && m.room_code
+  ) : null;
+
+  useEffect(() => {
+    if (!autoplay || !myPlayingMatch || !tournament || autoRedirectFiredRef.current) return;
+    autoRedirectFiredRef.current = true;
+    toast.info('Redirigiendo a tu sala del torneo...', { duration: 2000 });
+    const t = setTimeout(() => {
+      navigate(`/games/${tournament.game_id}?room=${myPlayingMatch.room_code}&tournament=${id}`);
+    }, 1500);
+    return () => clearTimeout(t);
+  }, [autoplay, myPlayingMatch?.id, tournament?.id]);
 
   const handleJoin = async () => {
     setJoining(true);
@@ -269,6 +287,19 @@ export default function TournamentDetail() {
     m => (m.player1_email === user.email || m.player2_email === user.email) && m.status === "playing"
   ) : [];
 
+  // Winners per bracket (only when tournament is finished)
+  const bracketWinners = tournament.status === "finished"
+    ? bracketNames.map(bracket => {
+        const bMatches = matches.filter(m => m.bracket_name === bracket && m.status === "finished");
+        if (!bMatches.length) return null;
+        const maxRound = Math.max(...bMatches.map(m => m.round));
+        const final = bMatches.find(m => m.round === maxRound && m.winner_email);
+        if (!final) return null;
+        const winnerName = final.winner_email === final.player1_email ? final.player1_name : final.player2_name;
+        return { bracket, winnerName, winnerEmail: final.winner_email, isUser: final.winner_email === user?.email };
+      }).filter(Boolean)
+    : [];
+
   return (
     <div className="max-w-5xl mx-auto px-4 py-8">
       {/* Back */}
@@ -276,6 +307,32 @@ export default function TournamentDetail() {
         <ArrowLeft className="w-4 h-4" />
         Todos los torneos
       </Link>
+
+      {/* Winners banner */}
+      {bracketWinners.length > 0 && (
+        <Card className="bg-gradient-to-br from-yellow-900/30 to-amber-900/20 border-yellow-500/30 mb-6">
+          <CardContent className="p-5">
+            <h3 className="text-yellow-400 font-bold text-base mb-4 flex items-center gap-2">
+              <Trophy className="w-5 h-5" />
+              {bracketWinners.length === 1 ? "Campeón del torneo" : "Campeones del torneo"}
+            </h3>
+            <div className="space-y-2">
+              {bracketWinners.map(w => (
+                <div key={w.bracket} className="flex items-center justify-between py-2 px-3 rounded-lg bg-yellow-500/10 border border-yellow-500/20">
+                  <span className="text-gray-400 text-sm">Bracket {w.bracket}</span>
+                  <div className="flex items-center gap-2">
+                    {w.isUser && <span className="text-xs text-yellow-300 bg-yellow-500/20 px-2 py-0.5 rounded-full">¡Eres tú!</span>}
+                    <span className={`font-bold text-sm ${w.isUser ? "text-yellow-300" : "text-white"}`}>
+                      {w.winnerName}
+                    </span>
+                    <Crown className="w-4 h-4 text-yellow-400" />
+                  </div>
+                </div>
+              ))}
+            </div>
+          </CardContent>
+        </Card>
+      )}
 
       {/* Header */}
       <Card className="bg-gradient-to-br from-purple-900/30 to-cyan-900/30 border-white/10 mb-6">

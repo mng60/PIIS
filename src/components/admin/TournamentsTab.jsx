@@ -27,12 +27,24 @@ import { toast } from "sonner";
 
 const DEFAULT_ELO_POINTS = "[100,40,10,10,-15,-15,-25,-25]";
 
+const ROOM_TIME_OPTIONS = [
+  { value: "", label: "Sin límite de tiempo" },
+  { value: "15",  label: "15 minutos" },
+  { value: "30",  label: "30 minutos" },
+  { value: "45",  label: "45 minutos" },
+  { value: "60",  label: "1 hora" },
+  { value: "90",  label: "1 hora 30 min" },
+  { value: "120", label: "2 horas" },
+  { value: "180", label: "3 horas" },
+];
+
 const EMPTY_FORM = {
-  title: "", game_id: "", description: "", prize: "", thumbnail: "",
+  title: "", game_id: "", description: "", thumbnail: "",
   max_participants: "", start_date: "", end_date: "", status: "upcoming",
   elo_min: "", elo_max: "",
   position_elo_points: DEFAULT_ELO_POINTS,
   tournament_k_multiplier: "1.5",
+  room_time_minutes: "",
 };
 
 const STATUS_LABELS = {
@@ -101,9 +113,14 @@ function TournamentForm({ initial, games, onSave, onCancel, saving, onlyOwnGames
         </div>
 
         <div className="space-y-1.5">
-          <Label className="text-gray-300 text-sm">Premio</Label>
-          <Input value={form.prize} onChange={e => f("prize", e.target.value)}
-            placeholder="ej. 100€ o Trofeo digital" className="bg-white/5 border-white/10 text-white placeholder:text-gray-600" />
+          <Label className="text-gray-300 text-sm">Tiempo de sala</Label>
+          <select value={form.room_time_minutes} onChange={e => f("room_time_minutes", e.target.value)}
+            className="w-full h-10 px-3 rounded-md bg-white/5 border border-white/10 text-white text-sm focus:outline-none focus:border-purple-500">
+            {ROOM_TIME_OPTIONS.map(o => (
+              <option key={o.value} value={o.value} className="bg-[#0f0f18]">{o.label}</option>
+            ))}
+          </select>
+          <p className="text-xs text-gray-600">Tiempo máximo por partida antes de expirar la sala</p>
         </div>
 
         <div className="space-y-1.5">
@@ -278,6 +295,7 @@ export default function TournamentsTab({ filterByOwner, onlyOwnGames }) {
         elo_min: form.elo_min ? parseInt(form.elo_min) : null,
         elo_max: form.elo_max ? parseInt(form.elo_max) : null,
         tournament_k_multiplier: parseFloat(form.tournament_k_multiplier) || 1.5,
+        room_time_minutes: form.room_time_minutes ? parseInt(form.room_time_minutes) : null,
       };
       await createTournament(payload);
       invalidate();
@@ -299,6 +317,7 @@ export default function TournamentsTab({ filterByOwner, onlyOwnGames }) {
         elo_min: form.elo_min ? parseInt(form.elo_min) : null,
         elo_max: form.elo_max ? parseInt(form.elo_max) : null,
         tournament_k_multiplier: parseFloat(form.tournament_k_multiplier) || 1.5,
+        room_time_minutes: form.room_time_minutes ? parseInt(form.room_time_minutes) : null,
       };
       await updateTournament(editingTournament.id, payload);
       invalidate();
@@ -390,6 +409,7 @@ export default function TournamentsTab({ filterByOwner, onlyOwnGames }) {
                   elo_max: editingTournament.elo_max ?? "",
                   position_elo_points: editingTournament.position_elo_points ?? DEFAULT_ELO_POINTS,
                   tournament_k_multiplier: editingTournament.tournament_k_multiplier ?? "1.5",
+                  room_time_minutes: editingTournament.room_time_minutes ?? "",
                 }}
                 games={games}
                 onlyOwnGames={onlyOwnGames}
@@ -420,7 +440,7 @@ export default function TournamentsTab({ filterByOwner, onlyOwnGames }) {
                     <TableHead className="text-gray-400">Fin</TableHead>
                     <TableHead className="text-gray-400">Estado</TableHead>
                     <TableHead className="text-gray-400">Jugadores</TableHead>
-                    <TableHead className="text-gray-400">Premio</TableHead>
+                    <TableHead className="text-gray-400">T. sala</TableHead>
                     <TableHead className="text-gray-400">Acciones</TableHead>
                   </TableRow>
                 </TableHeader>
@@ -450,7 +470,9 @@ export default function TournamentsTab({ filterByOwner, onlyOwnGames }) {
                             {t.participant_count ?? "—"}
                           </button>
                         </TableCell>
-                        <TableCell className="text-gray-300 text-sm">{t.prize || "—"}</TableCell>
+                        <TableCell className="text-gray-300 text-sm">
+                          {t.room_time_minutes ? `${t.room_time_minutes} min` : "Sin límite"}
+                        </TableCell>
                         <TableCell>
                           <div className="flex gap-1">
                             {t.status === "upcoming" && (

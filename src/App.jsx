@@ -19,6 +19,7 @@ import CompanyDashboard from './pages/CompanyDashboard';
 import Tournaments from './pages/Tournaments';
 import TournamentDetail from './pages/TournamentDetail';
 import UserSanctionOverlay from './components/UserSanctionOverlay';
+import TournamentActiveAlert from './components/TournamentActiveAlert';
 
 const AppRoutes = () => {
   const { isLoadingAuth } = useAuth();
@@ -34,6 +35,7 @@ const AppRoutes = () => {
   return (
     <>
       <UserSanctionOverlay />
+      <TournamentActiveAlert />
       <Routes>
         <Route path="/login" element={<Login />} />
         <Route path="/" element={<Layout><Home /></Layout>} />

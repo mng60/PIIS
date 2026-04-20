@@ -144,6 +144,8 @@ model Tournament {
   elo_max               Int?              // ELO máximo para inscribirse (null = sin restricción)
   position_elo_points   String?           // JSON: puntos ELO por posición final, ej "[100,40,10,10,-15,-15,-25,-25]"
   tournament_k_multiplier Float           @default(1.5) // multiplicador del K-factor para partidas del torneo
+  activated_at          DateTime?
+  room_time_minutes     Int?              // Duración máxima de cada sala en minutos (null = sin límite)
   created_at            DateTime          @default(now())
   updated_at            DateTime          @updatedAt
 }
@@ -161,20 +163,23 @@ model TournamentParticipant {
 }
 
 model TournamentMatch {
-  id              String      @id @default(cuid())
-  tournament_id   String
-  bracket_name    String
-  round           Int
-  match_index     Int
-  player1_email   String?
-  player1_name    String?
-  player2_email   String?
-  player2_name    String?
-  winner_email    String?
-  room_code       String?
-  status          MatchStatus @default(pending)
-  created_at      DateTime    @default(now())
-  updated_at      DateTime    @updatedAt
+  id                  String      @id @default(cuid())
+  tournament_id       String
+  bracket_name        String
+  round               Int
+  match_index         Int
+  player1_email       String?
+  player1_name        String?
+  player2_email       String?
+  player2_name        String?
+  winner_email        String?
+  room_code           String?
+  status              MatchStatus @default(pending)
+  player1_joined_at   DateTime?
+  player2_joined_at   DateTime?
+  forfeit_after       DateTime?
+  created_at          DateTime    @default(now())
+  updated_at          DateTime    @updatedAt
 
   @@index([tournament_id])
   @@index([room_code])

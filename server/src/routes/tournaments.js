@@ -2,6 +2,7 @@ import { Router } from 'express';
 import { PrismaClient } from '@prisma/client';
 import { requireAuth } from '../middleware/auth.js';
 import { advanceTournamentMatch, createMatchRoomForTournament } from '../lib/tournamentAdvance.js';
+import { activateTournamentById } from '../lib/tournamentScheduler.js';
 
 const router = Router();
 const prisma = new PrismaClient();
@@ -64,6 +65,78 @@ router.get('/', async (req, res) => {
   } catch (err) {
     console.error(err);
     res.status(500).json({ error: 'Error al obtener torneos' });
+  }
+});
+
+// ─── GET /api/tournaments/my-active-match ────────────────────────────────────
+router.get('/my-active-match', requireAuth, async (req, res) => {
+  try {
+    const userEmail = req.user.email;
+
+    const match = await prisma.tournamentMatch.findFirst({
+      where: {
+        status: 'playing',
+        OR: [{ player1_email: userEmail }, { player2_email: userEmail }],
+        tournament: { status: 'active' },
+      },
+      orderBy: { created_at: 'desc' },
+    });
+
+    if (!match) return res.json(null);
+
+    const tournament = await prisma.tournament.findUnique({
+      where: { id: match.tournament_id },
+      select: { id: true, title: true, game_id: true, activated_at: true },
+    });
+
+    const game = await prisma.game.findUnique({
+      where: { id: tournament.game_id },
+      select: { id: true, title: true },
+    });
+
+    res.json({ match, tournament, game });
+  } catch (err) {
+    console.error(err);
+    res.status(500).json({ error: 'Error al obtener partida activa' });
+  }
+});
+
+// ─── POST /api/tournaments/matches/checkin ────────────────────────────────────
+router.post('/matches/checkin', requireAuth, async (req, res) => {
+  try {
+    const { room_code } = req.body;
+    if (!room_code) return res.status(400).json({ error: 'room_code requerido' });
+
+    const match = await prisma.tournamentMatch.findFirst({
+      where: { room_code, status: 'playing' },
+    });
+    if (!match) return res.json({ ok: false });
+
+    const userEmail = req.user.email;
+    const isP1 = match.player1_email === userEmail;
+    const isP2 = match.player2_email === userEmail;
+    if (!isP1 && !isP2) return res.json({ ok: false });
+
+    const now = new Date();
+    const updateData = {};
+    if (isP1 && !match.player1_joined_at) updateData.player1_joined_at = now;
+    if (isP2 && !match.player2_joined_at) updateData.player2_joined_at = now;
+
+    let updatedMatch = match;
+    if (Object.keys(updateData).length > 0) {
+      updatedMatch = await prisma.tournamentMatch.update({ where: { id: match.id }, data: updateData });
+    }
+
+    const opponentJoined = isP1 ? updatedMatch.player2_joined_at !== null : updatedMatch.player1_joined_at !== null;
+
+    res.json({
+      ok: true,
+      waiting_for_opponent: !opponentJoined,
+      forfeit_at: match.forfeit_after ? match.forfeit_after.toISOString() : null,
+    });
+  } catch (err) {
+    console.error(err);
+    res.status(500).json({ error: 'Error en checkin' });
   }
 });
 
@@ -246,95 +319,13 @@ router.post('/:id/activate', requireAuth, async (req, res) => {
     if (!canManage(req.user, tournament)) return res.status(403).json({ error: 'Sin permisos' });
     if (tournament.status !== 'upcoming') return res.status(400).json({ error: 'El torneo ya fue activado o finalizado' });
 
-    const participants = await prisma.tournamentParticipant.findMany({
-      where: { tournament_id: tournament.id },
-      orderBy: { elo_at_signup: 'desc' },
-    });
+    const count = await prisma.tournamentParticipant.count({ where: { tournament_id: tournament.id } });
+    if (count < 4) return res.status(400).json({ error: 'Se necesitan mínimo 4 participantes para iniciar el torneo' });
 
-    if (participants.length < 4) {
-      return res.status(400).json({ error: 'Se necesitan mínimo 4 participantes para iniciar el torneo' });
-    }
+    const result = await activateTournamentById(tournament.id);
+    if (!result) return res.status(400).json({ error: 'No se pudo activar el torneo' });
 
-    // Agrupar por bracket
-    const brackets = {};
-    for (const p of participants) {
-      if (!brackets[p.bracket_name]) brackets[p.bracket_name] = [];
-      brackets[p.bracket_name].push(p);
-    }
-
-    let totalMatches = 0;
-
-    for (const [bracketName, players] of Object.entries(brackets)) {
-      if (players.length < 2) continue;
-
-      players.sort((a, b) => b.elo_at_signup - a.elo_at_signup);
-      const n = players.length;
-      const bracketSize = Math.pow(2, Math.ceil(Math.log2(Math.max(n, 2))));
-      const seeds = getSeeds(bracketSize);
-      const numMatches = bracketSize / 2;
-
-      const round1Matches = [];
-
-      for (let i = 0; i < numMatches; i++) {
-        const s1 = seeds[i * 2] - 1;
-        const s2 = seeds[i * 2 + 1] - 1;
-        const p1 = players[s1] ?? null;
-        const p2 = players[s2] ?? null;
-
-        if (!p1 && !p2) continue;
-
-        const isBye = !p1 || !p2;
-        const actualP1 = p1 || p2;
-        const actualP2 = p1 ? p2 : null;
-
-        let room_code = null;
-        if (!isBye && actualP1 && actualP2) {
-          room_code = await createMatchRoomForTournament(
-            {
-              player1_email: actualP1.user_email,
-              player1_name: actualP1.user_name,
-              player2_email: actualP2.user_email,
-              player2_name: actualP2.user_name,
-            },
-            tournament.game_id
-          );
-        }
-
-        const match = await prisma.tournamentMatch.create({
-          data: {
-            tournament_id: tournament.id,
-            bracket_name: bracketName,
-            round: 1,
-            match_index: i,
-            player1_email: actualP1?.user_email || null,
-            player1_name: actualP1?.user_name || null,
-            player2_email: actualP2?.user_email || null,
-            player2_name: actualP2?.user_name || null,
-            room_code,
-            status: isBye ? 'bye' : 'playing',
-          },
-        });
-
-        round1Matches.push(match);
-        totalMatches++;
-      }
-
-      // Procesar byes inmediatamente
-      for (const match of round1Matches) {
-        if (match.status === 'bye') {
-          const winner = match.player1_email || match.player2_email;
-          if (winner) await advanceTournamentMatch(match.id, winner);
-        }
-      }
-    }
-
-    await prisma.tournament.update({ where: { id: tournament.id }, data: { status: 'active' } });
-
-    res.json({
-      message: 'Torneo iniciado correctamente',
-      brackets: Object.keys(brackets).length,
-      matches: totalMatches,
-    });
+    res.json({ message: 'Torneo iniciado correctamente', ...result });
   } catch (err) {
     console.error(err);
     res.status(500).json({ error: 'Error al activar el torneo' });

@@ -1,6 +1,7 @@
 import 'dotenv/config';
 import express from 'express';
 import cors from 'cors';
+import { startSchedulers } from './lib/tournamentScheduler.js';
 
 import authRoutes from './routes/auth.js';
 import gamesRoutes from './routes/games.js';
@@ -58,4 +59,7 @@ app.use('/api/tickets', ticketsRoutes);
 
 app.get('/api/health', (_req, res) => res.json({ ok: true }));
 
-app.listen(PORT, () => console.log(`API running on http://localhost:${PORT}`));
+app.listen(PORT, () => {
+  console.log(`API running on http://localhost:${PORT}`);
+  startSchedulers();
+});
