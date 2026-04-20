@@ -60,6 +60,18 @@ const BRACKET_COLORS = {
   Principiante: "text-gray-400",
 };
 
+// ─── Helpers de fecha local ───────────────────────────────────────────────────
+
+function toLocalDatetime(date) {
+  const d = typeof date === 'string' ? new Date(date) : date;
+  const pad = n => String(n).padStart(2, '0');
+  return `${d.getFullYear()}-${pad(d.getMonth() + 1)}-${pad(d.getDate())}T${pad(d.getHours())}:${pad(d.getMinutes())}`;
+}
+
+function nowLocalDatetime() {
+  return toLocalDatetime(new Date());
+}
+
 // ─── TournamentForm ───────────────────────────────────────────────────────────
 
 function TournamentForm({ initial, games, onSave, onCancel, saving, onlyOwnGames }) {
@@ -74,10 +86,19 @@ function TournamentForm({ initial, games, onSave, onCancel, saving, onlyOwnGames
       toast.error("Título, juego y fechas son obligatorios");
       return;
     }
+    if (new Date(form.start_date) < new Date()) {
+      toast.error("La fecha de inicio no puede ser en el pasado");
+      return;
+    }
+    if (new Date(form.end_date) <= new Date(form.start_date)) {
+      toast.error("La fecha de fin debe ser posterior a la de inicio");
+      return;
+    }
     onSave(form);
   };
 
   const filteredGames = onlyOwnGames ? games : games;
+  const minDatetime = nowLocalDatetime();
 
   return (
     <form onSubmit={handleSubmit} className="space-y-4">
@@ -102,13 +123,15 @@ function TournamentForm({ initial, games, onSave, onCancel, saving, onlyOwnGames
 
         <div className="space-y-1.5">
           <Label className="text-gray-300 text-sm">Fecha inicio *</Label>
-          <Input type="datetime-local" value={form.start_date} onChange={e => f("start_date", e.target.value)}
+          <Input type="datetime-local" value={form.start_date} min={minDatetime}
+            onChange={e => f("start_date", e.target.value)}
             className="bg-white/5 border-white/10 text-white" />
         </div>
 
         <div className="space-y-1.5">
           <Label className="text-gray-300 text-sm">Fecha fin *</Label>
-          <Input type="datetime-local" value={form.end_date} onChange={e => f("end_date", e.target.value)}
+          <Input type="datetime-local" value={form.end_date} min={form.start_date || minDatetime}
+            onChange={e => f("end_date", e.target.value)}
             className="bg-white/5 border-white/10 text-white" />
         </div>
 
@@ -401,9 +424,9 @@ export default function TournamentsTab({ filterByOwner, onlyOwnGames }) {
                 initial={{
                   ...editingTournament,
                   start_date: editingTournament.start_date
-                    ? new Date(editingTournament.start_date).toISOString().slice(0, 16) : "",
+                    ? toLocalDatetime(editingTournament.start_date) : "",
                   end_date: editingTournament.end_date
-                    ? new Date(editingTournament.end_date).toISOString().slice(0, 16) : "",
+                    ? toLocalDatetime(editingTournament.end_date) : "",
                   max_participants: editingTournament.max_participants ?? "",
                   elo_min: editingTournament.elo_min ?? "",
                   elo_max: editingTournament.elo_max ?? "",

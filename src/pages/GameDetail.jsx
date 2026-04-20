@@ -98,17 +98,21 @@ export default function GameDetail() {
     }
   }, [!!tournamentRoom, !!game]);
 
-  // Checkin de sala de torneo + obtener deadline de forfeit
+  // Checkin periódico: marca presencia y detecta cuando llega el rival
   useEffect(() => {
     if (!tournamentRoom || !user) return;
-    checkinMatch(tournamentRoom)
-      .then(data => {
-        if (data?.ok) {
-          setWaitingOpponent(data.waiting_for_opponent);
-          if (data.forfeit_at) setForfeitAt(new Date(data.forfeit_at));
-        }
-      })
-      .catch(() => {});
+    const doCheckin = () =>
+      checkinMatch(tournamentRoom)
+        .then(data => {
+          if (data?.ok) {
+            setWaitingOpponent(data.waiting_for_opponent);
+            setForfeitAt(data.forfeit_at ? new Date(data.forfeit_at) : null);
+          }
+        })
+        .catch(() => {});
+    doCheckin();
+    const iv = setInterval(doCheckin, 10_000);
+    return () => clearInterval(iv);
   }, [tournamentRoom, user?.email]);
 
   const doStart = async () => {

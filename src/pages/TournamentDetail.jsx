@@ -356,9 +356,9 @@ export default function TournamentDetail() {
               <div className="flex flex-wrap gap-4 text-sm text-gray-400">
                 <span className="flex items-center gap-1.5">
                   <Calendar className="w-4 h-4" />
-                  {tournament.start_date ? format(new Date(tournament.start_date), "d MMM yyyy", { locale: es }) : "—"}
+                  {tournament.start_date ? format(new Date(tournament.start_date), "d MMM yyyy 'a las' HH:mm", { locale: es }) : "—"}
                   {" → "}
-                  {tournament.end_date ? format(new Date(tournament.end_date), "d MMM yyyy", { locale: es }) : "—"}
+                  {tournament.end_date ? format(new Date(tournament.end_date), "d MMM yyyy HH:mm", { locale: es }) : "—"}
                 </span>
                 <span className="flex items-center gap-1.5">
                   <Users className="w-4 h-4" />

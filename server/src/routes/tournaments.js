@@ -73,11 +73,16 @@ router.get('/my-active-match', requireAuth, async (req, res) => {
   try {
     const userEmail = req.user.email;
 
+    const activeTournamentIds = (await prisma.tournament.findMany({
+      where: { status: 'active' },
+      select: { id: true },
+    })).map(t => t.id);
+
     const match = await prisma.tournamentMatch.findFirst({
       where: {
         status: 'playing',
+        tournament_id: { in: activeTournamentIds },
         OR: [{ player1_email: userEmail }, { player2_email: userEmail }],
-        tournament: { status: 'active' },
       },
       orderBy: { created_at: 'desc' },
     });

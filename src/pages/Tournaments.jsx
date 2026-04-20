@@ -23,8 +23,8 @@ const TAB_LABELS = { upcoming: "Próximos", active: "En curso", finished: "Final
 
 function TournamentCard({ tournament }) {
   const status = STATUS_CONFIG[tournament.status] || STATUS_CONFIG.upcoming;
-  const start = tournament.start_date ? format(new Date(tournament.start_date), "d MMM yyyy", { locale: es }) : "—";
-  const end   = tournament.end_date   ? format(new Date(tournament.end_date),   "d MMM yyyy", { locale: es }) : "—";
+  const start = tournament.start_date ? format(new Date(tournament.start_date), "d MMM yyyy 'a las' HH:mm", { locale: es }) : "—";
+  const end   = tournament.end_date   ? format(new Date(tournament.end_date),   "d MMM yyyy HH:mm", { locale: es }) : "—";
 
   return (
     <Link to={`/tournaments/${tournament.id}`}>
