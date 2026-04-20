@@ -372,6 +372,50 @@ enum AdminAction {
   delete_content
 }
 
+// ─── Social ──────────────────────────────────────────────────────────────────
+
+model Friendship {
+  id             String           @id @default(cuid())
+  sender_email   String
+  receiver_email String
+  status         FriendshipStatus @default(pending)
+  created_at     DateTime         @default(now())
+  updated_at     DateTime         @updatedAt
+
+  @@unique([sender_email, receiver_email])
+}
+
+enum FriendshipStatus {
+  pending
+  accepted
+  rejected
+}
+
+model Block {
+  id            String   @id @default(cuid())
+  blocker_email String
+  blocked_email String
+  created_at    DateTime @default(now())
+
+  @@unique([blocker_email, blocked_email])
+}
+
+model Notification {
+  id         String           @id @default(cuid())
+  user_email String
+  type       NotificationType
+  from_email String
+  from_name  String
+  is_read    Boolean          @default(false)
+  data       Json             @default("{}")
+  created_at DateTime         @default(now())
+}
+
+enum NotificationType {
+  friend_request
+  friend_accepted
+}
+
 // ─── Password Reset Tickets ───────────────────────────────────────────────────
 
 model PasswordResetTicket {

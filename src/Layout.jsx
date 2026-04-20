@@ -14,9 +14,11 @@ import {
   Sun,
   Moon,
   Trophy,
+  Users,
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Sheet, SheetContent, SheetTrigger } from "@/components/ui/sheet";
+import NotificationsPanel from "@/components/NotificationsPanel";
 
 export default function Layout({ children }) {
   const { user, logout } = useAuth();
@@ -47,6 +49,7 @@ export default function Layout({ children }) {
   if (user) {
     if (user.role !== "admin" && user.role !== "empresa") {
       navItems.push({ name: "Favoritos", path: "/favorites", icon: Heart });
+      navItems.push({ name: "Amigos", path: "/friends", icon: Users });
     }
     navItems.push({ name: "Perfil", path: "/profile", icon: User });
     if (user.role === "admin") {
@@ -166,18 +169,7 @@ export default function Layout({ children }) {
       {/* Header */}
       <header className={`sticky top-0 z-50 border-b backdrop-blur-xl ${isDark ? "border-white/5 bg-[#0a0a0f]/80" : "border-gray-200 bg-white/90"}`}>
         <div className="max-w-7xl mx-auto px-4 py-4 flex items-center justify-between">
-          <Link to="/" className="flex items-center gap-3 group">
-            <div className="p-2 rounded-xl bg-gradient-to-br from-purple-600 to-cyan-500 neon-glow group-hover:scale-105 transition-transform">
-              <Gamepad2 className="w-6 h-6 text-white" />
-            </div>
-            <span className="text-xl font-bold bg-gradient-to-r from-purple-400 to-cyan-400 bg-clip-text text-transparent neon-text">
-              PlayCraft
-            </span>
-          </Link>
-
-          <NavLinks />
-
-          <div className="flex items-center gap-3">
+          <div className="flex items-center gap-2">
             <Button
               variant="ghost"
               size="icon"
@@ -187,6 +179,20 @@ export default function Layout({ children }) {
             >
               {isDark ? <Sun className="w-4 h-4" /> : <Moon className="w-4 h-4" />}
             </Button>
+            <Link to="/" className="flex items-center gap-3 group">
+              <div className="p-2 rounded-xl bg-gradient-to-br from-purple-600 to-cyan-500 neon-glow group-hover:scale-105 transition-transform">
+                <Gamepad2 className="w-6 h-6 text-white" />
+              </div>
+              <span className="text-xl font-bold bg-gradient-to-r from-purple-400 to-cyan-400 bg-clip-text text-transparent neon-text">
+                PlayCraft
+              </span>
+            </Link>
+          </div>
+
+          <NavLinks />
+
+          <div className="flex items-center gap-3">
+            {user && <NotificationsPanel isDark={isDark} />}
 
             {user ? (
               <div className="hidden md:flex items-center gap-3">
