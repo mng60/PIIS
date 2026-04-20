@@ -314,6 +314,8 @@ export default function TournamentsTab({ filterByOwner, onlyOwnGames }) {
     try {
       const payload = {
         ...form,
+        start_date: form.start_date ? new Date(form.start_date).toISOString() : undefined,
+        end_date:   form.end_date   ? new Date(form.end_date).toISOString()   : undefined,
         max_participants: form.max_participants ? parseInt(form.max_participants) : undefined,
         elo_min: form.elo_min ? parseInt(form.elo_min) : null,
         elo_max: form.elo_max ? parseInt(form.elo_max) : null,
@@ -336,6 +338,8 @@ export default function TournamentsTab({ filterByOwner, onlyOwnGames }) {
     try {
       const payload = {
         ...form,
+        start_date: form.start_date ? new Date(form.start_date).toISOString() : undefined,
+        end_date:   form.end_date   ? new Date(form.end_date).toISOString()   : undefined,
         max_participants: form.max_participants ? parseInt(form.max_participants) : null,
         elo_min: form.elo_min ? parseInt(form.elo_min) : null,
         elo_max: form.elo_max ? parseInt(form.elo_max) : null,
