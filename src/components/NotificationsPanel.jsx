@@ -155,7 +155,7 @@ export default function NotificationsPanel({ isDark }) {
           )}
         </div>
 
-        <div className="max-h-96 overflow-y-auto">
+        <div className="max-h-[280px] overflow-y-auto [&::-webkit-scrollbar]:hidden [scrollbar-width:none]">
           {notifications.length === 0 ? (
             <div className="py-8 text-center text-gray-500 text-sm">
               <Bell className="w-8 h-8 mx-auto mb-2 opacity-30" />

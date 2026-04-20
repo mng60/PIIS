@@ -7,6 +7,11 @@ const prisma = new PrismaClient();
 
 // GET /api/notifications — mis notificaciones (no leídas primero)
 router.get('/', requireAuth, async (req, res) => {
+  const thirtyDaysAgo = new Date(Date.now() - 30 * 24 * 60 * 60 * 1000);
+  await prisma.notification.deleteMany({
+    where: { user_email: req.user.email, is_read: true, created_at: { lt: thirtyDaysAgo } },
+  });
+
   const notifications = await prisma.notification.findMany({
     where: { user_email: req.user.email },
     orderBy: [{ is_read: 'asc' }, { created_at: 'desc' }],

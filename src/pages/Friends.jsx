@@ -44,10 +44,21 @@ export default function Friends() {
   const [searchLoading, setSearchLoading] = useState(false);
   const [pendingActions, setPendingActions] = useState({});
   const searchTimeout = useRef(null);
+  const prevUserEmail = useRef(user?.email);
 
   useEffect(() => {
     loadFriends();
   }, []);
+
+  useEffect(() => {
+    if (prevUserEmail.current !== user?.email) {
+      prevUserEmail.current = user?.email;
+      sessionStorage.removeItem(SEARCH_KEY);
+      sessionStorage.removeItem(RESULTS_KEY);
+      setSearchQuery("");
+      setSearchResults([]);
+    }
+  }, [user?.email]);
 
   useEffect(() => {
     sessionStorage.setItem(SEARCH_KEY, searchQuery);

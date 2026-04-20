@@ -308,7 +308,7 @@ export default function Profile() {
           {filteredGames.length === 0 ? (
             <p className="text-gray-500 text-center py-8">No has jugado juegos con este filtro</p>
           ) : (
-            <div className="space-y-2">
+            <div className="max-h-[256px] overflow-y-auto space-y-2 [&::-webkit-scrollbar]:hidden [scrollbar-width:none]">
               {filteredGames.map(s => (
                 <button key={s.game_id} onClick={() => setSelectedGameForAchievements(s.game_id)}
                   className="w-full flex gap-3 items-center p-3 bg-white/5 hover:bg-white/10 rounded-xl transition-colors text-left">
@@ -423,6 +423,7 @@ export default function Profile() {
         userEmail={user.email}
         externalSelectedKey={selectedGameForAchievements}
         onExternalClose={() => setSelectedGameForAchievements(null)}
+        hideCard
       />
     </div>
   );
