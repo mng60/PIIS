@@ -29,13 +29,18 @@ function XpBadge({ xp }) {
   return <span className="text-xs text-purple-400">Nv. {level} · {xp} XP</span>;
 }
 
+const SEARCH_KEY = "friends_search_query";
+const RESULTS_KEY = "friends_search_results";
+
 export default function Friends() {
   const { user } = useAuth();
   const navigate = useNavigate();
   const [friends, setFriends] = useState([]);
   const [loadingFriends, setLoadingFriends] = useState(true);
-  const [searchQuery, setSearchQuery] = useState("");
-  const [searchResults, setSearchResults] = useState([]);
+  const [searchQuery, setSearchQuery] = useState(() => sessionStorage.getItem(SEARCH_KEY) || "");
+  const [searchResults, setSearchResults] = useState(() => {
+    try { return JSON.parse(sessionStorage.getItem(RESULTS_KEY) || "[]"); } catch { return []; }
+  });
   const [searchLoading, setSearchLoading] = useState(false);
   const [pendingActions, setPendingActions] = useState({});
   const searchTimeout = useRef(null);
@@ -43,6 +48,14 @@ export default function Friends() {
   useEffect(() => {
     loadFriends();
   }, []);
+
+  useEffect(() => {
+    sessionStorage.setItem(SEARCH_KEY, searchQuery);
+  }, [searchQuery]);
+
+  useEffect(() => {
+    sessionStorage.setItem(RESULTS_KEY, JSON.stringify(searchResults));
+  }, [searchResults]);
 
   useEffect(() => {
     clearTimeout(searchTimeout.current);

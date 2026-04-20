@@ -7,6 +7,7 @@ import { useAuth } from "@/lib/AuthContext";
 import { useQuery } from "@tanstack/react-query";
 import {
   Loader2, User, Mail, Calendar, Trophy, Heart, Gamepad2, Edit2, Save, Camera, Lock, MoreVertical, TrendingUp,
+  ChevronDown, ChevronUp,
 } from "lucide-react";
 import {
   DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger,
@@ -139,12 +140,20 @@ export default function Profile() {
     );
   }
 
+  const [gamesOpen, setGamesOpen] = useState(false);
+  const [gamesFilter, setGamesFilter] = useState("all");
+
   const totalPlays      = scores.reduce((sum, s) => sum + (s.plays_count || 0), 0);
   const totalWins       = scores.reduce((sum, s) => sum + (s.wins_count || 0), 0);
   const totalTimePlayed = scores.reduce((sum, s) => sum + (s.time_played || 0), 0);
   const bestScore       = scores.length > 0 ? Math.max(...scores.map(s => s.best_score || 0)) : 0;
   const gamesPlayed     = scores.length;
   const xp              = user.xp ?? 0;
+
+  const CATEGORY_LABELS = { all: "Todos", accion: "Acción", puzzle: "Puzzle", arcade: "Arcade", estrategia: "Estrategia" };
+  const filteredGames = [...scores]
+    .filter(s => gamesFilter === "all" || s.game_category === gamesFilter)
+    .sort((a, b) => (a.game_title || "").localeCompare(b.game_title || ""));
   const currentLevel = getLevelFromXP(xp);
   const nextLevel    = getNextLevel(xp);
   const levelPct     = Math.round(getLevelProgress(xp) * 100);
@@ -266,12 +275,18 @@ export default function Profile() {
         </CardContent>
       </Card>
 
-      <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-8">
-        <Card className="bg-white/5 border-white/10">
-          <CardContent className="p-6 text-center">
+      <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-4">
+        <Card
+          className="bg-white/5 border-white/10 cursor-pointer hover:bg-white/8 transition-colors"
+          onClick={() => setGamesOpen(o => !o)}
+        >
+          <CardContent className="p-6 text-center relative">
             <Gamepad2 className="w-8 h-8 mx-auto mb-2 text-purple-400" />
-            <p className="text-3xl font-bold text-white">{totalPlays}</p>
-            <p className="text-gray-400 text-sm">Partidas jugadas</p>
+            <p className="text-3xl font-bold text-white">{gamesPlayed}</p>
+            <p className="text-gray-400 text-sm">Juegos jugados</p>
+            <div className="absolute top-3 right-3 text-gray-500">
+              {gamesOpen ? <ChevronUp className="w-4 h-4" /> : <ChevronDown className="w-4 h-4" />}
+            </div>
           </CardContent>
         </Card>
         <Card className="bg-white/5 border-white/10">
@@ -289,6 +304,52 @@ export default function Profile() {
           </CardContent>
         </Card>
       </div>
+
+      {/* Collapsible juegos jugados */}
+      {gamesOpen && (
+        <Card className="bg-white/5 border-white/10 mb-8">
+          <CardContent className="p-5">
+            {/* Filtro por categoría */}
+            <div className="flex flex-wrap gap-2 mb-4">
+              {Object.entries(CATEGORY_LABELS).map(([key, label]) => (
+                <button
+                  key={key}
+                  onClick={() => setGamesFilter(key)}
+                  className={`px-3 py-1 rounded-full text-xs font-medium transition-colors ${
+                    gamesFilter === key
+                      ? "bg-gradient-to-r from-purple-600 to-cyan-500 text-white"
+                      : "bg-white/5 text-gray-400 hover:text-white"
+                  }`}
+                >
+                  {label}
+                </button>
+              ))}
+            </div>
+            {filteredGames.length === 0 ? (
+              <p className="text-gray-500 text-center py-4">No has jugado juegos de esta categoría</p>
+            ) : (
+              <div className="space-y-3 max-h-96 overflow-y-auto pr-1 [&::-webkit-scrollbar]:hidden [scrollbar-width:none]">
+                {filteredGames.map(s => (
+                  <div key={s.id} className="flex gap-3 items-center p-3 bg-white/5 rounded-lg">
+                    {s.game_thumbnail
+                      ? <img src={s.game_thumbnail} alt={s.game_title} className="w-12 h-12 rounded-lg object-cover flex-shrink-0" />
+                      : <div className="w-12 h-12 rounded-lg bg-gradient-to-br from-purple-600/30 to-cyan-500/30 flex items-center justify-center flex-shrink-0"><Gamepad2 className="w-5 h-5 text-purple-400" /></div>
+                    }
+                    <div className="flex-1 min-w-0">
+                      <p className="font-medium text-white truncate">{s.game_title}</p>
+                      <p className="text-xs text-gray-500">{CATEGORY_LABELS[s.game_category] ?? s.game_category} · {s.plays_count} partidas</p>
+                    </div>
+                    <div className="text-right flex-shrink-0">
+                      <p className="text-sm font-bold text-purple-400">{s.best_score} pts</p>
+                      <p className="text-xs text-gray-500">{s.wins_count} victorias</p>
+                    </div>
+                  </div>
+                ))}
+              </div>
+            )}
+          </CardContent>
+        </Card>
+      )}
 
       {/* Change password dialog */}
       {showPwDialog && (

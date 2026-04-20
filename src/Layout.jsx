@@ -63,7 +63,8 @@ export default function Layout({ children }) {
     <div className={mobile ? "flex flex-col gap-2" : "hidden md:flex items-center gap-1"}>
       {navItems.map((item) => {
         const Icon = item.icon;
-        const isActive = location.pathname === item.path;
+        const isActive = location.pathname === item.path ||
+          (item.path === '/friends' && location.pathname.startsWith('/profile/'));
         return (
           <Link
             key={item.path}

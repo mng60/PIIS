@@ -5,9 +5,7 @@ import { requireAuth } from '../middleware/auth.js';
 const router = Router();
 const prisma = new PrismaClient();
 
-const PUBLIC_USER = { id: true, email: true, full_name: true, avatar_url: true, xp: true, created_at: true };
-
-// GET /api/profiles/search?q= — buscar usuarios por nombre o email
+// GET /api/profiles/search?q=
 router.get('/search', requireAuth, async (req, res) => {
   const q = (req.query.q || '').trim();
   if (q.length < 2) return res.json([]);
@@ -25,22 +23,34 @@ router.get('/search', requireAuth, async (req, res) => {
         },
       ],
     },
-    select: PUBLIC_USER,
+    select: { id: true, email: true, full_name: true, avatar_url: true, xp: true, role: true },
     take: 20,
   });
   res.json(users);
 });
 
-// GET /api/profiles/:email — perfil público de un usuario
+// GET /api/profiles/:email — perfil público
 router.get('/:email', requireAuth, async (req, res) => {
   const email = req.params.email;
 
   const user = await prisma.user.findUnique({
     where: { email },
-    select: PUBLIC_USER,
+    select: { id: true, email: true, full_name: true, avatar_url: true, xp: true, role: true, created_at: true },
   });
   if (!user) return res.status(404).json({ error: 'Usuario no encontrado' });
+  if (user.role === 'admin') return res.status(404).json({ error: 'Perfil no disponible' });
 
+  // Perfil empresa: solo sus juegos
+  if (user.role === 'empresa') {
+    const games = await prisma.game.findMany({
+      where: { created_by: email, is_active: true },
+      select: { id: true, title: true, thumbnail: true, description: true, category: true, plays_count: true },
+      orderBy: { title: 'asc' },
+    });
+    return res.json({ id: user.id, full_name: user.full_name, avatar_url: user.avatar_url, role: 'empresa', games });
+  }
+
+  // Perfil normal
   const [stats, achievements] = await Promise.all([
     prisma.userGameStats.findMany({
       where: { user_email: email },
@@ -52,7 +62,47 @@ router.get('/:email', requireAuth, async (req, res) => {
     }),
   ]);
 
-  res.json({ ...user, stats, achievements });
+  // Añadir info del juego a cada stat
+  const gameIds = stats.map(s => s.game_id);
+  const games = gameIds.length > 0
+    ? await prisma.game.findMany({
+        where: { id: { in: gameIds } },
+        select: { id: true, title: true, thumbnail: true, category: true },
+      })
+    : [];
+  const gameMap = Object.fromEntries(games.map(g => [g.id, g]));
+  const statsWithGames = stats.map(s => ({ ...s, game: gameMap[s.game_id] || null }));
+
+  // Amigos en común
+  const myEmail = req.user.email;
+  const [myFriendships, theirFriendships] = await Promise.all([
+    prisma.friendship.findMany({
+      where: { status: 'accepted', OR: [{ sender_email: myEmail }, { receiver_email: myEmail }] },
+    }),
+    prisma.friendship.findMany({
+      where: { status: 'accepted', OR: [{ sender_email: email }, { receiver_email: email }] },
+    }),
+  ]);
+  const myFriendEmails = new Set(myFriendships.map(f => f.sender_email === myEmail ? f.receiver_email : f.sender_email));
+  const theirFriendEmails = theirFriendships.map(f => f.sender_email === email ? f.receiver_email : f.sender_email);
+  const commonEmails = theirFriendEmails.filter(e => myFriendEmails.has(e));
+  const commonFriends = commonEmails.length > 0
+    ? await prisma.user.findMany({
+        where: { email: { in: commonEmails } },
+        select: { email: true, full_name: true, avatar_url: true },
+      })
+    : [];
+
+  res.json({
+    id: user.id,
+    full_name: user.full_name,
+    avatar_url: user.avatar_url,
+    xp: user.xp,
+    role: user.role,
+    stats: statsWithGames,
+    achievements,
+    common_friends: commonFriends,
+  });
 });
 
 export default router;
