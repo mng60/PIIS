@@ -3,15 +3,15 @@ import { useNavigate } from "react-router-dom";
 import { useAuth } from "@/lib/AuthContext";
 import {
   getFriends, getFriendStatus, sendFriendRequest, removeFriend,
-  blockUser, searchUsers as searchUsersApi,
+  blockUser, unblockUser,
 } from "@/api/friends";
 import { searchUsers } from "@/api/profiles";
 import { toast } from "sonner";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import {
-  Users, Search, UserPlus, UserMinus, Shield, ShieldOff,
-  UserX, Clock, Check, X, ChevronRight, Loader2,
+  Users, Search, UserPlus, UserMinus, ShieldOff,
+  UserX, Clock, X, Loader2,
 } from "lucide-react";
 
 function Avatar({ url, name, size = "md" }) {
@@ -124,9 +124,41 @@ export default function Friends() {
       await blockUser(email);
       toast.success(`${name} bloqueado`);
       setFriends(prev => prev.filter(f => f.email !== email));
-      setSearchResults(prev => prev.filter(u => u.email !== email));
+      setSearchResults(prev => prev.map(u =>
+        u.email === email ? { ...u, _isFriend: false, _status: { friendship: null, blocked_by_me: true, blocked_by_them: false } } : u
+      ));
     } catch {
       toast.error("Error al bloquear usuario");
+    } finally {
+      setPending(email, null);
+    }
+  }
+
+  async function handleUnblock(email, name) {
+    setPending(email, "unblocking");
+    try {
+      await unblockUser(email);
+      toast.success(`${name} desbloqueado`);
+      setSearchResults(prev => prev.map(u =>
+        u.email === email ? { ...u, _status: { friendship: null, blocked_by_me: false, blocked_by_them: false } } : u
+      ));
+    } catch {
+      toast.error("Error al desbloquear usuario");
+    } finally {
+      setPending(email, null);
+    }
+  }
+
+  async function handleCancelRequest(email) {
+    setPending(email, "canceling");
+    try {
+      await removeFriend(email);
+      toast.success("Solicitud cancelada");
+      setSearchResults(prev => prev.map(u =>
+        u.email === email ? { ...u, _status: { ...u._status, friendship: null } } : u
+      ));
+    } catch {
+      toast.error("Error al cancelar solicitud");
     } finally {
       setPending(email, null);
     }
@@ -140,22 +172,34 @@ export default function Friends() {
     if (loading) return <Loader2 className="w-4 h-4 animate-spin text-gray-400" />;
 
     if (inSearch) {
-      if (status?.blocked_by_me) return <span className="text-xs text-red-400">Bloqueado</span>;
+      if (status?.blocked_by_me) {
+        return (
+          <Button size="sm" variant="ghost" className="text-cyan-400 hover:text-cyan-300 h-8 px-2 text-xs" onClick={() => handleUnblock(u.email, u.full_name)}>
+            <ShieldOff className="w-3 h-3 mr-1" /> Desbloquear
+          </Button>
+        );
+      }
       if (status?.blocked_by_them) return <span className="text-xs text-gray-500">No disponible</span>;
       if (isFriend || status?.friendship?.status === "accepted") {
         return (
           <div className="flex gap-1">
-            <Button size="sm" variant="ghost" className="text-red-400 hover:text-red-300 h-8 px-2" onClick={() => handleRemoveFriend(u.email)}>
+            <Button size="sm" variant="ghost" className="text-red-400 hover:text-red-300 h-8 px-2" title="Eliminar amigo" onClick={() => handleRemoveFriend(u.email)}>
               <UserMinus className="w-4 h-4" />
             </Button>
-            <Button size="sm" variant="ghost" className="text-gray-400 hover:text-red-400 h-8 px-2" onClick={() => handleBlock(u.email, u.full_name)}>
+            <Button size="sm" variant="ghost" className="text-gray-400 hover:text-red-400 h-8 px-2" title="Bloquear" onClick={() => handleBlock(u.email, u.full_name)}>
               <UserX className="w-4 h-4" />
             </Button>
           </div>
         );
       }
       if (status?.friendship?.status === "pending") {
-        if (status.friendship.i_sent) return <span className="text-xs text-gray-400 flex items-center gap-1"><Clock className="w-3 h-3" /> Pendiente</span>;
+        if (status.friendship.i_sent) {
+          return (
+            <Button size="sm" variant="ghost" className="text-gray-400 hover:text-red-400 h-8 px-2 text-xs" onClick={() => handleCancelRequest(u.email)}>
+              <X className="w-3 h-3 mr-1" /> Cancelar
+            </Button>
+          );
+        }
         return <span className="text-xs text-yellow-400 flex items-center gap-1"><Clock className="w-3 h-3" /> Te envió solicitud</span>;
       }
       return (
@@ -163,7 +207,7 @@ export default function Friends() {
           <Button size="sm" className="bg-gradient-to-r from-purple-600 to-cyan-500 h-8 px-3 text-xs border-0" onClick={() => handleSendRequest(u.email)}>
             <UserPlus className="w-3 h-3 mr-1" /> Añadir
           </Button>
-          <Button size="sm" variant="ghost" className="text-gray-400 hover:text-red-400 h-8 px-2" onClick={() => handleBlock(u.email, u.full_name)}>
+          <Button size="sm" variant="ghost" className="text-gray-400 hover:text-red-400 h-8 px-2" title="Bloquear" onClick={() => handleBlock(u.email, u.full_name)}>
             <UserX className="w-4 h-4" />
           </Button>
         </div>
@@ -193,9 +237,6 @@ export default function Friends() {
           <XpBadge xp={u.xp || 0} />
         </div>
         <div className="flex items-center gap-1">
-          <Button size="sm" variant="ghost" className="text-gray-400 hover:text-white h-8 px-2" onClick={() => navigate(`/profile/${encodeURIComponent(u.email)}`)}>
-            <ChevronRight className="w-4 h-4" />
-          </Button>
           <FriendActions u={u} inSearch={inSearch} />
         </div>
       </div>

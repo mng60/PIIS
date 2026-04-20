@@ -211,13 +211,13 @@ export default function UserProfile() {
         {/* Nivel y XP */}
         <div className="mt-5">
           <div className="flex justify-between text-sm mb-1">
-            <span className="text-purple-400 font-medium">Nivel {level}</span>
-            <span className="text-gray-500">{profile.xp} / {nextLevel} XP</span>
+            <span className="text-purple-400 font-medium">{level.name} (Nv. {level.level})</span>
+            <span className="text-gray-500">{profile.xp} / {nextLevel?.xpRequired ?? "Max"} XP</span>
           </div>
           <div className="h-2 rounded-full bg-white/5 overflow-hidden">
             <div
               className="h-full rounded-full bg-gradient-to-r from-purple-600 to-cyan-500 transition-all"
-              style={{ width: `${progress}%` }}
+              style={{ width: `${progress * 100}%` }}
             />
           </div>
         </div>
