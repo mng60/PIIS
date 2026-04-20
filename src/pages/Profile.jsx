@@ -8,6 +8,7 @@ import { useQuery } from "@tanstack/react-query";
 import {
   Loader2, User, Mail, Calendar, Gamepad2, Edit2, Save, Camera, Lock, MoreVertical,
 } from "lucide-react";
+import { getEloRank } from "@/lib/eloRanks";
 import {
   DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
@@ -321,14 +322,19 @@ export default function Profile() {
                     <p className="text-xs text-gray-500">
                       {CATEGORY_LABELS[s.game_category] ?? s.game_category}
                       {s.game_is_multiplayer ? " · Multijugador" : " · Solo"}
-                      {" · "}{s.plays_count} partidas · {s.wins_count} victorias
+                      {" · "}{s.plays_count} partidas
+                      {s.game_is_multiplayer && ` · ${s.wins_count} victorias`}
                     </p>
                   </div>
-                  {s.game_is_multiplayer && (
-                    <div className="text-right flex-shrink-0">
-                      <p className="text-sm font-bold text-purple-400">{s.elo_rating} ELO</p>
-                    </div>
-                  )}
+                  {s.game_is_multiplayer && (() => {
+                    const rank = getEloRank(s.elo_rating ?? 1000);
+                    return (
+                      <div className="text-right flex-shrink-0">
+                        <p className="text-sm font-bold" style={{ color: rank.color }}>{s.elo_rating} ELO</p>
+                        <p className="text-xs font-medium" style={{ color: rank.color }}>{rank.label}</p>
+                      </div>
+                    );
+                  })()}
                 </button>
               ))}
             </div>
