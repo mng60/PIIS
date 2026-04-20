@@ -22,6 +22,47 @@ router.get('/', requireAdmin, async (_req, res) => {
   res.json(users);
 });
 
+// POST /api/users/me/record-abandon — registra abandono y aplica penalización progresiva
+router.post('/me/record-abandon', requireAuth, async (req, res) => {
+  try {
+    const user = await prisma.user.findUnique({
+      where: { id: req.user.id },
+      select: { abandon_count: true },
+    });
+    const count = user?.abandon_count ?? 0;
+
+    const PENALTIES = [
+      // count 0 → aviso
+      { type: 'warning', message: 'Primera vez: esta conducta puede resultar en sanciones futuras. ¡Respeta a tus rivales!' },
+      // count 1 → 5 min
+      { type: 'ban', minutes: 5,   message: 'Has abandonado 2 partidas. Sanción: 5 minutos sin jugar.' },
+      // count 2 → 15 min
+      { type: 'ban', minutes: 15,  message: 'Has abandonado 3 partidas. Sanción: 15 minutos sin jugar.' },
+      // count 3 → 30 min
+      { type: 'ban', minutes: 30,  message: 'Has abandonado 4 partidas. Sanción: 30 minutos sin jugar.' },
+      // count 4+ → 2h
+      { type: 'ban', minutes: 120, message: 'Reincidencia grave. Sanción: 2 horas sin jugar.' },
+    ];
+
+    const penalty = PENALTIES[Math.min(count, PENALTIES.length - 1)];
+    const updateData = { abandon_count: { increment: 1 } };
+
+    if (penalty.type === 'warning') {
+      updateData.pending_warning = penalty.message;
+    } else {
+      const until = new Date(Date.now() + penalty.minutes * 60_000);
+      updateData.play_banned_until = until;
+      penalty.until = until.toISOString();
+    }
+
+    await prisma.user.update({ where: { id: req.user.id }, data: updateData });
+    res.json(penalty);
+  } catch (err) {
+    console.error(err);
+    res.status(500).json({ error: 'Error registrando abandono' });
+  }
+});
+
 // DELETE /api/users/me/warning — clear pending_warning after user acknowledges (must be before /:id)
 router.delete('/me/warning', requireAuth, async (_req, res) => {
   await prisma.user.update({

@@ -1,6 +1,7 @@
 import React, { useEffect, useRef, useState } from "react";
 import { createChessRoom, getChessRoom, updateChessRoom, deleteChessRoom } from "@/api/chess";
 import { submitChessElo } from "@/api/elo";
+import { recordAbandon } from "@/api/users";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Card } from "@/components/ui/card";
@@ -58,7 +59,7 @@ const nickName = (name) => {
   return name;
 };
 
-export default function ChessOnlineGame({ user, gameId, myEloRating = 1200, onScoreUpdate, onEloApplied, onRoomCodeChange, onMoveHistoryChange, initialRoomCode }) {
+export default function ChessOnlineGame({ user, gameId, myEloRating = 1200, onScoreUpdate, onEloApplied, onRoomCodeChange, onMoveHistoryChange, initialRoomCode, onLeave }) {
   const [screen, setScreen] = useState("lobby");
   const [roomCode, setRoomCode] = useState("");
   useEffect(() => {
@@ -650,16 +651,15 @@ export default function ChessOnlineGame({ user, gameId, myEloRating = 1200, onSc
   const handleConfirmLeave = async () => {
     setLeaveOpen(false);
 
+    const doLeave = () => { if (onLeave) onLeave(); else resetLocal(); };
+
     try {
-      if (!roomCodeRef.current) {
-        resetLocal();
-        return;
-      }
+      if (!roomCodeRef.current) { doLeave(); return; }
 
       if (gameStatus === "waiting") {
         await deleteChessRoom(roomCodeRef.current);
         toast.message("Sala cerrada");
-        resetLocal();
+        doLeave();
         return;
       }
 
@@ -667,22 +667,33 @@ export default function ChessOnlineGame({ user, gameId, myEloRating = 1200, onSc
       const guestEmail = guestEmailRef.current;
       const opponentEmail = user?.email === hostEmail ? guestEmail : hostEmail;
 
-      if (opponentEmail) {
+      if (gameStatus === "playing" && opponentEmail) {
+        // Penalización por abandono
+        await recordAbandon()
+          .then(p => {
+            if (p?.type === 'warning') toast.warning(p.message, { duration: 6000 });
+            else if (p?.type === 'ban') toast.error(p.message, { duration: 8000 });
+          })
+          .catch(() => {});
+
         didAwardRef.current = false;
         await updateChessRoom(roomCodeRef.current, {
           status: "finished",
           winner: opponentEmail,
           board_state: packBoardState(board, { ...(metaRef.current || {}), drawOfferBy: null, drawOfferAt: null }),
         });
+      } else if (opponentEmail) {
+        // Partida ya terminada, solo salir
+        doLeave();
+        return;
       } else {
         await deleteChessRoom(roomCodeRef.current);
       }
-
-      resetLocal();
     } catch (e) {
       console.error(e);
-      resetLocal();
     }
+
+    doLeave();
   };
 
   const resetLocal = () => {
@@ -904,7 +915,9 @@ export default function ChessOnlineGame({ user, gameId, myEloRating = 1200, onSc
           <AlertDialogHeader>
             <AlertDialogTitle>¿Salir de la partida?</AlertDialogTitle>
             <AlertDialogDescription className="text-gray-400">
-              {gameStatus === "playing" ? "Si sales ahora, se considerará abandono y tu rival ganará (+1 punto)." : "Volverás al lobby."}
+              {gameStatus === "playing"
+                ? "Si sales ahora, se considerará abandono, tu rival ganará y recibirás una penalización (aviso → 5 min → 15 min → 30 min → 2 h)."
+                : "Volverás al lobby."}
             </AlertDialogDescription>
           </AlertDialogHeader>
           <AlertDialogFooter>

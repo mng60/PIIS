@@ -319,6 +319,7 @@ export default function GameDetail() {
           myEloRating={userGameStatsArr[0]?.elo_rating ?? 1200}
           onEloApplied={() => queryClient.invalidateQueries(['userGameStats', user?.email, gameId])}
           initialRoomCode={tournamentRoom}
+          onLeave={tournamentId ? () => navigate(`/tournaments/${tournamentId}`) : undefined}
         />
 
         {(game.full_description || game.description) && (

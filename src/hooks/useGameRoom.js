@@ -90,7 +90,9 @@
  */
 
 import { useState, useRef, useEffect, useCallback } from "react";
+import { toast } from "sonner";
 import { createSession, getSession, updateSession, deleteSession } from "@/api/sessions";
+import { recordAbandon } from "@/api/users";
 
 const POLL_MS = 1500;
 
@@ -98,7 +100,7 @@ function generateCode() {
   return Math.random().toString(36).substring(2, 8).toUpperCase();
 }
 
-export function useGameRoom({ gameId, user, pollInterval = POLL_MS } = {}) {
+export function useGameRoom({ gameId, user, pollInterval = POLL_MS, onLeave } = {}) {
   const [phase, setPhase] = useState("lobby"); // lobby | waiting | playing | finished
   const [roomCode, setRoomCode] = useState("");
   const [joinCode, setJoinCode] = useState("");
@@ -271,25 +273,32 @@ export function useGameRoom({ gameId, user, pollInterval = POLL_MS } = {}) {
   // ── leaveRoom ─────────────────────────────────────────────────────────────
 
   const leaveRoom = useCallback(async () => {
-    if (!roomCodeRef.current) { resetLocal(); return; }
+    if (!roomCodeRef.current) {
+      if (onLeave) onLeave(); else resetLocal();
+      return;
+    }
     try {
       if (phase === "waiting") {
         await deleteSession(roomCodeRef.current);
       } else if (phase === "playing") {
-        // el rival gana por abandono
         const opponentEmail =
-          myRoleRef.current === "host"
-            ? guestPlayer?.email
-            : hostPlayer?.email;
+          myRoleRef.current === "host" ? guestPlayer?.email : hostPlayer?.email;
         if (opponentEmail) {
+          // Penalización por abandono
+          await recordAbandon()
+            .then(p => {
+              if (p?.type === 'warning') toast.warning(p.message, { duration: 6000 });
+              else if (p?.type === 'ban') toast.error(p.message, { duration: 8000 });
+            })
+            .catch(() => {});
           await updateSession(roomCodeRef.current, { status: "finished", winner: opponentEmail });
         } else {
           await deleteSession(roomCodeRef.current);
         }
       }
     } catch { /* si falla la petición, igualmente limpiamos */ }
-    resetLocal();
-  }, [phase, guestPlayer, hostPlayer, resetLocal]);
+    if (onLeave) onLeave(); else resetLocal();
+  }, [phase, guestPlayer, hostPlayer, resetLocal, onLeave]);
 
   // ── derivados ─────────────────────────────────────────────────────────────
 

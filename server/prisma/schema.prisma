@@ -21,6 +21,7 @@ model User {
   chat_muted_until  DateTime?
   play_banned_until DateTime?
   pending_warning   String?   @db.VarChar(800)
+  abandon_count     Int       @default(0)
   created_at        DateTime  @default(now())
   updated_at        DateTime  @updatedAt
 }
