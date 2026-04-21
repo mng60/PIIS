@@ -22,6 +22,7 @@ import Friends from './pages/Friends';
 import UserProfile from './pages/UserProfile';
 import UserSanctionOverlay from './components/UserSanctionOverlay';
 import TournamentActiveAlert from './components/TournamentActiveAlert';
+import FloatingChat from './components/FloatingChat';
 import { AbandonWarningProvider } from '@/lib/abandonWarning';
 
 const AppRoutes = () => {
@@ -39,6 +40,7 @@ const AppRoutes = () => {
     <>
       <UserSanctionOverlay />
       <TournamentActiveAlert />
+      <FloatingChat />
       <Routes>
         <Route path="/login" element={<Login />} />
         <Route path="/" element={<Layout><Home /></Layout>} />

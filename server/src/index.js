@@ -22,6 +22,7 @@ import profilesRoutes from './routes/profiles.js';
 import newsRoutes from './routes/news.js';
 import maintenanceRoutes from './routes/maintenance.js';
 import ticketsRoutes from './routes/tickets.js';
+import directMessagesRoutes from './routes/direct-messages.js';
 
 const app = express();
 const PORT = process.env.PORT || 3001;
@@ -62,6 +63,7 @@ app.use('/api/elo', eloRoutes);
 app.use('/api/news', newsRoutes);
 app.use('/api/maintenance', maintenanceRoutes);
 app.use('/api/tickets', ticketsRoutes);
+app.use('/api/dm', directMessagesRoutes);
 
 app.get('/api/health', (_req, res) => res.json({ ok: true }));
 

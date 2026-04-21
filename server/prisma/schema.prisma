@@ -22,6 +22,7 @@ model User {
   play_banned_until DateTime?
   pending_warning   String?   @db.VarChar(800)
   abandon_count     Int       @default(0)
+  last_seen         DateTime?
   created_at        DateTime  @default(now())
   updated_at        DateTime  @updatedAt
 }
@@ -414,6 +415,20 @@ model Notification {
 enum NotificationType {
   friend_request
   friend_accepted
+}
+
+// ─── Direct Messages ─────────────────────────────────────────────────────────
+
+model DirectMessage {
+  id             String   @id @default(cuid())
+  sender_email   String
+  receiver_email String
+  message        String   @db.VarChar(1000)
+  is_read        Boolean  @default(false)
+  created_at     DateTime @default(now())
+
+  @@index([sender_email, receiver_email])
+  @@index([receiver_email, is_read])
 }
 
 // ─── Password Reset Tickets ───────────────────────────────────────────────────

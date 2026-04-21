@@ -13,6 +13,12 @@ const USER_SELECT = {
   pending_warning: true, created_at: true,
 };
 
+// POST /api/users/heartbeat — actualiza last_seen del usuario autenticado
+router.post('/heartbeat', requireAuth, async (req, res) => {
+  await prisma.user.update({ where: { id: req.user.id }, data: { last_seen: new Date() } });
+  res.json({ ok: true });
+});
+
 // GET /api/users (admin)
 router.get('/', requireAdmin, async (_req, res) => {
   const users = await prisma.user.findMany({
