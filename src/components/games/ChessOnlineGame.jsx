@@ -42,21 +42,24 @@ import { TIME_LIMITS, initClockFromMinutes, formatMs, getDisplayedMs, applyClock
 import OnlineGameLobby from "@/components/games/OnlineGameLobby";
 import OnlineGamePlayerZone from "@/components/games/OnlineGamePlayerZone";
 
-function WinCelebrationOverlay({ onDismiss }) {
+function WinCelebrationOverlay({ onDismiss, isTournament }) {
   useEffect(() => {
-    const t = setTimeout(onDismiss, 5000);
+    const t = setTimeout(onDismiss, 8000);
     return () => clearTimeout(t);
   }, [onDismiss]);
 
   return (
     <div
-      className="fixed inset-0 z-[49] bg-black/80 backdrop-blur-sm flex items-center justify-center cursor-pointer"
+      className="fixed inset-0 z-[49] backdrop-blur-sm flex items-center justify-center cursor-pointer"
+      style={{ backgroundColor: 'rgba(0,0,0,0.82)' }}
       onClick={onDismiss}
     >
       <div className="text-center select-none" onClick={e => e.stopPropagation()}>
         <div className="text-8xl mb-4" style={{ animation: 'bounce 1s infinite' }}>🏆</div>
         <h1 className="text-5xl font-extrabold text-yellow-400 mb-3 drop-shadow-lg">¡Felicidades!</h1>
-        <p className="text-xl text-white/80 mb-6">Has ganado la partida</p>
+        <p className="text-xl text-white/80 mb-6">
+          {isTournament ? '¡Has ganado el torneo!' : '¡Has ganado la partida!'}
+        </p>
         <div className="flex justify-center gap-6 text-5xl">
           <span style={{ display: 'inline-block', animation: 'bounce 1s infinite 0.1s' }}>🎉</span>
           <span style={{ display: 'inline-block', animation: 'bounce 1s infinite 0.3s' }}>⭐</span>
@@ -963,7 +966,7 @@ export default function ChessOnlineGame({ user, gameId, myEloRating = 1200, onSc
 
       {/* Victoria */}
       {showWinCelebration && (
-        <WinCelebrationOverlay onDismiss={() => setShowWinCelebration(false)} />
+        <WinCelebrationOverlay onDismiss={() => setShowWinCelebration(false)} isTournament={!!initialRoomCode} />
       )}
 
       {/* Personalizar */}

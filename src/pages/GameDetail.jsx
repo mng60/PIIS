@@ -236,6 +236,7 @@ export default function GameDetail() {
 
     if (tournamentId && !tournamentRedirectRef.current) {
       tournamentRedirectRef.current = true;
+      queryClient.invalidateQueries(['myActiveMatch']);
       let remaining = 10;
       const toastId = 'tournament-redirect';
       const updateToast = () =>
@@ -296,9 +297,24 @@ export default function GameDetail() {
             forfeitAt={forfeitAt}
             onExpire={() => {
               setWaitingOpponent(false);
-              if (tournamentId) {
-                toast.success('¡Tu rival no apareció! Has ganado por W.O.', { duration: 4000 });
-                setTimeout(() => navigate(`/tournaments/${tournamentId}`), 2500);
+              if (tournamentId && !tournamentRedirectRef.current) {
+                tournamentRedirectRef.current = true;
+                queryClient.invalidateQueries(['myActiveMatch']);
+                let remaining = 10;
+                const toastId = 'tournament-redirect';
+                const updateToast = () =>
+                  toast.success(`¡Has ganado por W.O.! Redirigiendo al torneo en ${remaining}s...`, { id: toastId, duration: Infinity });
+                updateToast();
+                const iv = setInterval(() => {
+                  remaining--;
+                  if (remaining > 0) {
+                    updateToast();
+                  } else {
+                    clearInterval(iv);
+                    toast.dismiss(toastId);
+                    navigate(`/tournaments/${tournamentId}`);
+                  }
+                }, 1000);
               }
             }}
           />

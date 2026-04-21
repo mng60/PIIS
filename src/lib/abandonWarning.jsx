@@ -5,7 +5,7 @@ const AbandonWarningContext = createContext(null);
 
 function AbandonWarningOverlay({ message, onDismiss }) {
   return (
-    <div className="fixed inset-0 z-[9998] bg-red-950/97 flex items-center justify-center px-6">
+    <div className="fixed inset-0 z-[9998] flex items-center justify-center px-6" style={{ backgroundColor: '#0f0000' }}>
       <div className="text-center max-w-md">
         <div className="w-24 h-24 rounded-full bg-red-500/20 border-2 border-red-500/50 flex items-center justify-center mx-auto mb-6">
           <AlertTriangle className="w-12 h-12 text-red-400" />

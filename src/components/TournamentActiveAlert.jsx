@@ -24,6 +24,7 @@ export default function TournamentActiveAlert() {
   });
 
   const isOnGamePage = location.pathname.startsWith('/games/');
+  const isOnTournamentPage = location.pathname.startsWith('/tournaments/');
 
   useEffect(() => {
     if (!activeData) {
@@ -61,22 +62,22 @@ export default function TournamentActiveAlert() {
       return;
     }
 
-    // Misma partida de antes: mostrar/mantener notificación persistente si no estamos en la sala
-    if (!isOnGamePage) {
+    // Misma partida de antes: mostrar/mantener notificación persistente si no estamos en la sala ni en el torneo
+    if (!isOnGamePage && !isOnTournamentPage) {
       showPersistentNotification(activeData);
     }
-  }, [activeData, isOnGamePage]);
+  }, [activeData, isOnGamePage, isOnTournamentPage]);
 
-  // Cerrar notificación si el usuario entra a la sala del juego
+  // Cerrar notificación si el usuario entra a la sala del juego o a la página del torneo
   useEffect(() => {
-    if (isOnGamePage && notificationToastIdRef.current) {
+    if ((isOnGamePage || isOnTournamentPage) && notificationToastIdRef.current) {
       toast.dismiss(notificationToastIdRef.current);
       notificationToastIdRef.current = null;
     }
-  }, [isOnGamePage]);
+  }, [isOnGamePage, isOnTournamentPage]);
 
   function showPersistentNotification({ match, tournament }) {
-    if (isOnGamePage) return;
+    if (isOnGamePage || isOnTournamentPage) return;
     if (notificationToastIdRef.current) return; // ya se muestra
 
     const toastId = toast.custom(
