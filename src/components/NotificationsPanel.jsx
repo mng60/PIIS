@@ -16,7 +16,7 @@ import {
 import { formatDistanceToNow } from "date-fns";
 import { es } from "date-fns/locale";
 
-const POLL_INTERVAL = 30_000;
+const POLL_INTERVAL = 8_000;
 
 function NotificationIcon({ type }) {
   if (type === "friend_request") return <UserPlus className="w-4 h-4 text-purple-400" />;
@@ -64,7 +64,10 @@ export default function NotificationsPanel({ isDark }) {
   }, [fetchCount]);
 
   useEffect(() => {
-    if (open) fetchAll();
+    if (!open) return;
+    fetchAll();
+    const interval = setInterval(fetchAll, POLL_INTERVAL);
+    return () => clearInterval(interval);
   }, [open, fetchAll]);
 
   function setLoading(id, val) {
