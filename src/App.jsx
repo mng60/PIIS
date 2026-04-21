@@ -22,6 +22,7 @@ import Friends from './pages/Friends';
 import UserProfile from './pages/UserProfile';
 import UserSanctionOverlay from './components/UserSanctionOverlay';
 import TournamentActiveAlert from './components/TournamentActiveAlert';
+import { AbandonWarningProvider } from '@/lib/abandonWarning';
 
 const AppRoutes = () => {
   const { isLoadingAuth } = useAuth();
@@ -62,11 +63,13 @@ function App() {
   return (
     <AuthProvider>
       <QueryClientProvider client={queryClientInstance}>
-        <Router>
-          <NavigationTracker />
-          <AppRoutes />
-        </Router>
-        <Toaster richColors position="top-right" />
+        <AbandonWarningProvider>
+          <Router>
+            <NavigationTracker />
+            <AppRoutes />
+          </Router>
+          <Toaster richColors position="top-right" />
+        </AbandonWarningProvider>
       </QueryClientProvider>
     </AuthProvider>
   )

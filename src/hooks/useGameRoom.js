@@ -93,6 +93,7 @@ import { useState, useRef, useEffect, useCallback } from "react";
 import { toast } from "sonner";
 import { createSession, getSession, updateSession, deleteSession } from "@/api/sessions";
 import { recordAbandon } from "@/api/users";
+import { useAbandonWarning } from "@/lib/abandonWarning";
 
 const POLL_MS = 1500;
 
@@ -101,6 +102,7 @@ function generateCode() {
 }
 
 export function useGameRoom({ gameId, user, pollInterval = POLL_MS, onLeave } = {}) {
+  const { showWarning } = useAbandonWarning();
   const [phase, setPhase] = useState("lobby"); // lobby | waiting | playing | finished
   const [roomCode, setRoomCode] = useState("");
   const [joinCode, setJoinCode] = useState("");
@@ -285,12 +287,12 @@ export function useGameRoom({ gameId, user, pollInterval = POLL_MS, onLeave } = 
           myRoleRef.current === "host" ? guestPlayer?.email : hostPlayer?.email;
         if (opponentEmail) {
           // Penalización por abandono
-          await recordAbandon()
-            .then(p => {
-              if (p?.type === 'warning') toast.warning(p.message, { duration: 6000 });
-              else if (p?.type === 'ban') toast.error(p.message, { duration: 8000 });
-            })
-            .catch(() => {});
+          const penalty = await recordAbandon().catch(() => null);
+          if (penalty?.type === 'warning') {
+            await showWarning(penalty.message);
+          } else if (penalty?.type === 'ban') {
+            toast.error(penalty.message, { duration: 8000 });
+          }
           await updateSession(roomCodeRef.current, { status: "finished", winner: opponentEmail });
         } else {
           await deleteSession(roomCodeRef.current);

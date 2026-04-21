@@ -292,7 +292,16 @@ export default function GameDetail() {
 
       <div className="space-y-6">
         {waitingOpponent && forfeitAt && (
-          <WaitingForfeitBanner forfeitAt={forfeitAt} onExpire={() => setWaitingOpponent(false)} />
+          <WaitingForfeitBanner
+            forfeitAt={forfeitAt}
+            onExpire={() => {
+              setWaitingOpponent(false);
+              if (tournamentId) {
+                toast.success('¡Tu rival no apareció! Has ganado por W.O.', { duration: 4000 });
+                setTimeout(() => navigate(`/tournaments/${tournamentId}`), 2500);
+              }
+            }}
+          />
         )}
         <GameHeader
           game={game}
