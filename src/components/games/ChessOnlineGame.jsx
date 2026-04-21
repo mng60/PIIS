@@ -42,34 +42,6 @@ import { TIME_LIMITS, initClockFromMinutes, formatMs, getDisplayedMs, applyClock
 import OnlineGameLobby from "@/components/games/OnlineGameLobby";
 import OnlineGamePlayerZone from "@/components/games/OnlineGamePlayerZone";
 
-function WinCelebrationOverlay({ onDismiss, isTournament }) {
-  useEffect(() => {
-    const t = setTimeout(onDismiss, 8000);
-    return () => clearTimeout(t);
-  }, [onDismiss]);
-
-  return (
-    <div
-      className="fixed inset-0 z-[49] backdrop-blur-sm flex items-center justify-center cursor-pointer"
-      style={{ backgroundColor: 'rgba(0,0,0,0.82)' }}
-      onClick={onDismiss}
-    >
-      <div className="text-center select-none" onClick={e => e.stopPropagation()}>
-        <div className="text-8xl mb-4" style={{ animation: 'bounce 1s infinite' }}>🏆</div>
-        <h1 className="text-5xl font-extrabold text-yellow-400 mb-3 drop-shadow-lg">¡Felicidades!</h1>
-        <p className="text-xl text-white/80 mb-6">
-          {isTournament ? '¡Has ganado el torneo!' : '¡Has ganado la partida!'}
-        </p>
-        <div className="flex justify-center gap-6 text-5xl">
-          <span style={{ display: 'inline-block', animation: 'bounce 1s infinite 0.1s' }}>🎉</span>
-          <span style={{ display: 'inline-block', animation: 'bounce 1s infinite 0.3s' }}>⭐</span>
-          <span style={{ display: 'inline-block', animation: 'bounce 1s infinite 0.5s' }}>🎊</span>
-        </div>
-        <p className="text-gray-400 text-sm mt-8">Haz clic en cualquier lugar para continuar</p>
-      </div>
-    </div>
-  );
-}
 
 const BOARD_THEMES = {
   classic: { label: "Clásico", light: "#F0D9B5", dark: "#B58863", labelLight: "#B58863", labelDark: "#F0D9B5" },
@@ -120,8 +92,6 @@ export default function ChessOnlineGame({ user, gameId, myEloRating = 1200, onSc
   const [incomingDrawOpen, setIncomingDrawOpen] = useState(false);
   const [leaveOpen, setLeaveOpen] = useState(false);
   const [settingsOpen, setSettingsOpen] = useState(false);
-  const [showWinCelebration, setShowWinCelebration] = useState(false);
-
   const { showWarning } = useAbandonWarning();
 
   const [boardTheme, setBoardTheme] = useState(() => localStorage.getItem("chess_board_theme") || "classic");
@@ -273,7 +243,6 @@ export default function ChessOnlineGame({ user, gameId, myEloRating = 1200, onSc
 
         if (w === user?.email) {
           onScoreUpdate?.(1);
-          setShowWinCelebration(true);
         } else if (w === "draw" || !w) {
           onScoreUpdate?.(0);
           toast.info("Tablas");
@@ -963,11 +932,6 @@ export default function ChessOnlineGame({ user, gameId, myEloRating = 1200, onSc
           </AlertDialogFooter>
         </AlertDialogContent>
       </AlertDialog>
-
-      {/* Victoria */}
-      {showWinCelebration && (
-        <WinCelebrationOverlay onDismiss={() => setShowWinCelebration(false)} isTournament={!!initialRoomCode} />
-      )}
 
       {/* Personalizar */}
       <Dialog open={settingsOpen} onOpenChange={setSettingsOpen}>

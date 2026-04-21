@@ -17,6 +17,7 @@ import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { toast } from "sonner";
+import WinCelebrationOverlay from "@/components/WinCelebrationOverlay";
 
 // ─── Status config ────────────────────────────────────────────────────────────
 
@@ -199,6 +200,7 @@ export default function TournamentDetail() {
   const autoRedirectFiredRef = useRef(false);
   const [joining, setJoining] = useState(false);
   const [leaving, setLeaving] = useState(false);
+  const [showWinCelebration, setShowWinCelebration] = useState(false);
 
   const { data: tournament, isLoading } = useQuery({
     queryKey: ["tournament", id],
@@ -214,6 +216,7 @@ export default function TournamentDetail() {
     queryKey: ["tournamentMatches", id],
     queryFn: () => getMatches(id),
     enabled: !!tournament && tournament.status !== "upcoming",
+    refetchInterval: tournament?.status === 'active' ? 5000 : false,
   });
 
   const isEnrolled = user && participants.some(p => p.user_email === user.email);
@@ -287,6 +290,27 @@ export default function TournamentDetail() {
     m => (m.player1_email === user.email || m.player2_email === user.email) && m.status === "playing"
   ) : [];
 
+  // Show win celebration when tournament is finished and current user is champion (once per session)
+  useEffect(() => {
+    if (!tournament || !user || tournament.status !== 'finished' || !matches.length) return;
+    const maxRoundByBracket = {};
+    for (const m of matches) {
+      if (m.status === 'finished') {
+        if (!maxRoundByBracket[m.bracket_name] || m.round > maxRoundByBracket[m.bracket_name]) {
+          maxRoundByBracket[m.bracket_name] = m.round;
+        }
+      }
+    }
+    const isWinner = matches.some(
+      m => m.status === 'finished' && m.winner_email === user.email && m.round === maxRoundByBracket[m.bracket_name]
+    );
+    if (!isWinner) return;
+    const key = `tournament_win_shown_${tournament.id}`;
+    if (sessionStorage.getItem(key)) return;
+    sessionStorage.setItem(key, '1');
+    setShowWinCelebration(true);
+  }, [tournament?.status, matches.length, user?.email]);
+
   // Winners per bracket (only when tournament is finished)
   const bracketWinners = tournament.status === "finished"
     ? bracketNames.map(bracket => {
@@ -302,6 +326,8 @@ export default function TournamentDetail() {
 
   return (
     <div className="max-w-5xl mx-auto px-4 py-8">
+      {showWinCelebration && <WinCelebrationOverlay onDismiss={() => setShowWinCelebration(false)} />}
+
       {/* Back */}
       <Link to="/tournaments" className="inline-flex items-center gap-2 text-gray-400 hover:text-white text-sm mb-6 transition-colors">
         <ArrowLeft className="w-4 h-4" />

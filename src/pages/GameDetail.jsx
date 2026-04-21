@@ -249,7 +249,7 @@ export default function GameDetail() {
         } else {
           clearInterval(iv);
           toast.dismiss(toastId);
-          navigate(`/tournaments/${tournamentId}`);
+          navigate(`/tournaments/${tournamentId}?autoplay=1`);
         }
       }, 1000);
     }
@@ -312,7 +312,7 @@ export default function GameDetail() {
                   } else {
                     clearInterval(iv);
                     toast.dismiss(toastId);
-                    navigate(`/tournaments/${tournamentId}`);
+                    navigate(`/tournaments/${tournamentId}?autoplay=1`);
                   }
                 }, 1000);
               }

@@ -123,9 +123,15 @@ router.post('/matches/checkin', requireAuth, async (req, res) => {
     if (!isP1 && !isP2) return res.json({ ok: false });
 
     const now = new Date();
+    const isFirstCheckIn = !match.player1_joined_at && !match.player2_joined_at;
     const updateData = {};
     if (isP1 && !match.player1_joined_at) updateData.player1_joined_at = now;
     if (isP2 && !match.player2_joined_at) updateData.player2_joined_at = now;
+
+    // Start forfeit countdown from when the first player actually enters the room
+    if (isFirstCheckIn && Object.keys(updateData).length > 0) {
+      updateData.forfeit_after = new Date(now.getTime() + 2 * 60 * 1000);
+    }
 
     let updatedMatch = match;
     if (Object.keys(updateData).length > 0) {
@@ -137,7 +143,7 @@ router.post('/matches/checkin', requireAuth, async (req, res) => {
     res.json({
       ok: true,
       waiting_for_opponent: !opponentJoined,
-      forfeit_at: match.forfeit_after ? match.forfeit_after.toISOString() : null,
+      forfeit_at: updatedMatch.forfeit_after ? updatedMatch.forfeit_after.toISOString() : null,
     });
   } catch (err) {
     console.error(err);
