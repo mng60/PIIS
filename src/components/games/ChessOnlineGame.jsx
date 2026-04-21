@@ -36,6 +36,7 @@ import {
   TabsTrigger,
 } from "@/components/ui/tabs";
 
+import { joinQueue, getMatchStatus, cancelSearch } from "@/api/matchmaking";
 import { initBoard, safeParseBoardState, packBoardState, FILES, getPieceColor, getPieceType } from "@/components/chess/chessState";
 import { calculateValidMoves } from "@/components/chess/chessMoves";
 import { PIECE_SETS, renderPieceNode, getPieceDataUri } from "@/components/chess/chessPieces";
@@ -71,6 +72,8 @@ export default function ChessOnlineGame({ user, gameId, myEloRating = 1200, onSc
   const [joinCode, setJoinCode] = useState("");
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
+  const [isSearching, setIsSearching] = useState(false);
+  const [searchSeconds, setSearchSeconds] = useState(0);
 
   const [timeKey, setTimeKey] = useState("5");
 
@@ -114,6 +117,8 @@ export default function ChessOnlineGame({ user, gameId, myEloRating = 1200, onSc
   const roomCodeRef = useRef(null);   // room_code for API calls
   const lastUpdatedRef = useRef(null);
   const pollIntervalRef = useRef(null);
+  const matchPollRef = useRef(null);
+  const searchTimerRef = useRef(null);
 
   const didAwardRef = useRef(false);
   const metaRef = useRef({});
@@ -498,6 +503,104 @@ export default function ChessOnlineGame({ user, gameId, myEloRating = 1200, onSc
 
   const ELO_RANGE = 300;
 
+  const stopSearching = () => {
+    setIsSearching(false);
+    setSearchSeconds(0);
+    if (matchPollRef.current) { clearInterval(matchPollRef.current); matchPollRef.current = null; }
+    if (searchTimerRef.current) { clearInterval(searchTimerRef.current); searchTimerRef.current = null; }
+  };
+
+  useEffect(() => () => stopSearching(), []); // eslint-disable-line
+
+  const autoJoinMatchmaking = async (matchRoomCode, role) => {
+    setLoading(true);
+    setError("");
+    try {
+      const room = await getChessRoom(matchRoomCode);
+      if (!room) { setLoading(false); return; }
+
+      roomCodeRef.current = matchRoomCode;
+      lastUpdatedRef.current = room.updated_at;
+      hostEmailRef.current = room.host_email;
+      guestEmailRef.current = room.guest_email;
+      didAwardRef.current = false;
+      timeoutDeclaredRef.current = false;
+      clockStartGuardRef.current = false;
+      lastOfferSeenRef.current = null;
+
+      const { board: b, meta } = safeParseBoardState(room.board_state);
+      setBoard(b);
+      metaRef.current = meta || {};
+      setCurrentTurn(room.current_turn || "white");
+
+      if (role === "host") {
+        setRoomCode(matchRoomCode);
+        setPlayerColor("white");
+        setGameStatus("waiting");
+        setScreen("playing");
+        setWinner(null);
+        startPolling();
+      } else {
+        const finalRoom = await updateChessRoom(matchRoomCode, {
+          guest_avatar_url: user?.avatar_url || null,
+          status: "playing",
+        });
+        lastUpdatedRef.current = finalRoom.updated_at;
+        setRoomCode(matchRoomCode);
+        setPlayerColor("black");
+        setOpponentName(nickName(room.host_name) || "Rival");
+        setGameStatus("playing");
+        setScreen("playing");
+        setWinner(null);
+        startPolling();
+      }
+    } catch (e) {
+      console.error(e);
+      setError("Error al unirse a la partida");
+    }
+    setLoading(false);
+  };
+
+  const handleFindMatch = async (mode = "normal") => {
+    if (!user) return;
+    setIsSearching(true);
+    setSearchSeconds(0);
+    setError("");
+
+    searchTimerRef.current = setInterval(() => setSearchSeconds((s) => s + 1), 1000);
+
+    try {
+      const result = await joinQueue(gameId, mode, myEloRating ?? 1200, timeKey);
+
+      if (result.status === "matched") {
+        stopSearching();
+        autoJoinMatchmaking(result.room_code, result.role);
+        return;
+      }
+
+      matchPollRef.current = setInterval(async () => {
+        try {
+          const status = await getMatchStatus();
+          if (status.status === "matched") {
+            stopSearching();
+            autoJoinMatchmaking(status.room_code, status.role);
+          } else if (status.status === "timeout" || status.status === "not_in_queue") {
+            stopSearching();
+            setError("Tiempo de búsqueda agotado. Inténtalo de nuevo.");
+          }
+        } catch {}
+      }, 2000);
+    } catch (e) {
+      stopSearching();
+      setError(e?.message || "Error al buscar partida");
+    }
+  };
+
+  const handleCancelSearch = async () => {
+    stopSearching();
+    try { await cancelSearch(); } catch {}
+  };
+
   const checkEloCompatibility = (roomHostElo, roomMode) => {
     if (roomMode !== 'ranked') return true;
     return Math.abs((myEloRating ?? 1200) - (roomHostElo ?? 1200)) <= ELO_RANGE;
@@ -771,11 +874,12 @@ export default function ChessOnlineGame({ user, gameId, myEloRating = 1200, onSc
         selectedTimeKey={timeKey}
         onTimeChange={setTimeKey}
         onCreateRoom={handleCreateRoom}
-        onJoinRoom={handleJoinRoom}
+        onFindMatch={handleFindMatch}
+        isSearching={isSearching}
+        searchSeconds={searchSeconds}
+        onCancelSearch={handleCancelSearch}
         loading={loading}
         error={error}
-        joinCode={joinCode}
-        onJoinCodeChange={setJoinCode}
       />
     );
   }

@@ -421,6 +421,23 @@ enum NotificationType {
   game_invite
 }
 
+// ─── Matchmaking ─────────────────────────────────────────────────────────────
+
+model MatchmakingQueue {
+  id         String   @id @default(cuid())
+  user_email String   @unique
+  user_name  String
+  elo_rating Int      @default(1200)
+  game_id    String
+  game_mode  String   @default("normal")
+  time_key   String   @default("5")
+  status     String   @default("waiting")
+  room_code  String?
+  role       String?
+  created_at DateTime @default(now())
+  updated_at DateTime @updatedAt
+}
+
 // ─── Direct Messages ─────────────────────────────────────────────────────────
 
 model DirectMessage {

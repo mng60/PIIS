@@ -1,8 +1,7 @@
 import { useState } from "react";
 import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
 import { Card } from "@/components/ui/card";
-import { Loader2, Swords, Trophy } from "lucide-react";
+import { Loader2, Swords, Trophy, Search } from "lucide-react";
 
 const MODES = [
   {
@@ -23,6 +22,12 @@ const MODES = [
   },
 ];
 
+function formatSearchTime(s) {
+  const m = Math.floor(s / 60);
+  const ss = String(s % 60).padStart(2, "0");
+  return `${m}:${ss}`;
+}
+
 export default function OnlineGameLobby({
   title = "Juego Online",
   description = "Juega en tiempo real con otro jugador",
@@ -30,11 +35,12 @@ export default function OnlineGameLobby({
   selectedTimeKey,
   onTimeChange,
   onCreateRoom,
-  onJoinRoom,
+  onFindMatch,
+  isSearching = false,
+  searchSeconds = 0,
+  onCancelSearch,
   loading = false,
   error = "",
-  joinCode = "",
-  onJoinCodeChange,
 }) {
   const [mode, setMode] = useState("normal");
 
@@ -57,25 +63,31 @@ export default function OnlineGameLobby({
               <button
                 key={m.key}
                 type="button"
-                onClick={() => setMode(m.key)}
-                className="relative flex flex-col items-center gap-2 p-4 rounded-xl border-2 transition-all duration-200"
+                onClick={() => !isSearching && setMode(m.key)}
+                disabled={isSearching}
+                className="relative flex flex-col items-center gap-2 p-4 rounded-xl border-2 transition-all duration-200 disabled:opacity-50 disabled:cursor-not-allowed"
                 style={{
-                  borderColor: selected ? m.color : 'rgba(255,255,255,0.08)',
-                  background: selected ? `rgba(${m.color.slice(1).match(/../g).map(h=>parseInt(h,16)).join(',')},0.12)` : 'rgba(255,255,255,0.03)',
-                  boxShadow: selected ? `0 0 16px ${m.glow}` : 'none',
+                  borderColor: selected ? m.color : "rgba(255,255,255,0.08)",
+                  background: selected
+                    ? `rgba(${m.color.slice(1).match(/../g).map((h) => parseInt(h, 16)).join(",")},0.12)`
+                    : "rgba(255,255,255,0.03)",
+                  boxShadow: selected ? `0 0 16px ${m.glow}` : "none",
                 }}
               >
                 <Icon
                   className="w-6 h-6"
-                  style={{ color: selected ? m.color : '#6b7280' }}
+                  style={{ color: selected ? m.color : "#6b7280" }}
                 />
                 <span
                   className="text-sm font-bold"
-                  style={{ color: selected ? '#fff' : '#9ca3af' }}
+                  style={{ color: selected ? "#fff" : "#9ca3af" }}
                 >
                   {m.label}
                 </span>
-                <span className="text-[11px] text-center leading-tight" style={{ color: selected ? '#d1d5db' : '#6b7280' }}>
+                <span
+                  className="text-[11px] text-center leading-tight"
+                  style={{ color: selected ? "#d1d5db" : "#6b7280" }}
+                >
                   {m.desc}
                 </span>
                 {selected && (
@@ -99,7 +111,8 @@ export default function OnlineGameLobby({
                     key={t.key}
                     type="button"
                     onClick={() => onTimeChange?.(t.key)}
-                    className={`px-3 py-1 rounded-full text-xs font-medium border transition-colors
+                    disabled={isSearching}
+                    className={`px-3 py-1 rounded-full text-xs font-medium border transition-colors disabled:opacity-40
                       ${selectedTimeKey === t.key
                         ? "bg-purple-600/80 border-purple-400/60 text-white"
                         : "bg-white/5 border-white/10 text-gray-300 hover:bg-white/10 hover:text-white"}`}
@@ -113,7 +126,7 @@ export default function OnlineGameLobby({
 
           <Button
             onClick={() => onCreateRoom?.(mode)}
-            disabled={loading}
+            disabled={loading || isSearching}
             className="w-full bg-gradient-to-r from-purple-600 to-cyan-500"
           >
             {loading ? <Loader2 className="w-4 h-4 animate-spin" /> : "Crear sala nueva"}
@@ -126,25 +139,52 @@ export default function OnlineGameLobby({
           <div className="flex-1 h-px bg-white/10" />
         </div>
 
-        <Card className="bg-white/5 border-white/10 p-4">
-          <h3 className="text-sm font-semibold text-gray-400 uppercase mb-3">Unirse a sala</h3>
-          <Input
-            value={joinCode}
-            onChange={(e) => onJoinCodeChange?.(e.target.value.toUpperCase())}
-            placeholder="CÓDIGO DE SALA"
-            maxLength={6}
-            className="mb-3 text-center tracking-widest"
-          />
-          <Button
-            onClick={() => onJoinRoom?.(joinCode)}
-            disabled={loading || !joinCode.trim()}
-            variant="secondary"
-            className="w-full"
-          >
-            {loading ? <Loader2 className="w-4 h-4 animate-spin" /> : "Unirse"}
-          </Button>
-          {error && <p className="text-red-400 text-xs mt-2 text-center">{error}</p>}
-        </Card>
+        {isSearching ? (
+          <Card className="bg-white/5 border-white/10 p-5">
+            <div className="flex flex-col items-center gap-3">
+              <div className="flex items-center gap-3">
+                <Loader2 className="w-5 h-5 animate-spin text-purple-400" />
+                <span className="text-sm font-semibold text-white">Buscando rival...</span>
+              </div>
+              <span className="text-2xl font-mono font-bold text-cyan-400">
+                {formatSearchTime(searchSeconds)}
+              </span>
+              <Button
+                onClick={onCancelSearch}
+                variant="secondary"
+                size="sm"
+                className="w-full mt-1"
+              >
+                Cancelar búsqueda
+              </Button>
+            </div>
+          </Card>
+        ) : (
+          <Card className="bg-white/5 border-white/10 p-4">
+            <h3 className="text-sm font-semibold text-gray-400 uppercase mb-3">Buscar partida</h3>
+            <p className="text-xs text-gray-500 mb-3">
+              {mode === "ranked"
+                ? "Se emparejará con alguien de ELO similar (±300)."
+                : "Se emparejará con cualquier jugador disponible."}
+            </p>
+            <Button
+              onClick={() => onFindMatch?.(mode)}
+              disabled={loading}
+              variant="secondary"
+              className="w-full"
+            >
+              {loading ? (
+                <Loader2 className="w-4 h-4 animate-spin" />
+              ) : (
+                <>
+                  <Search className="w-4 h-4 mr-2" />
+                  Buscar partida
+                </>
+              )}
+            </Button>
+            {error && <p className="text-red-400 text-xs mt-2 text-center">{error}</p>}
+          </Card>
+        )}
       </div>
     </div>
   );
