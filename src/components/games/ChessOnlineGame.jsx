@@ -308,7 +308,8 @@ export default function ChessOnlineGame({ user, gameId, myEloRating = 1200, onSc
           setScreen("playing");
           setWinner(null);
           startPolling();
-        } else if (user.email === room.guest_email) {
+        } else if (!room.guest_email || user.email === room.guest_email) {
+          // guest ya registrado O llegada por invitación (guest_email vacío)
           let finalRoom = room;
           if (room.status === "waiting") {
             finalRoom = await updateChessRoom(initialRoomCode, {
@@ -327,7 +328,7 @@ export default function ChessOnlineGame({ user, gameId, myEloRating = 1200, onSc
           startPolling();
         }
       } catch (e) {
-        if (!cancelled) { console.error(e); setError("Error al unirse a la sala de torneo"); }
+        if (!cancelled) { console.error(e); setError("Error al unirse a la partida"); }
       }
       if (!cancelled) setLoading(false);
     };
