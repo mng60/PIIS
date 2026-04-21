@@ -264,6 +264,28 @@ export default function TournamentDetail() {
     }
   };
 
+  // Show win celebration when tournament is finished and current user is champion (once per session)
+  // Must be before early returns to comply with React hooks rules
+  useEffect(() => {
+    if (!tournament || !user || tournament.status !== 'finished' || !matches.length) return;
+    const maxRoundByBracket = {};
+    for (const m of matches) {
+      if (m.status === 'finished') {
+        if (!maxRoundByBracket[m.bracket_name] || m.round > maxRoundByBracket[m.bracket_name]) {
+          maxRoundByBracket[m.bracket_name] = m.round;
+        }
+      }
+    }
+    const isWinner = matches.some(
+      m => m.status === 'finished' && m.winner_email === user.email && m.round === maxRoundByBracket[m.bracket_name]
+    );
+    if (!isWinner) return;
+    const key = `tournament_win_shown_${tournament.id}`;
+    if (sessionStorage.getItem(key)) return;
+    sessionStorage.setItem(key, '1');
+    setShowWinCelebration(true);
+  }, [tournament?.status, matches.length, user?.email]);
+
   if (isLoading) {
     return (
       <div className="flex items-center justify-center min-h-[60vh]">
@@ -289,27 +311,6 @@ export default function TournamentDetail() {
   const myMatches = user ? matches.filter(
     m => (m.player1_email === user.email || m.player2_email === user.email) && m.status === "playing"
   ) : [];
-
-  // Show win celebration when tournament is finished and current user is champion (once per session)
-  useEffect(() => {
-    if (!tournament || !user || tournament.status !== 'finished' || !matches.length) return;
-    const maxRoundByBracket = {};
-    for (const m of matches) {
-      if (m.status === 'finished') {
-        if (!maxRoundByBracket[m.bracket_name] || m.round > maxRoundByBracket[m.bracket_name]) {
-          maxRoundByBracket[m.bracket_name] = m.round;
-        }
-      }
-    }
-    const isWinner = matches.some(
-      m => m.status === 'finished' && m.winner_email === user.email && m.round === maxRoundByBracket[m.bracket_name]
-    );
-    if (!isWinner) return;
-    const key = `tournament_win_shown_${tournament.id}`;
-    if (sessionStorage.getItem(key)) return;
-    sessionStorage.setItem(key, '1');
-    setShowWinCelebration(true);
-  }, [tournament?.status, matches.length, user?.email]);
 
   // Winners per bracket (only when tournament is finished)
   const bracketWinners = tournament.status === "finished"
