@@ -520,7 +520,6 @@ export default function ChessOnlineGame({ user, gameId, myEloRating = 1200, onSc
       if (!room) { setLoading(false); return; }
 
       roomCodeRef.current = matchRoomCode;
-      lastUpdatedRef.current = room.updated_at;
       hostEmailRef.current = room.host_email;
       guestEmailRef.current = room.guest_email;
       didAwardRef.current = false;
@@ -528,32 +527,25 @@ export default function ChessOnlineGame({ user, gameId, myEloRating = 1200, onSc
       clockStartGuardRef.current = false;
       lastOfferSeenRef.current = null;
 
-      const { board: b, meta } = safeParseBoardState(room.board_state);
-      setBoard(b);
-      metaRef.current = meta || {};
-      setCurrentTurn(room.current_turn || "white");
+      setRoomCode(matchRoomCode);
+      setPlayerColor(role === "host" ? "white" : "black");
+      setScreen("playing");
+      setWinner(null);
 
-      if (role === "host") {
-        setRoomCode(matchRoomCode);
-        setPlayerColor("white");
-        setGameStatus("waiting");
-        setScreen("playing");
-        setWinner(null);
-        startPolling();
-      } else {
+      if (role === "guest") {
+        // Actualizar sala a playing con el avatar del guest
         const finalRoom = await updateChessRoom(matchRoomCode, {
           guest_avatar_url: user?.avatar_url || null,
           status: "playing",
         });
-        lastUpdatedRef.current = finalRoom.updated_at;
-        setRoomCode(matchRoomCode);
-        setPlayerColor("black");
-        setOpponentName(nickName(room.host_name) || "Rival");
-        setGameStatus("playing");
-        setScreen("playing");
-        setWinner(null);
-        startPolling();
+        guestEmailRef.current = user?.email;
+        applyRoomUpdate(finalRoom);
+      } else {
+        // Host: aplicar el estado real de la sala (puede que el guest ya se haya unido)
+        applyRoomUpdate(room);
       }
+
+      startPolling();
     } catch (e) {
       console.error(e);
       setError("Error al unirse a la partida");
