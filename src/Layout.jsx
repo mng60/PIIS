@@ -100,7 +100,7 @@ export default function Layout({ children }) {
   );
 
   return (
-    <div className={`min-h-screen ${isDark ? "bg-[#0a0a0f] text-white" : "bg-[#f0f1f8] text-gray-900"} ${isRestrictedArea ? "" : "user-screen-background"} ${isLevel1User ? "user-level-1-shell" : ""} ${isLevel2User ? "user-screen-background-level-2 user-level-2-shell" : ""}`}>
+    <div className={`min-h-screen ${isDark ? "bg-[#0a0a0f] text-white" : "bg-[#f0f1f8] text-gray-900"} ${!isRestrictedArea && isLevel1User ? "user-screen-background" : ""} ${!isRestrictedArea && isLevel2User ? "user-screen-background user-screen-background-level-2" : ""} ${isLevel1User ? "user-level-1-shell" : ""} ${isLevel2User ? "user-level-2-shell" : ""}`}>
       <style>{`
         :root {
           --background: 0 0% 4%;

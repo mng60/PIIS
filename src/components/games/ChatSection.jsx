@@ -65,17 +65,17 @@ export default function ChatSection({ gameId, user, sessionId }) {
   };
 
   if (!user) {
-    return <div className="text-center py-8 text-gray-400"><p>Inicia sesión para chatear</p></div>;
+    return <div className="online-game-chat__empty text-center py-8 text-gray-400"><p>Inicia sesión para chatear</p></div>;
   }
   if (!sessionId) {
-    return <div className="text-center py-8 text-gray-400"><p>Crea o únete a una partida para abrir el chat.</p></div>;
+    return <div className="online-game-chat__empty text-center py-8 text-gray-400"><p>Crea o únete a una partida para abrir el chat.</p></div>;
   }
 
   return (
     <div className="flex flex-col flex-1 min-h-0 gap-2">
       <div ref={containerRef} className="flex-1 min-h-0 overflow-y-auto space-y-2 pr-1 [&::-webkit-scrollbar]:hidden [scrollbar-width:none]">
         {messages.length === 0 ? (
-          <div className="text-center py-8 text-gray-500"><p>Sé el primero en enviar un mensaje</p></div>
+          <div className="online-game-chat__empty text-center py-8 text-gray-500"><p>Sé el primero en enviar un mensaje</p></div>
         ) : (
           messages.map((msg) => {
             const isOwnMessage = msg.user_email === user.email;

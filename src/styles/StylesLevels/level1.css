@@ -252,6 +252,24 @@
     0 0 18px rgba(189, 141, 75, 0.16) !important;
 }
 
+.user-level-1-profile-edit-input {
+  background: rgba(46, 31, 20, 0.7) !important;
+  border: 1px solid rgba(223, 181, 119, 0.34) !important;
+  color: #e3c496 !important;
+}
+
+.user-level-1-profile-edit-input::placeholder {
+  color: #8d7966 !important;
+}
+
+.user-level-1-profile-edit-input:focus,
+.user-level-1-profile-edit-input:focus-visible {
+  border-color: rgba(223, 181, 119, 0.74) !important;
+  box-shadow:
+    0 0 0 1px rgba(223, 181, 119, 0.22),
+    0 0 18px rgba(189, 141, 75, 0.16) !important;
+}
+
 .user-level-1-profile-dialog-cancel {
   border: 1px solid rgba(223, 181, 119, 0.22) !important;
   background: rgba(38, 26, 18, 0.32) !important;
@@ -715,4 +733,178 @@
 .user-level-1-news-card:hover .user-level-1-news-title,
 .user-level-1-news-card:hover .user-level-1-news-link {
   color: var(--level1-accent) !important;
+}
+
+.user-level-1-pong-shell {
+  width: 100%;
+  padding: 1rem 0 0.35rem;
+  color: #e7cba4;
+}
+
+.user-level-1-pong-title {
+  color: #f3d8ad !important;
+  font-family: "Cinzel", "Garamond", "Times New Roman", serif;
+  text-shadow: 0 0 14px rgba(230, 185, 112, 0.14);
+}
+
+.user-level-1-pong-copy {
+  color: #b89c7b !important;
+}
+
+.user-level-1-pong-player-one {
+  color: #b89563 !important;
+}
+
+.user-level-1-pong-player-two {
+  color: #f0d39c !important;
+}
+
+.user-level-1-pong-versus {
+  color: #6f5d49 !important;
+}
+
+.user-level-1-pong-canvas {
+  border: 1px solid rgba(223, 181, 119, 0.18) !important;
+  background:
+    radial-gradient(circle at 50% 58%, rgba(244, 217, 170, 0.1), transparent 36%),
+    linear-gradient(180deg, rgba(38, 22, 14, 0.96) 0%, rgba(14, 10, 7, 0.98) 100%) !important;
+  box-shadow:
+    inset 0 1px 0 rgba(255, 228, 187, 0.08),
+    inset 0 0 80px rgba(0, 0, 0, 0.38),
+    0 18px 48px rgba(0, 0, 0, 0.34),
+    0 0 24px rgba(111, 77, 49, 0.14) !important;
+}
+
+.user-level-1-pong-overlay {
+  background:
+    radial-gradient(circle at 50% 42%, rgba(93, 60, 35, 0.2), transparent 42%),
+    linear-gradient(180deg, rgba(8, 5, 3, 0.9) 0%, rgba(17, 10, 6, 0.92) 100%) !important;
+}
+
+.user-level-1-pong-option {
+  background: rgba(255, 239, 211, 0.08) !important;
+  border: 1px solid rgba(223, 181, 119, 0.12) !important;
+  color: #c1aa8b !important;
+}
+
+.user-level-1-pong-option:hover {
+  background: rgba(141, 99, 50, 0.3) !important;
+  color: #f7e2bb !important;
+}
+
+.user-level-1-pong-option-active {
+  background: linear-gradient(90deg, #8d6332 0%, #c69b61 100%) !important;
+  color: #fff7eb !important;
+  box-shadow:
+    0 8px 20px rgba(111, 77, 49, 0.3),
+    0 0 16px rgba(223, 181, 119, 0.16) !important;
+}
+
+.user-level-1-pong-button {
+  background: linear-gradient(90deg, #7b5129 0%, #c19355 100%) !important;
+  color: #fff7eb !important;
+  border: 1px solid rgba(223, 181, 119, 0.22) !important;
+  box-shadow:
+    0 12px 26px rgba(111, 77, 49, 0.3),
+    0 0 20px rgba(223, 181, 119, 0.14) !important;
+}
+
+.user-level-1-pong-button:hover {
+  background: linear-gradient(90deg, #8c5e31 0%, #d1a769 100%) !important;
+  box-shadow:
+    0 14px 30px rgba(111, 77, 49, 0.34),
+    0 0 24px rgba(223, 181, 119, 0.18) !important;
+}
+
+.user-level-1-game-surface {
+  background:
+    radial-gradient(circle at 50% 22%, rgba(214, 170, 101, 0.08), transparent 26%),
+    linear-gradient(180deg, rgba(20, 13, 9, 0.98) 0%, rgba(12, 8, 6, 0.99) 100%) !important;
+  border-color: rgba(223, 181, 119, 0.16) !important;
+  box-shadow:
+    inset 0 1px 0 rgba(255, 227, 182, 0.05),
+    0 18px 44px rgba(0, 0, 0, 0.34),
+    0 0 26px rgba(111, 77, 49, 0.14) !important;
+}
+
+.user-level-1-game-launch {
+  background: linear-gradient(90deg, #7b5129 0%, #c19355 100%) !important;
+  border: 1px solid rgba(223, 181, 119, 0.22) !important;
+  color: #fff7eb !important;
+  box-shadow:
+    0 12px 26px rgba(111, 77, 49, 0.3),
+    0 0 20px rgba(223, 181, 119, 0.14) !important;
+}
+
+.user-level-1-game-launch:hover {
+  background: linear-gradient(90deg, #8c5e31 0%, #d1a769 100%) !important;
+  box-shadow:
+    0 14px 30px rgba(111, 77, 49, 0.34),
+    0 0 24px rgba(223, 181, 119, 0.18) !important;
+}
+
+.user-level-1-game-surface .online-game-lobby__title {
+  background: linear-gradient(90deg, #f1d39a 0%, #c8943e 52%, #7e5129 100%) !important;
+  -webkit-background-clip: text !important;
+  background-clip: text !important;
+  color: transparent !important;
+}
+
+.user-level-1-game-surface .online-game-lobby__description,
+.user-level-1-game-surface .online-game-lobby__section-title,
+.user-level-1-game-surface .online-game-lobby__separator {
+  color: #cfb28a !important;
+}
+
+.user-level-1-game-surface .online-game-lobby__card {
+  background: linear-gradient(180deg, rgba(43, 28, 18, 0.72) 0%, rgba(28, 18, 12, 0.84) 100%) !important;
+  border-color: rgba(223, 181, 119, 0.2) !important;
+  box-shadow:
+    0 14px 28px rgba(0, 0, 0, 0.18),
+    0 0 0 1px rgba(223, 181, 119, 0.06) inset !important;
+}
+
+.user-level-1-game-surface .online-game-lobby__time-option {
+  background: rgba(255, 239, 211, 0.06) !important;
+  border-color: rgba(223, 181, 119, 0.16) !important;
+  color: #ead6b2 !important;
+}
+
+.user-level-1-game-surface .online-game-lobby__time-option:hover {
+  background: rgba(111, 77, 49, 0.34) !important;
+  color: #fff1d5 !important;
+}
+
+.user-level-1-game-surface .online-game-lobby__time-option--active {
+  background: linear-gradient(90deg, #8d6332 0%, #d2a348 100%) !important;
+  border-color: rgba(233, 193, 117, 0.42) !important;
+  color: #fff8ec !important;
+  box-shadow:
+    0 8px 20px rgba(111, 77, 49, 0.3),
+    0 0 16px rgba(223, 181, 119, 0.14) !important;
+}
+
+.user-level-1-game-surface .online-game-lobby__create-button {
+  background: linear-gradient(90deg, #7b5129 0%, #d1a24d 100%) !important;
+  color: #fff7eb !important;
+  border: 1px solid rgba(223, 181, 119, 0.2) !important;
+  box-shadow:
+    0 12px 26px rgba(111, 77, 49, 0.28),
+    0 0 20px rgba(223, 181, 119, 0.14) !important;
+}
+
+.user-level-1-game-surface .online-game-lobby__input {
+  background: rgba(34, 23, 16, 0.76) !important;
+  border-color: rgba(223, 181, 119, 0.18) !important;
+  color: #f2dfbf !important;
+}
+
+.user-level-1-game-surface .online-game-lobby__input::placeholder {
+  color: rgba(233, 209, 170, 0.78) !important;
+}
+
+.user-level-1-game-surface .online-game-lobby__join-button {
+  background: linear-gradient(180deg, rgba(88, 60, 35, 0.92) 0%, rgba(57, 38, 23, 0.94) 100%) !important;
+  color: #f7ead2 !important;
+  border: 1px solid rgba(223, 181, 119, 0.16) !important;
 }

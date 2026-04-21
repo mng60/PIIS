@@ -103,17 +103,17 @@ export default function Games() {
 
       {filteredGames.length === 0 ? (
         <div className="text-center py-16">
-          <Gamepad2 className={`w-16 h-16 mx-auto mb-4 ${isLevel1User ? "user-level-1-games-empty-icon" : "text-gray-600"}`} />
-          <h3 className={`text-xl font-medium text-gray-400 mb-2 ${isLevel1User ? "user-level-1-games-empty-title" : ""}`}>
+          <Gamepad2 className={`w-16 h-16 mx-auto mb-4 ${isLevel1User ? "user-level-1-games-empty-icon" : "text-gray-600"} ${isLevel2User ? "user-level-2-games-empty-tone" : ""}`} />
+          <h3 className={`text-xl font-medium text-gray-400 mb-2 ${isLevel1User ? "user-level-1-games-empty-title" : ""} ${isLevel2User ? "user-level-2-games-empty-tone" : ""}`}>
             No se encontraron juegos
           </h3>
-          <p className={`text-gray-500 ${isLevel1User ? "user-level-1-games-empty-copy" : ""}`}>
+          <p className={`text-gray-500 ${isLevel1User ? "user-level-1-games-empty-copy" : ""} ${isLevel2User ? "user-level-2-games-empty-tone" : ""}`}>
             Intenta con otros filtros o terminos de busqueda
           </p>
         </div>
       ) : (
         <>
-          <div className={`mb-4 text-sm text-gray-400 ${isLevel1User ? "user-level-1-games-results" : ""}`}>
+          <div className={`mb-4 text-sm text-gray-400 ${isLevel1User ? "user-level-1-games-results" : ""} ${isLevel2User ? "user-level-2-games-results" : ""}`}>
             Mostrando {filteredGames.length} {filteredGames.length === 1 ? "juego" : "juegos"}
           </div>
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
