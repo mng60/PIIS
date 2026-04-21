@@ -27,7 +27,7 @@ router.get('/:room_code', async (req, res) => {
 
 // POST /api/chess
 router.post('/', requireAuth, async (req, res) => {
-  const { room_code, board_state } = req.body;
+  const { room_code, board_state, game_mode, host_elo } = req.body;
   if (!room_code || !board_state) return res.status(400).json({ error: 'Faltan campos obligatorios' });
   const room = await prisma.chessRoom.create({
     data: {
@@ -36,6 +36,8 @@ router.post('/', requireAuth, async (req, res) => {
       host_email: req.user.email,
       host_name: req.user.full_name || req.user.email,
       host_avatar_url: req.user.avatar_url || null,
+      game_mode: game_mode || 'normal',
+      host_elo: host_elo ?? 1200,
     },
   });
   res.status(201).json(room);

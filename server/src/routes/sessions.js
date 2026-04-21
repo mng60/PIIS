@@ -27,7 +27,7 @@ router.get('/:room_code', async (req, res) => {
 
 // POST /api/sessions  — create a room (host = authenticated user)
 router.post('/', requireAuth, async (req, res) => {
-  const { room_code, game_id, game_state, current_turn } = req.body;
+  const { room_code, game_id, game_state, current_turn, game_mode } = req.body;
   if (!room_code || !game_id) return res.status(400).json({ error: 'Faltan campos obligatorios' });
 
   const session = await prisma.gameSession.create({
@@ -38,6 +38,7 @@ router.post('/', requireAuth, async (req, res) => {
       host_name: req.user.full_name || req.user.email,
       game_state: game_state ?? {},
       current_turn: current_turn ?? 'host',
+      game_mode: game_mode || 'normal',
     },
   });
   res.status(201).json(session);

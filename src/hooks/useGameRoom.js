@@ -186,13 +186,13 @@ export function useGameRoom({ gameId, user, gameTitle, pollInterval = POLL_MS, o
 
   // ── createRoom ────────────────────────────────────────────────────────────
 
-  const createRoom = useCallback(async (initialState = {}) => {
+  const createRoom = useCallback(async (initialState = {}, mode = 'normal') => {
     if (!user) return;
     setLoading(true);
     setError("");
     try {
       const code = generateCode();
-      const room = await createSession(code, gameId, initialState);
+      const room = await createSession(code, gameId, initialState, mode);
       roomCodeRef.current = code;
       myRoleRef.current = "host";
       lastUpdatedRef.current = room.updated_at;

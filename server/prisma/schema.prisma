@@ -276,6 +276,7 @@ model GameSession {
   current_turn  String        @default("host")
   winner        String?
   status        SessionStatus @default(waiting)
+  game_mode     String        @default("normal")
   created_at    DateTime      @default(now())
   updated_at    DateTime      @updatedAt
 }
@@ -294,10 +295,12 @@ model ChessRoom {
   host_email       String
   host_name        String
   host_avatar_url  String?
+  host_elo         Int         @default(1200)
   guest_email      String?
   guest_name       String?
   guest_avatar_url String?
   elo_processed    Boolean     @default(false)
+  game_mode        String      @default("normal")
   status           ChessStatus @default(waiting)
   current_turn     TurnColor   @default(white)
   board_state      String

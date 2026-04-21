@@ -1,25 +1,28 @@
-import React, { useState } from "react";
+import { useState } from "react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Card } from "@/components/ui/card";
-import { Loader2 } from "lucide-react";
+import { Loader2, Swords, Trophy } from "lucide-react";
 
-/**
- * Componente común para lobby de juegos online
- * 
- * Props:
- * - title: Título del juego (ej: "♔ Ajedrez Online ♚")
- * - description: Descripción del lobby (ej: "Juega en tiempo real con otro jugador")
- * - timeLimits: Array de opciones de tiempo [{key, label, minutes}]
- * - selectedTimeKey: Key del tiempo seleccionado
- * - onTimeChange: Callback cuando cambia el tiempo (key) => void
- * - onCreateRoom: Callback para crear sala () => void
- * - onJoinRoom: Callback para unirse (code) => void
- * - loading: Boolean si está cargando
- * - error: String con mensaje de error
- * - joinCode: Valor del código de unión
- * - onJoinCodeChange: Callback cuando cambia el código
- */
+const MODES = [
+  {
+    key: "normal",
+    icon: Swords,
+    label: "Normal",
+    desc: "Sin efecto ELO · Cualquier nivel",
+    color: "#8b5cf6",
+    glow: "rgba(139,92,246,0.4)",
+  },
+  {
+    key: "ranked",
+    icon: Trophy,
+    label: "Clasificatoria",
+    desc: "Afecta al ELO · Misma banda",
+    color: "#f59e0b",
+    glow: "rgba(245,158,11,0.4)",
+  },
+];
+
 export default function OnlineGameLobby({
   title = "Juego Online",
   description = "Juega en tiempo real con otro jugador",
@@ -33,6 +36,8 @@ export default function OnlineGameLobby({
   joinCode = "",
   onJoinCodeChange,
 }) {
+  const [mode, setMode] = useState("normal");
+
   return (
     <div className="flex items-center justify-center min-h-[420px] p-4">
       <div className="w-full max-w-md space-y-4">
@@ -41,6 +46,47 @@ export default function OnlineGameLobby({
             {title}
           </h2>
           <p className="text-gray-400 text-sm">{description}</p>
+        </div>
+
+        {/* Selector de modo */}
+        <div className="grid grid-cols-2 gap-3">
+          {MODES.map((m) => {
+            const Icon = m.icon;
+            const selected = mode === m.key;
+            return (
+              <button
+                key={m.key}
+                type="button"
+                onClick={() => setMode(m.key)}
+                className="relative flex flex-col items-center gap-2 p-4 rounded-xl border-2 transition-all duration-200"
+                style={{
+                  borderColor: selected ? m.color : 'rgba(255,255,255,0.08)',
+                  background: selected ? `rgba(${m.color.slice(1).match(/../g).map(h=>parseInt(h,16)).join(',')},0.12)` : 'rgba(255,255,255,0.03)',
+                  boxShadow: selected ? `0 0 16px ${m.glow}` : 'none',
+                }}
+              >
+                <Icon
+                  className="w-6 h-6"
+                  style={{ color: selected ? m.color : '#6b7280' }}
+                />
+                <span
+                  className="text-sm font-bold"
+                  style={{ color: selected ? '#fff' : '#9ca3af' }}
+                >
+                  {m.label}
+                </span>
+                <span className="text-[11px] text-center leading-tight" style={{ color: selected ? '#d1d5db' : '#6b7280' }}>
+                  {m.desc}
+                </span>
+                {selected && (
+                  <span
+                    className="absolute top-2 right-2 w-2 h-2 rounded-full"
+                    style={{ background: m.color }}
+                  />
+                )}
+              </button>
+            );
+          })}
         </div>
 
         <Card className="bg-white/5 border-white/10 p-4 space-y-3">
@@ -65,9 +111,9 @@ export default function OnlineGameLobby({
             )}
           </div>
 
-          <Button 
-            onClick={onCreateRoom} 
-            disabled={loading} 
+          <Button
+            onClick={() => onCreateRoom?.(mode)}
+            disabled={loading}
             className="w-full bg-gradient-to-r from-purple-600 to-cyan-500"
           >
             {loading ? <Loader2 className="w-4 h-4 animate-spin" /> : "Crear sala nueva"}
@@ -89,10 +135,10 @@ export default function OnlineGameLobby({
             maxLength={6}
             className="mb-3 text-center tracking-widest"
           />
-          <Button 
-            onClick={() => onJoinRoom?.(joinCode)} 
-            disabled={loading || !joinCode.trim()} 
-            variant="secondary" 
+          <Button
+            onClick={() => onJoinRoom?.(joinCode)}
+            disabled={loading || !joinCode.trim()}
+            variant="secondary"
             className="w-full"
           >
             {loading ? <Loader2 className="w-4 h-4 animate-spin" /> : "Unirse"}

@@ -309,6 +309,11 @@ export default function ChessOnlineGame({ user, gameId, myEloRating = 1200, onSc
           setWinner(null);
           startPolling();
         } else if (!room.guest_email || user.email === room.guest_email) {
+          if (!checkEloCompatibility(room.host_elo, room.game_mode)) {
+            toast.error(`Sala clasificatoria: la diferencia de ELO es demasiado grande (±${ELO_RANGE}). No puedes unirte a esta partida.`);
+            if (!cancelled) setLoading(false);
+            return;
+          }
           // guest ya registrado O llegada por invitación (guest_email vacío)
           let finalRoom = room;
           if (room.status === "waiting") {
@@ -491,7 +496,14 @@ export default function ChessOnlineGame({ user, gameId, myEloRating = 1200, onSc
     }
   };
 
-  const handleCreateRoom = async () => {
+  const ELO_RANGE = 300;
+
+  const checkEloCompatibility = (roomHostElo, roomMode) => {
+    if (roomMode !== 'ranked') return true;
+    return Math.abs((myEloRating ?? 1200) - (roomHostElo ?? 1200)) <= ELO_RANGE;
+  };
+
+  const handleCreateRoom = async (mode = 'normal') => {
     if (!user) return;
     setLoading(true);
     setError("");
@@ -514,6 +526,8 @@ export default function ChessOnlineGame({ user, gameId, myEloRating = 1200, onSc
         status: "waiting",
         board_state: packBoardState(initBoard(), meta),
         current_turn: "white",
+        game_mode: mode,
+        host_elo: myEloRating ?? 1200,
       });
 
       roomCodeRef.current = code;
@@ -555,6 +569,12 @@ export default function ChessOnlineGame({ user, gameId, myEloRating = 1200, onSc
       const room = await getChessRoom(joinCode.toUpperCase());
       if (!room || room.status !== "waiting") {
         setError("Sala no encontrada o ya empezada");
+        setLoading(false);
+        return;
+      }
+
+      if (!checkEloCompatibility(room.host_elo, room.game_mode)) {
+        setError(`Sala clasificatoria: diferencia de ELO demasiado grande (±${ELO_RANGE}). Busca una sala Normal o juega con alguien de tu nivel.`);
         setLoading(false);
         return;
       }

@@ -110,6 +110,7 @@ router.post('/chess/:room_code', requireAuth, async (req, res) => {
   if (!room) return res.status(404).json({ error: 'Sala no encontrada' });
   if (room.status !== 'finished') return res.status(400).json({ error: 'La partida no ha terminado' });
   if (room.elo_processed) return res.json({ already_processed: true });
+  if (room.game_mode !== 'ranked') return res.json({ skipped: true, reason: 'normal_mode' });
 
   const game = await prisma.game.findFirst({ where: { game_code: 'chess-online' } });
   if (!game?.elo_enabled) return res.json({ elo_enabled: false });
