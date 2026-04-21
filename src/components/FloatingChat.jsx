@@ -2,9 +2,9 @@ import { useState, useEffect, useRef, useCallback } from 'react';
 import { MessageCircle, X, ChevronLeft, Send } from 'lucide-react';
 import { useAuth } from '@/lib/AuthContext';
 import { getFriends } from '@/api/friends';
-import { getDirectMessages, sendDirectMessage, markMessagesRead, getUnreadCounts, sendHeartbeat } from '@/api/directMessages';
+import { getDirectMessages, sendDirectMessage, markMessagesRead, getUnreadCounts, sendHeartbeat, setOffline } from '@/api/directMessages';
 
-const ONLINE_THRESHOLD_MS = 90 * 1000; // 90s — heartbeat cada 30s, 3 misses = offline
+const ONLINE_THRESHOLD_MS = 40 * 1000; // 40s — heartbeat cada 15s, 2 misses = offline
 
 function isOnline(lastSeen) {
   if (!lastSeen) return false;
@@ -48,12 +48,20 @@ export default function FloatingChat() {
     } catch {}
   }, []);
 
-  // Heartbeat para last_seen
+  // Heartbeat para last_seen + marcar offline al salir
   useEffect(() => {
     if (!isAuthenticated) return;
     sendHeartbeat().catch(() => {});
-    heartbeatRef.current = setInterval(() => sendHeartbeat().catch(() => {}), 30_000);
-    return () => clearInterval(heartbeatRef.current);
+    heartbeatRef.current = setInterval(() => sendHeartbeat().catch(() => {}), 15_000);
+
+    const handleUnload = () => setOffline().catch(() => {});
+    window.addEventListener('beforeunload', handleUnload);
+
+    return () => {
+      clearInterval(heartbeatRef.current);
+      window.removeEventListener('beforeunload', handleUnload);
+      setOffline().catch(() => {}); // logout o cambio de auth
+    };
   }, [isAuthenticated]);
 
   // Cargar amigos y no leídos cada 8s cuando el panel está abierto

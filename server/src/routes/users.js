@@ -19,6 +19,12 @@ router.post('/heartbeat', requireAuth, async (req, res) => {
   res.json({ ok: true });
 });
 
+// POST /api/users/offline — borra last_seen al cerrar sesión / pestaña
+router.post('/offline', requireAuth, async (req, res) => {
+  await prisma.user.update({ where: { id: req.user.id }, data: { last_seen: null } });
+  res.json({ ok: true });
+});
+
 // GET /api/users (admin)
 router.get('/', requireAdmin, async (_req, res) => {
   const users = await prisma.user.findMany({

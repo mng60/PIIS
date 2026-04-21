@@ -5,3 +5,4 @@ export const sendDirectMessage = (email, message) => api.post(`/dm/${encodeURICo
 export const markMessagesRead = (email) => api.patch(`/dm/read/${encodeURIComponent(email)}`);
 export const getUnreadCounts = () => api.get('/dm/unread');
 export const sendHeartbeat = () => api.post('/users/heartbeat');
+export const setOffline = () => api.post('/users/offline');
