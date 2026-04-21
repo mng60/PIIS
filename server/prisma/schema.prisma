@@ -415,6 +415,7 @@ model Notification {
 enum NotificationType {
   friend_request
   friend_accepted
+  game_invite
 }
 
 // ─── Direct Messages ─────────────────────────────────────────────────────────

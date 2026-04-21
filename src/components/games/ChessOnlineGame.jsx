@@ -3,6 +3,7 @@ import { createChessRoom, getChessRoom, updateChessRoom, deleteChessRoom } from 
 import { submitChessElo } from "@/api/elo";
 import { recordAbandon } from "@/api/users";
 import { useAbandonWarning } from "@/lib/abandonWarning";
+import { useCurrentRoom } from "@/lib/CurrentRoomContext";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Card } from "@/components/ui/card";
@@ -93,6 +94,14 @@ export default function ChessOnlineGame({ user, gameId, myEloRating = 1200, onSc
   const [leaveOpen, setLeaveOpen] = useState(false);
   const [settingsOpen, setSettingsOpen] = useState(false);
   const { showWarning } = useAbandonWarning();
+  const { setCurrentRoom, clearCurrentRoom } = useCurrentRoom();
+
+  useEffect(() => {
+    if (roomCode) setCurrentRoom({ roomCode, gameId, gameTitle: 'Ajedrez Online' });
+    else clearCurrentRoom();
+  }, [roomCode]); // eslint-disable-line
+
+  useEffect(() => () => clearCurrentRoom(), []); // eslint-disable-line
 
   const [boardTheme, setBoardTheme] = useState(() => localStorage.getItem("chess_board_theme") || "classic");
   const [pieceSet, setPieceSet] = useState(() => localStorage.getItem("chess_piece_set") || "staunton");

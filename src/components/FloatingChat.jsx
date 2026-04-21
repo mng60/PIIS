@@ -1,8 +1,11 @@
 import { useState, useEffect, useRef, useCallback } from 'react';
-import { MessageCircle, X, ChevronLeft, Send } from 'lucide-react';
+import { MessageCircle, X, ChevronLeft, Send, Gamepad2 } from 'lucide-react';
 import { useAuth } from '@/lib/AuthContext';
 import { getFriends } from '@/api/friends';
 import { getDirectMessages, sendDirectMessage, markMessagesRead, getUnreadCounts, sendHeartbeat, setOffline } from '@/api/directMessages';
+import { sendGameInvite } from '@/api/notifications';
+import { useCurrentRoom } from '@/lib/CurrentRoomContext';
+import { toast } from 'sonner';
 
 const ONLINE_THRESHOLD_MS = 40 * 1000; // 40s — heartbeat cada 15s, 2 misses = offline
 
@@ -18,6 +21,7 @@ function formatTime(dateStr) {
 
 export default function FloatingChat() {
   const { isAuthenticated, user } = useAuth();
+  const { currentRoom } = useCurrentRoom();
 
   const [open, setOpen] = useState(false);
   const [activeFriend, setActiveFriend] = useState(null);
@@ -98,6 +102,17 @@ export default function FloatingChat() {
     return () => clearInterval(id);
   }, [isAuthenticated]);
 
+  const handleInvite = async (friend, e) => {
+    e.stopPropagation();
+    if (!currentRoom) return;
+    try {
+      await sendGameInvite(friend.email, currentRoom.roomCode, currentRoom.gameId, currentRoom.gameTitle);
+      toast.success(`Invitación enviada a ${friend.full_name}`);
+    } catch {
+      toast.error('No se pudo enviar la invitación');
+    }
+  };
+
   const openFriend = (friend) => {
     setActiveFriend(friend);
     setMessages([]);
@@ -130,7 +145,7 @@ export default function FloatingChat() {
       {/* Panel principal */}
       {open && (
         <div className="w-80 rounded-2xl border border-white/10 shadow-2xl overflow-hidden flex flex-col"
-          style={{ background: 'rgba(15,10,30,0.97)', backdropFilter: 'blur(16px)', maxHeight: '520px' }}>
+          style={{ background: 'rgba(15,10,30,0.97)', backdropFilter: 'blur(16px)' }}>
 
           {/* Header */}
           <div className="flex items-center justify-between px-4 py-3 border-b border-white/10"
@@ -167,12 +182,20 @@ export default function FloatingChat() {
 
           {/* Lista de amigos */}
           {!activeFriend && (
-            <div className="flex-1 overflow-y-auto py-1">
+            <div className="overflow-y-auto py-1 [&::-webkit-scrollbar]:hidden [scrollbar-width:none]" style={{ maxHeight: '240px' }}>
               {friends.length === 0 && (
                 <p className="text-center text-white/30 text-sm py-8">Sin amigos todavía</p>
               )}
               {[...onlineFriends, ...offlineFriends].map(f => (
-                <FriendRow key={f.email} friend={f} online={isOnline(f.last_seen)} unread={unread[f.email] || 0} onClick={() => openFriend(f)} />
+                <FriendRow
+                  key={f.email}
+                  friend={f}
+                  online={isOnline(f.last_seen)}
+                  unread={unread[f.email] || 0}
+                  onClick={() => openFriend(f)}
+                  canInvite={!!currentRoom && isOnline(f.last_seen)}
+                  onInvite={(e) => handleInvite(f, e)}
+                />
               ))}
             </div>
           )}
@@ -180,7 +203,7 @@ export default function FloatingChat() {
           {/* Ventana de chat */}
           {activeFriend && (
             <>
-              <div className="flex-1 overflow-y-auto px-3 py-3 space-y-2" style={{ minHeight: 0 }}>
+              <div className="overflow-y-auto px-3 py-3 space-y-2 [&::-webkit-scrollbar]:hidden [scrollbar-width:none]" style={{ height: '240px' }}>
                 {messages.length === 0 && (
                   <p className="text-center text-white/30 text-xs py-6">Sin mensajes. ¡Di hola!</p>
                 )}
@@ -247,29 +270,39 @@ export default function FloatingChat() {
   );
 }
 
-function FriendRow({ friend, online, unread, onClick }) {
+function FriendRow({ friend, online, unread, onClick, canInvite, onInvite }) {
   return (
-    <button onClick={onClick}
-      className="w-full flex items-center gap-3 px-4 py-3 hover:bg-white/5 transition-colors text-left">
-      <div className="flex-shrink-0">
-        {friend.avatar_url
-          ? <img src={friend.avatar_url} className="w-9 h-9 rounded-full object-cover" />
-          : <div className="w-9 h-9 rounded-full bg-purple-700 flex items-center justify-center text-sm font-bold text-white">
-              {friend.full_name?.[0]?.toUpperCase()}
-            </div>
-        }
-      </div>
-      <span className="flex-1 text-sm font-medium truncate transition-colors" style={online ? {
-        color: '#4ade80',
-        textShadow: '0 0 6px rgba(74,222,128,0.5)',
-      } : { color: '#6b7280' }}>
-        {friend.full_name}
-      </span>
-      {unread > 0 && (
-        <span className="min-w-[20px] h-5 px-1 rounded-full bg-purple-600 text-white text-[11px] font-bold flex items-center justify-center">
-          {unread}
+    <div className="flex items-center hover:bg-white/5 transition-colors px-4">
+      <button onClick={onClick} className="flex items-center gap-3 py-3 flex-1 min-w-0 text-left">
+        <div className="flex-shrink-0">
+          {friend.avatar_url
+            ? <img src={friend.avatar_url} className="w-9 h-9 rounded-full object-cover" />
+            : <div className="w-9 h-9 rounded-full bg-purple-700 flex items-center justify-center text-sm font-bold text-white">
+                {friend.full_name?.[0]?.toUpperCase()}
+              </div>
+          }
+        </div>
+        <span className="flex-1 text-sm font-medium truncate transition-colors" style={online ? {
+          color: '#4ade80',
+          textShadow: '0 0 6px rgba(74,222,128,0.5)',
+        } : { color: '#6b7280' }}>
+          {friend.full_name}
         </span>
+        {unread > 0 && (
+          <span className="min-w-[20px] h-5 px-1 rounded-full bg-purple-600 text-white text-[11px] font-bold flex items-center justify-center">
+            {unread}
+          </span>
+        )}
+      </button>
+      {canInvite && (
+        <button
+          onClick={onInvite}
+          title="Invitar a partida"
+          className="flex-shrink-0 p-1.5 rounded-lg transition-all hover:scale-110"
+          style={{ color: '#a78bfa' }}>
+          <Gamepad2 className="w-4 h-4" />
+        </button>
       )}
-    </button>
+    </div>
   );
 }

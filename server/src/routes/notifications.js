@@ -46,4 +46,31 @@ router.patch('/read-all', requireAuth, async (req, res) => {
   res.json({ ok: true });
 });
 
+// POST /api/notifications/game-invite — invitar amigo a una sala
+router.post('/game-invite', requireAuth, async (req, res) => {
+  const { target_email, room_code, game_id, game_title } = req.body;
+  const me = req.user.email;
+  if (!target_email || !room_code || !game_id) {
+    return res.status(400).json({ error: 'Faltan campos obligatorios' });
+  }
+
+  const friendship = await prisma.friendship.findFirst({
+    where: { status: 'accepted', OR: [{ sender_email: me, receiver_email: target_email }, { sender_email: target_email, receiver_email: me }] },
+  });
+  if (!friendship) return res.status(403).json({ error: 'Solo puedes invitar a amigos' });
+
+  const sender = await prisma.user.findUnique({ where: { email: me }, select: { full_name: true } });
+
+  await prisma.notification.create({
+    data: {
+      user_email: target_email,
+      type: 'game_invite',
+      from_email: me,
+      from_name: sender?.full_name || me,
+      data: { room_code, game_id, game_title: game_title || 'Partida' },
+    },
+  });
+  res.json({ ok: true });
+});
+
 export default router;

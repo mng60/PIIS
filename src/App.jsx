@@ -24,6 +24,7 @@ import UserSanctionOverlay from './components/UserSanctionOverlay';
 import TournamentActiveAlert from './components/TournamentActiveAlert';
 import FloatingChat from './components/FloatingChat';
 import { AbandonWarningProvider } from '@/lib/abandonWarning';
+import { CurrentRoomProvider } from '@/lib/CurrentRoomContext';
 
 const AppRoutes = () => {
   const { isLoadingAuth } = useAuth();
@@ -65,6 +66,7 @@ function App() {
   return (
     <AuthProvider>
       <QueryClientProvider client={queryClientInstance}>
+        <CurrentRoomProvider>
         <AbandonWarningProvider>
           <Router>
             <NavigationTracker />
@@ -72,6 +74,7 @@ function App() {
           </Router>
           <Toaster richColors position="top-right" />
         </AbandonWarningProvider>
+        </CurrentRoomProvider>
       </QueryClientProvider>
     </AuthProvider>
   )

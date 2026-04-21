@@ -11,7 +11,7 @@ import {
   Popover, PopoverContent, PopoverTrigger,
 } from "@/components/ui/popover";
 import {
-  Bell, Check, X, UserPlus, UserCheck, CheckCheck, Loader2,
+  Bell, Check, X, UserPlus, UserCheck, CheckCheck, Loader2, Gamepad2,
 } from "lucide-react";
 import { formatDistanceToNow } from "date-fns";
 import { es } from "date-fns/locale";
@@ -21,12 +21,14 @@ const POLL_INTERVAL = 30_000;
 function NotificationIcon({ type }) {
   if (type === "friend_request") return <UserPlus className="w-4 h-4 text-purple-400" />;
   if (type === "friend_accepted") return <UserCheck className="w-4 h-4 text-cyan-400" />;
+  if (type === "game_invite") return <Gamepad2 className="w-4 h-4 text-emerald-400" />;
   return <Bell className="w-4 h-4 text-gray-400" />;
 }
 
 function NotificationText({ n }) {
   if (n.type === "friend_request") return <><span className="font-medium">{n.from_name}</span> te envió una solicitud de amistad</>;
   if (n.type === "friend_accepted") return <><span className="font-medium">{n.from_name}</span> aceptó tu solicitud de amistad</>;
+  if (n.type === "game_invite") return <><span className="font-medium">{n.from_name}</span> te invita a jugar <span className="font-medium">{n.data?.game_title || 'una partida'}</span></>;
   return n.from_name;
 }
 
@@ -100,6 +102,16 @@ export default function NotificationsPanel({ isDark }) {
     }
   }
 
+  async function handleJoinGame(n) {
+    const { room_code, game_id } = n.data || {};
+    if (!room_code || !game_id) return;
+    await markAsRead(n.id).catch(() => {});
+    setNotifications(prev => prev.map(x => x.id === n.id ? { ...x, is_read: true, _joined: true } : x));
+    setUnreadCount(c => Math.max(0, c - 1));
+    setOpen(false);
+    navigate(`/games/${encodeURIComponent(game_id)}?room=${room_code}`);
+  }
+
   async function handleMarkAllRead() {
     try {
       await markAllAsRead();
@@ -109,6 +121,7 @@ export default function NotificationsPanel({ isDark }) {
   }
 
   async function handleClickNotification(n) {
+    if (n.type === "game_invite") return;
     if (!n.is_read) {
       await markAsRead(n.id).catch(() => {});
       setNotifications(prev => prev.map(x => x.id === n.id ? { ...x, is_read: true } : x));
@@ -165,6 +178,7 @@ export default function NotificationsPanel({ isDark }) {
             notifications.map(n => {
               const loading = loadingActions[n.id];
               const isRequest = n.type === "friend_request" && !n._accepted && !n._rejected && !n.is_read;
+              const isInvite = n.type === "game_invite" && !n._joined && !n.is_read;
 
               return (
                 <div
@@ -206,6 +220,26 @@ export default function NotificationsPanel({ isDark }) {
                             onClick={() => handleReject(n)}
                           >
                             {loading === "reject" ? <Loader2 className="w-3 h-3 animate-spin" /> : <><X className="w-3 h-3 mr-1" /> Rechazar</>}
+                          </Button>
+                        </div>
+                      )}
+
+                      {isInvite && (
+                        <div className="flex gap-2 mt-2">
+                          <Button
+                            size="sm"
+                            className="h-7 px-3 text-xs bg-gradient-to-r from-emerald-600 to-cyan-500 border-0"
+                            onClick={() => handleJoinGame(n)}
+                          >
+                            <Gamepad2 className="w-3 h-3 mr-1" /> Unirse
+                          </Button>
+                          <Button
+                            size="sm"
+                            variant="outline"
+                            className="h-7 px-3 text-xs border-gray-600 text-gray-400 hover:text-red-400"
+                            onClick={() => { markAsRead(n.id).catch(() => {}); setNotifications(prev => prev.map(x => x.id === n.id ? { ...x, is_read: true, _joined: true } : x)); setUnreadCount(c => Math.max(0, c - 1)); }}
+                          >
+                            <X className="w-3 h-3 mr-1" /> Ignorar
                           </Button>
                         </div>
                       )}

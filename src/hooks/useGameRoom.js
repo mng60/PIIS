@@ -94,6 +94,7 @@ import { toast } from "sonner";
 import { createSession, getSession, updateSession, deleteSession } from "@/api/sessions";
 import { recordAbandon } from "@/api/users";
 import { useAbandonWarning } from "@/lib/abandonWarning";
+import { useCurrentRoom } from "@/lib/CurrentRoomContext";
 
 const POLL_MS = 1500;
 
@@ -101,8 +102,9 @@ function generateCode() {
   return Math.random().toString(36).substring(2, 8).toUpperCase();
 }
 
-export function useGameRoom({ gameId, user, pollInterval = POLL_MS, onLeave } = {}) {
+export function useGameRoom({ gameId, user, gameTitle, pollInterval = POLL_MS, onLeave, initialRoomCode } = {}) {
   const { showWarning } = useAbandonWarning();
+  const { setCurrentRoom, clearCurrentRoom } = useCurrentRoom();
   const [phase, setPhase] = useState("lobby"); // lobby | waiting | playing | finished
   const [roomCode, setRoomCode] = useState("");
   const [joinCode, setJoinCode] = useState("");
@@ -151,6 +153,17 @@ export function useGameRoom({ gameId, user, pollInterval = POLL_MS, onLeave } = 
   }, []);
 
   useEffect(() => () => stopPolling(), [stopPolling]);
+
+  // Registrar/limpiar sala activa en el contexto global (para invitaciones desde chat)
+  useEffect(() => {
+    if (roomCode && (phase === 'waiting' || phase === 'playing')) {
+      setCurrentRoom({ roomCode, gameId, gameTitle });
+    } else {
+      clearCurrentRoom();
+    }
+  }, [roomCode, phase]); // eslint-disable-line
+
+  useEffect(() => () => clearCurrentRoom(), []); // eslint-disable-line
 
   // ── reset local ───────────────────────────────────────────────────────────
 
@@ -301,6 +314,11 @@ export function useGameRoom({ gameId, user, pollInterval = POLL_MS, onLeave } = 
     } catch { /* si falla la petición, igualmente limpiamos */ }
     if (onLeave) onLeave(); else resetLocal();
   }, [phase, guestPlayer, hostPlayer, resetLocal, onLeave]);
+
+  // Auto-unirse si se llega con código de invitación
+  useEffect(() => {
+    if (initialRoomCode && user) joinRoom(initialRoomCode);
+  }, [initialRoomCode, user?.email]); // eslint-disable-line
 
   // ── derivados ─────────────────────────────────────────────────────────────
 
