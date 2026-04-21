@@ -4,7 +4,7 @@ import { useAuth } from '@/lib/AuthContext';
 import { getFriends } from '@/api/friends';
 import { getDirectMessages, sendDirectMessage, markMessagesRead, getUnreadCounts, sendHeartbeat } from '@/api/directMessages';
 
-const ONLINE_THRESHOLD_MS = 5 * 60 * 1000; // 5 minutos
+const ONLINE_THRESHOLD_MS = 90 * 1000; // 90s — heartbeat cada 30s, 3 misses = offline
 
 function isOnline(lastSeen) {
   if (!lastSeen) return false;
@@ -159,26 +159,13 @@ export default function FloatingChat() {
 
           {/* Lista de amigos */}
           {!activeFriend && (
-            <div className="flex-1 overflow-y-auto">
+            <div className="flex-1 overflow-y-auto py-1">
               {friends.length === 0 && (
                 <p className="text-center text-white/30 text-sm py-8">Sin amigos todavía</p>
               )}
-              {onlineFriends.length > 0 && (
-                <>
-                  <p className="text-xs text-white/30 px-4 pt-3 pb-1 uppercase tracking-wider">En línea</p>
-                  {onlineFriends.map(f => (
-                    <FriendRow key={f.email} friend={f} online unread={unread[f.email] || 0} onClick={() => openFriend(f)} />
-                  ))}
-                </>
-              )}
-              {offlineFriends.length > 0 && (
-                <>
-                  <p className="text-xs text-white/30 px-4 pt-3 pb-1 uppercase tracking-wider">Desconectados</p>
-                  {offlineFriends.map(f => (
-                    <FriendRow key={f.email} friend={f} online={false} unread={unread[f.email] || 0} onClick={() => openFriend(f)} />
-                  ))}
-                </>
-              )}
+              {[...onlineFriends, ...offlineFriends].map(f => (
+                <FriendRow key={f.email} friend={f} online={isOnline(f.last_seen)} unread={unread[f.email] || 0} onClick={() => openFriend(f)} />
+              ))}
             </div>
           )}
 
@@ -256,18 +243,17 @@ function FriendRow({ friend, online, unread, onClick }) {
   return (
     <button onClick={onClick}
       className="w-full flex items-center gap-3 px-4 py-3 hover:bg-white/5 transition-colors text-left">
-      <div className="relative flex-shrink-0">
+      <div className="flex-shrink-0">
         {friend.avatar_url
           ? <img src={friend.avatar_url} className="w-9 h-9 rounded-full object-cover" />
           : <div className="w-9 h-9 rounded-full bg-purple-700 flex items-center justify-center text-sm font-bold text-white">
               {friend.full_name?.[0]?.toUpperCase()}
             </div>
         }
-        <span className={`absolute bottom-0 right-0 w-2.5 h-2.5 rounded-full border-2 border-[#0f0a1e] ${online ? 'bg-emerald-400' : 'bg-gray-600'}`} />
       </div>
-      <span className="flex-1 text-sm font-medium truncate" style={online ? {
-        color: '#fff',
-        textShadow: '0 0 8px rgba(139,92,246,0.8), 0 0 16px rgba(6,182,212,0.5)',
+      <span className="flex-1 text-sm font-medium truncate transition-colors" style={online ? {
+        color: '#4ade80',
+        textShadow: '0 0 6px rgba(74,222,128,0.5)',
       } : { color: '#6b7280' }}>
         {friend.full_name}
       </span>
