@@ -102,6 +102,10 @@ El resto de tablas (`Comment`, `Favorite`, `Tournament`, `GameSession`, `ChessRo
 ### 6. Arrancar
 
 ```bash
+# Opción recomendada — Frontend + Backend juntos
+npm run dev:full
+
+# Opción manual
 # Terminal 1 — Backend
 cd server && npm run dev
 

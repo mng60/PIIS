@@ -5,9 +5,10 @@ import { createServer } from 'node:net';
 const isWindows = process.platform === 'win32';
 
 function runCommand(command, args, cwd, name) {
-  const child = spawn(command, args, {
+  const executable = isWindows && command === 'npm' ? 'npm.cmd' : command;
+  const child = spawn(executable, args, {
     cwd,
-    shell: isWindows,
+    shell: false,
     stdio: ['inherit', 'pipe', 'pipe'],
     env: process.env,
   });
@@ -41,17 +42,31 @@ async function isPortFree(port) {
   }
 }
 
+async function isApiHealthy() {
+  try {
+    const response = await fetch('http://localhost:3001/api/health');
+    if (!response.ok) return false;
+    const data = await response.json();
+    return data?.ok === true;
+  } catch {
+    return false;
+  }
+}
+
 const rootDir = process.cwd();
 const serverDir = new URL('../server/', import.meta.url);
 const children = [];
 
-if (!(await isPortFree(3001))) {
-  console.error('Port 3001 is already in use. Stop the old API process or free that port before running `npm run dev:full`.');
+if (await isPortFree(3001)) {
+  children.push(runCommand('npm', ['run', 'dev'], serverDir, 'api'));
+} else if (await isApiHealthy()) {
+  console.log('[api] Reusing existing API on http://localhost:3001');
+} else {
+  console.error('Port 3001 is already in use, but it is not responding as this API. Stop that process or free the port before running `npm run dev`.');
   process.exit(1);
 }
 
-children.push(runCommand('npm', ['run', 'dev'], serverDir, 'api'));
-children.push(runCommand('npm', ['run', 'dev'], rootDir, 'web'));
+children.push(runCommand('npm', ['run', 'dev:web'], rootDir, 'web'));
 
 function shutdown(signal) {
   for (const child of children) {

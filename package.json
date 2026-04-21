@@ -1,10 +1,24 @@
 {
   "name": "playcraft",
-  "private": true,
   "version": "0.0.0",
+  "private": true,
+  "description": "Plataforma de juegos web — Proyecto Universitario PIIS.",
+  "homepage": "https://github.com/mng60/PIIS#readme",
+  "bugs": {
+    "url": "https://github.com/mng60/PIIS/issues"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/mng60/PIIS.git"
+  },
+  "license": "ISC",
+  "author": "",
   "type": "module",
+  "main": "eslint.config.js",
   "scripts": {
-    "dev": "vite",
+    "dev": "node scripts/dev-full.mjs",
+    "dev:web": "vite",
+    "dev:full": "node scripts/dev-full.mjs",
     "build": "vite build",
     "lint": "eslint . --quiet",
     "lint:fix": "eslint . --fix",

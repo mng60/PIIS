@@ -438,8 +438,49 @@
 
 .user-level-2-game-detail-page .text-yellow-500,
 .user-level-2-game-detail-page .fill-yellow-500 {
-  color: #c4a93e !important;
-  fill: #c4a93e !important;
+  color: #1f6f5b !important;
+  fill: #1f6f5b !important;
+}
+
+.user-level-2-game-detail-page p.text-gray-300.text-sm.leading-relaxed {
+  color: #ffffff !important;
+}
+
+.user-level-2-snake-shell .user-level-2-snake-title {
+  color: #14532d !important;
+}
+
+.user-level-2-snake-points {
+  color: #1e3a8a !important;
+}
+
+.user-level-2-snake-level {
+  color: #22c55e !important;
+}
+
+.user-level-2-snake-record {
+  color: #f59e0b !important;
+}
+
+.user-level-2-detail-panel .text-yellow-500,
+.user-level-2-detail-panel .fill-yellow-500,
+.user-level-2-detail-panel .text-amber-400,
+.user-level-2-detail-panel .text-amber-500,
+.user-level-2-detail-panel .text-amber-600,
+.user-level-2-detail-panel .user-level-2-detail-icon-yellow {
+  color: #1f6f5b !important;
+  fill: #1f6f5b !important;
+}
+
+.user-level-2-detail-panel .space-y-2 > div {
+  background: linear-gradient(90deg, rgba(31, 111, 91, 0.18) 0%, rgba(46, 133, 121, 0.08) 100%) !important;
+  border-color: rgba(31, 111, 91, 0.28) !important;
+}
+
+.user-level-2-detail-panel .space-y-2 > div .text-white,
+.user-level-2-detail-panel .space-y-2 > div .text-gray-400,
+.user-level-2-detail-panel .space-y-2 > div .text-gray-600 {
+  color: #1f6f5b !important;
 }
 
 .user-level-2-game-detail-page [class*="bg-purple"],
@@ -780,7 +821,7 @@
 }
 
 .user-level-2-game-surface .online-game-lobby__title {
-  background: linear-gradient(90deg, #58b96b 0%, #58b6cf 52%, #3c8fd1 100%) !important;
+  background: linear-gradient(90deg, #2f7d3d 0%, #2e879b 52%, #1f669b 100%) !important;
   -webkit-background-clip: text !important;
   background-clip: text !important;
   color: transparent !important;

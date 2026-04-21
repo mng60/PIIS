@@ -104,6 +104,7 @@ export default function SnakeGame({ onScoreUpdate, onGameStart, user, serverBest
   const levelUser = authUser ?? user;
   const isRegularUser = levelUser && levelUser.role !== "admin" && levelUser.role !== "empresa";
   const isLevel1User = isRegularUser && getLevelFromXP(levelUser.xp ?? 0).level === 1;
+  const isLevel2User = isRegularUser && getLevelFromXP(levelUser.xp ?? 0).level === 2;
 
   const [difficulty, setDifficulty] = useState("normal");
   const [wallWrap, setWallWrap] = useState(false);
@@ -273,11 +274,11 @@ export default function SnakeGame({ onScoreUpdate, onGameStart, user, serverBest
   };
 
   return (
-    <div className={`flex flex-col gap-3 w-full select-none ${isLevel1User ? "user-level-1-snake-shell" : ""}`}>
+    <div className={`flex flex-col gap-3 w-full select-none ${isLevel1User ? "user-level-1-snake-shell" : ""} ${isLevel2User ? "user-level-2-snake-shell" : ""}`}>
       <div className="flex items-center justify-between px-2">
-        <Stat label="Puntos" value={score} color={isLevel1User ? "user-level-1-snake-points" : "text-white"} labelClass={isLevel1User ? "user-level-1-snake-title" : ""} />
-        <Stat label="Nivel" value={level} color={isLevel1User ? "user-level-1-snake-value-highlight" : "text-green-400"} labelClass={isLevel1User ? "user-level-1-snake-title" : ""} />
-        <Stat label="Record" value={highScore} color={isLevel1User ? "user-level-1-snake-record" : "text-amber-400"} labelClass={isLevel1User ? "user-level-1-snake-title" : ""} />
+        <Stat label="Puntos" value={score} color={isLevel1User ? "user-level-1-snake-points" : isLevel2User ? "user-level-2-snake-points" : "text-white"} labelClass={isLevel1User ? "user-level-1-snake-title" : isLevel2User ? "user-level-2-snake-title" : ""} />
+        <Stat label="Nivel" value={level} color={isLevel1User ? "user-level-1-snake-value-highlight" : isLevel2User ? "user-level-2-snake-level" : "text-green-400"} labelClass={isLevel1User ? "user-level-1-snake-title" : isLevel2User ? "user-level-2-snake-title" : ""} />
+        <Stat label="Record" value={highScore} color={isLevel1User ? "user-level-1-snake-record" : isLevel2User ? "user-level-2-snake-record" : "text-amber-400"} labelClass={isLevel1User ? "user-level-1-snake-title" : isLevel2User ? "user-level-2-snake-title" : ""} />
       </div>
 
       <div
