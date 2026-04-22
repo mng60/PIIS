@@ -309,9 +309,9 @@ export default function ChessOnlineGame({ user, gameId, myEloRating = 1200, onSc
         if (user.email === room.host_email) {
           setRoomCode(initialRoomCode);
           setPlayerColor("white");
-          setGameStatus(room.status);
           setScreen("playing");
           setWinner(null);
+          applyRoomUpdate(room); // restaura nombre/avatar del rival inmediatamente
           startPolling();
         } else if (!room.guest_email || user.email === room.guest_email) {
           if (!checkEloCompatibility(room.host_elo, room.game_mode)) {
@@ -323,6 +323,7 @@ export default function ChessOnlineGame({ user, gameId, myEloRating = 1200, onSc
           let finalRoom = room;
           if (room.status === "waiting") {
             finalRoom = await updateChessRoom(initialRoomCode, {
+              guest_email: user.email,
               guest_name: nickName(user.full_name) || user.email.split("@")[0],
               guest_avatar_url: user.avatar_url || null,
               status: "playing",
@@ -738,7 +739,11 @@ export default function ChessOnlineGame({ user, gameId, myEloRating = 1200, onSc
     meta.drawOfferAt = nowISO();
     metaRef.current = meta;
 
-    await updateChessRoom(roomCodeRef.current, { board_state: packBoardState(board, meta) });
+    await updateChessRoom(roomCodeRef.current, {
+      board_state: packBoardState(board, meta),
+      draw_offer_notify: true,
+      notify_game_id: gameId,
+    });
     toast.message("Tablas ofrecidas");
   };
 

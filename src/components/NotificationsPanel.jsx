@@ -11,7 +11,7 @@ import {
   Popover, PopoverContent, PopoverTrigger,
 } from "@/components/ui/popover";
 import {
-  Bell, Check, X, UserPlus, UserCheck, CheckCheck, Loader2, Gamepad2, Swords,
+  Bell, Check, X, UserPlus, UserCheck, CheckCheck, Loader2, Gamepad2, Swords, Scale,
 } from "lucide-react";
 import { formatDistanceToNow } from "date-fns";
 import { es } from "date-fns/locale";
@@ -23,6 +23,7 @@ function NotificationIcon({ type }) {
   if (type === "friend_accepted") return <UserCheck className="w-4 h-4 text-cyan-400" />;
   if (type === "game_invite") return <Gamepad2 className="w-4 h-4 text-emerald-400" />;
   if (type === "game_timeout") return <Swords className="w-4 h-4 text-amber-400" />;
+  if (type === "draw_offer") return <Scale className="w-4 h-4 text-yellow-400" />;
   return <Bell className="w-4 h-4 text-gray-400" />;
 }
 
@@ -35,6 +36,9 @@ function NotificationText({ n }) {
     if (result === "win")  return <>Ganaste a <span className="font-medium">{n.from_name}</span> por tiempo en {n.data?.game_title || 'Ajedrez'}</>;
     if (result === "loss") return <>Perdiste contra <span className="font-medium">{n.from_name}</span> por tiempo en {n.data?.game_title || 'Ajedrez'}</>;
     return <>Partida de {n.data?.game_title || 'Ajedrez'} finalizada por tiempo</>;
+  }
+  if (n.type === "draw_offer") {
+    return <><span className="font-medium">{n.from_name}</span> te ofrece tablas en {n.data?.game_title || 'Ajedrez'} — pulsa para responder</>;
   }
   return n.from_name;
 }
@@ -132,6 +136,16 @@ export default function NotificationsPanel({ isDark }) {
 
   async function handleClickNotification(n) {
     if (n.type === "game_invite") return;
+    if (n.type === "draw_offer") {
+      const { room_code, game_id } = n.data || {};
+      if (!room_code || !game_id) return;
+      await markAsRead(n.id).catch(() => {});
+      setNotifications(prev => prev.map(x => x.id === n.id ? { ...x, is_read: true } : x));
+      setUnreadCount(c => Math.max(0, c - 1));
+      setOpen(false);
+      navigate(`/games/${encodeURIComponent(game_id)}?room=${room_code}`);
+      return;
+    }
     if (!n.is_read) {
       await markAsRead(n.id).catch(() => {});
       setNotifications(prev => prev.map(x => x.id === n.id ? { ...x, is_read: true } : x));

@@ -158,23 +158,50 @@ router.post('/', requireAuth, async (req, res) => {
 
 // PATCH /api/chess/:room_code
 router.patch('/:room_code', requireAuth, async (req, res) => {
+  // Extraer flags especiales antes de pasar a Prisma
+  const { draw_offer_notify, notify_game_id, ...data } = req.body;
+
   const room = await prisma.chessRoom.update({
     where: { room_code: req.params.room_code },
-    data: req.body,
+    data,
   });
-  if (req.body.status === 'finished') cleanupChatMessages(req.params.room_code);
+  if (data.status === 'finished') cleanupChatMessages(req.params.room_code);
   res.json(room);
 
   // Si la partida termina con ganador, avanzar bracket del torneo (si aplica)
-  if (req.body.status === 'finished' && req.body.winner && req.body.winner !== 'draw') {
+  if (data.status === 'finished' && data.winner && data.winner !== 'draw') {
     try {
       const match = await prisma.tournamentMatch.findFirst({
         where: { room_code: req.params.room_code, status: { not: 'finished' } },
       });
-      if (match) await advanceTournamentMatch(match.id, req.body.winner);
+      if (match) await advanceTournamentMatch(match.id, data.winner);
     } catch (err) {
       console.error('[Tournament] chess advance error:', err);
     }
+  }
+
+  // Notificar al rival cuando se ofrece tablas
+  if (draw_offer_notify && room.host_email && room.guest_email) {
+    try {
+      const requesterEmail = req.user.email;
+      const opponentEmail = requesterEmail === room.host_email ? room.guest_email : room.host_email;
+      const requesterName = requesterEmail === room.host_email ? room.host_name : (room.guest_name ?? 'Rival');
+
+      // Eliminar oferta previa del mismo room para no acumular
+      await prisma.notification.deleteMany({
+        where: { user_email: opponentEmail, type: 'draw_offer' },
+      });
+
+      await prisma.notification.create({
+        data: {
+          user_email: opponentEmail,
+          type: 'draw_offer',
+          from_email: requesterEmail,
+          from_name: requesterName,
+          data: { room_code: room.room_code, game_id: notify_game_id ?? null, game_title: 'Ajedrez' },
+        },
+      });
+    } catch {}
   }
 });
 

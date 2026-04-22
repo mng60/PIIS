@@ -1,5 +1,5 @@
-import { useState } from 'react';
-import { useQuery } from '@tanstack/react-query';
+import { useState, useEffect } from 'react';
+import { useQuery, useQueryClient } from '@tanstack/react-query';
 import { useNavigate, useLocation } from 'react-router-dom';
 import { Swords, ExternalLink, ChevronDown, ChevronUp, Circle } from 'lucide-react';
 import { useAuth } from '@/lib/AuthContext';
@@ -14,14 +14,22 @@ export default function ActiveChessGamesAlert() {
   const { user, isAuthenticated } = useAuth();
   const navigate = useNavigate();
   const location = useLocation();
+  const queryClient = useQueryClient();
 
   const { data: games = [] } = useQuery({
     queryKey: ['myActiveChessGames'],
     queryFn: getMyActiveChessGames,
-    refetchInterval: 15_000,
+    refetchInterval: 8_000,
+    refetchOnWindowFocus: true,
     enabled: isAuthenticated && !!user,
     retry: false,
   });
+
+  // Refetch inmediato al cambiar de página
+  useEffect(() => {
+    if (!isAuthenticated || !user) return;
+    queryClient.invalidateQueries({ queryKey: ['myActiveChessGames'] });
+  }, [location.pathname]);
 
   const isOnChessPage = location.pathname.startsWith('/games/') && location.search.includes('room=');
 

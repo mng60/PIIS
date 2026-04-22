@@ -420,6 +420,7 @@ enum NotificationType {
   friend_accepted
   game_invite
   game_timeout
+  draw_offer
 }
 
 // ─── Matchmaking ─────────────────────────────────────────────────────────────
