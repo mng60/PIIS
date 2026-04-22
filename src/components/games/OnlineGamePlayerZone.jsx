@@ -2,6 +2,7 @@ import React from "react";
 import { Button } from "@/components/ui/button";
 import { Settings } from "lucide-react";
 import { getEloRank } from "@/lib/eloRanks";
+import PremiumUsername from "@/components/ui/PremiumUsername";
 
 function PlayerAvatar({ name, avatarUrl, color }) {
   const initial = (name || "?")[0].toUpperCase();
@@ -63,7 +64,9 @@ export default function OnlineGamePlayerZone({
             <PlayerAvatar name={topPlayer?.name} avatarUrl={topPlayer?.avatarUrl} color="purple" />
             <div className="min-w-0">
               <div className="text-xs text-gray-400">{topPlayer?.label || "Rival"}</div>
-              <div className="font-semibold text-sm truncate">{topPlayer?.name || "Esperando..."}</div>
+              {topPlayer?.isPremium
+                ? <PremiumUsername name={topPlayer.name || "Esperando..."} className="text-sm truncate block" />
+                : <div className="font-semibold text-sm truncate">{topPlayer?.name || "Esperando..."}</div>}
               <div className="flex items-center gap-2">
                 {topPlayer?.time !== undefined && <span className="text-xs text-gray-300">⏱ {topPlayer.time}</span>}
                 {topPlayer?.elo != null && (() => {
@@ -104,7 +107,9 @@ export default function OnlineGamePlayerZone({
             )}
             <div className="min-w-0 text-right flex-1">
               <div className="text-xs text-gray-400">{bottomPlayer?.label || "Tú"}</div>
-              <div className="font-semibold text-sm truncate">{bottomPlayer?.name || "..."}</div>
+              {bottomPlayer?.isPremium
+                ? <PremiumUsername name={bottomPlayer.name || "..."} className="text-sm truncate block" />
+                : <div className="font-semibold text-sm truncate">{bottomPlayer?.name || "..."}</div>}
               <div className="flex items-center justify-end gap-2">
                 {bottomPlayer?.elo != null && (() => {
                   const rank = getEloRank(bottomPlayer.elo);

@@ -5,7 +5,7 @@ import { requireAuth } from '../middleware/auth.js';
 const router = Router();
 const prisma = new PrismaClient();
 
-const PUBLIC_USER = { email: true, full_name: true, avatar_url: true, xp: true, last_seen: true };
+const PUBLIC_USER = { email: true, full_name: true, avatar_url: true, xp: true, last_seen: true, premium_until: true };
 
 async function getSenderName(email) {
   const u = await prisma.user.findUnique({ where: { email }, select: { full_name: true } });

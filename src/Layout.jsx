@@ -19,6 +19,7 @@ import {
 import { Button } from "@/components/ui/button";
 import { Sheet, SheetContent, SheetTrigger } from "@/components/ui/sheet";
 import NotificationsPanel from "@/components/NotificationsPanel";
+import PremiumUsername from "@/components/ui/PremiumUsername";
 
 export default function Layout({ children }) {
   const { user, logout } = useAuth();
@@ -197,7 +198,9 @@ export default function Layout({ children }) {
 
             {user ? (
               <div className="hidden md:flex items-center gap-3">
-                <span className={`text-sm ${isDark ? "text-gray-400" : "text-gray-600"}`}>{user.full_name || user.email}</span>
+                {user.premium_until && new Date(user.premium_until) > new Date()
+                  ? <PremiumUsername name={user.full_name || user.email} className="text-sm" />
+                  : <span className={`text-sm ${isDark ? "text-gray-400" : "text-gray-600"}`}>{user.full_name || user.email}</span>}
                 <Button
                   variant="ghost"
                   size="icon"
@@ -230,7 +233,9 @@ export default function Layout({ children }) {
                       <div className="space-y-4">
                         <div className="px-4 py-3 bg-white/5 rounded-lg">
                           <p className="text-sm text-gray-400">Conectado como</p>
-                          <p className="font-medium truncate">{user.full_name || user.email}</p>
+                          {user.premium_until && new Date(user.premium_until) > new Date()
+                            ? <PremiumUsername name={user.full_name || user.email} className="font-medium" />
+                            : <p className="font-medium truncate">{user.full_name || user.email}</p>}
                         </div>
                         <Button
                           variant="ghost"

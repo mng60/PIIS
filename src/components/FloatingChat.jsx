@@ -6,6 +6,7 @@ import { getDirectMessages, sendDirectMessage, markMessagesRead, getUnreadCounts
 import { sendGameInvite } from '@/api/notifications';
 import { useCurrentRoom } from '@/lib/CurrentRoomContext';
 import { toast } from 'sonner';
+import PremiumUsername from '@/components/ui/PremiumUsername';
 
 const ONLINE_THRESHOLD_MS = 40 * 1000; // 40s — heartbeat cada 15s, 2 misses = offline
 
@@ -164,7 +165,9 @@ export default function FloatingChat() {
                       </div>
                   }
                   <div>
-                    <p className="text-sm font-semibold text-white leading-tight">{activeFriend.full_name}</p>
+                    {activeFriend.premium_until && new Date(activeFriend.premium_until) > new Date()
+                      ? <PremiumUsername name={activeFriend.full_name} className="text-sm leading-tight" />
+                      : <p className="text-sm font-semibold text-white leading-tight">{activeFriend.full_name}</p>}
                     <p className="text-xs" style={{ color: isOnline(activeFriend.last_seen) ? '#34d399' : '#6b7280' }}>
                       {isOnline(activeFriend.last_seen) ? 'En línea' : 'Desconectado'}
                     </p>

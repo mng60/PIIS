@@ -135,7 +135,21 @@ router.get('/my-active-games', requireAuth, async (req, res) => {
 router.get('/:room_code', async (req, res) => {
   const room = await prisma.chessRoom.findUnique({ where: { room_code: req.params.room_code } });
   if (!room) return res.status(404).json({ error: 'Sala no encontrada' });
-  res.json(room);
+
+  const emails = [room.host_email, room.guest_email].filter(Boolean);
+  const users = await prisma.user.findMany({
+    where: { email: { in: emails } },
+    select: { email: true, premium_until: true },
+  });
+  const premiumSet = new Set(
+    users.filter(u => u.premium_until && new Date(u.premium_until) > new Date()).map(u => u.email)
+  );
+
+  res.json({
+    ...room,
+    host_is_premium: premiumSet.has(room.host_email),
+    guest_is_premium: room.guest_email ? premiumSet.has(room.guest_email) : false,
+  });
 });
 
 // POST /api/chess

@@ -85,6 +85,7 @@ export default function ChessOnlineGame({ user, gameId, myEloRating = 1200, onSc
   const [opponentName, setOpponentName] = useState("Rival");
   const [opponentAvatarUrl, setOpponentAvatarUrl] = useState(null);
   const [opponentEloRating, setOpponentEloRating] = useState(null);
+  const [opponentIsPremium, setOpponentIsPremium] = useState(false);
   const [showTurnFlash, setShowTurnFlash] = useState(false);
   const [gameStatus, setGameStatus] = useState("waiting");
   const [winner, setWinner] = useState(null);
@@ -229,6 +230,7 @@ export default function ChessOnlineGame({ user, gameId, myEloRating = 1200, onSc
       const opp = isHost ? (room.guest_name || "Rival") : (room.host_name || "Rival");
       setOpponentName(nickName(opp) || "Rival");
       setOpponentAvatarUrl(isHost ? (room.guest_avatar_url || null) : (room.host_avatar_url || null));
+      setOpponentIsPremium(isHost ? !!(room.guest_is_premium) : !!(room.host_is_premium));
       const oppEmail = isHost ? room.guest_email : room.host_email;
       if (oppEmail && gameId) {
         import("@/api/scores").then(({ getUserGameScores }) =>
@@ -695,6 +697,7 @@ export default function ChessOnlineGame({ user, gameId, myEloRating = 1200, onSc
       setRoomCode(joinCode.toUpperCase());
       setPlayerColor("black");
       setOpponentName(room.host_name || "Rival");
+      setOpponentIsPremium(!!(room.host_is_premium));
       setGameStatus("playing");
       setScreen("playing");
       setWinner(null);
@@ -909,6 +912,7 @@ export default function ChessOnlineGame({ user, gameId, myEloRating = 1200, onSc
           time: formatMs(clock ? Math.max(0, oppMs) : null),
           avatarUrl: opponentAvatarUrl,
           elo: opponentEloRating,
+          isPremium: opponentIsPremium,
         }}
         bottomPlayer={{
           label: flip ? "Negras" : "Blancas",
@@ -916,6 +920,7 @@ export default function ChessOnlineGame({ user, gameId, myEloRating = 1200, onSc
           time: formatMs(clock ? Math.max(0, myMs) : null),
           avatarUrl: user?.avatar_url || null,
           elo: myEloRating,
+          isPremium: !!(user?.premium_until && new Date(user.premium_until) > new Date()),
         }}
         isTopPlayerActive={isTopPlayerActive}
         isBottomPlayerActive={isBottomPlayerActive}
