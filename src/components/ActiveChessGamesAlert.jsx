@@ -31,14 +31,16 @@ export default function ActiveChessGamesAlert() {
     queryClient.invalidateQueries({ queryKey: ['myActiveChessGames'] });
   }, [location.pathname]);
 
-  const isOnChessPage = location.pathname.startsWith('/games/') && location.search.includes('room=');
+  // Filtrar la partida actual para no mostrarla en el widget mientras la estás jugando
+  const currentRoomCode = new URLSearchParams(location.search).get('room');
+  const visibleGames = games.filter(g => g.room_code !== currentRoomCode);
 
-  if (!games.length || isOnChessPage) return null;
+  if (!visibleGames.length) return null;
 
   return (
     <div className="fixed bottom-4 left-4 z-40">
       <ChessGamesCard
-        games={games}
+        games={visibleGames}
         onNavigate={(game) => {
           if (game.game_id) navigate(`/games/${game.game_id}?room=${game.room_code}`);
         }}

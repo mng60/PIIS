@@ -161,10 +161,16 @@ router.patch('/:room_code', requireAuth, async (req, res) => {
   // Extraer flags especiales antes de pasar a Prisma
   const { draw_offer_notify, notify_game_id, ...data } = req.body;
 
-  const room = await prisma.chessRoom.update({
-    where: { room_code: req.params.room_code },
-    data,
-  });
+  let room;
+  try {
+    room = await prisma.chessRoom.update({
+      where: { room_code: req.params.room_code },
+      data,
+    });
+  } catch (err) {
+    return res.status(500).json({ error: 'Error al actualizar la sala', detail: err.message });
+  }
+
   if (data.status === 'finished') cleanupChatMessages(req.params.room_code);
   res.json(room);
 
