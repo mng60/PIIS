@@ -332,10 +332,9 @@ export default function ChessOnlineGame({ user, gameId, myEloRating = 1200, onSc
           }
           setRoomCode(initialRoomCode);
           setPlayerColor("black");
-          setOpponentName(nickName(room.host_name) || "Rival");
-          setGameStatus(finalRoom.status);
           setScreen("playing");
           setWinner(null);
+          applyRoomUpdate(finalRoom);
           startPolling();
         }
       } catch (e) {
