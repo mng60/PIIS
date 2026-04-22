@@ -11,7 +11,7 @@ import {
   Popover, PopoverContent, PopoverTrigger,
 } from "@/components/ui/popover";
 import {
-  Bell, Check, X, UserPlus, UserCheck, CheckCheck, Loader2, Gamepad2,
+  Bell, Check, X, UserPlus, UserCheck, CheckCheck, Loader2, Gamepad2, Swords,
 } from "lucide-react";
 import { formatDistanceToNow } from "date-fns";
 import { es } from "date-fns/locale";
@@ -22,6 +22,7 @@ function NotificationIcon({ type }) {
   if (type === "friend_request") return <UserPlus className="w-4 h-4 text-purple-400" />;
   if (type === "friend_accepted") return <UserCheck className="w-4 h-4 text-cyan-400" />;
   if (type === "game_invite") return <Gamepad2 className="w-4 h-4 text-emerald-400" />;
+  if (type === "game_timeout") return <Swords className="w-4 h-4 text-amber-400" />;
   return <Bell className="w-4 h-4 text-gray-400" />;
 }
 
@@ -29,6 +30,12 @@ function NotificationText({ n }) {
   if (n.type === "friend_request") return <><span className="font-medium">{n.from_name}</span> te envió una solicitud de amistad</>;
   if (n.type === "friend_accepted") return <><span className="font-medium">{n.from_name}</span> aceptó tu solicitud de amistad</>;
   if (n.type === "game_invite") return <><span className="font-medium">{n.from_name}</span> te invita a jugar <span className="font-medium">{n.data?.game_title || 'una partida'}</span></>;
+  if (n.type === "game_timeout") {
+    const result = n.data?.result;
+    if (result === "win")  return <>Ganaste a <span className="font-medium">{n.from_name}</span> por tiempo en {n.data?.game_title || 'Ajedrez'}</>;
+    if (result === "loss") return <>Perdiste contra <span className="font-medium">{n.from_name}</span> por tiempo en {n.data?.game_title || 'Ajedrez'}</>;
+    return <>Partida de {n.data?.game_title || 'Ajedrez'} finalizada por tiempo</>;
+  }
   return n.from_name;
 }
 

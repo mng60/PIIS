@@ -2,6 +2,7 @@ import { Router } from 'express';
 import { PrismaClient } from '@prisma/client';
 import { requireAuth } from '../middleware/auth.js';
 import { advanceTournamentMatch } from '../lib/tournamentAdvance.js';
+import { applyElo } from '../lib/eloLib.js';
 
 const router = Router();
 const prisma = new PrismaClient();
@@ -17,6 +18,117 @@ async function cleanupChatMessages(room_code) {
     if (toDelete.length) await prisma.chatMessage.deleteMany({ where: { id: { in: toDelete } } });
   } catch { /* silencioso */ }
 }
+
+// GET /api/chess/my-active-games — partidas en curso del usuario autenticado
+// Detecta y resuelve timeouts en segundo plano antes de devolver la lista
+router.get('/my-active-games', requireAuth, async (req, res) => {
+  const email = req.user.email;
+  const now = Date.now();
+
+  const rooms = await prisma.chessRoom.findMany({
+    where: {
+      status: 'playing',
+      OR: [{ host_email: email }, { guest_email: email }],
+    },
+  });
+
+  const timedOutCodes = new Set();
+
+  for (const room of rooms) {
+    try {
+      const boardState = JSON.parse(room.board_state);
+      const clock = boardState?.meta?.clock;
+      if (!clock || !clock.lastTickAt) continue; // sin límite de tiempo
+
+      const elapsed = now - new Date(clock.lastTickAt).getTime();
+      const turn = room.current_turn; // 'white' | 'black' (white = host, black = guest)
+
+      let winner = null;
+      if (turn === 'white' && clock.whiteMs - elapsed <= 0) winner = room.guest_email;
+      else if (turn === 'black' && clock.blackMs - elapsed <= 0) winner = room.host_email;
+
+      if (!winner) continue;
+
+      // Resolver timeout: cerrar la sala
+      await prisma.chessRoom.update({
+        where: { room_code: room.room_code },
+        data: { status: 'finished', winner },
+      });
+
+      const loser = winner === room.host_email ? room.guest_email : room.host_email;
+      const winnerName = winner === room.host_email ? room.host_name : (room.guest_name ?? 'Rival');
+      const loserName = loser === room.host_email ? room.host_name : (room.guest_name ?? 'Rival');
+
+      // Notificar a ambos jugadores
+      const notifs = [
+        { user_email: winner,  from_email: loser,   from_name: loserName,   result: 'win'  },
+        { user_email: loser,   from_email: winner,  from_name: winnerName,  result: 'loss' },
+      ];
+      for (const n of notifs) {
+        if (!n.user_email) continue;
+        await prisma.notification.create({
+          data: {
+            user_email: n.user_email,
+            type: 'game_timeout',
+            from_email: n.from_email,
+            from_name: n.from_name,
+            data: { room_code: room.room_code, game_title: 'Ajedrez', result: n.result },
+          },
+        });
+      }
+
+      // Procesar ELO si es ranked y aún no se ha procesado
+      if (room.game_mode === 'ranked' && !room.elo_processed && room.guest_email) {
+        try {
+          const game = await prisma.game.findFirst({ where: { game_code: 'chess-online' } });
+          if (game?.elo_enabled) {
+            const hostOutcome  = winner === room.host_email  ? 1 : 0;
+            const guestOutcome = winner === room.guest_email ? 1 : 0;
+            await applyElo({
+              game_id: game.id,
+              mode: 'duel',
+              results: [
+                { email: room.host_email,  name: room.host_name,           outcome: hostOutcome  },
+                { email: room.guest_email, name: room.guest_name ?? 'Rival', outcome: guestOutcome },
+              ],
+            });
+            await prisma.chessRoom.update({
+              where: { room_code: room.room_code },
+              data: { elo_processed: true },
+            });
+          }
+        } catch {}
+      }
+
+      // Avanzar bracket de torneo si aplica
+      try {
+        const match = await prisma.tournamentMatch.findFirst({
+          where: { room_code: room.room_code, status: { not: 'finished' } },
+        });
+        if (match) await advanceTournamentMatch(match.id, winner);
+      } catch {}
+
+      timedOutCodes.add(room.room_code);
+    } catch {}
+  }
+
+  const active = rooms
+    .filter(r => !timedOutCodes.has(r.room_code))
+    .map(room => {
+      const isHost = room.host_email === email;
+      return {
+        room_code: room.room_code,
+        opponent_name: isHost ? (room.guest_name ?? 'Esperando rival') : room.host_name,
+        opponent_avatar: isHost ? room.guest_avatar_url : room.host_avatar_url,
+        my_color: isHost ? 'white' : 'black',
+        current_turn: room.current_turn,
+        is_my_turn: isHost ? room.current_turn === 'white' : room.current_turn === 'black',
+        game_mode: room.game_mode,
+      };
+    });
+
+  res.json(active);
+});
 
 // GET /api/chess/:room_code
 router.get('/:room_code', async (req, res) => {

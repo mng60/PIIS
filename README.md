@@ -158,7 +158,7 @@ Cada módulo agrupa las llamadas HTTP de un dominio. Las páginas y hooks import
 | `sessions.js` | `createSession`, `getSession`, `updateSession`, `deleteSession` |
 | `users.js` | `getUsers`, `updateUser`, `updateMe` |
 | `achievements.js` | `getAchievementDefinitions`, `createAchievementDefinition`, `updateAchievementDefinition`, `deleteAchievementDefinition`, `getUserAchievements`, `upsertUserAchievement` |
-| `chess.js` | `createChessRoom`, `getChessRoom`, `updateChessRoom`, `deleteChessRoom` |
+| `chess.js` | `createChessRoom`, `getChessRoom`, `updateChessRoom`, `deleteChessRoom`, `getMyActiveChessGames` |
 | `tournaments.js` | `getTournaments`, `createTournament`, `updateTournament`, `deleteTournament` |
 | `chat.js` | `getChatMessages`, `sendChatMessage`, `deleteChatMessage` |
 | `reports.js` | `getReports`, `createReport`, `updateReport` |
@@ -444,3 +444,46 @@ Disponibles para cualquier juego multijugador:
 | `OnlineGamePlayerZone` | Indicador de turno activo para ambos jugadores |
 | `OnlineGameMoveHistory` | Lista de movimientos de la partida (props: `moves`, `title`, `emptyMessage`, `maxHeight`, `renderMove`) |
 | `ChatSection` | Chat en tiempo real de la sesión |
+
+---
+
+## Partidas activas en segundo plano (actualmente solo ajedrez)
+
+El sistema permite tener **varias partidas simultáneas** de un mismo juego. Mientras el usuario navega por la plataforma, un widget persistente (bottom-right) le recuerda sus partidas en curso e indica en cuáles es su turno. Al pinchar navega directamente a la sala.
+
+### Cómo funciona
+
+- `ActiveChessGamesAlert` hace polling cada 15 s a `GET /api/chess/my-active-games`.
+- El servidor devuelve las partidas activas del usuario y, **antes de responder**, comprueba si alguna ha expirado por tiempo usando el campo `lastTickAt` almacenado en `board_state.meta.clock`:
+  - Si `ahora - lastTickAt > ms_restantes_del_jugador_en_turno` → la partida se cierra automáticamente.
+  - Se notifica a ambos jugadores vía el panel de notificaciones (`game_timeout`).
+  - Si la partida era ranked y aún no se había procesado el ELO, se procesa en ese momento.
+  - Si la partida estaba ligada a un torneo, se avanza el bracket.
+- Partidas sin límite de tiempo (`clock === null`) nunca expiran en segundo plano.
+
+### Extender a otros juegos 1v1
+
+El patrón es idéntico para cualquier juego 1v1 que use `GameSession`. Los pasos son:
+
+**1. El juego debe guardar el reloj en `game_state`** con el mismo formato que el ajedrez:
+
+```js
+// Dentro de game_state (Json en BD)
+{
+  clock: {
+    whiteMs: 300000,   // ms restantes jugador 1
+    blackMs: 300000,   // ms restantes jugador 2
+    lastTickAt: "2026-04-22T12:00:00.000Z"  // ISO — cuándo se hizo el último movimiento
+  }
+}
+```
+
+Si el juego no tiene tiempo, `clock` debe ser `null` o estar ausente.
+
+**2. Añadir un endpoint `GET /api/<juego>/my-active-games`** en el router del juego. La lógica de timeout es la misma, cambiando solo el modelo (`GameSession` en vez de `ChessRoom`) y la ruta al reloj (`game_state.clock` en vez de `board_state.meta.clock`). Los jugadores se identifican como `host_email` y `guest_email` en `GameSession`.
+
+**3. Crear el componente alert** clonando `ActiveChessGamesAlert.jsx` y apuntando al nuevo endpoint y ruta de juego (`/games/<game_id>?room=...`).
+
+**4. Registrar el componente** en `App.jsx` junto al resto de alerts.
+
+No hay cambios de schema: `GameSession` ya tiene los campos necesarios y la notificación `game_timeout` ya existe en `NotificationType`.
