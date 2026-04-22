@@ -49,7 +49,15 @@ router.get('/', async (req, res) => {
       orderBy: { best_score: 'desc' },
       take: parseInt(limit),
     });
-    return res.json(stats);
+    const emails = stats.map(s => s.user_email);
+    const users = await prisma.user.findMany({
+      where: { email: { in: emails } },
+      select: { email: true, premium_until: true },
+    });
+    const premiumSet = new Set(
+      users.filter(u => u.premium_until && new Date(u.premium_until) > new Date()).map(u => u.email)
+    );
+    return res.json(stats.map(s => ({ ...s, is_premium: premiumSet.has(s.user_email) })));
   }
 
   res.status(400).json({ error: 'Se requiere game_id o user_email' });

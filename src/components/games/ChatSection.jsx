@@ -7,6 +7,7 @@ import { Send, Flag } from "lucide-react";
 import { format } from "date-fns";
 import { toast } from "sonner";
 import ReportDialog from "@/components/moderation/ReportDialog";
+import PremiumUsername from "@/components/ui/PremiumUsername";
 
 export default function ChatSection({ gameId, user, sessionId }) {
   const [message, setMessage] = useState("");
@@ -87,7 +88,9 @@ export default function ChatSection({ gameId, user, sessionId }) {
               }`}>
                 <div className="flex items-baseline justify-between gap-2 mb-1">
                   <div className="flex items-baseline gap-2">
-                    <span className="font-semibold text-white text-sm">{msg.user_name || msg.user_email}</span>
+                    {msg.is_premium
+                      ? <PremiumUsername name={msg.user_name || msg.user_email} className="text-sm" />
+                      : <span className="font-semibold text-white text-sm">{msg.user_name || msg.user_email}</span>}
                     <span className="text-xs text-gray-500">
                       {msg.created_at ? format(new Date(msg.created_at), "HH:mm") : ""}
                     </span>

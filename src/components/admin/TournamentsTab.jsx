@@ -45,6 +45,8 @@ const EMPTY_FORM = {
   position_elo_points: DEFAULT_ELO_POINTS,
   tournament_k_multiplier: "1.5",
   room_time_minutes: "",
+  prize: "",
+  premium_prize_months: "",
 };
 
 const STATUS_LABELS = {
@@ -188,6 +190,24 @@ function TournamentForm({ initial, games, onSave, onCancel, saving, onlyOwnGames
           className="w-full px-3 py-2 rounded-md bg-white/5 border border-white/10 text-white text-sm placeholder:text-gray-600 focus:outline-none focus:border-purple-500 resize-none" />
       </div>
 
+      {/* Premio */}
+      <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+        <div className="space-y-1.5">
+          <Label className="text-gray-300 text-sm">Premio (descripción)</Label>
+          <Input value={form.prize || ""} onChange={e => f("prize", e.target.value)}
+            placeholder="Ej: Trofeo + 500 créditos" className="bg-white/5 border-white/10 text-white placeholder:text-gray-600" />
+        </div>
+        <div className="space-y-1.5">
+          <Label className="text-gray-300 text-sm flex items-center gap-1.5">
+            <span className="text-yellow-400">★</span> Meses de Premium como premio
+          </Label>
+          <Input type="number" min="0" max="24" value={form.premium_prize_months || ""}
+            onChange={e => f("premium_prize_months", e.target.value)}
+            placeholder="0 = sin premio premium" className="bg-white/5 border-white/10 text-white placeholder:text-gray-600" />
+          <p className="text-xs text-gray-600">El ganador de cada bracket recibirá estos meses de premium</p>
+        </div>
+      </div>
+
       {/* Advanced ELO settings */}
       <button type="button" onClick={() => setShowAdvanced(v => !v)}
         className="flex items-center gap-2 text-sm text-gray-400 hover:text-white transition-colors">
@@ -321,6 +341,7 @@ export default function TournamentsTab({ filterByOwner, onlyOwnGames }) {
         elo_max: form.elo_max ? parseInt(form.elo_max) : null,
         tournament_k_multiplier: parseFloat(form.tournament_k_multiplier) || 1.5,
         room_time_minutes: form.room_time_minutes ? parseInt(form.room_time_minutes) : null,
+        premium_prize_months: form.premium_prize_months ? parseInt(form.premium_prize_months) : null,
       };
       await createTournament(payload);
       invalidate();
@@ -345,6 +366,7 @@ export default function TournamentsTab({ filterByOwner, onlyOwnGames }) {
         elo_max: form.elo_max ? parseInt(form.elo_max) : null,
         tournament_k_multiplier: parseFloat(form.tournament_k_multiplier) || 1.5,
         room_time_minutes: form.room_time_minutes ? parseInt(form.room_time_minutes) : null,
+        premium_prize_months: form.premium_prize_months ? parseInt(form.premium_prize_months) : null,
       };
       await updateTournament(editingTournament.id, payload);
       invalidate();
@@ -437,6 +459,8 @@ export default function TournamentsTab({ filterByOwner, onlyOwnGames }) {
                   position_elo_points: editingTournament.position_elo_points ?? DEFAULT_ELO_POINTS,
                   tournament_k_multiplier: editingTournament.tournament_k_multiplier ?? "1.5",
                   room_time_minutes: editingTournament.room_time_minutes ?? "",
+                  prize: editingTournament.prize ?? "",
+                  premium_prize_months: editingTournament.premium_prize_months ?? "",
                 }}
                 games={games}
                 onlyOwnGames={onlyOwnGames}
@@ -480,6 +504,9 @@ export default function TournamentsTab({ filterByOwner, onlyOwnGames }) {
                           <p className="font-medium text-white">{t.title}</p>
                           {(t.elo_min != null || t.elo_max != null) && (
                             <p className="text-xs text-cyan-400">ELO {t.elo_min ?? 0}–{t.elo_max ?? "∞"}</p>
+                          )}
+                          {t.premium_prize_months > 0 && (
+                            <p className="text-xs text-yellow-400">★ {t.premium_prize_months} mes{t.premium_prize_months > 1 ? "es" : ""} premium</p>
                           )}
                         </TableCell>
                         <TableCell className="text-gray-300 text-sm">{gameTitle(t.game_id)}</TableCell>

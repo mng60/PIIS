@@ -2,6 +2,22 @@
 @tailwind components;
 @tailwind utilities;
 
+@keyframes rainbow-text {
+  0%   { color: #ff0000; }
+  14%  { color: #ff8800; }
+  28%  { color: #ffff00; }
+  42%  { color: #00cc00; }
+  57%  { color: #00ccff; }
+  71%  { color: #0066ff; }
+  85%  { color: #cc00ff; }
+  100% { color: #ff0000; }
+}
+
+.premium-rainbow {
+  animation: rainbow-text 3s linear infinite;
+  font-weight: bold;
+}
+
 @keyframes fadeOutTurn {
   0%   { opacity: 1; transform: scale(1); }
   70%  { opacity: 1; transform: scale(1); }

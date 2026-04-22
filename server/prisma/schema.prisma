@@ -10,21 +10,23 @@ datasource db {
 // ─── Users ───────────────────────────────────────────────────────────────────
 
 model User {
-  id                String    @id @default(cuid())
-  email             String    @unique
-  password          String
-  full_name         String
-  role              Role      @default(user)
-  avatar_url        String?
-  xp                Int       @default(0)
-  is_banned         Boolean   @default(false)
-  chat_muted_until  DateTime?
-  play_banned_until DateTime?
-  pending_warning   String?   @db.VarChar(800)
-  abandon_count     Int       @default(0)
-  last_seen         DateTime?
-  created_at        DateTime  @default(now())
-  updated_at        DateTime  @updatedAt
+  id                     String    @id @default(cuid())
+  email                  String    @unique
+  password               String
+  full_name              String
+  role                   Role      @default(user)
+  avatar_url             String?
+  xp                     Int       @default(0)
+  is_banned              Boolean   @default(false)
+  chat_muted_until       DateTime?
+  play_banned_until      DateTime?
+  pending_warning        String?   @db.VarChar(800)
+  abandon_count          Int       @default(0)
+  last_seen              DateTime?
+  premium_until          DateTime?
+  subscription_cancel_at DateTime?
+  created_at             DateTime  @default(now())
+  updated_at             DateTime  @updatedAt
 }
 
 enum Role {
@@ -49,8 +51,9 @@ model Game {
   plays_count      Int          @default(0)
   rating_sum       Float        @default(0)
   rating_count     Int          @default(0)
-  is_featured      Boolean      @default(false)
-  is_active        Boolean      @default(true)
+  is_featured          Boolean      @default(false)
+  is_active            Boolean      @default(true)
+  early_access_until   DateTime?
   is_adult         Boolean      @default(false)
   is_multiplayer      Boolean      @default(false)
   show_leaderboard    Boolean      @default(true)
@@ -136,8 +139,9 @@ model Tournament {
   game_id          String
   start_date       DateTime
   end_date         DateTime
-  prize            String?
-  thumbnail        String?
+  prize                  String?
+  premium_prize_months   Int?
+  thumbnail              String?
   max_participants Int?
   status                TournamentStatus  @default(upcoming)
   is_active             Boolean           @default(true)

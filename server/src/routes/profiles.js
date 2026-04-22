@@ -35,7 +35,7 @@ router.get('/:email', requireAuth, async (req, res) => {
 
   const user = await prisma.user.findUnique({
     where: { email },
-    select: { id: true, email: true, full_name: true, avatar_url: true, xp: true, role: true, created_at: true },
+    select: { id: true, email: true, full_name: true, avatar_url: true, xp: true, role: true, created_at: true, premium_until: true },
   });
   if (!user) return res.status(404).json({ error: 'Usuario no encontrado' });
   if (user.role === 'admin') return res.status(404).json({ error: 'Perfil no disponible' });
@@ -93,12 +93,15 @@ router.get('/:email', requireAuth, async (req, res) => {
       })
     : [];
 
+  const is_premium = !!(user.premium_until && new Date(user.premium_until) > new Date());
+
   res.json({
     id: user.id,
     full_name: user.full_name,
     avatar_url: user.avatar_url,
     xp: user.xp,
     role: user.role,
+    is_premium,
     stats: statsWithGames,
     achievements,
     common_friends: commonFriends,

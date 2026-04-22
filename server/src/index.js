@@ -24,6 +24,7 @@ import maintenanceRoutes from './routes/maintenance.js';
 import ticketsRoutes from './routes/tickets.js';
 import directMessagesRoutes from './routes/direct-messages.js';
 import matchmakingRoutes from './routes/matchmaking.js';
+import premiumRoutes from './routes/premium.js';
 
 const app = express();
 const PORT = process.env.PORT || 3001;
@@ -66,6 +67,7 @@ app.use('/api/maintenance', maintenanceRoutes);
 app.use('/api/tickets', ticketsRoutes);
 app.use('/api/dm', directMessagesRoutes);
 app.use('/api/matchmaking', matchmakingRoutes);
+app.use('/api/premium', premiumRoutes);
 
 app.get('/api/health', (_req, res) => res.json({ ok: true }));
 

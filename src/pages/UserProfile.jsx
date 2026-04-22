@@ -13,6 +13,7 @@ import {
   Gamepad2, ArrowLeft, Briefcase, Trophy, Star,
 } from "lucide-react";
 import { getLevelFromXP, getNextLevel, getLevelProgress, RARITY_CONFIG } from "@/lib/levels";
+import PremiumUsername from "@/components/ui/PremiumUsername";
 import { evaluateMedals } from "@/lib/medals";
 import { format } from "date-fns";
 import { es } from "date-fns/locale";
@@ -206,9 +207,10 @@ function UserNormalProfile({ profile, status, definitions, socialProps }) {
   const [selectedGameId, setSelectedGameId] = useState(null);
 
   const xp = profile.xp ?? 0;
-  const currentLevel = getLevelFromXP(xp);
-  const nextLevel = getNextLevel(xp);
-  const levelPct = Math.round(getLevelProgress(xp) * 100);
+  const isPremium = !!(profile.is_premium);
+  const currentLevel = getLevelFromXP(xp, isPremium);
+  const nextLevel = getNextLevel(xp, isPremium);
+  const levelPct = Math.round(getLevelProgress(xp, isPremium) * 100);
 
   const totalPlays = profile.stats.reduce((a, s) => a + s.plays_count, 0);
   const totalWins = profile.stats.reduce((a, s) => a + s.wins_count, 0);
@@ -246,7 +248,11 @@ function UserNormalProfile({ profile, status, definitions, socialProps }) {
           <div className="flex flex-col md:flex-row items-center gap-6">
             <AvatarImg url={profile.avatar_url} name={profile.full_name} />
             <div className="flex-1 text-center md:text-left">
-              <h1 className="text-2xl font-bold text-white mb-3">{profile.full_name}</h1>
+              <h1 className="text-2xl font-bold mb-3">
+                {isPremium
+                  ? <PremiumUsername name={profile.full_name} />
+                  : <span className="text-white">{profile.full_name}</span>}
+              </h1>
               <SocialActions {...socialProps} />
               <div className="mt-4 max-w-xs mx-auto md:mx-0">
                 <div className="flex items-center justify-between mb-1.5">

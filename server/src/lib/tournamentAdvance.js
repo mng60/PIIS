@@ -180,12 +180,43 @@ async function applyPositionELO(tournament, allMatches) {
   }
 }
 
+async function applyPremiumPrize(tournament, allMatches) {
+  if (!tournament.premium_prize_months || tournament.premium_prize_months <= 0) return;
+
+  const bracketNames = [...new Set(allMatches.map(m => m.bracket_name))];
+  const winnerEmails = [];
+
+  for (const bracket of bracketNames) {
+    const bMatches = allMatches.filter(m => m.bracket_name === bracket && m.status === 'finished');
+    if (!bMatches.length) continue;
+    const maxRound = Math.max(...bMatches.map(m => m.round));
+    const final = bMatches.find(m => m.round === maxRound);
+    if (final?.winner_email) winnerEmails.push(final.winner_email);
+  }
+
+  for (const email of winnerEmails) {
+    const user = await prisma.user.findUnique({ where: { email }, select: { premium_until: true } });
+    if (!user) continue;
+    const base = (user.premium_until && new Date(user.premium_until) > new Date())
+      ? new Date(user.premium_until)
+      : new Date();
+    const premium_until = new Date(base);
+    premium_until.setMonth(premium_until.getMonth() + tournament.premium_prize_months);
+    await prisma.user.update({
+      where: { email },
+      data: { premium_until, subscription_cancel_at: null },
+    });
+    console.log(`[Tournament] Premio premium: ${email} hasta ${premium_until.toISOString()}`);
+  }
+}
+
 async function checkTournamentComplete(tournament) {
   const allMatches = await prisma.tournamentMatch.findMany({ where: { tournament_id: tournament.id } });
   const pending = allMatches.filter(m => m.status !== 'finished' && m.status !== 'bye');
   if (pending.length > 0) return;
 
   await applyPositionELO(tournament, allMatches);
+  await applyPremiumPrize(tournament, allMatches);
   await prisma.tournament.update({ where: { id: tournament.id }, data: { status: 'finished' } });
 }
 

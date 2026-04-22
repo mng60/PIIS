@@ -3,10 +3,12 @@ import { getFavorites } from "@/api/favorites";
 import { getUserScores } from "@/api/scores";
 import { getUserEloStats } from "@/api/elo";
 import { updateMe, changePassword } from "@/api/users";
+import { getPremiumStatus, subscribePremium, cancelPremium } from "@/api/premium";
 import { useAuth } from "@/lib/AuthContext";
-import { useQuery } from "@tanstack/react-query";
+import { useQuery, useQueryClient } from "@tanstack/react-query";
 import {
   Loader2, User, Mail, Calendar, Gamepad2, Edit2, Save, Camera, Lock, MoreVertical,
+  Crown, Sparkles,
 } from "lucide-react";
 import { getEloRank } from "@/lib/eloRanks";
 import {
@@ -25,11 +27,13 @@ import { format } from "date-fns";
 import { es } from "date-fns/locale";
 import UserAchievementsSection from "@/components/games/UserAchievementsSection";
 import { toast } from "sonner";
-import { getLevelFromXP, getNextLevel, getLevelProgress } from "@/lib/levels";
+import { getLevelFromXP, getNextLevel, getLevelProgress, PREMIUM_XP_FACTOR } from "@/lib/levels";
 import { evaluateMedals } from "@/lib/medals";
+import PremiumUsername from "@/components/ui/PremiumUsername";
 
 export default function Profile() {
   const { user, isLoadingAuth, updateUserData, refreshUser } = useAuth();
+  const queryClient = useQueryClient();
 
   useEffect(() => { refreshUser(); }, []);
   const [isEditing, setIsEditing] = useState(false);
@@ -42,6 +46,13 @@ export default function Profile() {
   const [pwForm, setPwForm] = useState({ current: "", next: "", confirm: "" });
   const [pwErrors, setPwErrors] = useState({});
   const [isChangingPw, setIsChangingPw] = useState(false);
+  const [isPremiumLoading, setIsPremiumLoading] = useState(false);
+
+  const { data: premiumStatus } = useQuery({
+    queryKey: ["premiumStatus", user?.email],
+    queryFn: getPremiumStatus,
+    enabled: !!user,
+  });
 
   const { data: favorites = [] } = useQuery({
     queryKey: ["favorites", user?.email],
@@ -118,6 +129,33 @@ export default function Profile() {
     }
   };
 
+  const handleSubscribePremium = async () => {
+    setIsPremiumLoading(true);
+    try {
+      await subscribePremium();
+      toast.success("¡Bienvenido a Premium!");
+      queryClient.invalidateQueries(["premiumStatus"]);
+      refreshUser();
+    } catch (err) {
+      toast.error(err?.message || "Error al suscribirse");
+    } finally {
+      setIsPremiumLoading(false);
+    }
+  };
+
+  const handleCancelPremium = async () => {
+    setIsPremiumLoading(true);
+    try {
+      await cancelPremium();
+      toast.success("Cancelación programada. Tu premium sigue activo hasta que expire.");
+      queryClient.invalidateQueries(["premiumStatus"]);
+    } catch (err) {
+      toast.error(err?.message || "Error al cancelar");
+    } finally {
+      setIsPremiumLoading(false);
+    }
+  };
+
   if (isLoadingAuth) {
     return (
       <div className="flex items-center justify-center min-h-[60vh]">
@@ -149,15 +187,16 @@ export default function Profile() {
   const totalPlays      = scores.reduce((sum, s) => sum + (s.plays_count || 0), 0);
   const totalWins       = scores.reduce((sum, s) => sum + (s.wins_count || 0), 0);
   const xp              = user.xp ?? 0;
+  const isPremium       = !!(premiumStatus?.is_premium);
 
   const CATEGORY_LABELS = { all: "Todos", accion: "Acción", puzzle: "Puzzle", arcade: "Arcade", estrategia: "Estrategia" };
   const filteredGames = [...scores]
     .filter(s => categoryFilter === "all" || s.game_category === categoryFilter)
     .filter(s => modeFilter === "all" || (modeFilter === "multi" ? s.game_is_multiplayer : !s.game_is_multiplayer))
     .sort((a, b) => (a.game_title || "").localeCompare(b.game_title || ""));
-  const currentLevel = getLevelFromXP(xp);
-  const nextLevel    = getNextLevel(xp);
-  const levelPct     = Math.round(getLevelProgress(xp) * 100);
+  const currentLevel = getLevelFromXP(xp, isPremium);
+  const nextLevel    = getNextLevel(xp, isPremium);
+  const levelPct     = Math.round(getLevelProgress(xp, isPremium) * 100);
   const earnedMedals = evaluateMedals({ totalPlays, totalWins, bestScore, totalTimePlayed, gamesPlayed, level: currentLevel.level });
 
   return (
@@ -207,7 +246,11 @@ export default function Profile() {
               ) : (
                 <>
                   <div className="flex items-center justify-center md:justify-start gap-3 mb-2">
-                    <h1 className="text-2xl font-bold text-white">{user.full_name || "Usuario"}</h1>
+                    <h1 className="text-2xl font-bold">
+                      {isPremium
+                        ? <PremiumUsername name={user.full_name || "Usuario"} />
+                        : <span className="text-white">{user.full_name || "Usuario"}</span>}
+                    </h1>
                     <Button
                       variant="ghost" size="icon"
                       onClick={() => { setEditData({ full_name: user.full_name || "" }); setIsEditing(true); }}
@@ -264,6 +307,7 @@ export default function Profile() {
                     {nextLevel ? (
                       <p className="text-[11px] text-gray-500 mt-1">
                         {(nextLevel.xpRequired - xp).toLocaleString()} XP para {nextLevel.name}
+                        {isPremium && <span className="text-yellow-400 ml-1">(descuento premium activo)</span>}
                       </p>
                     ) : (
                       <p className="text-[11px] mt-1" style={{ color: currentLevel.color }}>Nivel máximo alcanzado</p>
@@ -273,6 +317,69 @@ export default function Profile() {
               )}
             </div>
           </div>
+        </CardContent>
+      </Card>
+
+      {/* Premium */}
+      <Card className="bg-gradient-to-br from-yellow-900/20 to-purple-900/20 border-yellow-500/20 mb-8">
+        <CardHeader>
+          <CardTitle className="text-white flex items-center gap-2">
+            <Crown className="w-5 h-5 text-yellow-400" />
+            Premium
+          </CardTitle>
+        </CardHeader>
+        <CardContent>
+          {premiumStatus?.is_premium ? (
+            <div className="space-y-3">
+              <div className="flex items-center gap-2">
+                <Sparkles className="w-4 h-4 text-yellow-400" />
+                <span className="text-sm text-gray-300">
+                  Activo hasta{" "}
+                  <span className="text-yellow-400 font-semibold">
+                    {new Date(premiumStatus.premium_until).toLocaleDateString("es-ES", { day: "numeric", month: "long", year: "numeric" })}
+                  </span>
+                </span>
+              </div>
+              <p className="text-xs text-gray-500">
+                Beneficios: XP reducida para subir de nivel · Acceso anticipado a juegos · Nombre en arcoíris
+              </p>
+              {premiumStatus.will_cancel ? (
+                <p className="text-xs text-orange-400">
+                  Cancelación programada: el premium no se renovará el {new Date(premiumStatus.cancel_at).toLocaleDateString("es-ES", { day: "numeric", month: "long" })}
+                </p>
+              ) : (
+                <Button
+                  variant="outline"
+                  size="sm"
+                  onClick={handleCancelPremium}
+                  disabled={isPremiumLoading}
+                  className="border-red-500/40 text-red-400 hover:bg-red-500/10 text-xs"
+                >
+                  {isPremiumLoading ? <Loader2 className="w-3 h-3 animate-spin" /> : "Cancelar suscripción"}
+                </Button>
+              )}
+            </div>
+          ) : (
+            <div className="space-y-3">
+              <p className="text-sm text-gray-300">
+                Hazte premium y disfruta de ventajas exclusivas:
+              </p>
+              <ul className="text-xs text-gray-400 space-y-1 list-none">
+                <li className="flex items-center gap-2"><span className="text-yellow-400">✦</span> XP reducida un 30% para subir de nivel</li>
+                <li className="flex items-center gap-2"><span className="text-yellow-400">✦</span> Acceso anticipado a juegos nuevos</li>
+                <li className="flex items-center gap-2"><span className="text-yellow-400">✦</span> Tu nombre en colores arcoíris</li>
+              </ul>
+              <Button
+                onClick={handleSubscribePremium}
+                disabled={isPremiumLoading}
+                className="bg-gradient-to-r from-yellow-500 to-orange-500 text-black font-bold border-0 hover:opacity-90"
+              >
+                {isPremiumLoading
+                  ? <Loader2 className="w-4 h-4 animate-spin" />
+                  : <><Crown className="w-4 h-4 mr-2" />Suscribirse — 1 mes</>}
+              </Button>
+            </div>
+          )}
         </CardContent>
       </Card>
 
