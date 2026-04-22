@@ -1,17 +1,19 @@
-import { useEffect, useRef, useState } from 'react';
+import { useState } from 'react';
 import { useQuery } from '@tanstack/react-query';
 import { useNavigate, useLocation } from 'react-router-dom';
-import { toast } from 'sonner';
 import { Swords, ExternalLink, ChevronDown, ChevronUp, Circle } from 'lucide-react';
 import { useAuth } from '@/lib/AuthContext';
 import { getMyActiveChessGames } from '@/api/chess';
+
+function displayName(name) {
+  if (!name) return 'Rival';
+  return name.includes('@') ? name.split('@')[0] : name;
+}
 
 export default function ActiveChessGamesAlert() {
   const { user, isAuthenticated } = useAuth();
   const navigate = useNavigate();
   const location = useLocation();
-
-  const toastIdRef = useRef(null);
 
   const { data: games = [] } = useQuery({
     queryKey: ['myActiveChessGames'],
@@ -23,53 +25,18 @@ export default function ActiveChessGamesAlert() {
 
   const isOnChessPage = location.pathname.startsWith('/games/') && location.search.includes('room=');
 
-  useEffect(() => {
-    if (isOnChessPage && toastIdRef.current) {
-      toast.dismiss(toastIdRef.current);
-      toastIdRef.current = null;
-    }
-  }, [isOnChessPage]);
+  if (!games.length || isOnChessPage) return null;
 
-  useEffect(() => {
-    const count = games.length;
-
-    if (count === 0) {
-      if (toastIdRef.current) {
-        toast.dismiss(toastIdRef.current);
-        toastIdRef.current = null;
-      }
-      return;
-    }
-
-    if (isOnChessPage) return;
-
-    if (toastIdRef.current) {
-      toast.dismiss(toastIdRef.current);
-      toastIdRef.current = null;
-    }
-
-    toastIdRef.current = toast.custom(
-      () => (
-        <ChessGamesCard
-          games={games}
-          onNavigate={(game) => {
-            toast.dismiss(toastIdRef.current);
-            toastIdRef.current = null;
-            if (game.game_id) {
-              navigate(`/games/${game.game_id}?room=${game.room_code}`);
-            }
-          }}
-        />
-      ),
-      {
-        duration: Infinity,
-        position: 'bottom-left',
-        id: 'active-chess-games',
-      }
-    );
-  }, [games, isOnChessPage]);
-
-  return null;
+  return (
+    <div className="fixed bottom-4 left-4 z-40">
+      <ChessGamesCard
+        games={games}
+        onNavigate={(game) => {
+          if (game.game_id) navigate(`/games/${game.game_id}?room=${game.room_code}`);
+        }}
+      />
+    </div>
+  );
 }
 
 function ChessGamesCard({ games, onNavigate }) {
@@ -77,12 +44,9 @@ function ChessGamesCard({ games, onNavigate }) {
   const count = games.length;
 
   return (
-    // flex-col-reverse: el header queda anclado abajo y la lista se expande hacia arriba
-    <div
-      className="flex flex-col-reverse gap-2 p-4 rounded-xl border border-emerald-500/40 bg-[#0d0d1a] shadow-xl shadow-emerald-900/30 min-w-[280px] max-w-xs"
-      style={{ pointerEvents: 'auto' }}
-    >
-      {/* Header — primer elemento DOM = visualmente abajo */}
+    <div className="flex flex-col-reverse gap-2 p-4 rounded-xl border border-emerald-500/40 bg-[#0d0d1a] shadow-xl shadow-emerald-900/30 min-w-[280px] max-w-xs">
+
+      {/* Header — DOM primero = visualmente abajo, nunca se mueve */}
       <div className="flex items-center gap-3">
         <div className="flex-shrink-0 w-8 h-8 rounded-full bg-emerald-600/20 flex items-center justify-center">
           <Swords className="w-4 h-4 text-emerald-400" />
@@ -97,12 +61,11 @@ function ChessGamesCard({ games, onNavigate }) {
           onClick={() => setExpanded(e => !e)}
           className="text-gray-400 hover:text-white transition-colors"
         >
-          {/* Invertidos porque col-reverse: arriba = colapsar, abajo = expandir */}
           {expanded ? <ChevronDown className="w-4 h-4" /> : <ChevronUp className="w-4 h-4" />}
         </button>
       </div>
 
-      {/* Enlace rápido (1 partida) o botón "ver partidas" — aparece encima del header */}
+      {/* Enlace rápido / "ver partidas" — DOM segundo = visualmente encima del header */}
       {!expanded && count === 1 && (
         <button
           onClick={() => onNavigate(games[0])}
@@ -125,7 +88,7 @@ function ChessGamesCard({ games, onNavigate }) {
         </button>
       )}
 
-      {/* Lista expandida — aparece encima de todo con flex-col-reverse */}
+      {/* Lista — DOM tercero = visualmente arriba de todo, crece hacia arriba */}
       {expanded && (
         <div className="flex flex-col gap-1 border-b border-white/10 pb-2">
           {games.map(game => (
@@ -140,7 +103,7 @@ function ChessGamesCard({ games, onNavigate }) {
                 <div className="w-6 h-6 rounded-full bg-gray-700 flex-shrink-0" />
               )}
               <div className="flex-1 min-w-0">
-                <p className="text-white text-xs font-medium truncate">{game.opponent_name}</p>
+                <p className="text-white text-xs font-medium truncate">{displayName(game.opponent_name)}</p>
                 <p className="text-gray-500 text-[10px]">
                   {game.game_mode === 'ranked' ? 'Ranked' : 'Normal'} ·{' '}
                   {game.is_my_turn
