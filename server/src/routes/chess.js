@@ -25,12 +25,15 @@ router.get('/my-active-games', requireAuth, async (req, res) => {
   const email = req.user.email;
   const now = Date.now();
 
-  const rooms = await prisma.chessRoom.findMany({
-    where: {
-      status: 'playing',
-      OR: [{ host_email: email }, { guest_email: email }],
-    },
-  });
+  const [rooms, chessGame] = await Promise.all([
+    prisma.chessRoom.findMany({
+      where: {
+        status: 'playing',
+        OR: [{ host_email: email }, { guest_email: email }],
+      },
+    }),
+    prisma.game.findFirst({ where: { game_code: 'chess-online' }, select: { id: true } }),
+  ]);
 
   const timedOutCodes = new Set();
 
@@ -78,14 +81,12 @@ router.get('/my-active-games', requireAuth, async (req, res) => {
       }
 
       // Procesar ELO si es ranked y aún no se ha procesado
-      if (room.game_mode === 'ranked' && !room.elo_processed && room.guest_email) {
+      if (room.game_mode === 'ranked' && !room.elo_processed && room.guest_email && chessGame?.elo_enabled) {
         try {
-          const game = await prisma.game.findFirst({ where: { game_code: 'chess-online' } });
-          if (game?.elo_enabled) {
             const hostOutcome  = winner === room.host_email  ? 1 : 0;
             const guestOutcome = winner === room.guest_email ? 1 : 0;
             await applyElo({
-              game_id: game.id,
+              game_id: chessGame.id,
               mode: 'duel',
               results: [
                 { email: room.host_email,  name: room.host_name,           outcome: hostOutcome  },
@@ -96,7 +97,6 @@ router.get('/my-active-games', requireAuth, async (req, res) => {
               where: { room_code: room.room_code },
               data: { elo_processed: true },
             });
-          }
         } catch {}
       }
 
@@ -118,6 +118,7 @@ router.get('/my-active-games', requireAuth, async (req, res) => {
       const isHost = room.host_email === email;
       return {
         room_code: room.room_code,
+        game_id: chessGame?.id ?? null,
         opponent_name: isHost ? (room.guest_name ?? 'Esperando rival') : room.host_name,
         opponent_avatar: isHost ? room.guest_avatar_url : room.host_avatar_url,
         my_color: isHost ? 'white' : 'black',
