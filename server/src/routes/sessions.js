@@ -48,21 +48,72 @@ router.post('/', requireAuth, async (req, res) => {
 
 // PATCH /api/sessions/:room_code — update room state
 router.patch('/:room_code', requireAuth, async (req, res) => {
+  const isFinishing = req.body.status === 'finished';
+
+  // Guardar estado previo para saber si es una transición real playing→finished
+  let prevStatus = null;
+  if (isFinishing) {
+    const prev = await prisma.gameSession.findUnique({
+      where: { room_code: req.params.room_code },
+      select: { status: true },
+    });
+    prevStatus = prev?.status;
+  }
+
   const session = await prisma.gameSession.update({
     where: { room_code: req.params.room_code },
     data: req.body,
   });
   res.json(session);
 
-  // Si la sesión termina con ganador, avanzar bracket del torneo (si existe)
-  if (req.body.status === 'finished' && req.body.winner) {
+  // Solo actuar si es la primera vez que la sesión pasa a finished
+  if (isFinishing && prevStatus === 'playing') {
+    // ── Avanzar bracket de torneo ────────────────────────────────────────────
+    if (req.body.winner) {
+      try {
+        const match = await prisma.tournamentMatch.findFirst({
+          where: { room_code: req.params.room_code, status: { not: 'finished' } },
+        });
+        if (match) await advanceTournamentMatch(match.id, req.body.winner);
+      } catch (err) {
+        console.error('[Tournament] advance error:', err);
+      }
+    }
+
+    // ── Registrar partida jugada en UserGameStats ────────────────────────────
     try {
-      const match = await prisma.tournamentMatch.findFirst({
-        where: { room_code: req.params.room_code, status: { not: 'finished' } },
+      // Preferir GameSessionPlayer (juegos N-jugador); fallback host/guest para juegos legacy
+      const dbPlayers = await prisma.gameSessionPlayer.findMany({
+        where: { room_code: req.params.room_code },
       });
-      if (match) await advanceTournamentMatch(match.id, req.body.winner);
+
+      const playerList = dbPlayers.length > 0
+        ? dbPlayers.map(p => ({ email: p.user_email, name: p.user_name }))
+        : [
+            { email: session.host_email,  name: session.host_name  },
+            session.guest_email ? { email: session.guest_email, name: session.guest_name } : null,
+          ].filter(Boolean);
+
+      for (const player of playerList) {
+        const isWinner = req.body.winner === player.email;
+        await prisma.userGameStats.upsert({
+          where: { user_email_game_id: { user_email: player.email, game_id: session.game_id } },
+          update: {
+            plays_count: { increment: 1 },
+            wins_count:  { increment: isWinner ? 1 : 0 },
+            last_played: new Date(),
+          },
+          create: {
+            user_email:  player.email,
+            user_name:   player.name,
+            game_id:     session.game_id,
+            plays_count: 1,
+            wins_count:  isWinner ? 1 : 0,
+          },
+        });
+      }
     } catch (err) {
-      console.error('[Tournament] advance error:', err);
+      console.error('[Sessions] stats error:', err);
     }
   }
 });

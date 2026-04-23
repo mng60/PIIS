@@ -3,13 +3,20 @@ import { Button } from "@/components/ui/button";
 import { Copy, Users, Clock, Trophy, Swords } from "lucide-react";
 import { toast } from "sonner";
 import OnlineGamePlayerZone from "@/components/games/OnlineGamePlayerZone";
+import OnlineGameMoveHistory from "@/components/games/OnlineGameMoveHistory";
 import { useGameRoom } from "@/hooks/useGameRoom";
 
-const TARGET    = 21;
-const MIN_PL    = 3;
-const MAX_PL    = 4;
+const TARGET = 21;
+const MIN_PL = 3;
+const MAX_PL = 4;
 
-// ─── Lobby custom (crea + únete por código) ───────────────────────────────────
+// Si el nombre es un email muestra solo la parte local (antes del @)
+function nick(name) {
+  if (!name) return "?";
+  return name.includes("@") ? name.split("@")[0] : name;
+}
+
+// ─── Lobby ────────────────────────────────────────────────────────────────────
 
 function DiceLobby({ title, onCreate, onJoin, loading, error }) {
   const [code, setCode] = useState("");
@@ -28,7 +35,6 @@ function DiceLobby({ title, onCreate, onJoin, loading, error }) {
           </p>
         </div>
 
-        {/* Crear sala */}
         <div className="bg-white/5 border border-white/10 rounded-xl p-4 space-y-3">
           <h3 className="text-sm font-semibold text-gray-400 uppercase">Crear sala</h3>
           <p className="text-xs text-gray-500">
@@ -44,7 +50,6 @@ function DiceLobby({ title, onCreate, onJoin, loading, error }) {
           </Button>
         </div>
 
-        {/* Unirse por código */}
         <div className="bg-white/5 border border-white/10 rounded-xl p-4 space-y-3">
           <h3 className="text-sm font-semibold text-gray-400 uppercase">Unirse con código</h3>
           <div className="flex gap-2">
@@ -72,7 +77,7 @@ function DiceLobby({ title, onCreate, onJoin, loading, error }) {
   );
 }
 
-// ─── Pantalla de espera ───────────────────────────────────────────────────────
+// ─── Espera ───────────────────────────────────────────────────────────────────
 
 function WaitingScreen({ room }) {
   const needed = MIN_PL - room.players.length;
@@ -95,10 +100,7 @@ function WaitingScreen({ room }) {
                   size="icon"
                   variant="ghost"
                   className="text-gray-300 hover:text-white"
-                  onClick={() => {
-                    navigator.clipboard.writeText(room.roomCode);
-                    toast.success("Código copiado");
-                  }}
+                  onClick={() => { navigator.clipboard.writeText(room.roomCode); toast.success("Código copiado"); }}
                 >
                   <Copy className="w-4 h-4" />
                 </Button>
@@ -117,54 +119,45 @@ function WaitingScreen({ room }) {
         }
       />
 
-      {/* Slots vacíos */}
       {needed > 0 && (
         <div className="flex gap-2 flex-wrap">
           {Array.from({ length: needed }).map((_, i) => (
             <div
               key={i}
-              className="flex-1 min-w-[100px] rounded-lg px-3 py-2 border border-dashed border-white/20 bg-white/3 flex items-center gap-2 opacity-40"
+              className="flex-1 min-w-[100px] rounded-lg px-3 py-2 border border-dashed border-white/20 flex items-center gap-2 opacity-40"
             >
-              <div className="w-10 h-10 rounded-full bg-white/10 flex items-center justify-center text-gray-600">
-                ?
-              </div>
+              <div className="w-10 h-10 rounded-full bg-white/10 flex items-center justify-center text-gray-600 text-sm">?</div>
               <span className="text-xs text-gray-500">Esperando...</span>
             </div>
           ))}
         </div>
       )}
 
-      <Button
-        variant="ghost"
-        className="text-gray-500 hover:text-gray-300 text-xs self-start"
-        onClick={room.leaveRoom}
-      >
+      <Button variant="ghost" className="text-gray-500 hover:text-gray-300 text-xs self-start" onClick={room.leaveRoom}>
         Abandonar sala
       </Button>
     </div>
   );
 }
 
-// ─── Pantalla de resultados ───────────────────────────────────────────────────
+// ─── Resultados ───────────────────────────────────────────────────────────────
 
 function FinishedScreen({ room, scores, onLeave }) {
-  const winner    = room.players.find(p => p.email === room.winner);
-  const isWinner  = room.winner === room.myPlayer?.email;
-  const sorted    = [...room.players].sort((a, b) => (scores[b.email] ?? 0) - (scores[a.email] ?? 0));
+  const winner   = room.players.find(p => p.email === room.winner);
+  const isWinner = room.winner === room.myPlayer?.email;
+  const sorted   = [...room.players].sort((a, b) => (scores[b.email] ?? 0) - (scores[a.email] ?? 0));
 
   return (
     <div className="flex flex-col items-center gap-6 p-6 text-center">
       <div className={`text-6xl ${isWinner ? "animate-bounce" : ""}`}>
         {isWinner ? "🏆" : "🎲"}
       </div>
-
       <div>
         <h2 className="text-2xl font-bold text-white mb-1">
-          {isWinner ? "¡Has ganado!" : `Ha ganado ${winner?.name ?? "un jugador"}`}
+          {isWinner ? "¡Has ganado!" : `Ha ganado ${nick(winner?.name ?? room.winner)}`}
         </h2>
         <p className="text-gray-400 text-sm">Resultados finales</p>
       </div>
-
       <div className="w-full max-w-sm space-y-2">
         {sorted.map((p, i) => (
           <div
@@ -174,7 +167,7 @@ function FinishedScreen({ room, scores, onLeave }) {
           >
             <div className="flex items-center gap-2">
               <span className="text-gray-400 text-sm w-4">{i + 1}.</span>
-              <span className="font-medium text-white text-sm">{p.name}</span>
+              <span className="font-medium text-white text-sm">{nick(p.name)}</span>
               {p.email === room.winner && <Trophy className="w-3 h-3 text-yellow-400" />}
             </div>
             <span className="font-mono font-bold text-sm" style={{ color: p.color }}>
@@ -183,7 +176,6 @@ function FinishedScreen({ room, scores, onLeave }) {
           </div>
         ))}
       </div>
-
       <Button onClick={onLeave} className="bg-gradient-to-r from-purple-600 to-cyan-500">
         Volver al lobby
       </Button>
@@ -191,18 +183,30 @@ function FinishedScreen({ room, scores, onLeave }) {
   );
 }
 
-// ─── Pantalla de juego ────────────────────────────────────────────────────────
+// ─── Juego ────────────────────────────────────────────────────────────────────
 
 const DICE_FACES = ["⚀", "⚁", "⚂", "⚃", "⚄", "⚅"];
 
-function PlayingScreen({ room, user }) {
+function PlayingScreen({ room, user, onMoveHistoryChange }) {
   const [rolling, setRolling] = useState(false);
   const [animDie, setAnimDie] = useState(null);
 
   const scores        = room.gameState.scores       ?? {};
   const lastRollValue = room.gameState.lastRollValue ?? null;
   const lastRollEmail = room.gameState.lastRoll      ?? null;
+  const moves         = room.gameState.moves         ?? [];
   const lastRoller    = room.players.find(p => p.email === lastRollEmail);
+
+  // Sincronizar historial con GameArea para que aparezca en el panel lateral
+  useEffect(() => {
+    if (!onMoveHistoryChange) return;
+    onMoveHistoryChange(
+      moves.map(m => ({
+        move: `🎲 ${m.value}  →  ${m.total} pts`,
+        player: nick(m.playerName || m.player),
+      }))
+    );
+  }, [moves.length]); // eslint-disable-line
 
   const rollDice = useCallback(async () => {
     if (!room.isMyTurn || rolling) return;
@@ -218,20 +222,24 @@ function PlayingScreen({ room, user }) {
     try {
       const roll     = Math.floor(Math.random() * 6) + 1;
       const myEmail  = user.email;
-      const current  = scores[myEmail] ?? 0;
-      const newScore = current + roll;
-
-      // Scores inicializados si faltan (primera tirada)
-      const base = Object.fromEntries(room.players.map(p => [p.email, scores[p.email] ?? 0]));
+      const myName   = user.full_name || user.email;
+      const base     = Object.fromEntries(room.players.map(p => [p.email, scores[p.email] ?? 0]));
+      const newScore = (base[myEmail] ?? 0) + roll;
       const newScores = { ...base, [myEmail]: newScore };
+
+      // Guardar el movimiento en gameState para que lo vean todos los clientes
+      const newMoves = [
+        ...moves,
+        { player: myEmail, playerName: myName, value: roll, total: newScore },
+      ];
 
       setTimeout(async () => {
         setAnimDie(roll);
         if (newScore >= TARGET) {
-          await room.updateState({ scores: newScores, lastRoll: myEmail, lastRollValue: roll });
+          await room.updateState({ scores: newScores, lastRoll: myEmail, lastRollValue: roll, moves: newMoves });
           await room.finishGame(myEmail);
         } else {
-          await room.updateState({ scores: newScores, lastRoll: myEmail, lastRollValue: roll });
+          await room.updateState({ scores: newScores, lastRoll: myEmail, lastRollValue: roll, moves: newMoves });
           await room.passTurn();
         }
         setRolling(false);
@@ -239,24 +247,23 @@ function PlayingScreen({ room, user }) {
     } catch {
       setRolling(false);
     }
-  }, [room, scores, user.email, rolling]);
+  }, [room, scores, moves, user.email, user.full_name, rolling]);
 
   const displayDie = animDie ?? lastRollValue;
 
   return (
     <div className="flex flex-col gap-4 p-4">
 
-      {/* Zona de jugadores */}
       <OnlineGamePlayerZone
         players={room.players}
         activePlayerEmail={room.activePlayer?.email}
         showSettings={false}
       />
 
-      {/* Marcadores */}
+      {/* Marcadores con barra de progreso */}
       <div className="grid grid-cols-2 sm:grid-cols-4 gap-2">
         {room.players.map(p => {
-          const s = scores[p.email] ?? 0;
+          const s   = scores[p.email] ?? 0;
           const pct = Math.min(100, (s / TARGET) * 100);
           return (
             <div
@@ -267,7 +274,7 @@ function PlayingScreen({ room, user }) {
                 border: `1px solid ${p.email === room.activePlayer?.email ? p.color : "transparent"}`,
               }}
             >
-              <div className="text-xs text-gray-400 truncate mb-1">{p.name}</div>
+              <div className="text-xs text-gray-400 truncate mb-1">{nick(p.name)}</div>
               <div className="text-2xl font-bold font-mono" style={{ color: p.color }}>{s}</div>
               <div className="text-xs text-gray-500 mb-2">/ {TARGET}</div>
               <div className="h-1 bg-white/10 rounded-full overflow-hidden">
@@ -281,10 +288,8 @@ function PlayingScreen({ room, user }) {
         })}
       </div>
 
-      {/* Área del dado */}
+      {/* Dado y turno */}
       <div className="flex flex-col items-center gap-3 py-4">
-
-        {/* Último resultado */}
         {displayDie && (
           <div className="flex flex-col items-center gap-1">
             <span
@@ -295,13 +300,12 @@ function PlayingScreen({ room, user }) {
             </span>
             {!rolling && lastRoller && (
               <span className="text-xs text-gray-400">
-                {lastRoller.name} tiró un {lastRollValue}
+                {nick(lastRoller.name)} tiró un {lastRollValue}
               </span>
             )}
           </div>
         )}
 
-        {/* Botón de tirada o espera */}
         {room.isMyTurn ? (
           <Button
             onClick={rollDice}
@@ -313,29 +317,31 @@ function PlayingScreen({ room, user }) {
         ) : (
           <div className="flex items-center gap-2 text-gray-400 text-sm">
             <Clock className="w-4 h-4 animate-pulse" />
-            <span>Turno de <strong style={{ color: room.activePlayer?.color }}>{room.activePlayer?.name ?? "..."}</strong></span>
+            <span>
+              Turno de{" "}
+              <strong style={{ color: room.activePlayer?.color }}>
+                {nick(room.activePlayer?.name) ?? "..."}
+              </strong>
+            </span>
           </div>
         )}
       </div>
 
-      <Button
-        variant="ghost"
-        className="text-gray-500 hover:text-gray-300 text-xs self-end"
-        onClick={room.leaveRoom}
-      >
+      <Button variant="ghost" className="text-gray-500 hover:text-gray-300 text-xs self-end" onClick={room.leaveRoom}>
         Abandonar partida
       </Button>
     </div>
   );
 }
 
-// ─── Componente principal ─────────────────────────────────────────────────────
+// ─── Principal ────────────────────────────────────────────────────────────────
 
 export default function DiceRaceOnlineGame({
   user,
   game,
   gameId,
   onRoomCodeChange,
+  onMoveHistoryChange,
   initialRoomCode,
   onLeave,
 }) {
@@ -349,7 +355,6 @@ export default function DiceRaceOnlineGame({
     onLeave,
   });
 
-  // Informar a GameArea del roomCode para que active el chat
   useEffect(() => {
     onRoomCodeChange?.(room.roomCode || null);
   }, [room.roomCode, onRoomCodeChange]);
@@ -366,9 +371,7 @@ export default function DiceRaceOnlineGame({
     );
   }
 
-  if (room.phase === "waiting") {
-    return <WaitingScreen room={room} />;
-  }
+  if (room.phase === "waiting") return <WaitingScreen room={room} />;
 
   if (room.phase === "finished") {
     return (
@@ -380,5 +383,5 @@ export default function DiceRaceOnlineGame({
     );
   }
 
-  return <PlayingScreen room={room} user={user} />;
+  return <PlayingScreen room={room} user={user} onMoveHistoryChange={onMoveHistoryChange} />;
 }

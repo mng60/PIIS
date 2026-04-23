@@ -4,6 +4,12 @@ import { Settings } from "lucide-react";
 import { getEloRank } from "@/lib/eloRanks";
 import PremiumUsername from "@/components/ui/PremiumUsername";
 
+// Si el nombre es un email, muestra solo la parte local (antes del @)
+function nick(name) {
+  if (!name) return "?";
+  return name.includes("@") ? name.split("@")[0] : name;
+}
+
 // ─── Avatar ──────────────────────────────────────────────────────────────────
 
 function PlayerAvatar({ name, avatarUrl, hexColor }) {
@@ -49,8 +55,8 @@ function PlayerCard({ player, isActive, compact = false }) {
             <div className="text-xs text-gray-400">{player.label || (player.role === "host" ? "Host" : "Jugador")}</div>
           )}
           {player.isPremium
-            ? <PremiumUsername name={player.name || "..."} className="text-sm truncate block" />
-            : <div className="font-semibold text-sm truncate">{player.name || "Esperando..."}</div>}
+            ? <PremiumUsername name={nick(player.name) || "..."} className="text-sm truncate block" />
+            : <div className="font-semibold text-sm truncate">{nick(player.name) || "Esperando..."}</div>}
           <div className="flex items-center gap-2">
             {player.time !== undefined && (
               <span className="text-xs text-gray-300">⏱ {player.time}</span>
@@ -103,8 +109,8 @@ function DuelLayout({
             <div className="min-w-0">
               <div className="text-xs text-gray-400">{top?.label || "Rival"}</div>
               {top?.isPremium
-                ? <PremiumUsername name={top.name || "Esperando..."} className="text-sm truncate block" />
-                : <div className="font-semibold text-sm truncate">{top?.name || "Esperando..."}</div>}
+                ? <PremiumUsername name={nick(top.name) || "Esperando..."} className="text-sm truncate block" />
+                : <div className="font-semibold text-sm truncate">{nick(top?.name) || "Esperando..."}</div>}
               <div className="flex items-center gap-2">
                 {top?.time !== undefined && <span className="text-xs text-gray-300">⏱ {top.time}</span>}
                 {top?.elo != null && (() => {
@@ -146,8 +152,8 @@ function DuelLayout({
             <div className="min-w-0 text-right flex-1">
               <div className="text-xs text-gray-400">{bottom?.label || "Tú"}</div>
               {bottom?.isPremium
-                ? <PremiumUsername name={bottom.name || "..."} className="text-sm truncate block" />
-                : <div className="font-semibold text-sm truncate">{bottom?.name || "..."}</div>}
+                ? <PremiumUsername name={nick(bottom.name) || "..."} className="text-sm truncate block" />
+                : <div className="font-semibold text-sm truncate">{nick(bottom?.name) || "..."}</div>}
               <div className="flex items-center justify-end gap-2">
                 {bottom?.elo != null && (() => {
                   const rank = getEloRank(bottom.elo);

@@ -9,7 +9,7 @@ const prisma = new PrismaClient();
 
 function signToken(user) {
   return jwt.sign(
-    { id: user.id, email: user.email, role: user.role },
+    { id: user.id, email: user.email, role: user.role, full_name: user.full_name },
     process.env.JWT_SECRET,
     { expiresIn: '7d' }
   );

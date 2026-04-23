@@ -102,6 +102,7 @@ export default function GameArea({
           gameId={gameId}
           onScoreUpdate={onScoreUpdate}
           onRoomCodeChange={code => onChatSessionIdChange(code || null)}
+          onMoveHistoryChange={onChessMoveHistoryChange}
           initialRoomCode={initialRoomCode}
           onLeave={onLeave}
         />
