@@ -281,6 +281,8 @@ model GameSession {
   winner        String?
   status        SessionStatus @default(waiting)
   game_mode     String        @default("normal")
+  min_players   Int           @default(2)
+  max_players   Int           @default(2)
   created_at    DateTime      @default(now())
   updated_at    DateTime      @updatedAt
 }
@@ -289,6 +291,27 @@ enum SessionStatus {
   waiting
   playing
   finished
+}
+
+// ─── Game Session Players (multi-player abstraction) ──────────────────────────
+// One row per player per session. Seat 0 = host, 1 = first guest, 2+… for N players.
+// Phase 1: populated alongside host_email/guest_email for backward compat.
+// Phase 2: host_email/guest_email will be deprecated in favour of this table.
+
+model GameSessionPlayer {
+  id         String   @id @default(cuid())
+  room_code  String
+  user_email String
+  user_name  String
+  seat       Int      // 0 = host, 1..N = guests in join order
+  role       String   @default("player")  // "host" | "player"
+  color      String?  // hex color assigned by seat (e.g. "#22d3ee")
+  status     String   @default("active")  // "active" | "left"
+  joined_at  DateTime @default(now())
+
+  @@unique([room_code, user_email])
+  @@unique([room_code, seat])
+  @@index([room_code])
 }
 
 // ─── Chess Rooms ─────────────────────────────────────────────────────────────
