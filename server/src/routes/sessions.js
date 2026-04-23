@@ -30,12 +30,15 @@ router.post('/', requireAuth, async (req, res) => {
   const { room_code, game_id, game_state, current_turn, game_mode, min_players, max_players } = req.body;
   if (!room_code || !game_id) return res.status(400).json({ error: 'Faltan campos obligatorios' });
 
+  const dbUser = await prisma.user.findUnique({ where: { id: req.user.id }, select: { full_name: true } });
+  const hostName = dbUser?.full_name || req.user.email;
+
   const session = await prisma.gameSession.create({
     data: {
       room_code,
       game_id,
       host_email: req.user.email,
-      host_name: req.user.full_name || req.user.email,
+      host_name: hostName,
       game_state: game_state ?? {},
       current_turn: current_turn ?? 'host',
       game_mode: game_mode || 'normal',
@@ -48,7 +51,15 @@ router.post('/', requireAuth, async (req, res) => {
 
 // PATCH /api/sessions/:room_code — update room state
 router.patch('/:room_code', requireAuth, async (req, res) => {
-  const isFinishing = req.body.status === 'finished';
+  const data = { ...req.body };
+
+  // When guest_email is set, always look up the real full_name from DB
+  if (data.guest_email) {
+    const guestUser = await prisma.user.findUnique({ where: { email: data.guest_email }, select: { full_name: true } });
+    if (guestUser?.full_name) data.guest_name = guestUser.full_name;
+  }
+
+  const isFinishing = data.status === 'finished';
 
   // Guardar estado previo para saber si es una transición real playing→finished
   let prevStatus = null;
@@ -62,19 +73,19 @@ router.patch('/:room_code', requireAuth, async (req, res) => {
 
   const session = await prisma.gameSession.update({
     where: { room_code: req.params.room_code },
-    data: req.body,
+    data,
   });
   res.json(session);
 
   // Solo actuar si es la primera vez que la sesión pasa a finished
   if (isFinishing && prevStatus === 'playing') {
     // ── Avanzar bracket de torneo ────────────────────────────────────────────
-    if (req.body.winner) {
+    if (data.winner) {
       try {
         const match = await prisma.tournamentMatch.findFirst({
           where: { room_code: req.params.room_code, status: { not: 'finished' } },
         });
-        if (match) await advanceTournamentMatch(match.id, req.body.winner);
+        if (match) await advanceTournamentMatch(match.id, data.winner);
       } catch (err) {
         console.error('[Tournament] advance error:', err);
       }
@@ -95,7 +106,7 @@ router.patch('/:room_code', requireAuth, async (req, res) => {
           ].filter(Boolean);
 
       for (const player of playerList) {
-        const isWinner = req.body.winner === player.email;
+        const isWinner = data.winner === player.email;
         await prisma.userGameStats.upsert({
           where: { user_email_game_id: { user_email: player.email, game_id: session.game_id } },
           update: {
@@ -153,12 +164,15 @@ router.post('/:room_code/join', requireAuth, async (req, res) => {
   if (playerCount >= session.max_players) return res.status(409).json({ error: 'Sala llena' });
   if (playerCount === 0) return res.status(409).json({ error: 'Sala no disponible' });
 
+  const dbUser = await prisma.user.findUnique({ where: { id: req.user.id }, select: { full_name: true } });
+  const userName = dbUser?.full_name || req.user.email;
+
   const seat = playerCount;
   await prisma.gameSessionPlayer.create({
     data: {
       room_code,
       user_email: req.user.email,
-      user_name: req.user.full_name || req.user.email,
+      user_name: userName,
       seat,
       role: 'player',
       color: SEAT_COLORS[seat] ?? SEAT_COLORS[SEAT_COLORS.length - 1],
@@ -169,7 +183,7 @@ router.post('/:room_code/join', requireAuth, async (req, res) => {
   if (seat === 1) {
     // Backward compat for 2-player games
     updates.guest_email = req.user.email;
-    updates.guest_name = req.user.full_name || req.user.email;
+    updates.guest_name = userName;
   }
   if (playerCount + 1 >= session.min_players && session.status === 'waiting') {
     updates.status = 'playing';
@@ -196,13 +210,15 @@ router.get('/:room_code/players', async (req, res) => {
 router.post('/:room_code/players', requireAuth, async (req, res) => {
   const { seat, role, color } = req.body;
   if (seat === undefined || seat === null) return res.status(400).json({ error: 'Falta el campo seat' });
+  const dbUser = await prisma.user.findUnique({ where: { id: req.user.id }, select: { full_name: true } });
+  const userName = dbUser?.full_name || req.user.email;
   const player = await prisma.gameSessionPlayer.upsert({
     where: { room_code_user_email: { room_code: req.params.room_code, user_email: req.user.email } },
-    update: { status: 'active' },
+    update: { status: 'active', user_name: userName },
     create: {
       room_code: req.params.room_code,
       user_email: req.user.email,
-      user_name: req.user.full_name || req.user.email,
+      user_name: userName,
       seat,
       role: role ?? 'player',
       color: color ?? null,

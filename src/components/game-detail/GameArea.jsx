@@ -166,7 +166,7 @@ export default function GameArea({
               moves={chessMoveHistory}
               title="Historial de jugadas"
               emptyMessage="Aún no hay movimientos"
-              chessPairs
+              chessPairs={game.game_code === 'chess-online'}
             />
           </div>
         </div>

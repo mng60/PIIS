@@ -370,27 +370,59 @@ export function useGameRoom({
       return;
     }
     try {
-      if (phase === "waiting") {
-        await deleteSession(roomCodeRef.current);
-      } else if (phase === "playing") {
-        const opponentEmail =
-          myRoleRef.current === "host" ? guestPlayer?.email : hostPlayer?.email;
-        if (opponentEmail) {
-          const penalty = await recordAbandon().catch(() => null);
-          if (penalty?.type === 'warning') {
-            await showWarning(penalty.message);
-          } else if (penalty?.type === 'ban') {
-            toast.error(penalty.message, { duration: 8000 });
-          }
-          await updateSession(roomCodeRef.current, { status: "finished", winner: opponentEmail });
-          updateMyPlayerStatus(roomCodeRef.current, 'left').catch(() => {});
-        } else {
+      if (isMultiMode) {
+        // ── Modo multi: marcar como left, continuar si quedan jugadores suficientes ──
+        if (phase === 'waiting' && myRoleRef.current === 'host') {
+          // El host abandona la sala de espera → borrar la sesión entera
           await deleteSession(roomCodeRef.current);
+        } else if (phase === 'playing') {
+          await updateMyPlayerStatus(roomCodeRef.current, 'left');
+
+          // Jugadores activos restantes (excluyéndome)
+          const active = (playersFromDB ?? [])
+            .filter(p => p.status === 'active' && p.email !== user?.email);
+
+          if (active.length < minPlayers) {
+            // Quedan menos del mínimo → terminar la partida
+            const winner = active.length === 1 ? active[0].email : null;
+            await updateSession(roomCodeRef.current, { status: 'finished', winner }).catch(() => {});
+          } else if (currentTurn === user?.email) {
+            // Era mi turno → avanzar al siguiente jugador activo
+            const sorted = [...active].sort((a, b) => a.seat - b.seat);
+            const myP = playersFromDB?.find(p => p.email === user?.email);
+            const mySeat = myP?.seat ?? -1;
+            const next = sorted.find(p => p.seat > mySeat) ?? sorted[0];
+            if (next) await updateSession(roomCodeRef.current, { current_turn: next.email }).catch(() => {});
+          }
+          // Si quedaban suficientes y no era mi turno: el juego sigue solo
+        } else {
+          // Jugador no-host en sala de espera, o partida ya terminada
+          await updateMyPlayerStatus(roomCodeRef.current, 'left').catch(() => {});
+        }
+      } else {
+        // ── Modo duel legacy ──────────────────────────────────────────────────
+        if (phase === "waiting") {
+          await deleteSession(roomCodeRef.current);
+        } else if (phase === "playing") {
+          const opponentEmail =
+            myRoleRef.current === "host" ? guestPlayer?.email : hostPlayer?.email;
+          if (opponentEmail) {
+            const penalty = await recordAbandon().catch(() => null);
+            if (penalty?.type === 'warning') {
+              await showWarning(penalty.message);
+            } else if (penalty?.type === 'ban') {
+              toast.error(penalty.message, { duration: 8000 });
+            }
+            await updateSession(roomCodeRef.current, { status: "finished", winner: opponentEmail });
+            updateMyPlayerStatus(roomCodeRef.current, 'left').catch(() => {});
+          } else {
+            await deleteSession(roomCodeRef.current);
+          }
         }
       }
     } catch { /* si falla la petición, igualmente limpiamos */ }
     if (onLeave) onLeave(); else resetLocal();
-  }, [phase, guestPlayer, hostPlayer, resetLocal, onLeave]);
+  }, [phase, isMultiMode, playersFromDB, currentTurn, minPlayers, guestPlayer, hostPlayer, resetLocal, onLeave, user]);
 
   // Auto-unirse si se llega con código de invitación
   useEffect(() => {
