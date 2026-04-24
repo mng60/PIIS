@@ -433,7 +433,7 @@ export default function Profile() {
                       {s.game_is_multiplayer && ` · ${s.wins_count} victorias`}
                     </p>
                   </div>
-                  {s.game_is_multiplayer && (() => {
+                  {s.game_is_multiplayer && s.game_elo_enabled && (() => {
                     const rank = getEloRank(s.elo_rating ?? 1000);
                     return (
                       <div className="text-right flex-shrink-0">

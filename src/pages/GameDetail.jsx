@@ -363,7 +363,7 @@ export default function GameDetail() {
                 <h2 className="text-base font-semibold text-white mb-4 flex items-center gap-2">
                   <Trophy className="w-4 h-4 text-yellow-500" /> Top 5
                 </h2>
-                <Leaderboard scores={scores} />
+                <Leaderboard scores={scores} isMultiplayer={game.is_multiplayer} />
               </div>
             )}
             {game.show_achievements !== false && (
