@@ -178,7 +178,7 @@ Los cinco hooks se dividen en tres roles:
 | Ciclo de vida single-player | `useSinglePlayerGame` |
 | **Multijugador activo** — sincronización iframe | `useTurnGameRelay` ← base |
 | **Multijugador activo** — protocolo de ajedrez | `useChessGame` ← capa sobre la base |
-| Multijugador alternativo sin iframe | `useGameRoom` *(sin uso actual)* |
+| **Multijugador activo** — componentes React propios (2 ó N jugadores) | `useGameRoom` |
 
 ---
 
@@ -269,20 +269,103 @@ GameArea.jsx
 
 ---
 
-### `useGameRoom` — sala React sin iframe *(sin uso actual)*
+### `useGameRoom` — sala React sin iframe (2 jugadores ó N jugadores)
 
 Hook para juegos multijugador implementados como componentes React propios (sin
-iframe). Gestiona lobby → espera → partida → finalización usando `api/sessions.js`.
+iframe). Gestiona el ciclo completo `lobby → waiting → playing → finished` usando
+`api/sessions.js` + `api/sessions/:room_code/players`.
 
-**Ningún componente lo importa actualmente.** Está disponible si en el futuro se
-implementa un juego de mesa como componente React propio en lugar de iframe.
+**Actualmente usado por:** Dados Online y cualquier juego React con 3+ jugadores.
+
+#### Modos de operación
+
+| Modo | Cuándo se activa | Diferencias |
+|------|-----------------|-------------|
+| **Duel** (2 jugadores) | `maxPlayers = 2` (por defecto) | `joinRoom` hace PATCH directo, `passTurn` alterna "host"/"guest", abandono penaliza |
+| **Multi** (N jugadores) | `maxPlayers > 2` | `joinRoom` usa `/join` (servidor gestiona seat/capacidad), `passTurn` hace round-robin, salir continúa la partida si quedan ≥ 2 |
+
+#### API
+
+```js
+const room = useGameRoom({
+  gameId,          // ID del juego en BD
+  user,            // objeto usuario de AuthContext
+  gameTitle,       // para el widget de invitaciones del FloatingChat
+  minPlayers: 2,   // mínimo para pasar de "waiting" a "playing"
+  maxPlayers: 4,   // > 2 activa el modo multi
+  initialRoomCode, // si viene de una invitación directa
+  onLeave,         // callback opcional al salir (si omitido, resetLocal())
+});
+```
+
+**Estado devuelto:**
+
+| Prop | Tipo | Descripción |
+|------|------|-------------|
+| `phase` | `"lobby"\|"waiting"\|"playing"\|"finished"` | Fase de la sala |
+| `roomCode` | `string` | Código de sala (6 caracteres) |
+| `joinCode` / `setJoinCode` | `string` / `fn` | Input controlado para unirse |
+| `myRole` | `"host"\|"guest"\|null` | Rol del usuario actual |
+| `isMyTurn` | `boolean` | `true` si el turno activo es del usuario |
+| `isMultiMode` | `boolean` | `true` cuando `maxPlayers > 2` |
+| `players` | `PlayerObj[]` | Lista de jugadores (de `GameSessionPlayer`) |
+| `myPlayer` | `PlayerObj\|null` | El jugador actual dentro de `players` |
+| `activePlayer` | `PlayerObj\|null` | El jugador con el turno activo |
+| `gameState` | `object` | Estado del juego (`game_state` en BD) |
+| `currentTurn` | `string` | Email del jugador activo (multi) o "host"/"guest" (duel) |
+| `winner` | `string\|null` | Email del ganador (o null) |
+| `hostPlayer` / `guestPlayer` | `{email, name}` | Compat. duel mode |
+
+**Acciones:**
+
+| Función | Descripción |
+|---------|-------------|
+| `createRoom(initialState?, mode?)` | Crea sesión + registra host en `GameSessionPlayer` |
+| `joinRoom(code?)` | Se une a una sala (usa `joinCode` si no se pasa code) |
+| `updateState(patch)` | Fusiona `patch` en `game_state` y persiste |
+| `passTurn()` | Avanza turno (round-robin en multi, toggle en duel) |
+| `finishGame(winner)` | Cierra la sala con ganador |
+| `leaveRoom()` | Abandona: en multi continúa si quedan ≥ 2; en duel penaliza |
+
+#### `PlayerObj`
+
+```ts
+{
+  email:  string;   // identificador único
+  name:   string;
+  seat:   number;   // 0 = host, 1..N orden de entrada
+  role:   string;   // "host" | "player"
+  color:  string;   // hex asignado por seat (cyan, purple, amber, green…)
+  status: string;   // "active" | "left"
+}
+```
+
+#### Diagrama de dependencias
+
+```
+DadosOnline.jsx (o cualquier juego React N-jugadores)
+  └── useGameRoom({ gameId, user, minPlayers: 3, maxPlayers: 4 })
+        ├── api/sessions.js  →  POST   /sessions          (createRoom)
+        │                       GET    /sessions/:code    (polling)
+        │                       PATCH  /sessions/:code    (updateState, passTurn, leaveRoom)
+        │                       DELETE /sessions/:code    (leaveRoom en waiting)
+        │                       POST   /sessions/:code/join     (joinRoom multi)
+        │                       GET    /sessions/:code/players  (polling multi)
+        │                       POST   /sessions/:code/players  (registro de jugador)
+        │                       PATCH  /sessions/:code/players/me (leaveRoom multi)
+        └── api/users.js     →  POST   /users/record-abandon     (leaveRoom duel)
+```
 
 ---
 
 ## Añadir un juego multijugador por turnos
 
-El camino activo es el iframe relay. Crea un hook que envuelva `useTurnGameRelay`
-con el protocolo de mensajes de tu juego:
+Hay dos caminos según el tipo de juego:
+
+### Camino A — Juego en iframe (`useTurnGameRelay`)
+
+Para juegos empotrados en `<iframe>` que envían mensajes `postMessage`. Crea un
+hook thin wrapper de `useTurnGameRelay` con el protocolo de mensajes de tu juego:
 
 ```js
 // src/hooks/useDominoGame.js
@@ -304,14 +387,48 @@ export function useDominoGame({ isPlaying, user, gameId, iframeRef, onRoomCodeCh
 }
 ```
 
-El hook devuelve `{ moveHistory }` — pásalo a `<OnlineGameMoveHistory moves={moveHistory} />` para mostrar el historial. Si no necesitas historial, omite `formatMoveLabel` y el array no se acumula.
+El hook devuelve `{ moveHistory }` — pásalo a `<OnlineGameMoveHistory moves={moveHistory} />`. Llama al hook en `GameArea.jsx` igual que `useChessGame`.
 
-Llama al hook en `GameArea.jsx` igual que `useChessGame`. El iframe debe enviar
-`CREATE_ROOM` o `JOIN_ROOM` para arrancar la sala, y el `actionType` configurado
-para cada acción de juego.
+> Solo soporta 2 jugadores (duel). Para 3+ jugadores usa el Camino B.
 
-> Para juegos React sin iframe existe `useGameRoom`, pero no tiene ninguna
-> implementación activa en el proyecto.
+### Camino B — Juego React propio (`useGameRoom`)
+
+Para juegos implementados como componentes React sin iframe, con soporte para
+**2 jugadores o N jugadores**. Úsalo directamente desde el componente del juego:
+
+```jsx
+// src/components/games/MiJuego.jsx
+import { useGameRoom } from '@/hooks/useGameRoom';
+
+export default function MiJuego({ gameId, user }) {
+  const room = useGameRoom({
+    gameId,
+    user,
+    gameTitle: 'Mi Juego',
+    minPlayers: 3,   // sala en espera hasta que haya 3
+    maxPlayers: 4,   // hasta 4 jugadores
+  });
+
+  if (room.phase === 'lobby')   return <OnlineGameLobby room={room} />;
+  if (room.phase === 'waiting') return <SalaEspera players={room.players} />;
+
+  // Fase playing — round-robin ya gestionado por el hook
+  return (
+    <>
+      <OnlineGamePlayerZone
+        players={room.players}
+        activePlayerEmail={room.activePlayer?.email}
+      />
+      {/* lógica del juego usando room.isMyTurn, room.gameState,
+          room.updateState(), room.passTurn(), room.finishGame() */}
+    </>
+  );
+}
+```
+
+Registra el componente en `GameArea.jsx` bajo su `game_code`. El juego debe
+guardar todo su estado en `room.gameState` (campo `game_state` en BD) y usar
+`room.updateState(patch)` para persistir cambios.
 
 ---
 

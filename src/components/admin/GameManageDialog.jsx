@@ -73,7 +73,7 @@ export default function GameManageDialog({ game: initial, isAdmin, onClose }) {
         <DialogHeader className="flex-shrink-0">
           <DialogTitle className="text-white">Gestionar juego</DialogTitle>
         </DialogHeader>
-        <div className="overflow-y-auto flex-1 pr-1">
+        <div className="overflow-y-auto flex-1 pr-1 [&::-webkit-scrollbar]:hidden [scrollbar-width:none]">
 
         {/* Info */}
         <div className="bg-white/5 rounded-xl p-4">
