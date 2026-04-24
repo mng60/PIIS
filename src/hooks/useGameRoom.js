@@ -382,8 +382,8 @@ export function useGameRoom({
           const active = (playersFromDB ?? [])
             .filter(p => p.status === 'active' && p.email !== user?.email);
 
-          if (active.length < minPlayers) {
-            // Quedan menos del mínimo → terminar la partida
+          if (active.length < 2) {
+            // Queda 1 o ningún jugador → terminar la partida
             const winner = active.length === 1 ? active[0].email : null;
             await updateSession(roomCodeRef.current, { status: 'finished', winner }).catch(() => {});
           } else if (currentTurn === user?.email) {
