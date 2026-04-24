@@ -46,6 +46,18 @@ const games = [
     publisher: 'PlayCraft',
     created_by: 'admin@playcraft.com',
   },
+  {
+    title: 'Dados Online',
+    description: 'Compite por turnos con 3 o 4 jugadores y llega antes que nadie a 21 puntos.',
+    full_description: 'Crea una sala, invita a tus amigos y lanza el dado por turnos. Cada tirada suma puntos a tu marcador y el primero en llegar a 21 gana la partida. Disenado para partidas rapidas de 3 a 4 jugadores con sala compartida y seguimiento del historial.',
+    category: 'arcade',
+    game_type: 'builtin',
+    game_code: 'dados-online',
+    is_active: true,
+    is_multiplayer: true,
+    publisher: 'PlayCraft',
+    created_by: 'admin@playcraft.com',
+  },
 ];
 
 async function main() {
