@@ -4,7 +4,7 @@ import { useAuth } from "@/lib/AuthContext";
 import { useQuery } from "@tanstack/react-query";
 import { Link } from "react-router-dom";
 import {
-  Loader2, Building2, Gamepad2, Plus, TrendingUp, Star, Play,
+  Loader2, Building2, Gamepad2, Plus, TrendingUp, Star, Play, Trophy,
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
@@ -13,10 +13,15 @@ import {
   Table, TableBody, TableCell, TableHead, TableHeader, TableRow,
 } from "@/components/ui/table";
 import GameManageDialog from "@/components/admin/GameManageDialog";
+import TournamentsTab from "@/components/admin/TournamentsTab";
+
+const TABS = ["juegos", "torneos"];
+const TAB_LABELS = { juegos: "Mis Juegos", torneos: "Mis Torneos" };
 
 export default function CompanyDashboard() {
   const { user, isLoadingAuth } = useAuth();
   const [selectedGame, setSelectedGame] = useState(null);
+  const [activeTab, setActiveTab] = useState("juegos");
 
   const { data: gamesData = {} } = useQuery({
     queryKey: ["companyGames", user?.email],
@@ -110,7 +115,30 @@ export default function CompanyDashboard() {
         </Card>
       </div>
 
-      {/* Games Table */}
+      {/* Tabs */}
+      <div className="flex gap-1 p-1 bg-white/5 rounded-lg mb-6 w-fit">
+        {TABS.map((tab) => (
+          <button
+            key={tab}
+            onClick={() => setActiveTab(tab)}
+            className={`flex items-center gap-2 px-4 py-2 rounded-md text-sm font-medium transition-all ${
+              activeTab === tab
+                ? "bg-gradient-to-r from-purple-600 to-cyan-500 text-white shadow"
+                : "text-gray-400 hover:text-white"
+            }`}
+          >
+            {tab === "torneos" && <Trophy className="w-4 h-4" />}
+            {tab === "juegos" && <Gamepad2 className="w-4 h-4" />}
+            {TAB_LABELS[tab]}
+          </button>
+        ))}
+      </div>
+
+      {activeTab === "torneos" && (
+        <TournamentsTab filterByOwner={user.email} onlyOwnGames />
+      )}
+
+      {activeTab === "juegos" && (
       <Card className="bg-white/5 border-white/10">
         <CardHeader>
           <CardTitle className="text-white">Estadísticas por Juego</CardTitle>
@@ -190,6 +218,7 @@ export default function CompanyDashboard() {
           </div>
         </CardContent>
       </Card>
+      )}
     </div>
   );
 }

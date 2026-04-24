@@ -1,6 +1,6 @@
 import React from "react";
 import { Link } from "react-router-dom";
-import { Star, Play, Gamepad } from "lucide-react";
+import { Star, Play, Gamepad, Crown, Lock } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
 
 const categoryColors = {
@@ -17,17 +17,20 @@ const categoryLabels = {
   estrategia: "Estrategia"
 };
 
-export default function GameCard({ game }) {
-  const rating = game.rating_count > 0 
-    ? (game.rating_sum / game.rating_count).toFixed(1) 
+export default function GameCard({ game, isPremiumUser = false }) {
+  const rating = game.rating_count > 0
+    ? (game.rating_sum / game.rating_count).toFixed(1)
     : "N/A";
+
+  const isEarlyAccess = game.early_access_until && new Date(game.early_access_until) > new Date();
+  const isLocked = isEarlyAccess && !isPremiumUser;
 
   return (
     <Link
       to={`/games/${game.id}`}
       className="group block"
     >
-      <div className="game-card relative bg-gradient-to-b from-white/5 to-white/[0.02] border border-white/10 rounded-2xl overflow-hidden transition-all duration-300 hover:border-purple-500/50">
+      <div className={`game-card relative bg-gradient-to-b from-white/5 to-white/[0.02] border rounded-2xl overflow-hidden transition-all duration-300 ${isLocked ? "border-yellow-500/40 opacity-75 hover:opacity-90" : "border-white/10 hover:border-purple-500/50"}`}>
         {/* Thumbnail */}
         <div className="relative aspect-video overflow-hidden">
           {game.thumbnail ? (
@@ -58,6 +61,12 @@ export default function GameCard({ game }) {
           {game.is_adult && (
             <Badge className="absolute top-3 right-3 bg-red-600/80 border-red-500/50 text-white text-xs font-bold">
               +18
+            </Badge>
+          )}
+          {isEarlyAccess && (
+            <Badge className="absolute bottom-3 left-3 bg-yellow-500/90 border-yellow-400/50 text-black text-xs font-bold flex items-center gap-1">
+              {isLocked ? <Lock className="w-3 h-3" /> : <Crown className="w-3 h-3" />}
+              {isLocked ? "Solo Premium" : "Acceso anticipado"}
             </Badge>
           )}
         </div>

@@ -13,7 +13,17 @@ router.get('/', async (req, res) => {
     where: { game_id, session_id },
     orderBy: { created_at: 'asc' },
   });
-  res.json(messages);
+
+  const emails = [...new Set(messages.map(m => m.user_email))];
+  const users = await prisma.user.findMany({
+    where: { email: { in: emails } },
+    select: { email: true, premium_until: true },
+  });
+  const premiumSet = new Set(
+    users.filter(u => u.premium_until && new Date(u.premium_until) > new Date()).map(u => u.email)
+  );
+
+  res.json(messages.map(m => ({ ...m, is_premium: premiumSet.has(m.user_email) })));
 });
 
 // POST /api/chat

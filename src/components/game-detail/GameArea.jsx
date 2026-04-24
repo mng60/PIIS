@@ -4,6 +4,7 @@ import { Button } from '@/components/ui/button';
 import SnakeGame from '@/components/games/SnakeGame';
 import PongGame from '@/components/games/PongGame';
 import ChessOnlineGame from '@/components/games/ChessOnlineGame';
+import DiceRaceOnlineGame from '@/components/games/DiceRaceOnlineGame';
 import ChatSection from '@/components/games/ChatSection';
 import OnlineGameMoveHistory from '@/components/games/OnlineGameMoveHistory';
 import { useChessGame } from '@/hooks/useChessGame';
@@ -22,6 +23,10 @@ export default function GameArea({
   onChessMoveHistoryChange,
   onChatSessionIdChange,
   serverBestScore,
+  myEloRating,
+  onEloApplied,
+  initialRoomCode,
+  onLeave,
 }) {
   const iframeRef = useRef(null);
   const [iframeSrcDoc, setIframeSrcDoc] = useState(null);
@@ -77,9 +82,29 @@ export default function GameArea({
       return (
         <ChessOnlineGame
           user={user}
+          gameId={gameId}
+          myEloRating={myEloRating}
+          onEloApplied={onEloApplied}
           onScoreUpdate={onScoreUpdate}
           onRoomCodeChange={code => onChatSessionIdChange(code || null)}
           onMoveHistoryChange={onChessMoveHistoryChange}
+          initialRoomCode={initialRoomCode}
+          onLeave={onLeave}
+        />
+      );
+    }
+    if (game.game_code === 'dados-online') {
+      if (!isPlaying) return <GameCover game={game} onPlay={onPlay} />;
+      return (
+        <DiceRaceOnlineGame
+          user={user}
+          game={game}
+          gameId={gameId}
+          onScoreUpdate={onScoreUpdate}
+          onRoomCodeChange={code => onChatSessionIdChange(code || null)}
+          onMoveHistoryChange={onChessMoveHistoryChange}
+          initialRoomCode={initialRoomCode}
+          onLeave={onLeave}
         />
       );
     }
@@ -141,6 +166,7 @@ export default function GameArea({
               moves={chessMoveHistory}
               title="Historial de jugadas"
               emptyMessage="Aún no hay movimientos"
+              chessPairs={game.game_code === 'chess-online'}
             />
           </div>
         </div>

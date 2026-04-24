@@ -13,7 +13,15 @@ router.get('/', async (req, res) => {
     where: { game_id },
     orderBy: { created_at: 'desc' },
   });
-  res.json(comments);
+
+  const emails = [...new Set(comments.map(c => c.user_email))];
+  const users = await prisma.user.findMany({
+    where: { email: { in: emails } },
+    select: { email: true, full_name: true },
+  });
+  const nameMap = Object.fromEntries(users.map(u => [u.email, u.full_name]));
+
+  res.json(comments.map(c => ({ ...c, user_name: nameMap[c.user_email] || c.user_name })));
 });
 
 // POST /api/comments
@@ -26,7 +34,7 @@ router.post('/', requireAuth, async (req, res) => {
       game_id,
       content,
       user_email: req.user.email,
-      user_name: req.user.full_name || req.user.email,
+      user_name: (() => { const n = req.user.full_name || req.user.email; return n.includes('@') ? n.split('@')[0] : n; })(),
       ...(rating !== undefined && { rating: parseFloat(rating) }),
     },
   });

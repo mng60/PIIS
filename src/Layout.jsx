@@ -12,10 +12,14 @@ import {
   Shield,
   Heart,
   Sun,
-  Moon
+  Moon,
+  Trophy,
+  Users,
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Sheet, SheetContent, SheetTrigger } from "@/components/ui/sheet";
+import NotificationsPanel from "@/components/NotificationsPanel";
+import PremiumUsername from "@/components/ui/PremiumUsername";
 
 export default function Layout({ children }) {
   const { user, logout } = useAuth();
@@ -38,13 +42,15 @@ export default function Layout({ children }) {
   }, [isDark]);
 
   const navItems = [
-    { name: "Inicio", path: "/", icon: Home },
-    { name: "Juegos", path: "/games", icon: Gamepad2 },
+    { name: "Inicio",   path: "/",            icon: Home },
+    { name: "Juegos",   path: "/games",        icon: Gamepad2 },
+    { name: "Torneos",  path: "/tournaments",  icon: Trophy },
   ];
 
   if (user) {
     if (user.role !== "admin" && user.role !== "empresa") {
       navItems.push({ name: "Favoritos", path: "/favorites", icon: Heart });
+      navItems.push({ name: "Amigos", path: "/friends", icon: Users });
     }
     navItems.push({ name: "Perfil", path: "/profile", icon: User });
     if (user.role === "admin") {
@@ -58,7 +64,8 @@ export default function Layout({ children }) {
     <div className={mobile ? "flex flex-col gap-2" : "hidden md:flex items-center gap-1"}>
       {navItems.map((item) => {
         const Icon = item.icon;
-        const isActive = location.pathname === item.path;
+        const isActive = location.pathname === item.path ||
+          (item.path === '/friends' && location.pathname.startsWith('/profile/'));
         return (
           <Link
             key={item.path}
@@ -164,14 +171,16 @@ export default function Layout({ children }) {
       {/* Header */}
       <header className={`sticky top-0 z-50 border-b backdrop-blur-xl ${isDark ? "border-white/5 bg-[#0a0a0f]/80" : "border-gray-200 bg-white/90"}`}>
         <div className="max-w-7xl mx-auto px-4 py-4 flex items-center justify-between">
-          <Link to="/" className="flex items-center gap-3 group">
-            <div className="p-2 rounded-xl bg-gradient-to-br from-purple-600 to-cyan-500 neon-glow group-hover:scale-105 transition-transform">
-              <Gamepad2 className="w-6 h-6 text-white" />
-            </div>
-            <span className="text-xl font-bold bg-gradient-to-r from-purple-400 to-cyan-400 bg-clip-text text-transparent neon-text">
-              PlayCraft
-            </span>
-          </Link>
+          <div className="flex items-center gap-2">
+            <Link to="/" className="flex items-center gap-3 group">
+              <div className="p-2 rounded-xl bg-gradient-to-br from-purple-600 to-cyan-500 neon-glow group-hover:scale-105 transition-transform">
+                <Gamepad2 className="w-6 h-6 text-white" />
+              </div>
+              <span className="text-xl font-bold bg-gradient-to-r from-purple-400 to-cyan-400 bg-clip-text text-transparent neon-text">
+                PlayCraft
+              </span>
+            </Link>
+          </div>
 
           <NavLinks />
 
@@ -185,10 +194,13 @@ export default function Layout({ children }) {
             >
               {isDark ? <Sun className="w-4 h-4" /> : <Moon className="w-4 h-4" />}
             </Button>
+            {user && <NotificationsPanel isDark={isDark} />}
 
             {user ? (
               <div className="hidden md:flex items-center gap-3">
-                <span className={`text-sm ${isDark ? "text-gray-400" : "text-gray-600"}`}>{user.full_name || user.email}</span>
+                {user.premium_until && new Date(user.premium_until) > new Date()
+                  ? <PremiumUsername name={user.full_name || user.email} className="text-sm" />
+                  : <span className={`text-sm ${isDark ? "text-gray-400" : "text-gray-600"}`}>{user.full_name || user.email}</span>}
                 <Button
                   variant="ghost"
                   size="icon"
@@ -221,7 +233,9 @@ export default function Layout({ children }) {
                       <div className="space-y-4">
                         <div className="px-4 py-3 bg-white/5 rounded-lg">
                           <p className="text-sm text-gray-400">Conectado como</p>
-                          <p className="font-medium truncate">{user.full_name || user.email}</p>
+                          {user.premium_until && new Date(user.premium_until) > new Date()
+                            ? <PremiumUsername name={user.full_name || user.email} className="font-medium" />
+                            : <p className="font-medium truncate">{user.full_name || user.email}</p>}
                         </div>
                         <Button
                           variant="ghost"

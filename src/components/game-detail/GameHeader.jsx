@@ -14,7 +14,7 @@ export default function GameHeader({ game, user, isFavorite, onToggleFavorite, o
 
   return (
     <>
-      <Link to="/" className="inline-flex items-center gap-2 text-gray-400 hover:text-white mb-6 transition-colors text-sm">
+      <Link to="/games" className="inline-flex items-center gap-2 text-gray-400 hover:text-white mb-6 transition-colors text-sm">
         <ArrowLeft className="w-4 h-4" /> Volver al catálogo
       </Link>
 

@@ -1,6 +1,7 @@
 import { Router } from 'express';
 import { PrismaClient } from '@prisma/client';
 import { requireAuth } from '../middleware/auth.js';
+import { advanceTournamentMatch } from '../lib/tournamentAdvance.js';
 
 const router = Router();
 const prisma = new PrismaClient();
@@ -26,17 +27,23 @@ router.get('/:room_code', async (req, res) => {
 
 // POST /api/sessions  — create a room (host = authenticated user)
 router.post('/', requireAuth, async (req, res) => {
-  const { room_code, game_id, game_state, current_turn } = req.body;
+  const { room_code, game_id, game_state, current_turn, game_mode, min_players, max_players } = req.body;
   if (!room_code || !game_id) return res.status(400).json({ error: 'Faltan campos obligatorios' });
+
+  const dbUser = await prisma.user.findUnique({ where: { id: req.user.id }, select: { full_name: true } });
+  const hostName = dbUser?.full_name || req.user.email;
 
   const session = await prisma.gameSession.create({
     data: {
       room_code,
       game_id,
       host_email: req.user.email,
-      host_name: req.user.full_name || req.user.email,
+      host_name: hostName,
       game_state: game_state ?? {},
       current_turn: current_turn ?? 'host',
+      game_mode: game_mode || 'normal',
+      min_players: min_players ?? 2,
+      max_players: max_players ?? 2,
     },
   });
   res.status(201).json(session);
@@ -44,11 +51,82 @@ router.post('/', requireAuth, async (req, res) => {
 
 // PATCH /api/sessions/:room_code — update room state
 router.patch('/:room_code', requireAuth, async (req, res) => {
+  const data = { ...req.body };
+
+  // When guest_email is set, always look up the real full_name from DB
+  if (data.guest_email) {
+    const guestUser = await prisma.user.findUnique({ where: { email: data.guest_email }, select: { full_name: true } });
+    if (guestUser?.full_name) data.guest_name = guestUser.full_name;
+  }
+
+  const isFinishing = data.status === 'finished';
+
+  // Guardar estado previo para saber si es una transición real playing→finished
+  let prevStatus = null;
+  if (isFinishing) {
+    const prev = await prisma.gameSession.findUnique({
+      where: { room_code: req.params.room_code },
+      select: { status: true },
+    });
+    prevStatus = prev?.status;
+  }
+
   const session = await prisma.gameSession.update({
     where: { room_code: req.params.room_code },
-    data: req.body,
+    data,
   });
   res.json(session);
+
+  // Solo actuar si es la primera vez que la sesión pasa a finished
+  if (isFinishing && prevStatus === 'playing') {
+    // ── Avanzar bracket de torneo ────────────────────────────────────────────
+    if (data.winner) {
+      try {
+        const match = await prisma.tournamentMatch.findFirst({
+          where: { room_code: req.params.room_code, status: { not: 'finished' } },
+        });
+        if (match) await advanceTournamentMatch(match.id, data.winner);
+      } catch (err) {
+        console.error('[Tournament] advance error:', err);
+      }
+    }
+
+    // ── Registrar partida jugada en UserGameStats ────────────────────────────
+    try {
+      // Preferir GameSessionPlayer (juegos N-jugador); fallback host/guest para juegos legacy
+      const dbPlayers = await prisma.gameSessionPlayer.findMany({
+        where: { room_code: req.params.room_code },
+      });
+
+      const playerList = dbPlayers.length > 0
+        ? dbPlayers.map(p => ({ email: p.user_email, name: p.user_name }))
+        : [
+            { email: session.host_email,  name: session.host_name  },
+            session.guest_email ? { email: session.guest_email, name: session.guest_name } : null,
+          ].filter(Boolean);
+
+      for (const player of playerList) {
+        const isWinner = data.winner === player.email;
+        await prisma.userGameStats.upsert({
+          where: { user_email_game_id: { user_email: player.email, game_id: session.game_id } },
+          update: {
+            plays_count: { increment: 1 },
+            wins_count:  { increment: isWinner ? 1 : 0 },
+            last_played: new Date(),
+          },
+          create: {
+            user_email:  player.email,
+            user_name:   player.name,
+            game_id:     session.game_id,
+            plays_count: 1,
+            wins_count:  isWinner ? 1 : 0,
+          },
+        });
+      }
+    } catch (err) {
+      console.error('[Sessions] stats error:', err);
+    }
+  }
 });
 
 // DELETE /api/sessions/:room_code — delete a room
@@ -56,6 +134,107 @@ router.delete('/:room_code', requireAuth, async (req, res) => {
   await cleanupChatMessages(req.params.room_code);
   await prisma.gameSession.delete({ where: { room_code: req.params.room_code } });
   res.status(204).end();
+});
+
+// POST /api/sessions/:room_code/join — join a room as a new player (N-player aware)
+// Handles capacity, seat assignment, and status transition. Backward-compatible:
+// seat 1 also writes guest_email for existing 2-player games.
+const SEAT_COLORS = ["#22d3ee", "#a855f7", "#f59e0b", "#22c55e", "#ef4444", "#3b82f6"];
+
+router.post('/:room_code/join', requireAuth, async (req, res) => {
+  const { room_code } = req.params;
+
+  const session = await prisma.gameSession.findUnique({ where: { room_code } });
+  if (!session) return res.status(404).json({ error: 'Sala no encontrada' });
+  if (session.status === 'finished') return res.status(409).json({ error: 'La partida ha terminado' });
+
+  // Re-join: if already a player, just reactivate
+  const existing = await prisma.gameSessionPlayer.findUnique({
+    where: { room_code_user_email: { room_code, user_email: req.user.email } },
+  });
+  if (existing) {
+    if (existing.status !== 'active') {
+      await prisma.gameSessionPlayer.update({ where: { id: existing.id }, data: { status: 'active' } });
+    }
+    return res.json(session);
+  }
+
+  // Check capacity
+  const playerCount = await prisma.gameSessionPlayer.count({ where: { room_code, status: 'active' } });
+  if (playerCount >= session.max_players) return res.status(409).json({ error: 'Sala llena' });
+  if (playerCount === 0) return res.status(409).json({ error: 'Sala no disponible' });
+
+  const dbUser = await prisma.user.findUnique({ where: { id: req.user.id }, select: { full_name: true } });
+  const userName = dbUser?.full_name || req.user.email;
+
+  const seat = playerCount;
+  await prisma.gameSessionPlayer.create({
+    data: {
+      room_code,
+      user_email: req.user.email,
+      user_name: userName,
+      seat,
+      role: 'player',
+      color: SEAT_COLORS[seat] ?? SEAT_COLORS[SEAT_COLORS.length - 1],
+    },
+  });
+
+  const updates = {};
+  if (seat === 1) {
+    // Backward compat for 2-player games
+    updates.guest_email = req.user.email;
+    updates.guest_name = userName;
+  }
+  if (playerCount + 1 >= session.min_players && session.status === 'waiting') {
+    updates.status = 'playing';
+  }
+
+  const updated = Object.keys(updates).length > 0
+    ? await prisma.gameSession.update({ where: { room_code }, data: updates })
+    : session;
+
+  res.json(updated);
+});
+
+// GET /api/sessions/:room_code/players — list all players in a session
+router.get('/:room_code/players', async (req, res) => {
+  const players = await prisma.gameSessionPlayer.findMany({
+    where: { room_code: req.params.room_code },
+    orderBy: { seat: 'asc' },
+  });
+  res.json(players);
+});
+
+// POST /api/sessions/:room_code/players — register authenticated user as a player
+// Body: { seat: number, role?: "host"|"player", color?: string }
+router.post('/:room_code/players', requireAuth, async (req, res) => {
+  const { seat, role, color } = req.body;
+  if (seat === undefined || seat === null) return res.status(400).json({ error: 'Falta el campo seat' });
+  const dbUser = await prisma.user.findUnique({ where: { id: req.user.id }, select: { full_name: true } });
+  const userName = dbUser?.full_name || req.user.email;
+  const player = await prisma.gameSessionPlayer.upsert({
+    where: { room_code_user_email: { room_code: req.params.room_code, user_email: req.user.email } },
+    update: { status: 'active', user_name: userName },
+    create: {
+      room_code: req.params.room_code,
+      user_email: req.user.email,
+      user_name: userName,
+      seat,
+      role: role ?? 'player',
+      color: color ?? null,
+    },
+  });
+  res.status(201).json(player);
+});
+
+// PATCH /api/sessions/:room_code/players/me — update own player status (e.g. "left")
+router.patch('/:room_code/players/me', requireAuth, async (req, res) => {
+  const { status } = req.body;
+  const player = await prisma.gameSessionPlayer.updateMany({
+    where: { room_code: req.params.room_code, user_email: req.user.email },
+    data: { status: status ?? 'left' },
+  });
+  res.json(player);
 });
 
 export default router;

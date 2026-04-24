@@ -1,5 +1,9 @@
 import React, { useEffect, useRef, useState } from "react";
 import { createChessRoom, getChessRoom, updateChessRoom, deleteChessRoom } from "@/api/chess";
+import { submitChessElo } from "@/api/elo";
+import { recordAbandon } from "@/api/users";
+import { useAbandonWarning } from "@/lib/abandonWarning";
+import { useCurrentRoom } from "@/lib/CurrentRoomContext";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Card } from "@/components/ui/card";
@@ -32,12 +36,14 @@ import {
   TabsTrigger,
 } from "@/components/ui/tabs";
 
+import { joinQueue, getMatchStatus, cancelSearch } from "@/api/matchmaking";
 import { initBoard, safeParseBoardState, packBoardState, FILES, getPieceColor, getPieceType } from "@/components/chess/chessState";
 import { calculateValidMoves } from "@/components/chess/chessMoves";
 import { PIECE_SETS, renderPieceNode, getPieceDataUri } from "@/components/chess/chessPieces";
 import { TIME_LIMITS, initClockFromMinutes, formatMs, getDisplayedMs, applyClockOnMove } from "@/components/chess/chessClock";
 import OnlineGameLobby from "@/components/games/OnlineGameLobby";
 import OnlineGamePlayerZone from "@/components/games/OnlineGamePlayerZone";
+
 
 const BOARD_THEMES = {
   classic: { label: "Clásico", light: "#F0D9B5", dark: "#B58863", labelLight: "#B58863", labelDark: "#F0D9B5" },
@@ -57,7 +63,7 @@ const nickName = (name) => {
   return name;
 };
 
-export default function ChessOnlineGame({ user, onScoreUpdate, onRoomCodeChange, onMoveHistoryChange }) {
+export default function ChessOnlineGame({ user, gameId, myEloRating = 1200, onScoreUpdate, onEloApplied, onRoomCodeChange, onMoveHistoryChange, initialRoomCode, onLeave }) {
   const [screen, setScreen] = useState("lobby");
   const [roomCode, setRoomCode] = useState("");
   useEffect(() => {
@@ -66,6 +72,8 @@ export default function ChessOnlineGame({ user, onScoreUpdate, onRoomCodeChange,
   const [joinCode, setJoinCode] = useState("");
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
+  const [isSearching, setIsSearching] = useState(false);
+  const [searchSeconds, setSearchSeconds] = useState(0);
 
   const [timeKey, setTimeKey] = useState("5");
 
@@ -75,6 +83,10 @@ export default function ChessOnlineGame({ user, onScoreUpdate, onRoomCodeChange,
   const [selectedSquare, setSelectedSquare] = useState(null);
   const [validMoves, setValidMoves] = useState([]);
   const [opponentName, setOpponentName] = useState("Rival");
+  const [opponentAvatarUrl, setOpponentAvatarUrl] = useState(null);
+  const [opponentEloRating, setOpponentEloRating] = useState(null);
+  const [opponentIsPremium, setOpponentIsPremium] = useState(false);
+  const [showTurnFlash, setShowTurnFlash] = useState(false);
   const [gameStatus, setGameStatus] = useState("waiting");
   const [winner, setWinner] = useState(null);
   const [moveHistory, setMoveHistory] = useState([]);
@@ -85,6 +97,15 @@ export default function ChessOnlineGame({ user, onScoreUpdate, onRoomCodeChange,
   const [incomingDrawOpen, setIncomingDrawOpen] = useState(false);
   const [leaveOpen, setLeaveOpen] = useState(false);
   const [settingsOpen, setSettingsOpen] = useState(false);
+  const { showWarning } = useAbandonWarning();
+  const { setCurrentRoom, clearCurrentRoom } = useCurrentRoom();
+
+  useEffect(() => {
+    if (roomCode) setCurrentRoom({ roomCode, gameId, gameTitle: 'Ajedrez Online' });
+    else clearCurrentRoom();
+  }, [roomCode]); // eslint-disable-line
+
+  useEffect(() => () => clearCurrentRoom(), []); // eslint-disable-line
 
   const [boardTheme, setBoardTheme] = useState(() => localStorage.getItem("chess_board_theme") || "classic");
   const [pieceSet, setPieceSet] = useState(() => localStorage.getItem("chess_piece_set") || "staunton");
@@ -97,6 +118,8 @@ export default function ChessOnlineGame({ user, onScoreUpdate, onRoomCodeChange,
   const roomCodeRef = useRef(null);   // room_code for API calls
   const lastUpdatedRef = useRef(null);
   const pollIntervalRef = useRef(null);
+  const matchPollRef = useRef(null);
+  const searchTimerRef = useRef(null);
 
   const didAwardRef = useRef(false);
   const metaRef = useRef({});
@@ -116,6 +139,18 @@ export default function ChessOnlineGame({ user, onScoreUpdate, onRoomCodeChange,
     const t = setInterval(() => setNowMs(Date.now()), 250);
     return () => clearInterval(t);
   }, [clock, gameStatus]);
+
+  const prevTurnRef = useRef(null);
+  useEffect(() => {
+    if (gameStatus !== "playing") return;
+    if (prevTurnRef.current !== null && prevTurnRef.current !== currentTurn) {
+      prevTurnRef.current = currentTurn;
+      setShowTurnFlash(true);
+      const t = setTimeout(() => setShowTurnFlash(false), 1500);
+      return () => clearTimeout(t);
+    }
+    prevTurnRef.current = currentTurn;
+  }, [currentTurn, gameStatus]);
 
   const stopSync = () => {
     if (pollIntervalRef.current) {
@@ -191,8 +226,19 @@ export default function ChessOnlineGame({ user, onScoreUpdate, onRoomCodeChange,
     setGameStatus(room.status);
 
     if (room.status !== "waiting") {
-      const opp = user?.email === room.host_email ? (room.guest_name || "Rival") : (room.host_name || "Rival");
+      const isHost = user?.email === room.host_email;
+      const opp = isHost ? (room.guest_name || "Rival") : (room.host_name || "Rival");
       setOpponentName(nickName(opp) || "Rival");
+      setOpponentAvatarUrl(isHost ? (room.guest_avatar_url || null) : (room.host_avatar_url || null));
+      setOpponentIsPremium(isHost ? !!(room.guest_is_premium) : !!(room.host_is_premium));
+      const oppEmail = isHost ? room.guest_email : room.host_email;
+      if (oppEmail && gameId) {
+        import("@/api/scores").then(({ getUserGameScores }) =>
+          getUserGameScores(oppEmail, gameId)
+            .then(stats => setOpponentEloRating(stats?.[0]?.elo_rating ?? 1200))
+            .catch(() => {})
+        );
+      }
     }
 
     // Self-heal: cuando el host ve la partida en curso, actualiza host_name con el nombre actual (una sola vez)
@@ -213,7 +259,6 @@ export default function ChessOnlineGame({ user, onScoreUpdate, onRoomCodeChange,
 
         if (w === user?.email) {
           onScoreUpdate?.(1);
-          toast.success("¡Victoria! +1 punto");
         } else if (w === "draw" || !w) {
           onScoreUpdate?.(0);
           toast.info("Tablas");
@@ -221,11 +266,88 @@ export default function ChessOnlineGame({ user, onScoreUpdate, onRoomCodeChange,
           onScoreUpdate?.(0);
           toast.info("Derrota");
         }
+
+        // Calcular y aplicar ELO (idempotente, el servidor ignora si ya fue procesado)
+        submitChessElo(roomCodeRef.current).then(result => {
+          if (result?.elo_enabled === false || result?.already_processed) return;
+          const me = user?.email;
+          const myData = result.updates?.find(u => u.email === me);
+          if (!myData) return;
+          const sign = myData.delta >= 0 ? "+" : "";
+          toast.info(`ELO: ${myData.before} → ${myData.after} (${sign}${myData.delta})`, { duration: 4000 });
+          onEloApplied?.();
+        }).catch(() => {});
       }
     }
   };
 
   useEffect(() => () => stopSync(), []);
+
+  // Auto-join tournament match room when arriving via ?room=CODE
+  useEffect(() => {
+    if (!initialRoomCode || !user) return;
+    let cancelled = false;
+
+    const autoJoin = async () => {
+      setLoading(true);
+      try {
+        const room = await getChessRoom(initialRoomCode);
+        if (!room || cancelled) return;
+
+        roomCodeRef.current = initialRoomCode;
+        lastUpdatedRef.current = room.updated_at;
+        hostEmailRef.current = room.host_email;
+        guestEmailRef.current = room.guest_email;
+        didAwardRef.current = false;
+        timeoutDeclaredRef.current = false;
+        clockStartGuardRef.current = false;
+        lastOfferSeenRef.current = null;
+
+        const { board: b, meta } = safeParseBoardState(room.board_state);
+        setBoard(b);
+        metaRef.current = meta || {};
+        setCurrentTurn(room.current_turn || "white");
+
+        if (user.email === room.host_email) {
+          setRoomCode(initialRoomCode);
+          setPlayerColor("white");
+          setScreen("playing");
+          setWinner(null);
+          applyRoomUpdate(room); // restaura nombre/avatar del rival inmediatamente
+          startPolling();
+        } else if (!room.guest_email || user.email === room.guest_email) {
+          if (!checkEloCompatibility(room.host_elo, room.game_mode)) {
+            toast.error(`Sala clasificatoria: la diferencia de ELO es demasiado grande (±${ELO_RANGE}). No puedes unirte a esta partida.`);
+            if (!cancelled) setLoading(false);
+            return;
+          }
+          // guest ya registrado O llegada por invitación (guest_email vacío)
+          let finalRoom = room;
+          if (room.status === "waiting") {
+            finalRoom = await updateChessRoom(initialRoomCode, {
+              guest_email: user.email,
+              guest_name: nickName(user.full_name) || user.email.split("@")[0],
+              guest_avatar_url: user.avatar_url || null,
+              status: "playing",
+            });
+            lastUpdatedRef.current = finalRoom.updated_at;
+          }
+          setRoomCode(initialRoomCode);
+          setPlayerColor("black");
+          setScreen("playing");
+          setWinner(null);
+          applyRoomUpdate(finalRoom);
+          startPolling();
+        }
+      } catch (e) {
+        if (!cancelled) { console.error(e); setError("Error al unirse a la partida"); }
+      }
+      if (!cancelled) setLoading(false);
+    };
+
+    autoJoin();
+    return () => { cancelled = true; };
+  }, [initialRoomCode, user?.email]); // eslint-disable-line
 
   // timeout loop
   useEffect(() => {
@@ -320,13 +442,16 @@ export default function ChessOnlineGame({ user, onScoreUpdate, onRoomCodeChange,
         const nextTurn = currentTurn === "white" ? "black" : "white";
 
         const pieceSymbol = getPieceType(piece);
-        const fromSquare = `${FILES[selectedSquare.col]}${8 - selectedSquare.row}`;
+        const fromFile = FILES[selectedSquare.col];
         const toSquare = `${FILES[col]}${8 - row}`;
-        const pieceName = PIECE_NAMES_ES[pieceSymbol] ?? 'Peón';
-        const capturedType = capturedPiece ? getPieceType(capturedPiece) : null;
-        const moveNotation = capturedType !== null
-          ? `${pieceName} ${fromSquare} come ${PIECE_NAMES_ES[capturedType] ?? 'Pieza'} en ${toSquare}`
-          : `${pieceName} ${fromSquare}→${toSquare}`;
+        // Notación algebraica estándar (SAN)
+        const moveNotation = pieceSymbol === ''
+          ? capturedPiece
+            ? `${fromFile}x${toSquare}`   // peón captura: exd4
+            : toSquare                     // peón avanza: e4
+          : capturedPiece
+            ? `${pieceSymbol}x${toSquare}` // pieza captura: Nxf3
+            : `${pieceSymbol}${toSquare}`; // pieza mueve: Nf3
         const moveId = Date.now();
         const moveEntry = { move: moveNotation, player: currentTurn === "white" ? "Blancas" : "Negras" };
         nextMeta.lastMove = { id: moveId, notation: moveNotation, player: moveEntry.player };
@@ -378,7 +503,104 @@ export default function ChessOnlineGame({ user, onScoreUpdate, onRoomCodeChange,
     }
   };
 
-  const handleCreateRoom = async () => {
+  const ELO_RANGE = 300;
+
+  const stopSearching = () => {
+    setIsSearching(false);
+    setSearchSeconds(0);
+    if (matchPollRef.current) { clearInterval(matchPollRef.current); matchPollRef.current = null; }
+    if (searchTimerRef.current) { clearInterval(searchTimerRef.current); searchTimerRef.current = null; }
+  };
+
+  useEffect(() => () => stopSearching(), []); // eslint-disable-line
+
+  const autoJoinMatchmaking = async (matchRoomCode, role) => {
+    setLoading(true);
+    setError("");
+    try {
+      const room = await getChessRoom(matchRoomCode);
+      if (!room) { setLoading(false); return; }
+
+      roomCodeRef.current = matchRoomCode;
+      hostEmailRef.current = room.host_email;
+      guestEmailRef.current = room.guest_email;
+      didAwardRef.current = false;
+      timeoutDeclaredRef.current = false;
+      clockStartGuardRef.current = false;
+      lastOfferSeenRef.current = null;
+
+      setRoomCode(matchRoomCode);
+      setPlayerColor(role === "host" ? "white" : "black");
+      setScreen("playing");
+      setWinner(null);
+
+      if (role === "guest") {
+        // Actualizar sala a playing con el avatar del guest
+        const finalRoom = await updateChessRoom(matchRoomCode, {
+          guest_avatar_url: user?.avatar_url || null,
+          status: "playing",
+        });
+        guestEmailRef.current = user?.email;
+        applyRoomUpdate(finalRoom);
+      } else {
+        // Host: aplicar el estado real de la sala (puede que el guest ya se haya unido)
+        applyRoomUpdate(room);
+      }
+
+      startPolling();
+    } catch (e) {
+      console.error(e);
+      setError("Error al unirse a la partida");
+    }
+    setLoading(false);
+  };
+
+  const handleFindMatch = async (mode = "normal") => {
+    if (!user) return;
+    setIsSearching(true);
+    setSearchSeconds(0);
+    setError("");
+
+    searchTimerRef.current = setInterval(() => setSearchSeconds((s) => s + 1), 1000);
+
+    try {
+      const result = await joinQueue(gameId, mode, myEloRating ?? 1200, timeKey);
+
+      if (result.status === "matched") {
+        stopSearching();
+        autoJoinMatchmaking(result.room_code, result.role);
+        return;
+      }
+
+      matchPollRef.current = setInterval(async () => {
+        try {
+          const status = await getMatchStatus();
+          if (status.status === "matched") {
+            stopSearching();
+            autoJoinMatchmaking(status.room_code, status.role);
+          } else if (status.status === "timeout" || status.status === "not_in_queue") {
+            stopSearching();
+            setError("Tiempo de búsqueda agotado. Inténtalo de nuevo.");
+          }
+        } catch {}
+      }, 2000);
+    } catch (e) {
+      stopSearching();
+      setError(e?.message || "Error al buscar partida");
+    }
+  };
+
+  const handleCancelSearch = async () => {
+    stopSearching();
+    try { await cancelSearch(); } catch {}
+  };
+
+  const checkEloCompatibility = (roomHostElo, roomMode) => {
+    if (roomMode !== 'ranked') return true;
+    return Math.abs((myEloRating ?? 1200) - (roomHostElo ?? 1200)) <= ELO_RANGE;
+  };
+
+  const handleCreateRoom = async (mode = 'normal') => {
     if (!user) return;
     setLoading(true);
     setError("");
@@ -397,9 +619,12 @@ export default function ChessOnlineGame({ user, onScoreUpdate, onRoomCodeChange,
         room_code: code,
         host_email: user.email,
         host_name: nickName(user.full_name) || user.email.split("@")[0],
+        host_avatar_url: user.avatar_url || null,
         status: "waiting",
         board_state: packBoardState(initBoard(), meta),
         current_turn: "white",
+        game_mode: mode,
+        host_elo: myEloRating ?? 1200,
       });
 
       roomCodeRef.current = code;
@@ -445,9 +670,16 @@ export default function ChessOnlineGame({ user, onScoreUpdate, onRoomCodeChange,
         return;
       }
 
+      if (!checkEloCompatibility(room.host_elo, room.game_mode)) {
+        setError(`Sala clasificatoria: diferencia de ELO demasiado grande (±${ELO_RANGE}). Busca una sala Normal o juega con alguien de tu nivel.`);
+        setLoading(false);
+        return;
+      }
+
       const updatedRoom = await updateChessRoom(joinCode.toUpperCase(), {
         guest_email: user.email,
         guest_name: nickName(user.full_name) || user.email.split("@")[0],
+        guest_avatar_url: user.avatar_url || null,
         status: "playing",
       });
 
@@ -465,6 +697,7 @@ export default function ChessOnlineGame({ user, onScoreUpdate, onRoomCodeChange,
       setRoomCode(joinCode.toUpperCase());
       setPlayerColor("black");
       setOpponentName(room.host_name || "Rival");
+      setOpponentIsPremium(!!(room.host_is_premium));
       setGameStatus("playing");
       setScreen("playing");
       setWinner(null);
@@ -508,7 +741,11 @@ export default function ChessOnlineGame({ user, onScoreUpdate, onRoomCodeChange,
     meta.drawOfferAt = nowISO();
     metaRef.current = meta;
 
-    await updateChessRoom(roomCodeRef.current, { board_state: packBoardState(board, meta) });
+    await updateChessRoom(roomCodeRef.current, {
+      board_state: packBoardState(board, meta),
+      draw_offer_notify: true,
+      notify_game_id: gameId,
+    });
     toast.message("Tablas ofrecidas");
   };
 
@@ -548,16 +785,15 @@ export default function ChessOnlineGame({ user, onScoreUpdate, onRoomCodeChange,
   const handleConfirmLeave = async () => {
     setLeaveOpen(false);
 
+    const doLeave = () => { if (onLeave) onLeave(); else resetLocal(); };
+
     try {
-      if (!roomCodeRef.current) {
-        resetLocal();
-        return;
-      }
+      if (!roomCodeRef.current) { doLeave(); return; }
 
       if (gameStatus === "waiting") {
         await deleteChessRoom(roomCodeRef.current);
         toast.message("Sala cerrada");
-        resetLocal();
+        doLeave();
         return;
       }
 
@@ -565,22 +801,33 @@ export default function ChessOnlineGame({ user, onScoreUpdate, onRoomCodeChange,
       const guestEmail = guestEmailRef.current;
       const opponentEmail = user?.email === hostEmail ? guestEmail : hostEmail;
 
-      if (opponentEmail) {
+      if (gameStatus === "playing" && opponentEmail) {
+        // Penalización por abandono
+        const penalty = await recordAbandon().catch(() => null);
+        if (penalty?.type === 'warning') {
+          await showWarning(penalty.message);
+        } else if (penalty?.type === 'ban') {
+          toast.error(penalty.message, { duration: 8000 });
+        }
+
         didAwardRef.current = false;
         await updateChessRoom(roomCodeRef.current, {
           status: "finished",
           winner: opponentEmail,
           board_state: packBoardState(board, { ...(metaRef.current || {}), drawOfferBy: null, drawOfferAt: null }),
         });
+      } else if (opponentEmail) {
+        // Partida ya terminada, solo salir
+        doLeave();
+        return;
       } else {
         await deleteChessRoom(roomCodeRef.current);
       }
-
-      resetLocal();
     } catch (e) {
       console.error(e);
-      resetLocal();
     }
+
+    doLeave();
   };
 
   const resetLocal = () => {
@@ -626,11 +873,12 @@ export default function ChessOnlineGame({ user, onScoreUpdate, onRoomCodeChange,
         selectedTimeKey={timeKey}
         onTimeChange={setTimeKey}
         onCreateRoom={handleCreateRoom}
-        onJoinRoom={handleJoinRoom}
+        onFindMatch={handleFindMatch}
+        isSearching={isSearching}
+        searchSeconds={searchSeconds}
+        onCancelSearch={handleCancelSearch}
         loading={loading}
         error={error}
-        joinCode={joinCode}
-        onJoinCodeChange={setJoinCode}
       />
     );
   }
@@ -661,12 +909,18 @@ export default function ChessOnlineGame({ user, onScoreUpdate, onRoomCodeChange,
         topPlayer={{
           label: flip ? "Blancas" : "Negras",
           name: opponentName,
-          time: formatMs(clock ? Math.max(0, oppMs) : null)
+          time: formatMs(clock ? Math.max(0, oppMs) : null),
+          avatarUrl: opponentAvatarUrl,
+          elo: opponentEloRating,
+          isPremium: opponentIsPremium,
         }}
         bottomPlayer={{
           label: flip ? "Negras" : "Blancas",
           name: nickName(user?.full_name) || "Tú",
-          time: formatMs(clock ? Math.max(0, myMs) : null)
+          time: formatMs(clock ? Math.max(0, myMs) : null),
+          avatarUrl: user?.avatar_url || null,
+          elo: myEloRating,
+          isPremium: !!(user?.premium_until && new Date(user.premium_until) > new Date()),
         }}
         isTopPlayerActive={isTopPlayerActive}
         isBottomPlayerActive={isBottomPlayerActive}
@@ -701,7 +955,18 @@ export default function ChessOnlineGame({ user, onScoreUpdate, onRoomCodeChange,
         </div>
       )}
 
-      <div className="grid grid-cols-8 border-2 border-white/10 rounded-lg overflow-hidden shadow-2xl" style={{ width: "min(480px, 90vw)", aspectRatio: "1/1" }}>
+      <div className="relative" style={{ width: "min(480px, 90vw)", aspectRatio: "1/1" }}>
+        {showTurnFlash && (
+          <div className="absolute inset-0 flex items-center justify-center z-20 pointer-events-none">
+            <div
+              className="bg-black/70 backdrop-blur-sm text-white px-6 py-3 rounded-xl text-base font-bold border border-white/20 shadow-xl"
+              style={{ animation: "fadeOutTurn 1.5s ease-out forwards" }}
+            >
+              {isBottomPlayerActive ? "Tu turno" : `Turno de ${opponentName}`}
+            </div>
+          </div>
+        )}
+      <div className="grid grid-cols-8 border-2 border-white/10 rounded-lg overflow-hidden shadow-2xl w-full h-full">
         {Array.from({ length: 8 }).map((_, ri) => {
           const row = flip ? 7 - ri : ri;
           return Array.from({ length: 8 }).map((_, ci) => {
@@ -745,6 +1010,7 @@ export default function ChessOnlineGame({ user, onScoreUpdate, onRoomCodeChange,
           });
         })}
       </div>
+      </div>
 
       <div className="flex gap-3">
         {gameStatus === "playing" && (
@@ -786,7 +1052,9 @@ export default function ChessOnlineGame({ user, onScoreUpdate, onRoomCodeChange,
           <AlertDialogHeader>
             <AlertDialogTitle>¿Salir de la partida?</AlertDialogTitle>
             <AlertDialogDescription className="text-gray-400">
-              {gameStatus === "playing" ? "Si sales ahora, se considerará abandono y tu rival ganará (+1 punto)." : "Volverás al lobby."}
+              {gameStatus === "playing"
+                ? "Si sales ahora, se considerará abandono, tu rival ganará y recibirás una penalización."
+                : "Volverás al lobby."}
             </AlertDialogDescription>
           </AlertDialogHeader>
           <AlertDialogFooter>

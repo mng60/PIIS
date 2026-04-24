@@ -1,5 +1,6 @@
 import React, { useState, useMemo } from "react";
 import { getGames } from "@/api/games";
+import { getPremiumStatus } from "@/api/premium";
 import { useAuth } from "@/lib/AuthContext";
 import { useQuery } from "@tanstack/react-query";
 import { Loader2, Gamepad2, Search } from "lucide-react";
@@ -25,6 +26,13 @@ export default function Games() {
     queryKey: ["games"],
     queryFn: () => getGames("?limit=200"),
   });
+
+  const { data: premiumStatus } = useQuery({
+    queryKey: ["premiumStatus", user?.email],
+    queryFn: getPremiumStatus,
+    enabled: !!user,
+  });
+  const isPremiumUser = !!(premiumStatus?.is_premium);
 
   const filteredGames = useMemo(() => {
     return games.filter((game) => {
@@ -105,7 +113,7 @@ export default function Games() {
           </div>
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
             {filteredGames.map((game) => (
-              <GameCard key={game.id} game={game} />
+              <GameCard key={game.id} game={game} isPremiumUser={isPremiumUser} />
             ))}
           </div>
         </>

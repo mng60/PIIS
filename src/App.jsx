@@ -16,7 +16,16 @@ import Profile from './pages/Profile';
 import Admin from './pages/Admin';
 import UploadGame from './pages/UploadGame';
 import CompanyDashboard from './pages/CompanyDashboard';
+import Tournaments from './pages/Tournaments';
+import TournamentDetail from './pages/TournamentDetail';
+import Friends from './pages/Friends';
+import UserProfile from './pages/UserProfile';
 import UserSanctionOverlay from './components/UserSanctionOverlay';
+import TournamentActiveAlert from './components/TournamentActiveAlert';
+import ActiveChessGamesAlert from './components/ActiveChessGamesAlert';
+import FloatingChat from './components/FloatingChat';
+import { AbandonWarningProvider } from '@/lib/abandonWarning';
+import { CurrentRoomProvider } from '@/lib/CurrentRoomContext';
 
 const AppRoutes = () => {
   const { isLoadingAuth } = useAuth();
@@ -32,6 +41,9 @@ const AppRoutes = () => {
   return (
     <>
       <UserSanctionOverlay />
+      <TournamentActiveAlert />
+      <ActiveChessGamesAlert />
+      <FloatingChat />
       <Routes>
         <Route path="/login" element={<Login />} />
         <Route path="/" element={<Layout><Home /></Layout>} />
@@ -42,6 +54,10 @@ const AppRoutes = () => {
         <Route path="/admin" element={<Layout><Admin /></Layout>} />
         <Route path="/upload-game" element={<Layout><UploadGame /></Layout>} />
         <Route path="/company-dashboard" element={<Layout><CompanyDashboard /></Layout>} />
+        <Route path="/tournaments" element={<Layout><Tournaments /></Layout>} />
+        <Route path="/tournaments/:id" element={<Layout><TournamentDetail /></Layout>} />
+        <Route path="/friends" element={<Layout><Friends /></Layout>} />
+        <Route path="/profile/:email" element={<Layout><UserProfile /></Layout>} />
         <Route path="*" element={<PageNotFound />} />
       </Routes>
     </>
@@ -52,11 +68,15 @@ function App() {
   return (
     <AuthProvider>
       <QueryClientProvider client={queryClientInstance}>
-        <Router>
-          <NavigationTracker />
-          <AppRoutes />
-        </Router>
-        <Toaster richColors position="top-right" />
+        <CurrentRoomProvider>
+        <AbandonWarningProvider>
+          <Router>
+            <NavigationTracker />
+            <AppRoutes />
+          </Router>
+          <Toaster richColors position="top-right" />
+        </AbandonWarningProvider>
+        </CurrentRoomProvider>
       </QueryClientProvider>
     </AuthProvider>
   )

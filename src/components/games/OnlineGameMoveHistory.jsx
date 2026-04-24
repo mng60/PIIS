@@ -2,21 +2,19 @@ import React, { useEffect, useRef } from "react";
 
 /**
  * Componente común para mostrar historial de jugadas en juegos online
- * 
+ *
  * Props:
- * - moves: Array de objetos con la información de cada jugada
- *   Cada objeto puede tener: { player: string, move: string, timestamp?: string }
- * - title: Título del historial (default: "Historial de jugadas")
- * - emptyMessage: Mensaje cuando no hay jugadas (default: "No hay jugadas aún")
- * - maxHeight: Altura máxima del scroll (default: "300px")
- * - renderMove: función opcional para renderizar cada jugada de forma personalizada
- *   (move, index) => ReactNode
+ * - moves: Array de { move: string, player: string, timestamp?: string }
+ * - title: string
+ * - emptyMessage: string
+ * - chessPairs: boolean — si true, agrupa los movimientos en pares estilo ajedrez (1. e4 e5)
+ * - renderMove: (move, index) => ReactNode — render personalizado (ignora chessPairs)
  */
 export default function OnlineGameMoveHistory({
   moves = [],
   title = "Historial de jugadas",
-  emptyMessage = "No hay jugadas aún",
-  maxHeight = "300px",
+  emptyMessage = "Aún no hay movimientos",
+  chessPairs = false,
   renderMove = null,
 }) {
   const scrollRef = useRef(null);
@@ -27,7 +25,7 @@ export default function OnlineGameMoveHistory({
   }, [moves]);
 
   const defaultRenderMove = (move, index) => (
-    <div 
+    <div
       key={index}
       className="px-3 py-2 border-b border-white/5 hover:bg-white/5 transition-colors"
     >
@@ -40,11 +38,25 @@ export default function OnlineGameMoveHistory({
           <span className="text-xs text-gray-400 flex-shrink-0">{move.player}</span>
         )}
       </div>
-      {move.timestamp && (
-        <div className="text-xs text-gray-500 mt-1">{move.timestamp}</div>
-      )}
     </div>
   );
+
+  const renderChessPairs = () => {
+    const pairs = [];
+    for (let i = 0; i < moves.length; i += 2) {
+      pairs.push({ number: Math.floor(i / 2) + 1, white: moves[i], black: moves[i + 1] || null });
+    }
+    return pairs.map((pair) => (
+      <div
+        key={pair.number}
+        className="flex items-center gap-1 px-3 py-1.5 border-b border-white/5 hover:bg-white/5 font-mono text-sm"
+      >
+        <span className="text-gray-500 w-7 flex-shrink-0 text-right">{pair.number}.</span>
+        <span className="text-white w-[5.5rem] flex-shrink-0 px-1">{pair.white?.move}</span>
+        <span className="text-gray-400 flex-1">{pair.black?.move ?? ''}</span>
+      </div>
+    ));
+  };
 
   return (
     <div className="bg-white/5 border border-white/10 rounded-lg overflow-hidden h-full flex flex-col">
@@ -57,6 +69,8 @@ export default function OnlineGameMoveHistory({
           <div className="px-3 py-8 text-center text-sm text-gray-500">
             {emptyMessage}
           </div>
+        ) : chessPairs ? (
+          renderChessPairs()
         ) : (
           <div className="divide-y divide-white/5">
             {moves.map((move, index) =>
