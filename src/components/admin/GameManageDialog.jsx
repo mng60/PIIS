@@ -69,10 +69,11 @@ export default function GameManageDialog({ game: initial, isAdmin, onClose }) {
 
   return (
     <Dialog open onOpenChange={(open) => { if (!open) onClose(); }}>
-      <DialogContent className="bg-[#0f0f18] border-white/10 text-white max-w-md">
-        <DialogHeader>
+      <DialogContent className="bg-[#0f0f18] border-white/10 text-white max-w-md max-h-[90vh] flex flex-col">
+        <DialogHeader className="flex-shrink-0">
           <DialogTitle className="text-white">Gestionar juego</DialogTitle>
         </DialogHeader>
+        <div className="overflow-y-auto flex-1 pr-1">
 
         {/* Info */}
         <div className="bg-white/5 rounded-xl p-4">
@@ -256,6 +257,7 @@ export default function GameManageDialog({ game: initial, isAdmin, onClose }) {
             </div>
           )}
         </div>
+        </div>{/* overflow-y-auto wrapper */}
       </DialogContent>
     </Dialog>
   );

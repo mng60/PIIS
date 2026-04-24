@@ -123,9 +123,17 @@ export default function GameDetail() {
     if (game) { await recordPlay(gameId); invalidateGame(); }
   };
 
+  const isPlayBanned = () =>
+    user?.play_banned_until && new Date(user.play_banned_until) > new Date();
+
   const handlePlay = async () => {
     if (!user) { toast.error('¡Inicia sesión para jugar!'); return; }
     if (user.is_banned) { toast.error('Tu cuenta está baneada'); return; }
+    if (isPlayBanned()) {
+      const until = new Date(user.play_banned_until).toLocaleString('es-ES', { day: 'numeric', month: 'long', hour: '2-digit', minute: '2-digit' });
+      toast.error(`No puedes jugar hasta el ${until}.`);
+      return;
+    }
     if (game?.is_adult && localStorage.getItem(ageKey) !== 'yes') {
       setPendingStart(true); setAgeGateOpen(true); return;
     }
@@ -135,6 +143,11 @@ export default function GameDetail() {
   const handleGameStart = async () => {
     if (!user) { toast.error('¡Inicia sesión para jugar!'); return false; }
     if (user.is_banned) { toast.error('Tu cuenta está baneada'); return false; }
+    if (isPlayBanned()) {
+      const until = new Date(user.play_banned_until).toLocaleString('es-ES', { day: 'numeric', month: 'long', hour: '2-digit', minute: '2-digit' });
+      toast.error(`No puedes jugar hasta el ${until}.`);
+      return false;
+    }
     if (game?.is_adult && localStorage.getItem(ageKey) !== 'yes') {
       setPendingStart(true); setAgeGateOpen(true); return false;
     }

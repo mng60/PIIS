@@ -35,6 +35,19 @@ export default function FloatingChat() {
   const messagesEndRef = useRef(null);
   const pollRef = useRef(null);
   const heartbeatRef = useRef(null);
+  const containerRef = useRef(null);
+
+  // Cerrar al pinchar fuera del panel
+  useEffect(() => {
+    if (!open) return;
+    const handler = (e) => {
+      if (containerRef.current && !containerRef.current.contains(e.target)) {
+        setOpen(false);
+      }
+    };
+    document.addEventListener('mousedown', handler);
+    return () => document.removeEventListener('mousedown', handler);
+  }, [open]);
 
   const totalUnread = Object.values(unread).reduce((s, n) => s + n, 0);
 
@@ -142,7 +155,7 @@ export default function FloatingChat() {
   const offlineFriends = friends.filter(f => !isOnline(f.last_seen));
 
   return (
-    <div className="fixed bottom-6 right-6 z-50 flex flex-col items-end gap-3">
+    <div ref={containerRef} className="fixed bottom-6 right-6 z-50 flex flex-col items-end gap-3">
       {/* Panel principal */}
       {open && (
         <div className="w-80 rounded-2xl border border-white/10 shadow-2xl overflow-hidden flex flex-col"
