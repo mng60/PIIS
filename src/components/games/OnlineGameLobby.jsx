@@ -1,7 +1,7 @@
 import { useState } from "react";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
-import { Loader2, Swords, Trophy, Search } from "lucide-react";
+import { Loader2, Swords, Trophy, Search, Bot } from "lucide-react";
 
 const MODES = [
   {
@@ -22,6 +22,13 @@ const MODES = [
   },
 ];
 
+const AI_DIFFICULTIES = [
+  { key: 1, label: "Principiante", color: "#22c55e" },
+  { key: 2, label: "Intermedio",   color: "#3b82f6" },
+  { key: 3, label: "Avanzado",     color: "#f59e0b" },
+  { key: 4, label: "Maestro",      color: "#ef4444" },
+];
+
 function formatSearchTime(s) {
   const m = Math.floor(s / 60);
   const ss = String(s % 60).padStart(2, "0");
@@ -36,13 +43,16 @@ export default function OnlineGameLobby({
   onTimeChange,
   onCreateRoom,
   onFindMatch,
+  onVsAI,
   isSearching = false,
   searchSeconds = 0,
   onCancelSearch,
   loading = false,
   error = "",
+  showVsAI = false,
 }) {
   const [mode, setMode] = useState("normal");
+  const [aiDifficulty, setAiDifficulty] = useState(2);
 
   return (
     <div className="flex items-center justify-center min-h-[420px] p-4">
@@ -54,7 +64,58 @@ export default function OnlineGameLobby({
           <p className="text-gray-400 text-sm">{description}</p>
         </div>
 
-        {/* Selector de modo */}
+        {/* Modo vs Entrenador (IA) */}
+        {showVsAI && onVsAI && (
+          <Card className="bg-white/5 border-white/10 p-4 space-y-3">
+            <div className="flex items-center gap-2 mb-1">
+              <Bot className="w-4 h-4 text-purple-400" />
+              <h3 className="text-sm font-semibold text-gray-300">vs Entrenador (IA)</h3>
+            </div>
+            <p className="text-xs text-gray-500">
+              Juega contra Stockfish y recibe análisis de tu partida al terminar.
+            </p>
+            <div className="grid grid-cols-2 gap-2">
+              {AI_DIFFICULTIES.map(d => (
+                <button
+                  key={d.key}
+                  type="button"
+                  onClick={() => setAiDifficulty(d.key)}
+                  disabled={isSearching}
+                  className="relative flex flex-col items-center gap-1 py-2.5 px-3 rounded-lg border-2 transition-all duration-150 text-sm font-medium disabled:opacity-40 disabled:cursor-not-allowed"
+                  style={{
+                    borderColor: aiDifficulty === d.key ? d.color : "rgba(255,255,255,0.08)",
+                    background: aiDifficulty === d.key ? `${d.color}18` : "rgba(255,255,255,0.03)",
+                    color: aiDifficulty === d.key ? "#fff" : "#9ca3af",
+                  }}
+                >
+                  {d.label}
+                  {aiDifficulty === d.key && (
+                    <span className="absolute top-1.5 right-1.5 w-1.5 h-1.5 rounded-full" style={{ background: d.color }} />
+                  )}
+                </button>
+              ))}
+            </div>
+            <Button
+              onClick={() => onVsAI(aiDifficulty)}
+              disabled={loading || isSearching}
+              className="w-full"
+              style={{ background: "linear-gradient(to right, #7c3aed, #0891b2)" }}
+            >
+              <Bot className="w-4 h-4 mr-2" />
+              Jugar vs Entrenador
+            </Button>
+          </Card>
+        )}
+
+        {showVsAI && (
+          <div className="flex items-center gap-2 text-gray-500 text-sm">
+            <div className="flex-1 h-px bg-white/10" />
+            <span>o juega online</span>
+            <div className="flex-1 h-px bg-white/10" />
+          </div>
+        )}
+
+        {/* Selector de modo online */}
         <div className="grid grid-cols-2 gap-3">
           {MODES.map((m) => {
             const Icon = m.icon;
@@ -74,27 +135,15 @@ export default function OnlineGameLobby({
                   boxShadow: selected ? `0 0 16px ${m.glow}` : "none",
                 }}
               >
-                <Icon
-                  className="w-6 h-6"
-                  style={{ color: selected ? m.color : "#6b7280" }}
-                />
-                <span
-                  className="text-sm font-bold"
-                  style={{ color: selected ? "#fff" : "#9ca3af" }}
-                >
+                <Icon className="w-6 h-6" style={{ color: selected ? m.color : "#6b7280" }} />
+                <span className="text-sm font-bold" style={{ color: selected ? "#fff" : "#9ca3af" }}>
                   {m.label}
                 </span>
-                <span
-                  className="text-[11px] text-center leading-tight"
-                  style={{ color: selected ? "#d1d5db" : "#6b7280" }}
-                >
+                <span className="text-[11px] text-center leading-tight" style={{ color: selected ? "#d1d5db" : "#6b7280" }}>
                   {m.desc}
                 </span>
                 {selected && (
-                  <span
-                    className="absolute top-2 right-2 w-2 h-2 rounded-full"
-                    style={{ background: m.color }}
-                  />
+                  <span className="absolute top-2 right-2 w-2 h-2 rounded-full" style={{ background: m.color }} />
                 )}
               </button>
             );
@@ -123,7 +172,6 @@ export default function OnlineGameLobby({
               </div>
             )}
           </div>
-
           <Button
             onClick={() => onCreateRoom?.(mode)}
             disabled={loading || isSearching}
@@ -146,15 +194,8 @@ export default function OnlineGameLobby({
                 <Loader2 className="w-5 h-5 animate-spin text-purple-400" />
                 <span className="text-sm font-semibold text-white">Buscando rival...</span>
               </div>
-              <span className="text-2xl font-mono font-bold text-cyan-400">
-                {formatSearchTime(searchSeconds)}
-              </span>
-              <Button
-                onClick={onCancelSearch}
-                variant="secondary"
-                size="sm"
-                className="w-full mt-1"
-              >
+              <span className="text-2xl font-mono font-bold text-cyan-400">{formatSearchTime(searchSeconds)}</span>
+              <Button onClick={onCancelSearch} variant="secondary" size="sm" className="w-full mt-1">
                 Cancelar búsqueda
               </Button>
             </div>
@@ -167,19 +208,9 @@ export default function OnlineGameLobby({
                 ? "Se emparejará con alguien de ELO similar (±300)."
                 : "Se emparejará con cualquier jugador disponible."}
             </p>
-            <Button
-              onClick={() => onFindMatch?.(mode)}
-              disabled={loading}
-              variant="secondary"
-              className="w-full"
-            >
-              {loading ? (
-                <Loader2 className="w-4 h-4 animate-spin" />
-              ) : (
-                <>
-                  <Search className="w-4 h-4 mr-2" />
-                  Buscar partida
-                </>
+            <Button onClick={() => onFindMatch?.(mode)} disabled={loading} variant="secondary" className="w-full">
+              {loading ? <Loader2 className="w-4 h-4 animate-spin" /> : (
+                <><Search className="w-4 h-4 mr-2" />Buscar partida</>
               )}
             </Button>
             {error && <p className="text-red-400 text-xs mt-2 text-center">{error}</p>}

@@ -43,6 +43,7 @@ import { PIECE_SETS, renderPieceNode, getPieceDataUri } from "@/components/chess
 import { TIME_LIMITS, initClockFromMinutes, formatMs, getDisplayedMs, applyClockOnMove } from "@/components/chess/chessClock";
 import OnlineGameLobby from "@/components/games/OnlineGameLobby";
 import OnlineGamePlayerZone from "@/components/games/OnlineGamePlayerZone";
+import ChessVsAIGame from "@/components/games/ChessVsAIGame";
 
 
 const BOARD_THEMES = {
@@ -64,6 +65,7 @@ const nickName = (name) => {
 };
 
 export default function ChessOnlineGame({ user, gameId, myEloRating = 1200, onScoreUpdate, onEloApplied, onRoomCodeChange, onMoveHistoryChange, initialRoomCode, onLeave }) {
+  const [vsAiDifficulty, setVsAiDifficulty] = useState(null);
   const [screen, setScreen] = useState("lobby");
   const [roomCode, setRoomCode] = useState("");
   useEffect(() => {
@@ -864,6 +866,20 @@ export default function ChessOnlineGame({ user, gameId, myEloRating = 1200, onSc
     didSyncNameRef.current = false;
   };
 
+  if (vsAiDifficulty !== null) {
+    return (
+      <ChessVsAIGame
+        user={user}
+        difficulty={vsAiDifficulty}
+        onMoveHistoryChange={onMoveHistoryChange}
+        onLeave={() => {
+          setVsAiDifficulty(null);
+          if (onMoveHistoryChange) onMoveHistoryChange([]);
+        }}
+      />
+    );
+  }
+
   if (screen === "lobby") {
     return (
       <OnlineGameLobby
@@ -879,6 +895,8 @@ export default function ChessOnlineGame({ user, gameId, myEloRating = 1200, onSc
         onCancelSearch={handleCancelSearch}
         loading={loading}
         error={error}
+        showVsAI
+        onVsAI={(diff) => setVsAiDifficulty(diff)}
       />
     );
   }
