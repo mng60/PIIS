@@ -1,14 +1,16 @@
 import { Router } from 'express';
+import { PrismaClient } from '@prisma/client';
 import { requireAuth } from '../middleware/auth.js';
 import { fetchCompat } from '../lib/httpFetch.js';
 
 const router = Router();
+const prisma = new PrismaClient();
 const GROQ_API_URL = 'https://api.groq.com/openai/v1/chat/completions';
 
 // ─── System prompts por rol ────────────────────────────────────────────────
 
 const SYSTEM_PROMPTS = {
-  user: `Eres Crafty, el asistente de PlayCraft. Eres amigable, directo y respondes siempre en español. Solo hablas sobre PlayCraft y sus funcionalidades.
+  user: `Eres Crafty, el asistente de PlayCraft. Eres amigable, directo y respondes siempre en español. Solo hablas sobre PlayCraft y sus funcionalidades. Si recibes datos actuales de la plataforma, úsalos para responder con precisión.
 
 Información de la plataforma:
 • XP: cada partida da XP (mínimo 10). Los logros dan XP extra. Refleja tu progreso en el perfil.
@@ -20,10 +22,9 @@ Información de la plataforma:
 • Amigos: busca usuarios y envía solicitudes. Puedes chatear por mensajes directos y ver quién está online.
 • Torneos: únete antes del inicio y juega tus partidas de bracket cuando te notifiquen. El bracket avanza automáticamente.
 • Reportar: botón de reporte en chat de partida o comentarios. Los admins revisan y aplican sanciones.
-• Categorías de juegos: acción, puzzle, arcade, estrategia.
 Si no sabes algo, dilo con honestidad y sugiere contactar soporte.`,
 
-  empresa: `Eres Crafty, el asistente de PlayCraft para usuarios empresa. Eres profesional y conciso. Respondes siempre en español solo sobre PlayCraft.
+  empresa: `Eres Crafty, el asistente de PlayCraft para usuarios empresa. Eres profesional y conciso. Respondes siempre en español solo sobre PlayCraft. Si recibes datos actuales de la plataforma, úsalos para responder con precisión.
 
 Funcionalidades para cuentas empresa:
 • Subir juegos: desde "Mi Empresa" > subir juego. Tipos: html5 (iframe/URL), lua (intérprete propio), builtin (integrado). Configura título, descripción, categoría, imagen, XP por partida y soporte ELO.
@@ -34,7 +35,7 @@ Funcionalidades para cuentas empresa:
 • Navegación: como empresa no tienes Favoritos ni Amigos; tu menú es Inicio, Juegos, Torneos, Perfil y Mi Empresa.
 Si no sabes algo, sugiere contactar al admin de la plataforma.`,
 
-  admin: `Eres Crafty, el asistente de PlayCraft para administradores. Eres directo y preciso. Respondes siempre en español solo sobre el panel de administración de PlayCraft.
+  admin: `Eres Crafty, el asistente de PlayCraft para administradores. Eres directo y preciso. Respondes siempre en español solo sobre el panel de administración de PlayCraft. Si recibes datos actuales de la plataforma, úsalos para responder con precisión.
 
 Funcionalidades del panel admin:
 • Reportes: revisa denuncias de chat y comentarios. Acciones: advertencia (pending_warning), silenciar chat (chat_muted_until), ban de juego temporal (play_banned_until), ban de cuenta (is_banned), eliminar contenido.
@@ -89,6 +90,107 @@ function getLocalAnswer(message, role) {
   return null;
 }
 
+// ─── Contexto en tiempo real desde la DB ──────────────────────────────────
+
+const RE_GAME_COUNT = /cuantos juego|numero de juego|total de juego|hay juego/;
+const RE_GAME_LIST  = /que juego|lista|catalogo|titulo|juegos hay|juegos disponible|juegos tiene|juegos existen/;
+const RE_GAME_ANY   = /juego|game|arcade|puzzle|accion|estrategia/;
+const RE_TOURN_COUNT = /cuantos torneo|numero de torneo|total de torneo/;
+const RE_TOURN_ANY   = /torneo|campeonato|competici|bracket|clasificaci/;
+const RE_USERS_ADMIN = /usuario|cuenta|jugador|registrado/;
+
+async function getRealtimeContext(message, role) {
+  const n = normalize(message);
+  const parts = [];
+  const queries = [];
+
+  // ── Juegos ──
+  if (RE_GAME_ANY.test(n) || RE_GAME_COUNT.test(n) || RE_GAME_LIST.test(n)) {
+    const wantsList = RE_GAME_LIST.test(n);
+
+    if (wantsList) {
+      // Necesita títulos: top 20 por popularidad
+      queries.push(
+        prisma.game.findMany({
+          where: { is_active: true },
+          select: { title: true, category: true },
+          orderBy: { plays_count: 'desc' },
+          take: 20,
+        }).then(games => {
+          const byCategory = {};
+          for (const g of games) {
+            (byCategory[g.category] ??= []).push(g.title);
+          }
+          const total = games.length;
+          const lines = Object.entries(byCategory)
+            .map(([cat, titles]) => `${cat}: ${titles.join(', ')}`)
+            .join('\n');
+          parts.push(`Juegos (${total} listados):\n${lines}`);
+        })
+      );
+    } else {
+      // Solo necesita conteo: groupBy es mucho más ligero
+      queries.push(
+        prisma.game.groupBy({
+          by: ['category'],
+          where: { is_active: true },
+          _count: { id: true },
+        }).then(rows => {
+          const total = rows.reduce((s, r) => s + r._count.id, 0);
+          const breakdown = rows.map(r => `${r.category}: ${r._count.id}`).join(', ');
+          parts.push(`Juegos: ${total} activos (${breakdown})`);
+        })
+      );
+    }
+  }
+
+  // ── Torneos ──
+  if (RE_TOURN_ANY.test(n)) {
+    const wantsCount = RE_TOURN_COUNT.test(n);
+
+    if (wantsCount) {
+      queries.push(
+        prisma.tournament.count({ where: { is_active: true, status: { in: ['upcoming', 'active'] } } })
+          .then(count => parts.push(`Torneos activos/próximos: ${count}`))
+      );
+    } else {
+      queries.push(
+        prisma.tournament.findMany({
+          where: { is_active: true, status: { in: ['upcoming', 'active'] } },
+          select: { title: true, status: true, max_participants: true, start_date: true, prize: true },
+          orderBy: { start_date: 'asc' },
+          take: 8,
+        }).then(ts => {
+          if (ts.length === 0) {
+            parts.push('Torneos: ninguno activo o próximo.');
+          } else {
+            const list = ts.map(t => {
+              const date = new Date(t.start_date).toLocaleDateString('es-ES');
+              const spots = t.max_participants ? `máx ${t.max_participants}` : '∞';
+              const prize = t.prize ? ` | premio: ${t.prize}` : '';
+              return `${t.title} (${t.status}, ${date}, ${spots}${prize})`;
+            }).join('\n');
+            parts.push(`Torneos:\n${list}`);
+          }
+        })
+      );
+    }
+  }
+
+  // ── Admin: usuarios ──
+  if (role === 'admin' && RE_USERS_ADMIN.test(n)) {
+    queries.push(
+      Promise.all([
+        prisma.user.count(),
+        prisma.user.count({ where: { is_banned: true } }),
+      ]).then(([total, banned]) => parts.push(`Usuarios: ${total} registrados, ${banned} baneados.`))
+    );
+  }
+
+  if (queries.length > 0) await Promise.all(queries);
+  return parts.join('\n');
+}
+
 // ─── POST /api/assistant/chat ─────────────────────────────────────────────
 
 router.post('/chat', requireAuth, async (req, res) => {
@@ -115,11 +217,23 @@ router.post('/chat', requireAuth, async (req, res) => {
 
   const systemPrompt = SYSTEM_PROMPTS[role] || SYSTEM_PROMPTS.user;
 
-  // Últimos 6 mensajes del historial para no disparar tokens
   const recentHistory = history.slice(-6).map(m => ({
     role: m.role === 'assistant' ? 'assistant' : 'user',
     content: String(m.content).slice(0, 300),
   }));
+
+  // Inyectar datos reales si la pregunta los requiere
+  const contextData = await getRealtimeContext(message.trim(), role).catch(() => '');
+
+  const groqMessages = [{ role: 'system', content: systemPrompt }];
+  if (contextData) {
+    groqMessages.push({
+      role: 'system',
+      content: `Datos actuales de la plataforma (úsalos para responder con precisión):\n${contextData}`,
+    });
+  }
+  groqMessages.push(...recentHistory);
+  groqMessages.push({ role: 'user', content: message.trim() });
 
   try {
     const groqRes = await fetchCompat(GROQ_API_URL, {
@@ -130,13 +244,9 @@ router.post('/chat', requireAuth, async (req, res) => {
       },
       body: JSON.stringify({
         model: 'llama-3.3-70b-versatile',
-        messages: [
-          { role: 'system', content: systemPrompt },
-          ...recentHistory,
-          { role: 'user', content: message.trim() },
-        ],
-        max_tokens: 350,
-        temperature: 0.6,
+        messages: groqMessages,
+        max_tokens: 400,
+        temperature: 0.5,
       }),
       timeoutMs: 15000,
     });

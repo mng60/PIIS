@@ -1,7 +1,24 @@
 import { useState, useRef, useEffect } from 'react';
-import { Bot, X, Send, Loader2 } from 'lucide-react';
+import { Bot, X, Send, Loader2 } from 'lucide-react'; // Bot se usa como fallback en CraftyAvatar
 import { useAuth } from '@/lib/AuthContext';
 import { chatWithCrafty } from '@/api/assistant';
+
+// Imagen de Crafty — pon cualquier imagen en public/crafty.png para cambiarla
+const CRAFTY_IMG = '/crafty.png';
+
+function CraftyAvatar({ size = 'md' }) {
+  const [error, setError] = useState(false);
+  const cls = size === 'sm' ? 'w-6 h-6' : 'w-7 h-7';
+  const iconCls = size === 'sm' ? 'w-3 h-3' : 'w-4 h-4';
+  return (
+    <div className={`${cls} rounded-full bg-gradient-to-br from-purple-600 to-cyan-500 flex-shrink-0 flex items-center justify-center overflow-hidden`}>
+      {error
+        ? <Bot className={`${iconCls} text-white`} />
+        : <img src={CRAFTY_IMG} alt="Crafty" className="w-full h-full object-cover" onError={() => setError(true)} />
+      }
+    </div>
+  );
+}
 
 const WELCOME_BY_ROLE = {
   user:    '¡Hola! Soy **Crafty**, tu asistente en PlayCraft. Puedo ayudarte con preguntas sobre juegos, salas, ELO, logros, torneos y más. ¿En qué te ayudo?',
@@ -107,9 +124,7 @@ export default function CraftyAssistant() {
           {/* Header */}
           <div className="flex items-center justify-between px-4 py-3 bg-gradient-to-r from-purple-700 to-cyan-600">
             <div className="flex items-center gap-2">
-              <div className="w-7 h-7 rounded-full bg-white/20 flex items-center justify-center">
-                <Bot className="w-4 h-4 text-white" />
-              </div>
+              <CraftyAvatar size="md" />
               <div>
                 <p className="text-white font-semibold text-sm leading-none">Crafty</p>
                 <p className="text-white/70 text-xs">Asistente PlayCraft</p>
@@ -126,8 +141,8 @@ export default function CraftyAssistant() {
             {messages.map((msg, i) => (
               <div key={i} className={`flex ${msg.role === 'user' ? 'justify-end' : 'justify-start'}`}>
                 {msg.role === 'assistant' && (
-                  <div className="w-6 h-6 rounded-full bg-gradient-to-br from-purple-600 to-cyan-500 flex-shrink-0 flex items-center justify-center mr-2 mt-0.5">
-                    <Bot className="w-3 h-3 text-white" />
+                  <div className="mr-2 mt-0.5">
+                    <CraftyAvatar size="sm" />
                   </div>
                 )}
                 <div
@@ -142,8 +157,8 @@ export default function CraftyAssistant() {
             ))}
             {loading && (
               <div className="flex justify-start">
-                <div className="w-6 h-6 rounded-full bg-gradient-to-br from-purple-600 to-cyan-500 flex-shrink-0 flex items-center justify-center mr-2 mt-0.5">
-                  <Bot className="w-3 h-3 text-white" />
+                <div className="mr-2 mt-0.5">
+                  <CraftyAvatar size="sm" />
                 </div>
                 <div className="bg-white/5 rounded-2xl rounded-bl-sm px-3 py-2">
                   <Loader2 className="w-4 h-4 text-purple-400 animate-spin" />
@@ -181,12 +196,12 @@ export default function CraftyAssistant() {
       {/* Botón flotante */}
       <button
         onClick={() => setOpen(o => !o)}
-        className="w-12 h-12 rounded-full bg-gradient-to-br from-purple-600 to-cyan-500 flex items-center justify-center shadow-lg shadow-purple-900/50 hover:scale-105 transition-transform"
+        className="w-12 h-12 rounded-full bg-gradient-to-br from-purple-600 to-cyan-500 flex items-center justify-center shadow-lg shadow-purple-900/50 hover:scale-105 transition-transform overflow-hidden"
         title="Crafty - Asistente"
       >
         {open
           ? <X className="w-5 h-5 text-white" />
-          : <Bot className="w-5 h-5 text-white" />
+          : <CraftyAvatar size="md" />
         }
       </button>
     </div>
