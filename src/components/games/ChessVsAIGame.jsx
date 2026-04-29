@@ -31,14 +31,6 @@ function coordsToSquare(row, col) {
   return `${FILES[col]}${8 - row}`;
 }
 
-const MSG_STYLES = {
-  info:     "text-gray-300 bg-white/5",
-  success:  "text-green-300 bg-green-500/10 border border-green-500/20",
-  error:    "text-red-300 bg-red-500/10 border border-red-500/20",
-  analysis: "text-cyan-300 bg-cyan-500/10 border border-cyan-500/20",
-  coach:    "text-purple-200 bg-purple-500/10 border border-purple-500/20",
-  move:     "text-gray-400 bg-transparent",
-};
 
 export default function ChessVsAIGame({ user, difficulty = 2, onLeave, onMoveHistoryChange }) {
   const [board, setBoard] = useState(initBoard());
@@ -143,6 +135,16 @@ export default function ChessVsAIGame({ user, difficulty = 2, onLeave, onMoveHis
 
     newBoard[toC.row][toC.col] = piece;
     newBoard[fromC.row][fromC.col] = null;
+
+    // Castling: also move the rook so the client board stays in sync
+    if (piece && getPieceType(piece) === 'K' && Math.abs(toC.col - fromC.col) === 2) {
+      const kingside = toC.col > fromC.col;
+      const rookFromCol = kingside ? 7 : 0;
+      const rookToCol   = kingside ? toC.col - 1 : toC.col + 1;
+      newBoard[fromC.row][rookToCol] = getPieceColor(piece) === 'white' ? 'wR' : 'bR';
+      newBoard[fromC.row][rookFromCol] = null;
+    }
+
     return newBoard;
   }, []);
 
@@ -226,12 +228,6 @@ export default function ChessVsAIGame({ user, difficulty = 2, onLeave, onMoveHis
           onMoveHistoryChange?.(aiHistory);
           setAiThinking(false);
           setCurrentTurn("white");
-
-          if (!aiBoard.flat().includes("wK")) {
-            addCoachMessage("error", "Jaque mate. Has perdido.");
-            handleGameOver("ai_wins", aiMovePairs, aiHistory);
-            return;
-          }
 
           // Detect if the AI just put the player in check
           let wKr = -1, wKc = -1;
@@ -397,22 +393,36 @@ export default function ChessVsAIGame({ user, difficulty = 2, onLeave, onMoveHis
         </Button>
       </div>
 
-      {/* Coach chat */}
-      <div className="w-full max-w-[480px] bg-white/5 border border-white/10 rounded-xl p-3">
-        <div className="flex items-center gap-2 mb-2">
+      {/* Coach chat — same look as ChatSection */}
+      <div className="w-full max-w-[480px] bg-white/5 border border-white/10 rounded-xl flex flex-col" style={{ height: "220px" }}>
+        <div className="flex items-center gap-2 px-3 py-2 border-b border-white/10 flex-shrink-0">
           <Bot className="w-4 h-4 text-purple-400" />
-          <span className="text-xs font-semibold text-gray-300 uppercase tracking-wider">Entrenador</span>
+          <span className="text-xs font-semibold text-gray-300 uppercase tracking-wider">Chat</span>
           {analysisLoading && <Loader2 className="w-3 h-3 animate-spin text-purple-400 ml-auto" />}
         </div>
-        <div className="space-y-1.5 max-h-48 overflow-y-auto pr-1">
-          {coachMessages.map((msg, i) => (
-            <div
-              key={i}
-              className={`text-xs rounded-lg px-3 py-2 leading-relaxed ${MSG_STYLES[msg.type] || MSG_STYLES.info}`}
-            >
-              {msg.text}
-            </div>
-          ))}
+        <div className="flex-1 min-h-0 overflow-y-auto p-3 space-y-2 [&::-webkit-scrollbar]:hidden [scrollbar-width:none]">
+          {coachMessages.map((msg, i) => {
+            const isPlayer = msg.type === "move";
+            return (
+              <div key={i} className={`p-3 rounded-lg ${
+                isPlayer
+                  ? "bg-purple-500/10 border border-purple-500/20"
+                  : msg.type === "error"    ? "bg-red-500/10 border border-red-500/20"
+                  : msg.type === "success"  ? "bg-green-500/10 border border-green-500/20"
+                  : msg.type === "analysis" ? "bg-cyan-500/10 border border-cyan-500/20"
+                  : msg.type === "coach"    ? "bg-purple-500/10 border border-purple-500/20"
+                  : "bg-white/5 border border-white/10"
+              }`}>
+                <div className="flex items-center gap-1.5 mb-1">
+                  {!isPlayer && <Bot className="w-3 h-3 text-purple-400 flex-shrink-0" />}
+                  <span className="font-semibold text-white text-sm">
+                    {isPlayer ? (user?.full_name?.split(" ")[0] || "Tú") : `Entrenador (${DIFFICULTY_LABELS[difficulty]})`}
+                  </span>
+                </div>
+                <p className="text-gray-300 text-sm break-words leading-snug">{msg.text}</p>
+              </div>
+            );
+          })}
           <div ref={chatEndRef} />
         </div>
       </div>
