@@ -36,10 +36,12 @@ export default function GameArea({
   const [isVsAi, setIsVsAi] = useState(false);
   const [vsAiDifficulty, setVsAiDifficulty] = useState(null);
   const [vsAiAnalysisLoading, setVsAiAnalysisLoading] = useState(false);
-  const vsAiChatEndRef = useRef(null);
+  const vsAiChatContainerRef = useRef(null);
 
   useEffect(() => {
-    vsAiChatEndRef.current?.scrollIntoView({ behavior: 'smooth' });
+    if (vsAiChatContainerRef.current) {
+      vsAiChatContainerRef.current.scrollTop = vsAiChatContainerRef.current.scrollHeight;
+    }
   }, [vsAiMessages]);
 
   const handleVsAiChange = (active, diff) => {
@@ -181,7 +183,7 @@ export default function GameArea({
               {isVsAi && vsAiAnalysisLoading && <Loader2 className="w-3 h-3 animate-spin text-purple-400 ml-auto" />}
             </h2>
             {isVsAi ? (
-              <div className="flex-1 min-h-0 overflow-y-auto space-y-2 [&::-webkit-scrollbar]:hidden [scrollbar-width:none]">
+              <div ref={vsAiChatContainerRef} className="flex-1 min-h-0 overflow-y-auto space-y-2 [&::-webkit-scrollbar]:hidden [scrollbar-width:none]">
                 {vsAiMessages.map((msg, i) => (
                   <div key={i} className={`p-3 rounded-lg ${
                     msg.type === "error"    ? "bg-red-500/10 border border-red-500/20"
@@ -199,7 +201,6 @@ export default function GameArea({
                     <p className="text-gray-300 text-sm break-words leading-snug">{msg.text}</p>
                   </div>
                 ))}
-                <div ref={vsAiChatEndRef} />
               </div>
             ) : (
               <ChatSection

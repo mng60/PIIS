@@ -194,11 +194,40 @@ export default function ChessVsAIGame({ user, difficulty = 2, onLeave, onMoveHis
           movePairsRef.current = newMovePairs;
 
           if (result.isGameOver) {
+            let finalMovePairs = newMovePairs;
+            let finalHistory = newHistory;
+
+            // Aplica el último movimiento de la IA para que el tablero muestre la posición final
+            if (result.aiMove) {
+              const { from: aiFrom, to: aiTo, san: aiSan, promotion: aiPromo } = result.aiMove;
+              finalMovePairs = [...newMovePairs, { from: aiFrom, to: aiTo, ...(aiPromo && { promotion: aiPromo }) }];
+              movePairsRef.current = finalMovePairs;
+
+              const aiBoard = applyAiMove(newBoard, aiFrom, aiTo, aiSan, aiPromo);
+              finalHistory = [...newHistory, { move: aiSan || `${aiFrom}-${aiTo}`, player: "Negras" }];
+
+              boardRef.current = aiBoard;
+              setBoard(aiBoard);
+              setMoveHistory(finalHistory);
+              onMoveHistoryChange?.(finalHistory);
+
+              // Marca el rey en rojo si está en jaque tras el movimiento final
+              let wKr = -1, wKc = -1;
+              outerFinal: for (let r = 0; r < 8; r++) {
+                for (let c = 0; c < 8; c++) {
+                  if (aiBoard[r][c] === 'wK') { wKr = r; wKc = c; break outerFinal; }
+                }
+              }
+              if (wKr !== -1 && isSquareAttacked(aiBoard, wKr, wKc, 'black')) {
+                setPlayerInCheck(true);
+              }
+            }
+
             setAiThinking(false);
             const outcome = result.result ?? "draw";
             if (result.result === "player_wins") onCoachMessage?.("success", "¡Jaque mate! Has ganado.");
             else if (result.result === "draw") onCoachMessage?.("info", "Tablas.");
-            handleGameOver(outcome, newMovePairs, newHistory);
+            handleGameOver(outcome, finalMovePairs, finalHistory);
             return;
           }
 

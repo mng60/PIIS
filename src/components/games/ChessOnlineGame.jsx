@@ -38,7 +38,7 @@ import {
 
 import { joinQueue, getMatchStatus, cancelSearch } from "@/api/matchmaking";
 import { initBoard, safeParseBoardState, packBoardState, FILES, getPieceColor, getPieceType } from "@/components/chess/chessState";
-import { calculateValidMoves, isSquareAttacked } from "@/components/chess/chessMoves";
+import { calculateValidMoves, getLegalMoves, isSquareAttacked } from "@/components/chess/chessMoves";
 import { PIECE_SETS, renderPieceNode, getPieceDataUri } from "@/components/chess/chessPieces";
 import { TIME_LIMITS, initClockFromMinutes, formatMs, getDisplayedMs, applyClockOnMove } from "@/components/chess/chessClock";
 import OnlineGameLobby from "@/components/games/OnlineGameLobby";
@@ -462,8 +462,30 @@ export default function ChessOnlineGame({ user, gameId, myEloRating = 1200, onSc
         setMoveHistory(newHistory);
         if (onMoveHistoryChange) onMoveHistoryChange(newHistory);
 
+        // Detección de jaque mate: rey rival en jaque sin movimientos legales
+        const opponentColor = nextTurn;
+        const opponentKingCode = opponentColor === 'white' ? 'wK' : 'bK';
+        let opKr = -1, opKc = -1;
+        outerKing: for (let r = 0; r < 8; r++) {
+          for (let c = 0; c < 8; c++) {
+            if (newBoard[r][c] === opponentKingCode) { opKr = r; opKc = c; break outerKing; }
+          }
+        }
+        let isCheckmate = false;
+        if (opKr !== -1 && isSquareAttacked(newBoard, opKr, opKc, currentTurn)) {
+          let hasLegal = false;
+          outerLegal: for (let r = 0; r < 8; r++) {
+            for (let c = 0; c < 8; c++) {
+              if (newBoard[r][c] && getPieceColor(newBoard[r][c]) === opponentColor) {
+                if (getLegalMoves(newBoard, r, c).length > 0) { hasLegal = true; break outerLegal; }
+              }
+            }
+          }
+          if (!hasLegal) isCheckmate = true;
+        }
+
         try {
-          if (capturedPiece && getPieceType(capturedPiece) === "K") {
+          if (isCheckmate || (capturedPiece && getPieceType(capturedPiece) === "K")) {
             didAwardRef.current = false;
             await updateChessRoom(roomCodeRef.current, {
               board_state: packBoardState(newBoard, nextMeta),
