@@ -1,8 +1,5 @@
-import { request } from './client.js';
+import { api } from './client';
 
 export function chatWithCrafty(message, history = []) {
-  return request('/assistant/chat', {
-    method: 'POST',
-    body: JSON.stringify({ message, history }),
-  });
+  return api.post('/assistant/chat', { message, history });
 }
