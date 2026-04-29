@@ -7,7 +7,7 @@ import { AlertDialog, AlertDialogContent, AlertDialogFooter, AlertDialogHeader, 
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { initBoard, packBoardState, FILES, getPieceColor, getPieceType } from "@/components/chess/chessState";
-import { calculateValidMoves } from "@/components/chess/chessMoves";
+import { getLegalMoves, isSquareAttacked } from "@/components/chess/chessMoves";
 import { PIECE_SETS, renderPieceNode, getPieceDataUri } from "@/components/chess/chessPieces";
 import OnlineGamePlayerZone from "@/components/games/OnlineGamePlayerZone";
 
@@ -54,6 +54,8 @@ export default function ChessVsAIGame({ user, difficulty = 2, onLeave, onMoveHis
   const [boardTheme, setBoardTheme] = useState(() => localStorage.getItem("chess_board_theme") || "classic");
   const [pieceSet, setPieceSet] = useState(() => localStorage.getItem("chess_piece_set") || "staunton");
   const [moveHistory, setMoveHistory] = useState([]);
+  const [roomReady, setRoomReady] = useState(false);
+  const [playerInCheck, setPlayerInCheck] = useState(false);
   const [coachMessages, setCoachMessages] = useState([
     { type: "info", text: `Juegas con blancas contra el entrenador (${DIFFICULTY_LABELS[difficulty]}).` },
   ]);
@@ -87,6 +89,7 @@ export default function ChessVsAIGame({ user, difficulty = 2, onLeave, onMoveHis
       } catch {
         roomCodeRef.current = "LOCAL_" + Math.random().toString(36).substring(2, 6).toUpperCase();
       }
+      setRoomReady(true);
     };
     setup();
     return () => {
@@ -145,16 +148,19 @@ export default function ChessVsAIGame({ user, difficulty = 2, onLeave, onMoveHis
 
   const handleSquareClick = async (row, col) => {
     if (gameStatus !== "playing" || currentTurn !== "white" || aiThinking) return;
+    if (!roomReady) { toast.error("Preparando partida, espera un momento..."); return; }
 
     if (selectedSquare) {
       const isValid = validMoves.some(m => m.row === row && m.col === col);
 
       if (isValid) {
+        // Save previous state so we can fully revert on any error
+        const prevBoard = boardRef.current;
+        const prevMovePairs = [...movePairsRef.current];
+
         const newBoard = board.map(r => [...r]);
         const piece = newBoard[selectedSquare.row][selectedSquare.col];
         const captured = newBoard[row][col];
-
-        // Auto-promote pawn to queen
         let movedPiece = piece;
         if (getPieceType(piece) === "P" && row === 0) movedPiece = "wQ";
 
@@ -164,11 +170,8 @@ export default function ChessVsAIGame({ user, difficulty = 2, onLeave, onMoveHis
         const fromSq = coordsToSquare(selectedSquare.row, selectedSquare.col);
         const toSq   = coordsToSquare(row, col);
         const isPromotion = getPieceType(piece) === "P" && row === 0;
+        const newMovePairs = [...prevMovePairs, { from: fromSq, to: toSq, ...(isPromotion && { promotion: "q" }) }];
 
-        const newMovePairs = [...movePairsRef.current, { from: fromSq, to: toSq, ...(isPromotion && { promotion: "q" }) }];
-        movePairsRef.current = newMovePairs;
-
-        // Build display notation
         const sym = getPieceType(piece);
         const fromFile = FILES[selectedSquare.col];
         const toNotation = `${FILES[col]}${8 - row}`;
@@ -178,34 +181,34 @@ export default function ChessVsAIGame({ user, difficulty = 2, onLeave, onMoveHis
         const fullNotation = isPromotion ? notation + "=Q" : notation;
 
         const newHistory = [...moveHistory, { move: fullNotation, player: "Blancas" }];
-        setBoard(newBoard);
         boardRef.current = newBoard;
+        setBoard(newBoard);
         setMoveHistory(newHistory);
         onMoveHistoryChange?.(newHistory);
         setSelectedSquare(null);
         setValidMoves([]);
+        setPlayerInCheck(false);
 
-        // Check if player captured the AI king (shouldn't happen with proper chess.js, but just in case)
         if (captured && getPieceType(captured) === "K") {
+          movePairsRef.current = newMovePairs;
           handleGameOver("player_wins", newMovePairs, newHistory);
           return;
         }
 
-        // Switch to AI turn
         setCurrentTurn("black");
         setAiThinking(true);
 
         try {
           const result = await requestAiMove(roomCodeRef.current, newMovePairs);
 
+          // Only commit movePairs on success
+          movePairsRef.current = newMovePairs;
+
           if (result.isGameOver) {
             setAiThinking(false);
             const outcome = result.result ?? "draw";
-            if (result.result === "player_wins") {
-              addCoachMessage("success", "¡Jaque mate! Has ganado.");
-            } else if (result.result === "draw") {
-              addCoachMessage("info", "Tablas.");
-            }
+            if (result.result === "player_wins") addCoachMessage("success", "¡Jaque mate! Has ganado.");
+            else if (result.result === "draw") addCoachMessage("info", "Tablas.");
             handleGameOver(outcome, newMovePairs, newHistory);
             return;
           }
@@ -224,29 +227,34 @@ export default function ChessVsAIGame({ user, difficulty = 2, onLeave, onMoveHis
           setAiThinking(false);
           setCurrentTurn("white");
 
-          // Check if AI captured the player king
-          const playerKingPos = aiBoard.flat().find((_, i) => {
-            const r = Math.floor(i / 8), c = i % 8;
-            return aiBoard[r][c] === "wK";
-          });
-          // No wK on board means game over
           if (!aiBoard.flat().includes("wK")) {
             addCoachMessage("error", "Jaque mate. Has perdido.");
             handleGameOver("ai_wins", aiMovePairs, aiHistory);
             return;
           }
 
+          // Detect if the AI just put the player in check
+          let wKr = -1, wKc = -1;
+          outer: for (let r = 0; r < 8; r++) {
+            for (let c = 0; c < 8; c++) {
+              if (aiBoard[r][c] === 'wK') { wKr = r; wKc = c; break outer; }
+            }
+          }
+          if (wKr !== -1 && isSquareAttacked(aiBoard, wKr, wKc, 'black')) {
+            setPlayerInCheck(true);
+            addCoachMessage("error", "¡Jaque! Mueve tu rey para salir del peligro.");
+          }
+
         } catch (e) {
+          // Revert everything — movePairsRef was never committed
+          boardRef.current = prevBoard;
+          setBoard(prevBoard);
+          setMoveHistory(moveHistory);
           setAiThinking(false);
           setCurrentTurn("white");
-          const errMsg = e?.data?.error || e?.message || "Error del entrenador";
+          const errMsg = e?.response?.data?.error || e?.message || "";
           if (errMsg === "invalid_move") {
             toast.error("Movimiento ilegal. Tu rey quedaría en jaque.");
-            // Revert move
-            setBoard(boardRef.current);
-            const revertedMovePairs = movePairsRef.current.slice(0, -1);
-            movePairsRef.current = revertedMovePairs;
-            setMoveHistory(moveHistory);
           } else {
             toast.error("El entrenador no pudo responder. Inténtalo de nuevo.");
           }
@@ -256,7 +264,7 @@ export default function ChessVsAIGame({ user, difficulty = 2, onLeave, onMoveHis
         const clickedPiece = board[row][col];
         if (clickedPiece && getPieceColor(clickedPiece) === "white") {
           setSelectedSquare({ row, col });
-          setValidMoves(calculateValidMoves(board, row, col));
+          setValidMoves(getLegalMoves(board, row, col));
         } else {
           setSelectedSquare(null);
           setValidMoves([]);
@@ -266,7 +274,7 @@ export default function ChessVsAIGame({ user, difficulty = 2, onLeave, onMoveHis
       const piece = board[row][col];
       if (piece && getPieceColor(piece) === "white") {
         setSelectedSquare({ row, col });
-        setValidMoves(calculateValidMoves(board, row, col));
+        setValidMoves(getLegalMoves(board, row, col));
       }
     }
   };
@@ -327,7 +335,12 @@ export default function ChessVsAIGame({ user, difficulty = 2, onLeave, onMoveHis
       )}
 
       {/* Board */}
-      <div style={{ width: "min(480px, 90vw)", aspectRatio: "1/1" }}>
+      <div style={{ width: "min(480px, 90vw)", aspectRatio: "1/1" }} className="relative">
+        {!roomReady && (
+          <div className="absolute inset-0 z-10 bg-black/50 flex items-center justify-center rounded-lg">
+            <Loader2 className="w-8 h-8 animate-spin text-purple-400" />
+          </div>
+        )}
         <div className="grid grid-cols-8 border-2 border-white/10 rounded-lg overflow-hidden shadow-2xl w-full h-full">
           {Array.from({ length: 8 }).map((_, ri) =>
             Array.from({ length: 8 }).map((_, ci) => {
@@ -337,7 +350,8 @@ export default function ChessVsAIGame({ user, difficulty = 2, onLeave, onMoveHis
               const isLight = (row + col) % 2 === 0;
               const isSelected = selectedSquare?.row === row && selectedSquare?.col === col;
               const isValidMove = validMoves.some(m => m.row === row && m.col === col);
-              const canInteract = gameStatus === "playing" && currentTurn === "white" && !aiThinking;
+              const isKingInCheck = playerInCheck && piece === 'wK';
+              const canInteract = gameStatus === "playing" && currentTurn === "white" && !aiThinking && roomReady;
               const bg = isLight ? theme.light : theme.dark;
               const labelColor = isLight ? theme.labelLight : theme.labelDark;
 
@@ -347,7 +361,7 @@ export default function ChessVsAIGame({ user, difficulty = 2, onLeave, onMoveHis
                   onClick={() => canInteract && handleSquareClick(row, col)}
                   className={`aspect-square flex items-center justify-center relative overflow-hidden
                     ${canInteract ? "cursor-pointer hover:brightness-110" : "cursor-default"}
-                    ${isSelected ? "ring-4 ring-yellow-400 ring-inset" : ""}`}
+                    ${isSelected ? "ring-4 ring-yellow-400 ring-inset" : isKingInCheck ? "ring-4 ring-red-500 ring-inset" : ""}`}
                   style={{ backgroundColor: bg }}
                 >
                   {piece && renderPieceNode(piece, pieceSet)}
