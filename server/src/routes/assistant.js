@@ -1,5 +1,6 @@
 import { Router } from 'express';
 import { requireAuth } from '../middleware/auth.js';
+import { fetchCompat } from '../lib/httpFetch.js';
 
 const router = Router();
 const GROQ_API_URL = 'https://api.groq.com/openai/v1/chat/completions';
@@ -121,7 +122,7 @@ router.post('/chat', requireAuth, async (req, res) => {
   }));
 
   try {
-    const groqRes = await fetch(GROQ_API_URL, {
+    const groqRes = await fetchCompat(GROQ_API_URL, {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
@@ -137,6 +138,7 @@ router.post('/chat', requireAuth, async (req, res) => {
         max_tokens: 350,
         temperature: 0.6,
       }),
+      timeoutMs: 15000,
     });
 
     if (!groqRes.ok) {
