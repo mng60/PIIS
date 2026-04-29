@@ -38,7 +38,7 @@ import {
 
 import { joinQueue, getMatchStatus, cancelSearch } from "@/api/matchmaking";
 import { initBoard, safeParseBoardState, packBoardState, FILES, getPieceColor, getPieceType } from "@/components/chess/chessState";
-import { calculateValidMoves } from "@/components/chess/chessMoves";
+import { calculateValidMoves, isSquareAttacked } from "@/components/chess/chessMoves";
 import { PIECE_SETS, renderPieceNode, getPieceDataUri } from "@/components/chess/chessPieces";
 import { TIME_LIMITS, initClockFromMinutes, formatMs, getDisplayedMs, applyClockOnMove } from "@/components/chess/chessClock";
 import OnlineGameLobby from "@/components/games/OnlineGameLobby";
@@ -64,7 +64,7 @@ const nickName = (name) => {
   return name;
 };
 
-export default function ChessOnlineGame({ user, gameId, myEloRating = 1200, onScoreUpdate, onEloApplied, onRoomCodeChange, onMoveHistoryChange, initialRoomCode, onLeave }) {
+export default function ChessOnlineGame({ user, gameId, myEloRating = 1200, onScoreUpdate, onEloApplied, onRoomCodeChange, onMoveHistoryChange, initialRoomCode, onLeave, onVsAiChange, onVsAiMessage, onVsAiAnalysisLoading }) {
   const [vsAiDifficulty, setVsAiDifficulty] = useState(null);
   const [screen, setScreen] = useState("lobby");
   const [roomCode, setRoomCode] = useState("");
@@ -872,9 +872,12 @@ export default function ChessOnlineGame({ user, gameId, myEloRating = 1200, onSc
         user={user}
         difficulty={vsAiDifficulty}
         onMoveHistoryChange={onMoveHistoryChange}
+        onCoachMessage={onVsAiMessage}
+        onAnalysisLoadingChange={onVsAiAnalysisLoading}
         onLeave={() => {
           setVsAiDifficulty(null);
           if (onMoveHistoryChange) onMoveHistoryChange([]);
+          onVsAiChange?.(false, null);
         }}
       />
     );
@@ -896,7 +899,7 @@ export default function ChessOnlineGame({ user, gameId, myEloRating = 1200, onSc
         loading={loading}
         error={error}
         showVsAI
-        onVsAI={(diff) => setVsAiDifficulty(diff)}
+        onVsAI={(diff) => { setVsAiDifficulty(diff); onVsAiChange?.(true, diff); }}
       />
     );
   }
@@ -985,7 +988,19 @@ export default function ChessOnlineGame({ user, gameId, myEloRating = 1200, onSc
           </div>
         )}
       <div className="grid grid-cols-8 border-2 border-white/10 rounded-lg overflow-hidden shadow-2xl w-full h-full">
-        {Array.from({ length: 8 }).map((_, ri) => {
+        {(() => {
+          const myKingCode = playerColor === 'white' ? 'wK' : 'bK';
+          let myKr = -1, myKc = -1;
+          if (playerColor) {
+            outer: for (let r = 0; r < 8; r++) {
+              for (let c = 0; c < 8; c++) {
+                if (board[r][c] === myKingCode) { myKr = r; myKc = c; break outer; }
+              }
+            }
+          }
+          const myKingInCheck = myKr !== -1 && isSquareAttacked(board, myKr, myKc, playerColor === 'white' ? 'black' : 'white');
+
+          return Array.from({ length: 8 }).map((_, ri) => {
           const row = flip ? 7 - ri : ri;
           return Array.from({ length: 8 }).map((_, ci) => {
             const col = flip ? 7 - ci : ci;
@@ -994,6 +1009,7 @@ export default function ChessOnlineGame({ user, gameId, myEloRating = 1200, onSc
             const isLight = (row + col) % 2 === 0;
             const isSelected = selectedSquare?.row === row && selectedSquare?.col === col;
             const isValidMove = validMoves.some((m) => m.row === row && m.col === col);
+            const isKingInCheck = myKingInCheck && piece === myKingCode;
 
             const bg = isLight ? theme.light : theme.dark;
             const labelColor = isLight ? theme.labelLight : theme.labelDark;
@@ -1002,7 +1018,7 @@ export default function ChessOnlineGame({ user, gameId, myEloRating = 1200, onSc
               <div
                 key={`${row}-${col}`}
                 onClick={() => (canInteract ? handleSquareClick(row, col) : null)}
-                className={`aspect-square flex items-center justify-center relative overflow-hidden ${canInteract ? "cursor-pointer hover:brightness-110" : "cursor-default"} ${isSelected ? "ring-4 ring-yellow-400 ring-inset" : ""}`}
+                className={`aspect-square flex items-center justify-center relative overflow-hidden ${canInteract ? "cursor-pointer hover:brightness-110" : "cursor-default"} ${isSelected ? "ring-4 ring-yellow-400 ring-inset" : isKingInCheck ? "ring-4 ring-red-500 ring-inset" : ""}`}
                 style={{ backgroundColor: bg }}
               >
                 {piece && renderPieceNode(piece, pieceSet)}
@@ -1026,7 +1042,8 @@ export default function ChessOnlineGame({ user, gameId, myEloRating = 1200, onSc
               </div>
             );
           });
-        })}
+        });
+        })()}
       </div>
       </div>
 

@@ -32,7 +32,7 @@ function coordsToSquare(row, col) {
 }
 
 
-export default function ChessVsAIGame({ user, difficulty = 2, onLeave, onMoveHistoryChange }) {
+export default function ChessVsAIGame({ user, difficulty = 2, onLeave, onMoveHistoryChange, onCoachMessage, onAnalysisLoadingChange }) {
   const [board, setBoard] = useState(initBoard());
   const [currentTurn, setCurrentTurn] = useState("white");
   const [selectedSquare, setSelectedSquare] = useState(null);
@@ -40,7 +40,6 @@ export default function ChessVsAIGame({ user, difficulty = 2, onLeave, onMoveHis
   const [gameStatus, setGameStatus] = useState("playing");
   const [winner, setWinner] = useState(null);
   const [aiThinking, setAiThinking] = useState(false);
-  const [analysisLoading, setAnalysisLoading] = useState(false);
   const [leaveOpen, setLeaveOpen] = useState(false);
   const [settingsOpen, setSettingsOpen] = useState(false);
   const [boardTheme, setBoardTheme] = useState(() => localStorage.getItem("chess_board_theme") || "classic");
@@ -48,23 +47,15 @@ export default function ChessVsAIGame({ user, difficulty = 2, onLeave, onMoveHis
   const [moveHistory, setMoveHistory] = useState([]);
   const [roomReady, setRoomReady] = useState(false);
   const [playerInCheck, setPlayerInCheck] = useState(false);
-  const [coachMessages, setCoachMessages] = useState([
-    { type: "info", text: `Juegas con blancas contra el entrenador (${DIFFICULTY_LABELS[difficulty]}).` },
-  ]);
 
   // movePairs: [{from: "e2", to: "e4"}] — authoritative move list sent to backend
   const movePairsRef = useRef([]);
   const roomCodeRef = useRef(null);
   const boardRef = useRef(initBoard());
   const gameOverRef = useRef(false);
-  const chatEndRef = useRef(null);
 
   useEffect(() => { localStorage.setItem("chess_board_theme", boardTheme); }, [boardTheme]);
   useEffect(() => { localStorage.setItem("chess_piece_set", pieceSet); }, [pieceSet]);
-
-  useEffect(() => {
-    chatEndRef.current?.scrollIntoView({ behavior: "smooth" });
-  }, [coachMessages]);
 
   useEffect(() => {
     const setup = async () => {
@@ -91,10 +82,6 @@ export default function ChessVsAIGame({ user, difficulty = 2, onLeave, onMoveHis
     };
   }, []); // eslint-disable-line
 
-  const addCoachMessage = useCallback((type, text) => {
-    setCoachMessages(prev => [...prev, { type, text }]);
-  }, []);
-
   const handleGameOver = useCallback(async (result, finalMovePairs, finalHistory) => {
     if (gameOverRef.current) return;
     gameOverRef.current = true;
@@ -105,23 +92,23 @@ export default function ChessVsAIGame({ user, difficulty = 2, onLeave, onMoveHis
     setValidMoves([]);
     setWinner(result);
 
-    setAnalysisLoading(true);
-    addCoachMessage("info", "Analizando la partida...");
+    onAnalysisLoadingChange?.(true);
+    onCoachMessage?.("info", "Analizando la partida...");
 
     try {
       const analysis = await requestGameSummary(roomCodeRef.current, finalMovePairs, result);
       if (analysis.accuracy !== null && analysis.accuracy !== undefined) {
-        addCoachMessage(
+        onCoachMessage?.(
           "analysis",
           `Precisión: ${analysis.accuracy}% · Blunders: ${analysis.blunders} · Errores: ${analysis.mistakes} · Imprecisiones: ${analysis.inaccuracies}`
         );
       }
-      if (analysis.feedback) addCoachMessage("coach", analysis.feedback);
+      if (analysis.feedback) onCoachMessage?.("coach", analysis.feedback);
     } catch {
-      addCoachMessage("info", "Análisis no disponible.");
+      onCoachMessage?.("info", "Análisis no disponible.");
     }
-    setAnalysisLoading(false);
-  }, [addCoachMessage]);
+    onAnalysisLoadingChange?.(false);
+  }, [onCoachMessage, onAnalysisLoadingChange]);
 
   const applyAiMove = useCallback((board, aiFrom, aiTo, aiSan, aiPromotion) => {
     const fromC = squareToCoords(aiFrom);
@@ -209,8 +196,8 @@ export default function ChessVsAIGame({ user, difficulty = 2, onLeave, onMoveHis
           if (result.isGameOver) {
             setAiThinking(false);
             const outcome = result.result ?? "draw";
-            if (result.result === "player_wins") addCoachMessage("success", "¡Jaque mate! Has ganado.");
-            else if (result.result === "draw") addCoachMessage("info", "Tablas.");
+            if (result.result === "player_wins") onCoachMessage?.("success", "¡Jaque mate! Has ganado.");
+            else if (result.result === "draw") onCoachMessage?.("info", "Tablas.");
             handleGameOver(outcome, newMovePairs, newHistory);
             return;
           }
@@ -238,7 +225,7 @@ export default function ChessVsAIGame({ user, difficulty = 2, onLeave, onMoveHis
           }
           if (wKr !== -1 && isSquareAttacked(aiBoard, wKr, wKc, 'black')) {
             setPlayerInCheck(true);
-            addCoachMessage("error", "¡Jaque! Mueve tu rey para salir del peligro.");
+            onCoachMessage?.("error", "¡Jaque! Mueve tu rey para salir del peligro.");
           }
 
         } catch (e) {
@@ -391,40 +378,6 @@ export default function ChessVsAIGame({ user, difficulty = 2, onLeave, onMoveHis
           <LogOut className="w-4 h-4 mr-2" />
           {gameStatus === "finished" ? "Volver" : "Salir"}
         </Button>
-      </div>
-
-      {/* Coach chat — same look as ChatSection */}
-      <div className="w-full max-w-[480px] bg-white/5 border border-white/10 rounded-xl flex flex-col" style={{ height: "220px" }}>
-        <div className="flex items-center gap-2 px-3 py-2 border-b border-white/10 flex-shrink-0">
-          <Bot className="w-4 h-4 text-purple-400" />
-          <span className="text-xs font-semibold text-gray-300 uppercase tracking-wider">Chat</span>
-          {analysisLoading && <Loader2 className="w-3 h-3 animate-spin text-purple-400 ml-auto" />}
-        </div>
-        <div className="flex-1 min-h-0 overflow-y-auto p-3 space-y-2 [&::-webkit-scrollbar]:hidden [scrollbar-width:none]">
-          {coachMessages.map((msg, i) => {
-            const isPlayer = msg.type === "move";
-            return (
-              <div key={i} className={`p-3 rounded-lg ${
-                isPlayer
-                  ? "bg-purple-500/10 border border-purple-500/20"
-                  : msg.type === "error"    ? "bg-red-500/10 border border-red-500/20"
-                  : msg.type === "success"  ? "bg-green-500/10 border border-green-500/20"
-                  : msg.type === "analysis" ? "bg-cyan-500/10 border border-cyan-500/20"
-                  : msg.type === "coach"    ? "bg-purple-500/10 border border-purple-500/20"
-                  : "bg-white/5 border border-white/10"
-              }`}>
-                <div className="flex items-center gap-1.5 mb-1">
-                  {!isPlayer && <Bot className="w-3 h-3 text-purple-400 flex-shrink-0" />}
-                  <span className="font-semibold text-white text-sm">
-                    {isPlayer ? (user?.full_name?.split(" ")[0] || "Tú") : `Entrenador (${DIFFICULTY_LABELS[difficulty]})`}
-                  </span>
-                </div>
-                <p className="text-gray-300 text-sm break-words leading-snug">{msg.text}</p>
-              </div>
-            );
-          })}
-          <div ref={chatEndRef} />
-        </div>
       </div>
 
       {/* Leave dialog */}
