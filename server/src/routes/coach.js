@@ -63,15 +63,16 @@ router.post('/ai-move', requireAuth, async (req, res) => {
   const { room_code, moves = [], player_color = 'white' } = req.body;
 
   if (!room_code) return res.status(400).json({ error: 'room_code requerido' });
-  if (!stockfish.isAvailable) {
-    return res.status(503).json({ error: 'Motor de ajedrez no disponible' });
-  }
 
   // Verify room is a vs AI room
   const room = await prisma.chessRoom.findUnique({ where: { room_code } });
   if (!room || !room.is_vs_ai) {
     return res.status(404).json({ error: 'Sala vs IA no encontrada' });
   }
+
+  // Esperar a que el motor esté listo (hasta 10s, cubre la carga inicial del WASM)
+  const ready = await stockfish.waitUntilReady(10000);
+  if (!ready) return res.status(503).json({ error: 'Motor de ajedrez no disponible' });
 
   let chess;
   try {
@@ -136,7 +137,8 @@ router.post('/ai-move', requireAuth, async (req, res) => {
 router.post('/game-summary', requireAuth, async (req, res) => {
   const { room_code, moves = [], result = 'unknown' } = req.body;
 
-  if (!stockfish.isAvailable) {
+  const ready = await stockfish.waitUntilReady(10000);
+  if (!ready) {
     return res.json({ accuracy: null, blunders: 0, mistakes: 0, inaccuracies: 0, feedback: 'Análisis no disponible.' });
   }
 

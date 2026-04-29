@@ -2,74 +2,101 @@ import { createRequire } from 'module';
 const require = createRequire(import.meta.url);
 
 const DIFFICULTY_CONFIG = {
-  1: { skillLevel: 0,  movetime: 200  }, // Principiante
-  2: { skillLevel: 8,  movetime: 500  }, // Intermedio
-  3: { skillLevel: 15, movetime: 1000 }, // Avanzado
-  4: { skillLevel: 20, movetime: 2000 }, // Maestro
+  1: { skillLevel: 0,  movetime: 300  }, // Principiante
+  2: { skillLevel: 8,  movetime: 600  }, // Intermedio
+  3: { skillLevel: 15, movetime: 1200 }, // Avanzado
+  4: { skillLevel: 20, movetime: 2500 }, // Maestro
 };
 
 class StockfishService {
   constructor() {
+    this._engine = null;
     this._resolve = null;
     this._lines = [];
     this._doneWhen = null;
-    this._pending = null;
-    this._engine = null;
+    this._pending = Promise.resolve();
     this._available = false;
+    this._readyPromise = new Promise(res => { this._resolveReady = res; });
     this._init();
+  }
+
+  _handleLine(line) {
+    if (!line) return;
+
+    if (!this._available && line === 'readyok') {
+      this._available = true;
+      this._resolveReady(true);
+      console.log('[Stockfish] Engine ready');
+    }
+
+    if (!this._resolve) return;
+    this._lines.push(line);
+    if (this._doneWhen(line)) {
+      const r = this._resolve;
+      const l = this._lines.slice();
+      this._resolve = null;
+      this._lines = [];
+      this._doneWhen = null;
+      r(l);
+    }
   }
 
   _init() {
     try {
-      const Stockfish = require('stockfish');
-      this._engine = Stockfish();
-      this._engine.onmessage = (ev) => {
-        const line = typeof ev === 'string' ? ev : String(ev?.data ?? ev ?? '');
-        if (!this._resolve) return;
-        this._lines.push(line);
-        if (this._doneWhen(line)) {
-          const r = this._resolve;
-          const l = this._lines.slice();
-          this._resolve = null;
-          this._lines = [];
-          this._doneWhen = null;
-          r(l);
+      const initEngine = require('stockfish');
+
+      // Callback form: devuelve el objeto engine ANTES de que cargue el WASM.
+      // Esto nos permite asignar engine.print antes de que Emscripten lo capture.
+      const engineRef = initEngine('lite-single', (err, engine) => {
+        if (err) {
+          console.error('[Stockfish] Init error:', err);
+          this._resolveReady(false);
+          return;
         }
-      };
-      this._engine.postMessage('uci');
-      this._engine.postMessage('setoption name Hash value 16');
-      this._engine.postMessage('isready');
-      this._available = true;
+        this._engine = engine;
+        engine.sendCommand('uci');
+        engine.sendCommand('setoption name Hash value 16');
+        engine.sendCommand('isready');
+      });
+
+      // WASM overrides engine.print to call engine.listener; assign listener, not print.
+      engineRef.listener = (line) => this._handleLine(line);
+
     } catch (e) {
       console.error('[Stockfish] Init failed:', e.message);
-      this._available = false;
+      this._resolveReady(false);
     }
+  }
+
+  async waitUntilReady(timeoutMs = 12000) {
+    return Promise.race([
+      this._readyPromise,
+      new Promise(res => setTimeout(() => res(false), timeoutMs)),
+    ]);
   }
 
   _send(commands, doneWhen) {
     if (!this._available || !this._engine) {
       return Promise.reject(new Error('Stockfish no disponible'));
     }
-    const prev = this._pending ?? Promise.resolve();
-    const next = prev.then(() =>
+    const prev = this._pending;
+    const task = prev.then(() =>
       new Promise((resolve, reject) => {
         const timer = setTimeout(() => {
-          if (this._resolve) {
-            this._resolve = null;
-            this._lines = [];
-            this._doneWhen = null;
-          }
+          this._resolve = null;
+          this._lines = [];
+          this._doneWhen = null;
           reject(new Error('Stockfish timeout'));
-        }, 15000);
+        }, 20000);
 
         this._lines = [];
         this._doneWhen = doneWhen;
         this._resolve = (lines) => { clearTimeout(timer); resolve(lines); };
-        for (const cmd of commands) this._engine.postMessage(cmd);
+        for (const cmd of commands) this._engine.sendCommand(cmd);
       })
     );
-    this._pending = next.catch(() => {});
-    return next;
+    this._pending = task.catch(() => {});
+    return task;
   }
 
   async getBestMove(fen, difficulty = 2) {
@@ -103,14 +130,10 @@ class StockfishService {
     let cp = null;
     let mate = null;
     for (const line of lines) {
-      if (line.includes('score cp')) {
-        const m = line.match(/score cp (-?\d+)/);
-        if (m) cp = parseInt(m[1]);
-      }
-      if (line.includes('score mate')) {
-        const m = line.match(/score mate (-?\d+)/);
-        if (m) mate = parseInt(m[1]);
-      }
+      const cpM = line.match(/score cp (-?\d+)/);
+      if (cpM) cp = parseInt(cpM[1]);
+      const mateM = line.match(/score mate (-?\d+)/);
+      if (mateM) mate = parseInt(mateM[1]);
     }
     if (mate !== null) return mate > 0 ? 9999 : -9999;
     return cp ?? 0;
