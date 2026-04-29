@@ -11,6 +11,10 @@ import { useChessGame } from '@/hooks/useChessGame';
 
 const DIFFICULTY_LABELS = { 1: "Principiante", 2: "Intermedio", 3: "Avanzado", 4: "Maestro" };
 
+function buildVsAiIntroMessage(diff) {
+  return { type: "info", text: `Juegas con blancas contra el entrenador (${DIFFICULTY_LABELS[diff]}).` };
+}
+
 export default function GameArea({
   game,
   user,
@@ -49,10 +53,17 @@ export default function GameArea({
     setVsAiDifficulty(diff);
     setVsAiAnalysisLoading(false);
     if (active) {
-      setVsAiMessages([{ type: "info", text: `Juegas con blancas contra el entrenador (${DIFFICULTY_LABELS[diff]}).` }]);
+      setVsAiMessages([buildVsAiIntroMessage(diff)]);
     } else {
       setVsAiMessages([]);
     }
+  };
+
+  const handleVsAiRestore = ({ difficulty: diff, messages }) => {
+    setIsVsAi(true);
+    setVsAiDifficulty(diff);
+    setVsAiAnalysisLoading(false);
+    setVsAiMessages(messages?.length ? messages : [buildVsAiIntroMessage(diff)]);
   };
 
   useChessGame({ isPlaying, user, gameId, iframeRef, onRoomCodeChange: onChatSessionIdChange });
@@ -115,6 +126,7 @@ export default function GameArea({
           initialRoomCode={initialRoomCode}
           onLeave={onLeave}
           onVsAiChange={handleVsAiChange}
+          onVsAiRestore={handleVsAiRestore}
           onVsAiMessage={(type, text) => setVsAiMessages(prev => [...prev, { type, text }])}
           onVsAiAnalysisLoading={setVsAiAnalysisLoading}
         />

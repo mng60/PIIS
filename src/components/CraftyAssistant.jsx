@@ -2,6 +2,7 @@ import { useState, useRef, useEffect } from 'react';
 import { Bot, X, Send, Loader2 } from 'lucide-react'; // Bot se usa como fallback en CraftyAvatar
 import { useAuth } from '@/lib/AuthContext';
 import { chatWithCrafty } from '@/api/assistant';
+import { useFloatingPanels } from '@/lib/FloatingPanelsContext';
 
 // Imagen de Crafty — pon cualquier imagen en public/crafty.png para cambiarla
 const CRAFTY_IMG = '/crafty.png';
@@ -35,7 +36,7 @@ function formatText(text) {
 
 export default function CraftyAssistant() {
   const { isAuthenticated, user } = useAuth();
-  const [open, setOpen] = useState(false);
+  const { isAssistantOpen: open, isChessAlertOpen, toggleAssistant, closeAssistant } = useFloatingPanels();
   const [input, setInput] = useState('');
   const [loading, setLoading] = useState(false);
   const [messages, setMessages] = useState([]);
@@ -74,14 +75,15 @@ export default function CraftyAssistant() {
     if (!open) return;
     const handler = (e) => {
       if (containerRef.current && !containerRef.current.contains(e.target)) {
-        setOpen(false);
+        closeAssistant();
       }
     };
     document.addEventListener('mousedown', handler);
     return () => document.removeEventListener('mousedown', handler);
-  }, [open]);
+  }, [closeAssistant, open]);
 
   if (!isAuthenticated) return null;
+  if (isChessAlertOpen) return null;
 
   async function handleSend() {
     const text = input.trim();
@@ -130,7 +132,7 @@ export default function CraftyAssistant() {
                 <p className="text-white/70 text-xs">Asistente PlayCraft</p>
               </div>
             </div>
-            <button onClick={() => setOpen(false)}
+            <button onClick={closeAssistant}
               className="text-white/70 hover:text-white transition-colors">
               <X className="w-4 h-4" />
             </button>
@@ -195,7 +197,7 @@ export default function CraftyAssistant() {
 
       {/* Botón flotante */}
       <button
-        onClick={() => setOpen(o => !o)}
+        onClick={toggleAssistant}
         className="w-12 h-12 rounded-full bg-gradient-to-br from-purple-600 to-cyan-500 flex items-center justify-center shadow-lg shadow-purple-900/50 hover:scale-105 transition-transform overflow-hidden"
         title="Crafty - Asistente"
       >

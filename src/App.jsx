@@ -26,6 +26,7 @@ import ActiveChessGamesAlert from './components/ActiveChessGamesAlert';
 import FloatingChat from './components/FloatingChat';
 import { AbandonWarningProvider } from '@/lib/abandonWarning';
 import { CurrentRoomProvider } from '@/lib/CurrentRoomContext';
+import { FloatingPanelsProvider } from '@/lib/FloatingPanelsContext';
 
 const AppRoutes = () => {
   const { isLoadingAuth } = useAuth();
@@ -69,13 +70,15 @@ function App() {
     <AuthProvider>
       <QueryClientProvider client={queryClientInstance}>
         <CurrentRoomProvider>
-        <AbandonWarningProvider>
-          <Router>
-            <NavigationTracker />
-            <AppRoutes />
-          </Router>
-          <Toaster richColors position="top-right" />
-        </AbandonWarningProvider>
+        <FloatingPanelsProvider>
+          <AbandonWarningProvider>
+            <Router>
+              <NavigationTracker />
+              <AppRoutes />
+            </Router>
+            <Toaster richColors position="top-right" />
+          </AbandonWarningProvider>
+        </FloatingPanelsProvider>
         </CurrentRoomProvider>
       </QueryClientProvider>
     </AuthProvider>

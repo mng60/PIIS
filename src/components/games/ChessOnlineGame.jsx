@@ -5,10 +5,8 @@ import { recordAbandon } from "@/api/users";
 import { useAbandonWarning } from "@/lib/abandonWarning";
 import { useCurrentRoom } from "@/lib/CurrentRoomContext";
 import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
-import { Card } from "@/components/ui/card";
 import { toast } from "sonner";
-import { Loader2, Copy, Trophy, Settings, Scale, LogOut, Check } from "lucide-react";
+import { Copy, Trophy, Scale, LogOut, Check } from "lucide-react";
 
 import {
   Dialog,
@@ -64,7 +62,7 @@ const nickName = (name) => {
   return name;
 };
 
-export default function ChessOnlineGame({ user, gameId, myEloRating = 1200, onScoreUpdate, onEloApplied, onRoomCodeChange, onMoveHistoryChange, initialRoomCode, onLeave, onVsAiChange, onVsAiMessage, onVsAiAnalysisLoading }) {
+export default function ChessOnlineGame({ user, gameId, myEloRating = 1200, onScoreUpdate, onEloApplied, onRoomCodeChange, onMoveHistoryChange, initialRoomCode, onLeave, onVsAiChange, onVsAiRestore, onVsAiMessage, onVsAiAnalysisLoading }) {
   const [vsAiDifficulty, setVsAiDifficulty] = useState(null);
   const [screen, setScreen] = useState("lobby");
   const [roomCode, setRoomCode] = useState("");
@@ -309,6 +307,16 @@ export default function ChessOnlineGame({ user, gameId, myEloRating = 1200, onSc
         setBoard(b);
         metaRef.current = meta || {};
         setCurrentTurn(room.current_turn || "white");
+
+        if (room.is_vs_ai) {
+          setVsAiDifficulty(room.ai_difficulty ?? 2);
+          onVsAiRestore?.({
+            difficulty: room.ai_difficulty ?? 2,
+            messages: Array.isArray(meta?.coachMessages) ? meta.coachMessages : [],
+          });
+          if (!cancelled) setLoading(false);
+          return;
+        }
 
         if (user.email === room.host_email) {
           setRoomCode(initialRoomCode);
@@ -893,6 +901,7 @@ export default function ChessOnlineGame({ user, gameId, myEloRating = 1200, onSc
       <ChessVsAIGame
         user={user}
         difficulty={vsAiDifficulty}
+        initialRoomCode={initialRoomCode}
         onMoveHistoryChange={onMoveHistoryChange}
         onCoachMessage={onVsAiMessage}
         onAnalysisLoadingChange={onVsAiAnalysisLoading}

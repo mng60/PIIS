@@ -1,12 +1,12 @@
 import React, { useEffect, useRef, useState, useCallback } from "react";
-import { createChessRoom, deleteChessRoom, requestAiMove, requestGameSummary } from "@/api/chess";
+import { createChessRoom, getChessRoom, updateChessRoom, deleteChessRoom, requestAiMove, requestGameSummary } from "@/api/chess";
 import { Button } from "@/components/ui/button";
 import { toast } from "sonner";
-import { Loader2, LogOut, Trophy, Settings, Bot, Check } from "lucide-react";
+import { Loader2, LogOut, Trophy, Bot, Check } from "lucide-react";
 import { AlertDialog, AlertDialogContent, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle, AlertDialogDescription, AlertDialogCancel, AlertDialogAction } from "@/components/ui/alert-dialog";
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { initBoard, packBoardState, FILES, getPieceColor, getPieceType } from "@/components/chess/chessState";
+import { initBoard, safeParseBoardState, packBoardState, FILES, getPieceColor, getPieceType } from "@/components/chess/chessState";
 import { getLegalMoves, isSquareAttacked } from "@/components/chess/chessMoves";
 import { PIECE_SETS, renderPieceNode, getPieceDataUri } from "@/components/chess/chessPieces";
 import OnlineGamePlayerZone from "@/components/games/OnlineGamePlayerZone";
@@ -22,7 +22,7 @@ const DIFFICULTY_LABELS = { 1: "Principiante", 2: "Intermedio", 3: "Avanzado", 4
 const DIFFICULTY_COLORS = { 1: "#22c55e", 2: "#3b82f6", 3: "#f59e0b", 4: "#ef4444" };
 
 function squareToCoords(sq) {
-  const col = sq.charCodeAt(0) - 97; // 'a' = 97
+  const col = sq.charCodeAt(0) - 97;
   const row = 8 - parseInt(sq[1]);
   return { row, col };
 }
@@ -31,8 +31,34 @@ function coordsToSquare(row, col) {
   return `${FILES[col]}${8 - row}`;
 }
 
+function buildVsAiIntroMessage(difficulty) {
+  return { type: "info", text: `Juegas con blancas contra el entrenador (${DIFFICULTY_LABELS[difficulty]}).` };
+}
 
-export default function ChessVsAIGame({ user, difficulty = 2, onLeave, onMoveHistoryChange, onCoachMessage, onAnalysisLoadingChange }) {
+function mapWinnerToResult(winner, userEmail) {
+  if (!winner) return null;
+  if (winner === userEmail) return "player_wins";
+  if (winner === "ai") return "ai_wins";
+  if (winner === "draw") return "draw";
+  return null;
+}
+
+function mapResultToWinner(result, userEmail) {
+  if (result === "player_wins") return userEmail;
+  if (result === "ai_wins") return "ai";
+  if (result === "draw") return "draw";
+  return undefined;
+}
+
+export default function ChessVsAIGame({
+  user,
+  difficulty = 2,
+  initialRoomCode = null,
+  onLeave,
+  onMoveHistoryChange,
+  onCoachMessage,
+  onAnalysisLoadingChange,
+}) {
   const [board, setBoard] = useState(initBoard());
   const [currentTurn, setCurrentTurn] = useState("white");
   const [selectedSquare, setSelectedSquare] = useState(null);
@@ -48,72 +74,86 @@ export default function ChessVsAIGame({ user, difficulty = 2, onLeave, onMoveHis
   const [roomReady, setRoomReady] = useState(false);
   const [playerInCheck, setPlayerInCheck] = useState(false);
 
-  // movePairs: [{from: "e2", to: "e4"}] — authoritative move list sent to backend
   const movePairsRef = useRef([]);
+  const moveHistoryRef = useRef([]);
+  const coachMessagesRef = useRef([buildVsAiIntroMessage(difficulty)]);
   const roomCodeRef = useRef(null);
   const boardRef = useRef(initBoard());
   const gameOverRef = useRef(false);
+  const playerInCheckRef = useRef(false);
+  const autoResumeAttemptedRef = useRef(false);
 
   useEffect(() => { localStorage.setItem("chess_board_theme", boardTheme); }, [boardTheme]);
   useEffect(() => { localStorage.setItem("chess_piece_set", pieceSet); }, [pieceSet]);
 
-  useEffect(() => {
-    const setup = async () => {
-      try {
-        const code = Math.random().toString(36).substring(2, 8).toUpperCase() + "A";
-        await createChessRoom({
-          room_code: code,
-          board_state: packBoardState(initBoard(), {}),
-          game_mode: "vsai",
-          is_vs_ai: true,
-          ai_difficulty: difficulty,
-        });
-        roomCodeRef.current = code;
-      } catch {
-        roomCodeRef.current = "LOCAL_" + Math.random().toString(36).substring(2, 6).toUpperCase();
+  const setHistoryState = useCallback((nextHistory) => {
+    moveHistoryRef.current = nextHistory;
+    setMoveHistory(nextHistory);
+    onMoveHistoryChange?.(nextHistory);
+  }, [onMoveHistoryChange]);
+
+  const setCheckState = useCallback((inCheck) => {
+    playerInCheckRef.current = inCheck;
+    setPlayerInCheck(inCheck);
+  }, []);
+
+  const detectWhiteCheck = useCallback((boardState) => {
+    let wKr = -1;
+    let wKc = -1;
+
+    outer: for (let r = 0; r < 8; r++) {
+      for (let c = 0; c < 8; c++) {
+        if (boardState[r][c] === "wK") {
+          wKr = r;
+          wKc = c;
+          break outer;
+        }
       }
-      setRoomReady(true);
-    };
-    setup();
-    return () => {
-      if (roomCodeRef.current && !gameOverRef.current) {
-        deleteChessRoom(roomCodeRef.current).catch(() => {});
-      }
-    };
-  }, []); // eslint-disable-line
-
-  const handleGameOver = useCallback(async (result, finalMovePairs, finalHistory) => {
-    if (gameOverRef.current) return;
-    gameOverRef.current = true;
-
-    setGameStatus("finished");
-    setCurrentTurn(null);
-    setSelectedSquare(null);
-    setValidMoves([]);
-    setWinner(result);
-
-    onAnalysisLoadingChange?.(true);
-    onCoachMessage?.("info", "Analizando la partida...");
-
-    try {
-      const analysis = await requestGameSummary(roomCodeRef.current, finalMovePairs, result);
-      if (analysis.accuracy !== null && analysis.accuracy !== undefined) {
-        onCoachMessage?.(
-          "analysis",
-          `Precisión: ${analysis.accuracy}% · Blunders: ${analysis.blunders} · Errores: ${analysis.mistakes} · Imprecisiones: ${analysis.inaccuracies}`
-        );
-      }
-      if (analysis.feedback) onCoachMessage?.("coach", analysis.feedback);
-    } catch {
-      onCoachMessage?.("info", "Análisis no disponible.");
     }
-    onAnalysisLoadingChange?.(false);
-  }, [onCoachMessage, onAnalysisLoadingChange]);
 
-  const applyAiMove = useCallback((board, aiFrom, aiTo, aiSan, aiPromotion) => {
+    return wKr !== -1 && isSquareAttacked(boardState, wKr, wKc, "black");
+  }, []);
+
+  const syncRoomState = useCallback(async ({
+    boardState = boardRef.current,
+    turn,
+    status = gameStatus,
+    winnerValue,
+    movePairs = movePairsRef.current,
+    moveHistoryValue = moveHistoryRef.current,
+    playerInCheckValue = playerInCheckRef.current,
+    coachMessages = coachMessagesRef.current,
+  } = {}) => {
+    if (!roomCodeRef.current || roomCodeRef.current.startsWith("LOCAL_")) return;
+
+    const payload = {
+      board_state: packBoardState(boardState, {
+        movePairs,
+        moveHistory: moveHistoryValue,
+        coachMessages,
+        playerInCheck: playerInCheckValue,
+      }),
+      status,
+    };
+
+    if (turn) payload.current_turn = turn;
+    if (winnerValue !== undefined) payload.winner = winnerValue;
+
+    await updateChessRoom(roomCodeRef.current, payload).catch(() => {});
+  }, [gameStatus]);
+
+  const pushCoachMessage = useCallback((type, text, { persist = true } = {}) => {
+    const nextMessages = [...coachMessagesRef.current, { type, text }];
+    coachMessagesRef.current = nextMessages;
+    onCoachMessage?.(type, text);
+    if (persist) syncRoomState({ coachMessages: nextMessages });
+    return nextMessages;
+  }, [onCoachMessage, syncRoomState]);
+
+  const applyAiMove = useCallback((boardState, aiFrom, aiTo, aiPromotion) => {
     const fromC = squareToCoords(aiFrom);
-    const toC   = squareToCoords(aiTo);
-    const newBoard = board.map(r => [...r]);
+    const toC = squareToCoords(aiTo);
+    const newBoard = boardState.map(r => [...r]);
     let piece = newBoard[fromC.row][fromC.col];
 
     if (aiPromotion && getPieceType(piece) === "P") {
@@ -123,29 +163,314 @@ export default function ChessVsAIGame({ user, difficulty = 2, onLeave, onMoveHis
     newBoard[toC.row][toC.col] = piece;
     newBoard[fromC.row][fromC.col] = null;
 
-    // Castling: also move the rook so the client board stays in sync
-    if (piece && getPieceType(piece) === 'K' && Math.abs(toC.col - fromC.col) === 2) {
+    if (piece && getPieceType(piece) === "K" && Math.abs(toC.col - fromC.col) === 2) {
       const kingside = toC.col > fromC.col;
       const rookFromCol = kingside ? 7 : 0;
-      const rookToCol   = kingside ? toC.col - 1 : toC.col + 1;
-      newBoard[fromC.row][rookToCol] = getPieceColor(piece) === 'white' ? 'wR' : 'bR';
+      const rookToCol = kingside ? toC.col - 1 : toC.col + 1;
+      newBoard[fromC.row][rookToCol] = getPieceColor(piece) === "white" ? "wR" : "bR";
       newBoard[fromC.row][rookFromCol] = null;
     }
 
     return newBoard;
   }, []);
 
+  const handleGameOver = useCallback(async (
+    result,
+    finalMovePairs,
+    finalHistory,
+    finalBoard = boardRef.current,
+    finalPlayerInCheck = playerInCheckRef.current
+  ) => {
+    if (gameOverRef.current) return;
+    gameOverRef.current = true;
+
+    setGameStatus("finished");
+    setCurrentTurn(null);
+    setSelectedSquare(null);
+    setValidMoves([]);
+    setAiThinking(false);
+    setWinner(result);
+
+    const winnerValue = mapResultToWinner(result, user?.email);
+    await syncRoomState({
+      boardState: finalBoard,
+      status: "finished",
+      winnerValue,
+      movePairs: finalMovePairs,
+      moveHistoryValue: finalHistory,
+      playerInCheckValue: finalPlayerInCheck,
+    });
+
+    onAnalysisLoadingChange?.(true);
+    onCoachMessage?.("info", "Analizando la partida...");
+
+    let nextMessages = coachMessagesRef.current;
+
+    try {
+      const analysis = await requestGameSummary(roomCodeRef.current, finalMovePairs, result);
+      if (analysis.accuracy !== null && analysis.accuracy !== undefined) {
+        const summary = `Precisión: ${analysis.accuracy}% · Blunders: ${analysis.blunders} · Errores: ${analysis.mistakes} · Imprecisiones: ${analysis.inaccuracies}`;
+        nextMessages = [...nextMessages, { type: "analysis", text: summary }];
+        onCoachMessage?.("analysis", summary);
+      }
+      if (analysis.feedback) {
+        nextMessages = [...nextMessages, { type: "coach", text: analysis.feedback }];
+        onCoachMessage?.("coach", analysis.feedback);
+      }
+    } catch {
+      const fallback = "Análisis no disponible.";
+      nextMessages = [...nextMessages, { type: "info", text: fallback }];
+      onCoachMessage?.("info", fallback);
+    }
+
+    coachMessagesRef.current = nextMessages;
+
+    await syncRoomState({
+      boardState: finalBoard,
+      status: "finished",
+      winnerValue,
+      movePairs: finalMovePairs,
+      moveHistoryValue: finalHistory,
+      playerInCheckValue: finalPlayerInCheck,
+      coachMessages: nextMessages,
+    });
+
+    onAnalysisLoadingChange?.(false);
+  }, [onAnalysisLoadingChange, onCoachMessage, syncRoomState, user?.email]);
+
+  const resolveAiTurn = useCallback(async ({
+    boardAfterPlayer,
+    movePairsAfterPlayer,
+    historyAfterPlayer,
+    previousState = null,
+  }) => {
+    movePairsRef.current = movePairsAfterPlayer;
+    setCurrentTurn("black");
+    setAiThinking(true);
+
+    await syncRoomState({
+      boardState: boardAfterPlayer,
+      turn: "black",
+      status: "playing",
+      movePairs: movePairsAfterPlayer,
+      moveHistoryValue: historyAfterPlayer,
+      playerInCheckValue: false,
+    });
+
+    try {
+      const result = await requestAiMove(roomCodeRef.current, movePairsAfterPlayer);
+
+      if (result.isGameOver) {
+        let finalBoard = boardAfterPlayer;
+        let finalMovePairs = movePairsAfterPlayer;
+        let finalHistory = historyAfterPlayer;
+
+        if (result.aiMove) {
+          const { from: aiFrom, to: aiTo, san: aiSan, promotion: aiPromo } = result.aiMove;
+          finalMovePairs = [...movePairsAfterPlayer, { from: aiFrom, to: aiTo, ...(aiPromo && { promotion: aiPromo }) }];
+          movePairsRef.current = finalMovePairs;
+
+          finalBoard = applyAiMove(boardAfterPlayer, aiFrom, aiTo, aiPromo);
+          finalHistory = [...historyAfterPlayer, { move: aiSan || `${aiFrom}-${aiTo}`, player: "Negras" }];
+
+          boardRef.current = finalBoard;
+          setBoard(finalBoard);
+          setHistoryState(finalHistory);
+        }
+
+        const finalInCheck = detectWhiteCheck(finalBoard);
+        setCheckState(finalInCheck);
+        setAiThinking(false);
+
+        const outcome = result.result ?? "draw";
+        if (outcome === "player_wins") pushCoachMessage("success", "¡Jaque mate! Has ganado.");
+        else if (outcome === "draw") pushCoachMessage("info", "Tablas.");
+
+        await handleGameOver(outcome, finalMovePairs, finalHistory, finalBoard, finalInCheck);
+        return;
+      }
+
+      const { from: aiFrom, to: aiTo, san: aiSan, promotion: aiPromo } = result.aiMove;
+      const aiMovePairs = [...movePairsAfterPlayer, { from: aiFrom, to: aiTo, ...(aiPromo && { promotion: aiPromo }) }];
+      movePairsRef.current = aiMovePairs;
+
+      const aiBoard = applyAiMove(boardAfterPlayer, aiFrom, aiTo, aiPromo);
+      const aiHistory = [...historyAfterPlayer, { move: aiSan || `${aiFrom}-${aiTo}`, player: "Negras" }];
+      const inCheck = detectWhiteCheck(aiBoard);
+
+      boardRef.current = aiBoard;
+      setBoard(aiBoard);
+      setHistoryState(aiHistory);
+      setCheckState(inCheck);
+      setAiThinking(false);
+      setCurrentTurn("white");
+
+      await syncRoomState({
+        boardState: aiBoard,
+        turn: "white",
+        status: "playing",
+        movePairs: aiMovePairs,
+        moveHistoryValue: aiHistory,
+        playerInCheckValue: inCheck,
+      });
+
+      if (inCheck) {
+        pushCoachMessage("error", "¡Jaque! Mueve tu rey para salir del peligro.");
+      }
+    } catch (e) {
+      setAiThinking(false);
+
+      if (previousState) {
+        boardRef.current = previousState.board;
+        movePairsRef.current = previousState.movePairs;
+        setBoard(previousState.board);
+        setHistoryState(previousState.history);
+        setCheckState(previousState.playerInCheck);
+        setCurrentTurn("white");
+
+        await syncRoomState({
+          boardState: previousState.board,
+          turn: "white",
+          status: "playing",
+          movePairs: previousState.movePairs,
+          moveHistoryValue: previousState.history,
+          playerInCheckValue: previousState.playerInCheck,
+        });
+      }
+
+      const errMsg = e?.response?.data?.error || e?.message || "";
+      if (errMsg === "invalid_move") {
+        toast.error("Movimiento ilegal. Tu rey quedaría en jaque.");
+      } else if (previousState) {
+        toast.error("El entrenador no pudo responder. Inténtalo de nuevo.");
+      } else {
+        toast.error("No se pudo reanudar el turno del entrenador.");
+      }
+    }
+  }, [applyAiMove, detectWhiteCheck, handleGameOver, pushCoachMessage, setCheckState, setHistoryState, syncRoomState]);
+
+  useEffect(() => {
+    let cancelled = false;
+
+    const setup = async () => {
+      const introMessage = buildVsAiIntroMessage(difficulty);
+      coachMessagesRef.current = [introMessage];
+
+      try {
+        if (initialRoomCode) {
+          const room = await getChessRoom(initialRoomCode);
+          if (!cancelled && room?.is_vs_ai && room.host_email === user?.email) {
+            const { board: savedBoard, meta } = safeParseBoardState(room.board_state);
+            const savedHistory = Array.isArray(meta?.moveHistory) ? meta.moveHistory : [];
+            const savedMovePairs = Array.isArray(meta?.movePairs) ? meta.movePairs : [];
+            const savedCoachMessages = Array.isArray(meta?.coachMessages) && meta.coachMessages.length
+              ? meta.coachMessages
+              : [buildVsAiIntroMessage(room.ai_difficulty ?? difficulty)];
+
+            roomCodeRef.current = room.room_code;
+            boardRef.current = savedBoard;
+            movePairsRef.current = savedMovePairs;
+            moveHistoryRef.current = savedHistory;
+            coachMessagesRef.current = savedCoachMessages;
+            gameOverRef.current = room.status === "finished";
+            autoResumeAttemptedRef.current = false;
+
+            setBoard(savedBoard);
+            setHistoryState(savedHistory);
+            setCheckState(!!meta?.playerInCheck);
+            setSelectedSquare(null);
+            setValidMoves([]);
+            setCurrentTurn(room.status === "finished" ? null : (room.current_turn || "white"));
+            setGameStatus(room.status === "waiting" ? "playing" : room.status);
+            setWinner(mapWinnerToResult(room.winner, user?.email));
+            setAiThinking(false);
+            setRoomReady(true);
+            return;
+          }
+        }
+
+        const code = Math.random().toString(36).substring(2, 8).toUpperCase() + "A";
+        await createChessRoom({
+          room_code: code,
+          board_state: packBoardState(initBoard(), {
+            movePairs: [],
+            moveHistory: [],
+            coachMessages: [introMessage],
+            playerInCheck: false,
+          }),
+          game_mode: "vsai",
+          is_vs_ai: true,
+          ai_difficulty: difficulty,
+          status: "playing",
+          current_turn: "white",
+        });
+
+        if (!cancelled) roomCodeRef.current = code;
+      } catch {
+        if (!cancelled) {
+          roomCodeRef.current = "LOCAL_" + Math.random().toString(36).substring(2, 6).toUpperCase();
+        }
+      }
+
+      if (cancelled) return;
+
+      boardRef.current = initBoard();
+      movePairsRef.current = [];
+      moveHistoryRef.current = [];
+      gameOverRef.current = false;
+      autoResumeAttemptedRef.current = false;
+      coachMessagesRef.current = [introMessage];
+
+      setBoard(initBoard());
+      setHistoryState([]);
+      setCheckState(false);
+      setSelectedSquare(null);
+      setValidMoves([]);
+      setWinner(null);
+      setCurrentTurn("white");
+      setGameStatus("playing");
+      setAiThinking(false);
+      setRoomReady(true);
+    };
+
+    setup();
+    return () => { cancelled = true; };
+  }, [difficulty, initialRoomCode, setCheckState, setHistoryState, user?.email]);
+
+  useEffect(() => {
+    if (!roomReady) return;
+    if (gameStatus !== "playing") return;
+    if (currentTurn !== "black") return;
+    if (aiThinking) return;
+    if (gameOverRef.current) return;
+    if (autoResumeAttemptedRef.current) return;
+
+    autoResumeAttemptedRef.current = true;
+    resolveAiTurn({
+      boardAfterPlayer: boardRef.current,
+      movePairsAfterPlayer: movePairsRef.current,
+      historyAfterPlayer: moveHistoryRef.current,
+      previousState: null,
+    });
+  }, [aiThinking, currentTurn, gameStatus, resolveAiTurn, roomReady]);
+
   const handleSquareClick = async (row, col) => {
     if (gameStatus !== "playing" || currentTurn !== "white" || aiThinking) return;
-    if (!roomReady) { toast.error("Preparando partida, espera un momento..."); return; }
+    if (!roomReady) {
+      toast.error("Preparando partida, espera un momento...");
+      return;
+    }
 
     if (selectedSquare) {
       const isValid = validMoves.some(m => m.row === row && m.col === col);
 
       if (isValid) {
-        // Save previous state so we can fully revert on any error
-        const prevBoard = boardRef.current;
-        const prevMovePairs = [...movePairsRef.current];
+        const prevState = {
+          board: boardRef.current,
+          movePairs: [...movePairsRef.current],
+          history: [...moveHistoryRef.current],
+          playerInCheck: playerInCheckRef.current,
+        };
 
         const newBoard = board.map(r => [...r]);
         const piece = newBoard[selectedSquare.row][selectedSquare.col];
@@ -157,121 +482,40 @@ export default function ChessVsAIGame({ user, difficulty = 2, onLeave, onMoveHis
         newBoard[selectedSquare.row][selectedSquare.col] = null;
 
         const fromSq = coordsToSquare(selectedSquare.row, selectedSquare.col);
-        const toSq   = coordsToSquare(row, col);
+        const toSq = coordsToSquare(row, col);
         const isPromotion = getPieceType(piece) === "P" && row === 0;
-        const newMovePairs = [...prevMovePairs, { from: fromSq, to: toSq, ...(isPromotion && { promotion: "q" }) }];
+        const newMovePairs = [...prevState.movePairs, { from: fromSq, to: toSq, ...(isPromotion && { promotion: "q" }) }];
 
         const sym = getPieceType(piece);
         const fromFile = FILES[selectedSquare.col];
         const toNotation = `${FILES[col]}${8 - row}`;
         const notation = sym === ""
-          ? captured ? `${fromFile}x${toNotation}` : toNotation
-          : captured ? `${sym}x${toNotation}` : `${sym}${toNotation}`;
+          ? (captured ? `${fromFile}x${toNotation}` : toNotation)
+          : (captured ? `${sym}x${toNotation}` : `${sym}${toNotation}`);
         const fullNotation = isPromotion ? notation + "=Q" : notation;
 
-        const newHistory = [...moveHistory, { move: fullNotation, player: "Blancas" }];
+        const newHistory = [...moveHistoryRef.current, { move: fullNotation, player: "Blancas" }];
+
         boardRef.current = newBoard;
         setBoard(newBoard);
-        setMoveHistory(newHistory);
-        onMoveHistoryChange?.(newHistory);
+        setHistoryState(newHistory);
         setSelectedSquare(null);
         setValidMoves([]);
-        setPlayerInCheck(false);
+        setCheckState(false);
+        autoResumeAttemptedRef.current = false;
 
         if (captured && getPieceType(captured) === "K") {
           movePairsRef.current = newMovePairs;
-          handleGameOver("player_wins", newMovePairs, newHistory);
+          await handleGameOver("player_wins", newMovePairs, newHistory, newBoard, false);
           return;
         }
 
-        setCurrentTurn("black");
-        setAiThinking(true);
-
-        try {
-          const result = await requestAiMove(roomCodeRef.current, newMovePairs);
-
-          // Only commit movePairs on success
-          movePairsRef.current = newMovePairs;
-
-          if (result.isGameOver) {
-            let finalMovePairs = newMovePairs;
-            let finalHistory = newHistory;
-
-            // Aplica el último movimiento de la IA para que el tablero muestre la posición final
-            if (result.aiMove) {
-              const { from: aiFrom, to: aiTo, san: aiSan, promotion: aiPromo } = result.aiMove;
-              finalMovePairs = [...newMovePairs, { from: aiFrom, to: aiTo, ...(aiPromo && { promotion: aiPromo }) }];
-              movePairsRef.current = finalMovePairs;
-
-              const aiBoard = applyAiMove(newBoard, aiFrom, aiTo, aiSan, aiPromo);
-              finalHistory = [...newHistory, { move: aiSan || `${aiFrom}-${aiTo}`, player: "Negras" }];
-
-              boardRef.current = aiBoard;
-              setBoard(aiBoard);
-              setMoveHistory(finalHistory);
-              onMoveHistoryChange?.(finalHistory);
-
-              // Marca el rey en rojo si está en jaque tras el movimiento final
-              let wKr = -1, wKc = -1;
-              outerFinal: for (let r = 0; r < 8; r++) {
-                for (let c = 0; c < 8; c++) {
-                  if (aiBoard[r][c] === 'wK') { wKr = r; wKc = c; break outerFinal; }
-                }
-              }
-              if (wKr !== -1 && isSquareAttacked(aiBoard, wKr, wKc, 'black')) {
-                setPlayerInCheck(true);
-              }
-            }
-
-            setAiThinking(false);
-            const outcome = result.result ?? "draw";
-            if (result.result === "player_wins") onCoachMessage?.("success", "¡Jaque mate! Has ganado.");
-            else if (result.result === "draw") onCoachMessage?.("info", "Tablas.");
-            handleGameOver(outcome, finalMovePairs, finalHistory);
-            return;
-          }
-
-          const { from: aiFrom, to: aiTo, san: aiSan, promotion: aiPromo } = result.aiMove;
-          const aiMovePairs = [...newMovePairs, { from: aiFrom, to: aiTo, ...(aiPromo && { promotion: aiPromo }) }];
-          movePairsRef.current = aiMovePairs;
-
-          const aiBoard = applyAiMove(newBoard, aiFrom, aiTo, aiSan, aiPromo);
-          const aiHistory = [...newHistory, { move: aiSan || `${aiFrom}-${aiTo}`, player: "Negras" }];
-
-          boardRef.current = aiBoard;
-          setBoard(aiBoard);
-          setMoveHistory(aiHistory);
-          onMoveHistoryChange?.(aiHistory);
-          setAiThinking(false);
-          setCurrentTurn("white");
-
-          // Detect if the AI just put the player in check
-          let wKr = -1, wKc = -1;
-          outer: for (let r = 0; r < 8; r++) {
-            for (let c = 0; c < 8; c++) {
-              if (aiBoard[r][c] === 'wK') { wKr = r; wKc = c; break outer; }
-            }
-          }
-          if (wKr !== -1 && isSquareAttacked(aiBoard, wKr, wKc, 'black')) {
-            setPlayerInCheck(true);
-            onCoachMessage?.("error", "¡Jaque! Mueve tu rey para salir del peligro.");
-          }
-
-        } catch (e) {
-          // Revert everything — movePairsRef was never committed
-          boardRef.current = prevBoard;
-          setBoard(prevBoard);
-          setMoveHistory(moveHistory);
-          setAiThinking(false);
-          setCurrentTurn("white");
-          const errMsg = e?.response?.data?.error || e?.message || "";
-          if (errMsg === "invalid_move") {
-            toast.error("Movimiento ilegal. Tu rey quedaría en jaque.");
-          } else {
-            toast.error("El entrenador no pudo responder. Inténtalo de nuevo.");
-          }
-        }
-
+        await resolveAiTurn({
+          boardAfterPlayer: newBoard,
+          movePairsAfterPlayer: newMovePairs,
+          historyAfterPlayer: newHistory,
+          previousState: prevState,
+        });
       } else {
         const clickedPiece = board[row][col];
         if (clickedPiece && getPieceColor(clickedPiece) === "white") {
@@ -292,7 +536,9 @@ export default function ChessVsAIGame({ user, difficulty = 2, onLeave, onMoveHis
   };
 
   const handleLeave = () => {
-    if (roomCodeRef.current) deleteChessRoom(roomCodeRef.current).catch(() => {});
+    if (roomCodeRef.current && gameStatus === "finished") {
+      deleteChessRoom(roomCodeRef.current).catch(() => {});
+    }
     onLeave?.();
   };
 
@@ -301,12 +547,11 @@ export default function ChessVsAIGame({ user, difficulty = 2, onLeave, onMoveHis
 
   const finishedLabel =
     winner === "player_wins" ? "¡Victoria!" :
-    winner === "ai_wins"    ? "Derrota" :
-    winner === "draw"       ? "Tablas" : "";
+    winner === "ai_wins" ? "Derrota" :
+    winner === "draw" ? "Tablas" : "";
 
   return (
     <div className="flex flex-col items-center gap-3 p-2 sm:p-4 w-full">
-      {/* Player zones */}
       <OnlineGamePlayerZone
         topPlayer={{
           label: "Negras",
@@ -330,7 +575,6 @@ export default function ChessVsAIGame({ user, difficulty = 2, onLeave, onMoveHis
         onSettingsClick={() => setSettingsOpen(true)}
       />
 
-      {/* AI thinking indicator */}
       {aiThinking && (
         <div className="flex items-center gap-2 text-sm text-purple-300 bg-purple-500/10 border border-purple-500/20 rounded-full px-4 py-1">
           <Loader2 className="w-3 h-3 animate-spin" />
@@ -338,7 +582,6 @@ export default function ChessVsAIGame({ user, difficulty = 2, onLeave, onMoveHis
         </div>
       )}
 
-      {/* Finished banner */}
       {gameStatus === "finished" && finishedLabel && (
         <div className="bg-white/10 rounded-lg px-6 py-3 flex items-center gap-3">
           <Trophy className="w-6 h-6 text-yellow-500" />
@@ -346,7 +589,6 @@ export default function ChessVsAIGame({ user, difficulty = 2, onLeave, onMoveHis
         </div>
       )}
 
-      {/* Board */}
       <div style={{ width: "min(480px, 90vw)", aspectRatio: "1/1" }} className="relative">
         {!roomReady && (
           <div className="absolute inset-0 z-10 bg-black/50 flex items-center justify-center rounded-lg">
@@ -362,7 +604,7 @@ export default function ChessVsAIGame({ user, difficulty = 2, onLeave, onMoveHis
               const isLight = (row + col) % 2 === 0;
               const isSelected = selectedSquare?.row === row && selectedSquare?.col === col;
               const isValidMove = validMoves.some(m => m.row === row && m.col === col);
-              const isKingInCheck = playerInCheck && piece === 'wK';
+              const isKingInCheck = playerInCheck && piece === "wK";
               const canInteract = gameStatus === "playing" && currentTurn === "white" && !aiThinking && roomReady;
               const bg = isLight ? theme.light : theme.dark;
               const labelColor = isLight ? theme.labelLight : theme.labelDark;
@@ -401,7 +643,6 @@ export default function ChessVsAIGame({ user, difficulty = 2, onLeave, onMoveHis
         </div>
       </div>
 
-      {/* Buttons */}
       <div className="flex gap-3">
         <Button onClick={() => setLeaveOpen(true)} variant="secondary">
           <LogOut className="w-4 h-4 mr-2" />
@@ -409,13 +650,14 @@ export default function ChessVsAIGame({ user, difficulty = 2, onLeave, onMoveHis
         </Button>
       </div>
 
-      {/* Leave dialog */}
       <AlertDialog open={leaveOpen} onOpenChange={setLeaveOpen}>
         <AlertDialogContent className="bg-zinc-950 border-white/10 text-white">
           <AlertDialogHeader>
             <AlertDialogTitle>¿Salir de la partida?</AlertDialogTitle>
             <AlertDialogDescription className="text-gray-400">
-              {gameStatus === "playing" ? "La partida se perderá y no se guardará." : "Volverás al lobby."}
+              {gameStatus === "playing"
+                ? "La partida seguirá guardada y podrás retomarla después desde partidas activas."
+                : "Volverás al lobby."}
             </AlertDialogDescription>
           </AlertDialogHeader>
           <AlertDialogFooter>
@@ -427,7 +669,6 @@ export default function ChessVsAIGame({ user, difficulty = 2, onLeave, onMoveHis
         </AlertDialogContent>
       </AlertDialog>
 
-      {/* Settings dialog */}
       <Dialog open={settingsOpen} onOpenChange={setSettingsOpen}>
         <DialogContent className="bg-zinc-950 border-white/10 text-white w-[980px] max-w-[95vw]">
           <DialogHeader>
@@ -443,9 +684,13 @@ export default function ChessVsAIGame({ user, difficulty = 2, onLeave, onMoveHis
                 {Object.entries(BOARD_THEMES).map(([k, v]) => {
                   const selected = k === boardTheme;
                   return (
-                    <button key={k} type="button" onClick={() => setBoardTheme(k)}
+                    <button
+                      key={k}
+                      type="button"
+                      onClick={() => setBoardTheme(k)}
                       className={`relative rounded-lg border p-3 bg-white/5 hover:bg-white/10 transition
-                        ${selected ? "border-green-500/60 ring-2 ring-green-500/30" : "border-white/10"}`}>
+                        ${selected ? "border-green-500/60 ring-2 ring-green-500/30" : "border-white/10"}`}
+                    >
                       <div className="flex items-center justify-between">
                         <span className="text-sm">{v.label}</span>
                         <div className="flex gap-1">
@@ -469,9 +714,13 @@ export default function ChessVsAIGame({ user, difficulty = 2, onLeave, onMoveHis
                   {PIECE_SETS.map(s => {
                     const selected = s.key === pieceSet;
                     return (
-                      <button key={s.key} type="button" onClick={() => setPieceSet(s.key)}
+                      <button
+                        key={s.key}
+                        type="button"
+                        onClick={() => setPieceSet(s.key)}
                         className={`relative flex flex-col items-center gap-1 rounded-lg border p-2 bg-white/5 hover:bg-white/10 transition
-                          ${selected ? "border-green-500/60 ring-2 ring-green-500/30" : "border-white/10"}`}>
+                          ${selected ? "border-green-500/60 ring-2 ring-green-500/30" : "border-white/10"}`}
+                      >
                         <img src={getPieceDataUri(s.key, "wK")} alt="" className="w-8 h-8 object-contain" />
                         <span className="text-[10px] text-gray-400 text-center leading-tight">{s.label}</span>
                         {selected && (
@@ -488,14 +737,6 @@ export default function ChessVsAIGame({ user, difficulty = 2, onLeave, onMoveHis
           </Tabs>
         </DialogContent>
       </Dialog>
-
-      <style>{`
-        @keyframes fadeOutTurn {
-          0%   { opacity: 1; transform: scale(1); }
-          70%  { opacity: 1; transform: scale(1); }
-          100% { opacity: 0; transform: scale(0.95); }
-        }
-      `}</style>
     </div>
   );
 }
