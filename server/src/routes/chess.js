@@ -154,7 +154,7 @@ router.get('/:room_code', async (req, res) => {
 
 // POST /api/chess
 router.post('/', requireAuth, async (req, res) => {
-  const { room_code, board_state, game_mode, host_elo } = req.body;
+  const { room_code, board_state, game_mode, host_elo, is_vs_ai, ai_difficulty } = req.body;
   if (!room_code || !board_state) return res.status(400).json({ error: 'Faltan campos obligatorios' });
   const room = await prisma.chessRoom.create({
     data: {
@@ -165,6 +165,8 @@ router.post('/', requireAuth, async (req, res) => {
       host_avatar_url: req.user.avatar_url || null,
       game_mode: game_mode || 'normal',
       host_elo: host_elo ?? 1200,
+      is_vs_ai: is_vs_ai ?? false,
+      ai_difficulty: ai_difficulty ?? 2,
     },
   });
   res.status(201).json(room);
@@ -235,7 +237,11 @@ router.patch('/:room_code', requireAuth, async (req, res) => {
 // DELETE /api/chess/:room_code
 router.delete('/:room_code', requireAuth, async (req, res) => {
   await cleanupChatMessages(req.params.room_code);
-  await prisma.chessRoom.delete({ where: { room_code: req.params.room_code } });
+  try {
+    await prisma.chessRoom.delete({ where: { room_code: req.params.room_code } });
+  } catch {
+    // P2025: room already deleted or never existed — not an error
+  }
   res.status(204).end();
 });
 
