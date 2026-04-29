@@ -59,9 +59,9 @@ const FAQ_BYE       = ['adios', 'hasta luego', 'bye', 'chao', 'hasta pronto', 'n
 const FAQ_IDENTITY  = ['quien eres', 'que eres', 'como te llamas', 'presentate'];
 
 const GREETINGS_BY_ROLE = {
-  user:    '¡Hola! Soy Crafty, el asistente de PlayCraft. Puedo ayudarte con preguntas sobre juegos, salas, ELO, logros, torneos, amigos y más. ¿En qué te ayudo?',
-  empresa: '¡Hola! Soy Crafty, tu asistente de PlayCraft para cuentas empresa. Puedo ayudarte con subir juegos, crear torneos, configurar logros y gestionar tu panel. ¿Qué necesitas?',
-  admin:   '¡Hola! Soy Crafty, tu asistente de administración de PlayCraft. Puedo ayudarte con reportes, sanciones, usuarios, mantenimiento y más. ¿En qué te ayudo?',
+  user:    '¡Hola! ¿En qué te puedo ayudar?',
+  empresa: '¡Hola! ¿En qué te puedo ayudar?',
+  admin:   '¡Hola! ¿En qué te puedo ayudar?',
 };
 
 const IDENTITY_BY_ROLE = {
