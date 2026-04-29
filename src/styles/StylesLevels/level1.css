@@ -13,6 +13,10 @@
   --level1-adult-brown: #6a3c24;
 }
 
+.user-level-1-shell svg.animate-spin {
+  color: #8d6332 !important;
+}
+
 .user-level-1-home {
   font-family: "Cinzel", "Garamond", "Times New Roman", serif;
 }

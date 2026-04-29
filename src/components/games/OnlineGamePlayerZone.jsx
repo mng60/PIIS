@@ -29,7 +29,7 @@ export default function OnlineGamePlayerZone({
       <div className="flex items-center justify-between gap-2">
         {/* Jugador izquierdo (superior) */}
         <div 
-          className={`bg-white/5 rounded-lg px-2 sm:px-4 py-2 border transition-all duration-300 flex-1 min-w-0
+          className={`online-game-player-zone__card online-game-player-zone__card--top ${isTopPlayerActive ? "online-game-player-zone__card--active" : ""} bg-white/5 rounded-lg px-2 sm:px-4 py-2 border transition-all duration-300 flex-1 min-w-0
             ${isTopPlayerActive 
               ? "border-purple-500 ring-2 ring-purple-500/50 shadow-lg shadow-purple-500/25" 
               : "border-white/10"}`}
@@ -56,7 +56,7 @@ export default function OnlineGamePlayerZone({
 
         {/* Jugador derecho (inferior) */}
         <div 
-          className={`bg-white/5 rounded-lg px-2 sm:px-4 py-2 border transition-all duration-300 text-right flex-1 min-w-0
+          className={`online-game-player-zone__card online-game-player-zone__card--bottom ${isBottomPlayerActive ? "online-game-player-zone__card--active" : ""} bg-white/5 rounded-lg px-2 sm:px-4 py-2 border transition-all duration-300 text-right flex-1 min-w-0
             ${isBottomPlayerActive 
               ? "border-cyan-500 ring-2 ring-cyan-500/50 shadow-lg shadow-cyan-500/25" 
               : "border-white/10"}`}

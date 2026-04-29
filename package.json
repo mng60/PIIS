@@ -17,7 +17,7 @@
   "main": "eslint.config.js",
   "scripts": {
     "dev": "node scripts/dev-full.mjs",
-    "dev:web": "vite",
+    "dev:web": "node scripts/vite-dev-safe.mjs --configLoader runner",
     "dev:full": "node scripts/dev-full.mjs",
     "build": "vite build",
     "lint": "eslint . --quiet",

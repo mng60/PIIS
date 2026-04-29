@@ -1,6 +1,7 @@
 import { Router } from 'express';
 import { PrismaClient } from '@prisma/client';
 import { requireAdmin } from '../middleware/auth.js';
+import { isDatabaseConnectionError } from '../mockData.js';
 
 const router = Router();
 const prisma = new PrismaClient();
@@ -8,10 +9,16 @@ const prisma = new PrismaClient();
 // GET /api/tournaments
 router.get('/', async (req, res) => {
   const { status } = req.query;
-  const tournaments = await prisma.tournament.findMany({
-    where: { is_active: true, ...(status && { status }) },
-    orderBy: { start_date: 'asc' },
-  });
+  let tournaments;
+  try {
+    tournaments = await prisma.tournament.findMany({
+      where: { is_active: true, ...(status && { status }) },
+      orderBy: { start_date: 'asc' },
+    });
+  } catch (error) {
+    if (!isDatabaseConnectionError(error)) throw error;
+    tournaments = [];
+  }
   res.json(tournaments);
 });
 

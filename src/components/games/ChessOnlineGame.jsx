@@ -1,10 +1,8 @@
 import React, { useEffect, useRef, useState } from "react";
 import { createChessRoom, getChessRoom, updateChessRoom, deleteChessRoom } from "@/api/chess";
 import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
-import { Card } from "@/components/ui/card";
 import { toast } from "sonner";
-import { Loader2, Copy, Trophy, Settings, Scale, LogOut, Check } from "lucide-react";
+import { Copy, Trophy, Scale, LogOut, Check } from "lucide-react";
 
 import {
   Dialog,
@@ -38,6 +36,7 @@ import { PIECE_SETS, renderPieceNode, getPieceDataUri } from "@/components/chess
 import { TIME_LIMITS, initClockFromMinutes, formatMs, getDisplayedMs, applyClockOnMove } from "@/components/chess/chessClock";
 import OnlineGameLobby from "@/components/games/OnlineGameLobby";
 import OnlineGamePlayerZone from "@/components/games/OnlineGamePlayerZone";
+import { getLevelFromXP } from "@/lib/levels";
 
 const BOARD_THEMES = {
   classic: { label: "Clásico", light: "#F0D9B5", dark: "#B58863", labelLight: "#B58863", labelDark: "#F0D9B5" },
@@ -58,6 +57,8 @@ const nickName = (name) => {
 };
 
 export default function ChessOnlineGame({ user, onScoreUpdate, onRoomCodeChange, onMoveHistoryChange }) {
+  const isRegularUser = user && user.role !== "admin" && user.role !== "empresa";
+  const isLevel3User = isRegularUser && getLevelFromXP(user.xp ?? 0).level === 3;
   const [screen, setScreen] = useState("lobby");
   const [roomCode, setRoomCode] = useState("");
   useEffect(() => {
@@ -619,6 +620,7 @@ export default function ChessOnlineGame({ user, onScoreUpdate, onRoomCodeChange,
 
   if (screen === "lobby") {
     return (
+      <div className={isLevel3User ? "user-level-3-chess" : ""}>
       <OnlineGameLobby
         title="♔ Ajedrez Online ♚"
         description="Juega en tiempo real con otro jugador"
@@ -632,6 +634,7 @@ export default function ChessOnlineGame({ user, onScoreUpdate, onRoomCodeChange,
         joinCode={joinCode}
         onJoinCodeChange={setJoinCode}
       />
+      </div>
     );
   }
 
@@ -656,7 +659,7 @@ export default function ChessOnlineGame({ user, onScoreUpdate, onRoomCodeChange,
   const isBottomPlayerActive = flip ? currentTurn === "black" : currentTurn === "white";
 
   return (
-    <div className="flex flex-col items-center gap-3 p-2 sm:p-4 w-full">
+    <div className={`flex flex-col items-center gap-3 p-2 sm:p-4 w-full ${isLevel3User ? "user-level-3-chess" : ""}`}>
       <OnlineGamePlayerZone
         topPlayer={{
           label: flip ? "Blancas" : "Negras",
@@ -673,10 +676,10 @@ export default function ChessOnlineGame({ user, onScoreUpdate, onRoomCodeChange,
         onSettingsClick={() => setSettingsOpen(true)}
         centerContent={
           gameStatus === "waiting" && roomCode ? (
-            <div className="bg-purple-500/10 border border-purple-500/30 rounded-lg px-6 py-3">
+            <div className={`bg-purple-500/10 border border-purple-500/30 rounded-lg px-6 py-3 ${isLevel3User ? "user-level-3-chess-room-code" : ""}`}>
               <p className="text-sm text-gray-300 mb-2">Comparte el código con tu rival:</p>
               <div className="flex items-center gap-2">
-                <div className="text-3xl font-bold tracking-widest text-cyan-400">{roomCode}</div>
+                <div className={`text-3xl font-bold tracking-widest text-cyan-400 ${isLevel3User ? "user-level-3-chess-code" : ""}`}>{roomCode}</div>
                 <Button size="icon" variant="ghost" onClick={() => { navigator.clipboard.writeText(roomCode); toast.success("Código copiado"); }} className="text-gray-400 hover:text-white">
                   <Copy className="w-4 h-4" />
                 </Button>
@@ -762,7 +765,7 @@ export default function ChessOnlineGame({ user, onScoreUpdate, onRoomCodeChange,
 
       {/* Tablas */}
       <AlertDialog open={incomingDrawOpen} onOpenChange={setIncomingDrawOpen}>
-        <AlertDialogContent className="bg-zinc-950 border-white/10 text-white">
+        <AlertDialogContent className={`bg-zinc-950 border-white/10 text-white ${isLevel3User ? "user-level-3-chess-dialog" : ""}`}>
           <AlertDialogHeader>
             <AlertDialogTitle>Oferta de tablas</AlertDialogTitle>
             <AlertDialogDescription className="text-gray-400">
@@ -773,7 +776,7 @@ export default function ChessOnlineGame({ user, onScoreUpdate, onRoomCodeChange,
             <AlertDialogCancel className="bg-white/5 border-white/10 text-white hover:bg-white/10" onClick={handleDeclineDraw}>
               Rechazar
             </AlertDialogCancel>
-            <AlertDialogAction className="bg-gradient-to-r from-purple-600 to-cyan-500 hover:opacity-90" onClick={handleAcceptDraw}>
+            <AlertDialogAction className={isLevel3User ? "user-level-3-button" : "bg-gradient-to-r from-purple-600 to-cyan-500 hover:opacity-90"} onClick={handleAcceptDraw}>
               Aceptar
             </AlertDialogAction>
           </AlertDialogFooter>
@@ -782,7 +785,7 @@ export default function ChessOnlineGame({ user, onScoreUpdate, onRoomCodeChange,
 
       {/* Salir */}
       <AlertDialog open={leaveOpen} onOpenChange={setLeaveOpen}>
-        <AlertDialogContent className="bg-zinc-950 border-white/10 text-white">
+        <AlertDialogContent className={`bg-zinc-950 border-white/10 text-white ${isLevel3User ? "user-level-3-chess-dialog" : ""}`}>
           <AlertDialogHeader>
             <AlertDialogTitle>¿Salir de la partida?</AlertDialogTitle>
             <AlertDialogDescription className="text-gray-400">
@@ -793,7 +796,7 @@ export default function ChessOnlineGame({ user, onScoreUpdate, onRoomCodeChange,
             <AlertDialogCancel className="bg-white/5 border-white/10 text-white hover:bg-white/10">
               Cancelar
             </AlertDialogCancel>
-            <AlertDialogAction className="bg-gradient-to-r from-purple-600 to-cyan-500 hover:opacity-90" onClick={handleConfirmLeave}>
+            <AlertDialogAction className={isLevel3User ? "user-level-3-button" : "bg-gradient-to-r from-purple-600 to-cyan-500 hover:opacity-90"} onClick={handleConfirmLeave}>
               Salir
             </AlertDialogAction>
           </AlertDialogFooter>
@@ -802,7 +805,7 @@ export default function ChessOnlineGame({ user, onScoreUpdate, onRoomCodeChange,
 
       {/* Personalizar */}
       <Dialog open={settingsOpen} onOpenChange={setSettingsOpen}>
-        <DialogContent className="bg-zinc-950 border-white/10 text-white w-[980px] max-w-[95vw]">
+        <DialogContent className={`bg-zinc-950 border-white/10 text-white w-[980px] max-w-[95vw] ${isLevel3User ? "user-level-3-chess-dialog" : ""}`}>
           <DialogHeader>
             <DialogTitle>Personalizar</DialogTitle>
           </DialogHeader>

@@ -77,22 +77,28 @@
     0 0 30px rgba(103, 232, 249, 0.12) !important;
 }
 
+.user-level-2-shell svg.animate-spin {
+  color: #22c55e !important;
+}
+
 .user-level-2-home-title {
-  background: linear-gradient(90deg, #1f5d8f 0%, #74d6f4 50%, #1f5d8f 100%);
+  background: linear-gradient(90deg, #0b4a2d 0%, #16a34a 48%, #0f6b3d 100%);
   -webkit-background-clip: text;
   background-clip: text;
   color: transparent;
   font-weight: 900;
-  text-shadow: 0 0 16px rgba(120, 205, 232, 0.2);
+  text-shadow:
+    0 0 12px rgba(22, 163, 74, 0.24),
+    0 0 24px rgba(15, 107, 61, 0.16);
 }
 
 .user-level-2-home-subtitle {
-  color: #417696 !important;
+  color: #14532d !important;
 }
 
 .user-level-2-section-heading,
 .user-level-2-section-icon {
-  color: #2e8579 !important;
+  color: #15803d !important;
 }
 
 .user-level-2-game-card,
@@ -116,11 +122,11 @@
 }
 
 .user-level-2-widget-title {
-  color: #2c7300 !important;
+  color: #1f4f12 !important;
 }
 
 .user-level-2-widget-accent {
-  color: #76bd44 !important;
+  color: #15803d !important;
 }
 
 .user-level-2-widget-accent-soft {
@@ -129,54 +135,54 @@
 
 .user-level-2-game-card h3,
 .user-level-2-news-card h3 {
-  color: #2c7300 !important;
+  color: #1f4f12 !important;
 }
 
 .user-level-2-news-card h3,
 .user-level-2-news-card .user-level-2-widget-title {
-  color: #2b7000 !important;
+  color: #1f4f12 !important;
 }
 
 .user-level-2-news-card span.text-xs.font-medium,
 .user-level-2-news-card .user-level-2-widget-accent,
 .user-level-2-news-card .mt-auto {
-  color: #2b7000 !important;
+  color: #23551a !important;
 }
 
 .user-level-2-news-card p,
 .user-level-2-news-card .text-xs.text-gray-400 {
-  color: #2b7000 !important;
+  color: #244f1d !important;
 }
 
 .user-level-2-news-card .text-xs.text-gray-500,
 .user-level-2-news-card .text-xs.text-gray-500 svg {
-  color: #2b7000 !important;
+  color: #2b5b20 !important;
 }
 
 .user-level-2-game-card .text-gray-400,
 .user-level-2-news-card .text-gray-400 {
-  color: #3e7a3d !important;
+  color: #244f1d !important;
 }
 
 .user-level-2-game-card .text-gray-500,
 .user-level-2-news-card .text-gray-500 {
-  color: #4a7a2d !important;
+  color: #2b5b20 !important;
 }
 
 .user-level-2-game-card .text-white,
 .user-level-2-news-card .text-white {
-  color: #264a26 !important;
+  color: #173c13 !important;
 }
 
 .user-level-2-game-card [class*="text-purple"],
 .user-level-2-news-card [class*="text-purple"] {
-  color: #76bd44 !important;
+  color: #15803d !important;
 }
 
 .user-level-2-game-card .group-hover\:text-purple-300:hover,
 .user-level-2-news-card .group-hover\:text-purple-300:hover,
 .user-level-2-news-card .group-hover\:text-purple-400:hover {
-  color: #76bd44 !important;
+  color: #16a34a !important;
 }
 
 .user-level-2-highlight-section {
@@ -490,6 +496,166 @@
   border-color: rgba(58, 166, 200, 0.28) !important;
 }
 
+.user-level-2-game-detail-page .text-gray-300,
+.user-level-2-game-detail-page p.text-gray-300.text-sm.leading-relaxed {
+  color: #173c13 !important;
+}
+
+.user-level-2-game-detail-page .text-gray-400,
+.user-level-2-game-detail-meta {
+  color: #315f2e !important;
+}
+
+.user-level-2-game-detail-page .text-gray-500 {
+  color: #436f35 !important;
+}
+
+.user-level-2-game-detail-link {
+  color: #3b7a35 !important;
+}
+
+.user-level-2-game-detail-link:hover,
+.user-level-2-game-detail-title,
+.user-level-2-game-detail-publisher,
+.user-level-2-detail-panel-title,
+.user-level-2-detail-icon-blue {
+  color: #166534 !important;
+}
+
+.user-level-2-detail-rating,
+.user-level-2-detail-icon-yellow,
+.user-level-2-detail-panel .text-yellow-500,
+.user-level-2-detail-panel .fill-yellow-500,
+.user-level-2-detail-panel .text-amber-400,
+.user-level-2-detail-panel .text-amber-500,
+.user-level-2-detail-panel .text-amber-600,
+.user-level-2-detail-panel .user-level-2-detail-icon-yellow {
+  color: #d99a12 !important;
+  fill: #d99a12 !important;
+}
+
+.user-level-2-game-detail-chip {
+  background: linear-gradient(135deg, #16a34a 0%, #3f7f1f 100%) !important;
+  border-color: rgba(202, 255, 112, 0.32) !important;
+  color: #f7fff1 !important;
+}
+
+.user-level-2-game-detail-multi {
+  background: rgba(202, 255, 112, 0.16) !important;
+  border-color: rgba(77, 124, 15, 0.34) !important;
+  color: #315f12 !important;
+}
+
+.user-level-2-game-detail-adult {
+  background: linear-gradient(135deg, #f2c94c 0%, #65a30d 100%) !important;
+  border-color: rgba(146, 99, 10, 0.28) !important;
+  color: #23410c !important;
+}
+
+.user-level-2-game-detail-action {
+  background: rgba(232, 247, 210, 0.82) !important;
+  border-color: rgba(62, 111, 45, 0.34) !important;
+  color: #245824 !important;
+}
+
+.user-level-2-game-detail-action:hover {
+  background: rgba(217, 242, 184, 0.96) !important;
+  color: #12451f !important;
+}
+
+.user-level-2-game-detail-action-favorite {
+  background: rgba(255, 223, 92, 0.24) !important;
+  border-color: rgba(217, 154, 18, 0.38) !important;
+  color: #a16207 !important;
+}
+
+.user-level-2-game-detail-action-share {
+  background: rgba(186, 230, 253, 0.28) !important;
+  border-color: rgba(14, 116, 144, 0.28) !important;
+  color: #0e7490 !important;
+}
+
+.user-level-2-game-detail-page .bg-white\/5,
+.user-level-2-game-detail-page .user-level-2-detail-panel,
+.user-level-2-game-detail-page .user-level-2-game-surface,
+.user-level-2-game-detail-page .user-level-2-history,
+.user-level-2-game-detail-page .user-level-2-detail-panel.bg-white\/5,
+.user-level-2-game-detail-page .user-level-2-game-surface.bg-white\/5,
+.user-level-2-game-detail-page .user-level-2-history.bg-white\/5 {
+  background:
+    linear-gradient(180deg, rgba(207, 237, 180, 0.72) 0%, rgba(168, 215, 132, 0.56) 100%) !important;
+  border-color: rgba(229, 255, 205, 0.5) !important;
+  box-shadow:
+    0 16px 34px rgba(24, 51, 31, 0.14),
+    0 0 0 1px rgba(250, 255, 238, 0.2) inset !important;
+}
+
+.user-level-2-comment-label,
+.user-level-2-game-detail-page .user-level-2-comment-label {
+  color: #2d642b !important;
+}
+
+.user-level-2-game-detail-page .user-level-2-detail-panel p,
+.user-level-2-game-detail-page .user-level-2-comment-card p {
+  color: #173c13 !important;
+}
+
+.user-level-2-game-detail-page .user-level-2-comment-card,
+.user-level-2-game-detail-page .user-level-2-comment-card.bg-white\/5 {
+  background: rgba(214, 239, 184, 0.44) !important;
+  border-color: rgba(229, 255, 205, 0.42) !important;
+}
+
+.user-level-2-comment-textarea,
+.user-level-2-game-detail-page textarea.user-level-2-comment-textarea,
+.user-level-2-game-detail-page textarea.user-level-2-comment-textarea:focus,
+.user-level-2-game-detail-page textarea.user-level-2-comment-textarea:focus-visible {
+  background: rgba(238, 250, 219, 0.9) !important;
+  border-color: rgba(70, 135, 48, 0.78) !important;
+  color: #173c13 !important;
+  -webkit-text-fill-color: #173c13 !important;
+  caret-color: #166534 !important;
+}
+
+.user-level-2-comment-textarea::placeholder {
+  color: #496f3b !important;
+}
+
+.user-level-2-comment-textarea:focus,
+.user-level-2-comment-textarea:focus-visible {
+  border-color: rgba(22, 101, 52, 0.95) !important;
+  box-shadow:
+    0 0 0 1px rgba(22, 101, 52, 0.28),
+    0 0 20px rgba(202, 255, 112, 0.16) !important;
+}
+
+.user-level-2-comment-button,
+.user-level-2-game-launch,
+.user-level-2-pong-button {
+  background: linear-gradient(135deg, #166534 0%, #22c55e 58%, #f2c94c 100%) !important;
+  border-color: rgba(244, 255, 240, 0.22) !important;
+  color: #f7fff1 !important;
+  box-shadow: 0 12px 26px rgba(22, 101, 52, 0.2) !important;
+}
+
+.user-level-2-pong-green {
+  color: #16a34a !important;
+}
+
+.user-level-2-pong-blue {
+  color: #0e7490 !important;
+}
+
+.user-level-2-pong-option {
+  background: rgba(32, 55, 27, 0.72) !important;
+  color: #d7f5c8 !important;
+}
+
+.user-level-2-pong-option-active {
+  background: linear-gradient(135deg, #65a30d 0%, #22c55e 100%) !important;
+  color: #f7fff1 !important;
+}
+
 .user-level-2-games-page .text-purple-400,
 .user-level-2-games-page .text-purple-300,
 .user-level-2-games-page [class*="text-purple"] {
@@ -522,7 +688,7 @@
 }
 
 .user-level-2-games-copy {
-  color: #4d8c45 !important;
+  color: #2f6f2e !important;
 }
 
 .user-level-2-games-results {
@@ -538,6 +704,10 @@
 
 .user-level-2-favorites-empty-tone {
   color: #596b4d !important;
+}
+
+.user-level-2-favorites-count {
+  color: #14532d !important;
 }
 
 .user-level-2-games-filter {
@@ -563,32 +733,32 @@
 }
 
 .user-level-2-pong-green {
-  color: #63b56b !important;
+  color: #16a34a !important;
 }
 
 .user-level-2-pong-blue {
-  color: #58b6cf !important;
+  color: #0e7490 !important;
 }
 
 .user-level-2-pong-option {
-  background: rgba(255, 255, 255, 0.1) !important;
-  color: #86b389 !important;
+  background: rgba(32, 55, 27, 0.72) !important;
+  color: #d7f5c8 !important;
 }
 
 .user-level-2-pong-option:hover {
-  background: rgba(99, 181, 107, 0.16) !important;
-  color: #dff6de !important;
+  background: rgba(54, 90, 32, 0.9) !important;
+  color: #f3ffe8 !important;
 }
 
 .user-level-2-pong-option-active {
-  background: linear-gradient(90deg, #58b96b 0%, #58b6cf 100%) !important;
-  color: #f8fffb !important;
+  background: linear-gradient(135deg, #65a30d 0%, #22c55e 100%) !important;
+  color: #f7fff1 !important;
 }
 
 .user-level-2-pong-button {
-  background: linear-gradient(90deg, #58b96b 0%, #58b6cf 100%) !important;
-  color: #f8fffb !important;
-  border: 1px solid rgba(88, 182, 207, 0.18) !important;
+  background: linear-gradient(135deg, #166534 0%, #22c55e 58%, #f2c94c 100%) !important;
+  color: #f7fff1 !important;
+  border: 1px solid rgba(244, 255, 240, 0.22) !important;
 }
 
 .user-level-2-pong-button:hover {
@@ -820,6 +990,200 @@
   border: 1px solid rgba(118, 179, 118, 0.16) !important;
 }
 
+.user-level-2-profile-page .text-white,
+.user-level-2-profile-name {
+  color: #f7fff1 !important;
+  text-shadow: 0 1px 12px rgba(18, 69, 31, 0.2);
+}
+
+.user-level-2-profile-page .text-gray-400,
+.user-level-2-profile-meta {
+  color: #2d642b !important;
+}
+
+.user-level-2-profile-page .text-gray-500,
+.user-level-2-profile-meta-muted,
+.user-level-2-profile-xp-label,
+.user-level-2-profile-next-level {
+  color: #496f3b !important;
+}
+
+.user-level-2-profile-hero {
+  background:
+    linear-gradient(135deg, rgba(59, 116, 52, 0.66) 0%, rgba(132, 174, 91, 0.46) 54%, rgba(34, 91, 52, 0.52) 100%) !important;
+  border-color: rgba(229, 255, 205, 0.32) !important;
+  box-shadow:
+    0 20px 42px rgba(26, 61, 27, 0.2),
+    0 0 0 1px rgba(250, 255, 238, 0.12) inset !important;
+}
+
+.user-level-2-profile-avatar {
+  border-color: rgba(196, 232, 170, 0.75) !important;
+  box-shadow:
+    0 0 0 4px rgba(22, 101, 52, 0.16),
+    0 0 26px rgba(229, 255, 205, 0.24) !important;
+}
+
+.user-level-2-profile-avatar-fallback {
+  background: linear-gradient(135deg, #166534 0%, #22c55e 100%) !important;
+  color: #f7fff1 !important;
+}
+
+.user-level-2-profile-icon-soft,
+.user-level-2-profile-icon-muted {
+  color: #e8ffd7 !important;
+}
+
+.user-level-2-profile-level-label {
+  color: #14532d !important;
+}
+
+.user-level-2-profile-progress-track {
+  background: rgba(238, 250, 219, 0.46) !important;
+}
+
+.user-level-2-profile-progress-fill {
+  background: linear-gradient(90deg, #166534 0%, #22c55e 72%, #eab308 100%) !important;
+  box-shadow: 0 0 16px rgba(34, 197, 94, 0.26) !important;
+}
+
+.user-level-2-profile-stat-card {
+  background: linear-gradient(180deg, rgba(241, 250, 229, 0.92) 0%, rgba(212, 238, 190, 0.88) 100%) !important;
+  border-color: rgba(103, 156, 72, 0.34) !important;
+  box-shadow:
+    0 14px 30px rgba(34, 75, 31, 0.12),
+    0 0 0 1px rgba(250, 255, 238, 0.26) inset !important;
+}
+
+.user-level-2-profile-stat-value {
+  color: #166534 !important;
+}
+
+.user-level-2-profile-stat-copy {
+  color: #3b6b2e !important;
+}
+
+.user-level-2-profile-stat-icon-sky,
+.user-level-2-profile-stat-icon-grass {
+  color: #22a447 !important;
+}
+
+.user-level-2-profile-panel {
+  background: linear-gradient(180deg, rgba(238, 250, 219, 0.78) 0%, rgba(218, 242, 190, 0.64) 100%) !important;
+  border-color: rgba(103, 156, 72, 0.3) !important;
+  box-shadow:
+    0 16px 34px rgba(34, 75, 31, 0.12),
+    0 0 0 1px rgba(250, 255, 238, 0.18) inset !important;
+}
+
+.user-level-2-profile-panel-title,
+.user-level-2-profile-panel-title *,
+.user-level-2-profile-panel-text,
+.user-level-2-profile-panel-text * {
+  color: #166534 !important;
+}
+
+.user-level-2-profile-score-row {
+  background: rgba(201, 231, 166, 0.52) !important;
+  border-color: rgba(103, 156, 72, 0.24) !important;
+}
+
+.user-level-2-profile-score,
+.user-level-2-profile-page .user-level-2-profile-score,
+.user-level-2-profile-page .user-level-2-profile-score * {
+  color: #1d8f3d !important;
+}
+
+.user-level-2-profile-scores-title,
+.user-level-2-profile-scores-title * {
+  color: #14532d !important;
+}
+
+.user-level-2-profile-scores-trophy {
+  color: #eab308 !important;
+}
+
+.user-level-2-profile-score-date {
+  color: #2f6f2e !important;
+}
+
+.user-level-2-profile-page .user-level-2-profile-panel .user-level-2-profile-panel-title,
+.user-level-2-profile-page .user-level-2-profile-panel .user-level-2-profile-panel-title *,
+.user-level-2-profile-page .user-level-2-profile-panel .user-level-2-profile-panel-text,
+.user-level-2-profile-page .user-level-2-profile-panel .user-level-2-profile-panel-text *,
+.user-level-2-profile-page .user-level-2-profile-panel p {
+  color: #14532d !important;
+  text-shadow: none !important;
+}
+
+.user-level-2-profile-medal-row {
+  background:
+    linear-gradient(135deg, rgba(188, 230, 146, 0.42) 0%, rgba(144, 210, 126, 0.34) 100%) !important;
+  border-color: rgba(82, 139, 50, 0.34) !important;
+  box-shadow:
+    0 8px 18px rgba(52, 99, 38, 0.1),
+    0 0 0 1px rgba(250, 255, 238, 0.18) inset !important;
+}
+
+.user-level-2-profile-medal-row:nth-child(even) {
+  background:
+    linear-gradient(135deg, rgba(178, 235, 156, 0.48) 0%, rgba(130, 213, 144, 0.34) 100%) !important;
+}
+
+.user-level-2-profile-medal-icon {
+  background: rgba(189, 235, 166, 0.72) !important;
+  box-shadow: 0 0 0 1px rgba(82, 139, 50, 0.12) inset;
+}
+
+.user-level-2-profile-dialog {
+  background: linear-gradient(180deg, rgba(42, 140, 72, 0.98) 0%, rgba(31, 122, 61, 0.98) 100%) !important;
+  border-color: rgba(190, 255, 170, 0.44) !important;
+  color: #f7fff1 !important;
+  box-shadow:
+    0 22px 48px rgba(18, 69, 31, 0.32),
+    0 0 0 1px rgba(240, 255, 220, 0.16) inset !important;
+}
+
+.user-level-2-profile-dialog-title,
+.user-level-2-profile-dialog-title *,
+.user-level-2-profile-dialog label {
+  color: #f7fff1 !important;
+}
+
+.user-level-2-profile-dialog-input,
+.user-level-2-profile-edit-input {
+  background: rgba(240, 255, 235, 0.18) !important;
+  border-color: rgba(205, 255, 185, 0.48) !important;
+  color: #f7fff1 !important;
+}
+
+.user-level-2-profile-dialog-input::placeholder,
+.user-level-2-profile-edit-input::placeholder {
+  color: rgba(235, 255, 225, 0.72) !important;
+}
+
+.user-level-2-profile-dialog-input:focus,
+.user-level-2-profile-dialog-input:focus-visible,
+.user-level-2-profile-edit-input:focus,
+.user-level-2-profile-edit-input:focus-visible {
+  border-color: rgba(210, 255, 170, 0.88) !important;
+  box-shadow:
+    0 0 0 1px rgba(210, 255, 170, 0.32),
+    0 0 20px rgba(190, 255, 170, 0.18) !important;
+}
+
+.user-level-2-profile-dialog-save {
+  background: linear-gradient(135deg, #22c55e 0%, #84cc16 100%) !important;
+  color: #f7fff1 !important;
+  box-shadow: 0 12px 24px rgba(18, 95, 45, 0.24) !important;
+}
+
+.user-level-2-profile-dialog-cancel {
+  background: rgba(12, 58, 29, 0.58) !important;
+  border-color: rgba(205, 255, 185, 0.28) !important;
+  color: #f7fff1 !important;
+}
+
 .user-level-2-game-surface .online-game-lobby__title {
   background: linear-gradient(90deg, #2f7d3d 0%, #2e879b 52%, #1f669b 100%) !important;
   -webkit-background-clip: text !important;
@@ -880,7 +1244,95 @@
 }
 
 .user-level-2-detail-panel .user-level-2-leaderboard-empty,
-.user-level-2-detail-panel .user-level-2-leaderboard-empty p,
+.user-level-2-detail-panel .user-level-2-leaderboard-empty p {
+  color: #2f6f2e !important;
+}
+
 .user-level-2-detail-panel .user-level-2-leaderboard-empty-icon {
-  color: #ffffff !important;
+  color: #65a30d !important;
+}
+
+.user-level-2-game-surface .online-game-lobby__title {
+  background: linear-gradient(90deg, #166534 0%, #22a447 48%, #5d8f1f 100%) !important;
+  -webkit-background-clip: text !important;
+  background-clip: text !important;
+  color: transparent !important;
+  text-shadow: 0 0 16px rgba(34, 164, 71, 0.16);
+}
+
+.user-level-2-game-surface .online-game-lobby__description {
+  color: #2f6f2e !important;
+}
+
+.user-level-2-game-surface .online-game-lobby__section-title,
+.user-level-2-game-surface .online-game-lobby__separator {
+  color: #245824 !important;
+}
+
+.user-level-2-game-surface .online-game-lobby__card {
+  background:
+    linear-gradient(180deg, rgba(218, 242, 190, 0.62) 0%, rgba(172, 218, 137, 0.44) 100%) !important;
+  border-color: rgba(229, 255, 205, 0.44) !important;
+  box-shadow:
+    0 14px 28px rgba(32, 70, 36, 0.12),
+    0 0 0 1px rgba(250, 255, 238, 0.18) inset !important;
+}
+
+.user-level-2-game-surface .online-game-lobby__time-option {
+  background: rgba(239, 250, 219, 0.56) !important;
+  border-color: rgba(91, 145, 55, 0.34) !important;
+  color: #2f5b20 !important;
+}
+
+.user-level-2-game-surface .online-game-lobby__time-option:hover {
+  background: rgba(226, 247, 194, 0.82) !important;
+  color: #174313 !important;
+}
+
+.user-level-2-game-surface .online-game-lobby__time-option--active {
+  background: linear-gradient(135deg, #65a30d 0%, #22c55e 100%) !important;
+  border-color: rgba(244, 255, 180, 0.5) !important;
+  color: #f7fff1 !important;
+  box-shadow: 0 8px 18px rgba(22, 101, 52, 0.18) !important;
+}
+
+.user-level-2-game-surface .online-game-lobby__create-button {
+  background: linear-gradient(135deg, #166534 0%, #22c55e 62%, #eab308 100%) !important;
+  color: #f7fff1 !important;
+  border: 1px solid rgba(244, 255, 240, 0.2) !important;
+  box-shadow: 0 12px 24px rgba(22, 101, 52, 0.18) !important;
+}
+
+.user-level-2-game-surface .online-game-lobby__input {
+  background: rgba(238, 250, 219, 0.7) !important;
+  border-color: rgba(82, 139, 50, 0.46) !important;
+  color: #173c13 !important;
+  -webkit-text-fill-color: #173c13 !important;
+}
+
+.user-level-2-game-surface .online-game-lobby__input::placeholder {
+  color: #5c713f !important;
+  -webkit-text-fill-color: #5c713f !important;
+}
+
+.user-level-2-game-surface .online-game-lobby__join-button {
+  background: linear-gradient(135deg, rgba(55, 86, 38, 0.92) 0%, rgba(83, 119, 53, 0.92) 100%) !important;
+  color: #eef8df !important;
+}
+
+.user-level-2-game-surface .online-game-lobby__join-button:not(:disabled) {
+  background: linear-gradient(135deg, #3f7f1f 0%, #22a447 100%) !important;
+  color: #f7fff1 !important;
+}
+
+.user-level-2-detail-panel .online-game-chat__empty,
+.user-level-2-detail-panel .online-game-chat__empty p,
+.user-level-2-history .online-game-history__empty,
+.user-level-2-history .online-game-history__empty p {
+  color: #2f6f2e !important;
+}
+
+.user-level-2-game-detail-page .user-level-2-history,
+.user-level-2-game-detail-page .user-level-2-detail-panel {
+  color: #173c13 !important;
 }

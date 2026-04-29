@@ -68,6 +68,7 @@ export default function GameArea({
   const isRegularUser = user && user.role !== 'admin' && user.role !== 'empresa';
   const isLevel1User = isRegularUser && getLevelFromXP(user.xp ?? 0).level === 1;
   const isLevel2User = isRegularUser && getLevelFromXP(user.xp ?? 0).level === 2;
+  const isLevel3User = isRegularUser && getLevelFromXP(user.xp ?? 0).level === 3;
 
   const renderGame = () => {
     if (game.game_code === 'snake') {
@@ -77,7 +78,7 @@ export default function GameArea({
       return <PongGame onScoreUpdate={onScoreUpdate} onGameStart={onGameStart} />;
     }
     if (game.game_code === 'chess-online') {
-      if (!isPlaying) return <GameCover game={game} onPlay={onPlay} isLevel1User={isLevel1User} isLevel2User={isLevel2User} />;
+      if (!isPlaying) return <GameCover game={game} onPlay={onPlay} isLevel1User={isLevel1User} isLevel2User={isLevel2User} isLevel3User={isLevel3User} />;
       return (
         <ChessOnlineGame
           user={user}
@@ -88,7 +89,7 @@ export default function GameArea({
       );
     }
     if (game.game_type === 'html5') {
-      if (!isPlaying) return <GameCover game={game} onPlay={onPlay} isLevel1User={isLevel1User} isLevel2User={isLevel2User} />;
+      if (!isPlaying) return <GameCover game={game} onPlay={onPlay} isLevel1User={isLevel1User} isLevel2User={isLevel2User} isLevel3User={isLevel3User} />;
       if (!iframeSrcDoc) return (
         <div className="aspect-video flex items-center justify-center">
           <Loader2 className="w-8 h-8 animate-spin text-purple-500" />
@@ -120,7 +121,7 @@ export default function GameArea({
           <div className="w-full max-w-[520px]">{renderGame()}</div>
         </div>
       ) : (
-        <div className={`bg-[#0a0a0f] rounded-2xl border border-white/10 overflow-hidden ${isLevel1User ? 'user-level-1-game-surface' : ''} ${isLevel2User ? 'user-level-2-game-surface' : ''}`}>
+        <div className={`bg-[#0a0a0f] rounded-2xl border border-white/10 overflow-hidden ${isLevel1User ? 'user-level-1-game-surface' : ''} ${isLevel2User ? 'user-level-2-game-surface' : ''} ${isLevel3User ? 'user-level-3-game-surface' : ''}`}>
           {renderGame()}
         </div>
       )}
@@ -128,9 +129,9 @@ export default function GameArea({
       {game.is_multiplayer && isPlaying && (
         <div className="flex flex-col gap-2 h-full">
           {/* Chat: 65% */}
-          <div className={`bg-white/5 rounded-xl border border-white/10 p-3 flex flex-col min-h-0 ${isLevel2User ? 'user-level-2-detail-panel' : ''}`} style={{ flex: '13 0 0' }}>
-            <h2 className={`text-sm font-semibold text-white mb-2 flex items-center gap-2 flex-shrink-0 ${isLevel2User ? 'user-level-2-detail-panel-title' : ''}`}>
-              <MessageCircle className={`w-4 h-4 text-purple-400 ${isLevel2User ? 'user-level-2-detail-icon-blue' : ''}`} /> Chat de partida
+          <div className={`bg-white/5 rounded-xl border border-white/10 p-3 flex flex-col min-h-0 ${isLevel2User ? 'user-level-2-detail-panel' : ''} ${isLevel3User ? 'user-level-3-detail-panel' : ''}`} style={{ flex: '13 0 0' }}>
+            <h2 className={`text-sm font-semibold text-white mb-2 flex items-center gap-2 flex-shrink-0 ${isLevel2User ? 'user-level-2-detail-panel-title' : ''} ${isLevel3User ? 'user-level-3-detail-panel-title' : ''}`}>
+              <MessageCircle className={`w-4 h-4 text-purple-400 ${isLevel2User ? 'user-level-2-detail-icon-blue' : ''} ${isLevel3User ? 'user-level-3-detail-icon-blue' : ''}`} /> Chat de partida
             </h2>
             <ChatSection
               gameId={gameId}
@@ -154,7 +155,7 @@ export default function GameArea({
   );
 }
 
-function GameCover({ game, onPlay, isLevel1User, isLevel2User }) {
+function GameCover({ game, onPlay, isLevel1User, isLevel2User, isLevel3User }) {
   return (
     <div className="relative aspect-video w-full">
       {game.thumbnail ? (
@@ -167,7 +168,7 @@ function GameCover({ game, onPlay, isLevel1User, isLevel2User }) {
       <div className="absolute inset-0 bg-black/50 flex items-center justify-center">
         <Button
           onClick={onPlay}
-          className={`bg-gradient-to-r from-purple-600 to-cyan-500 hover:opacity-90 text-lg px-8 py-6 rounded-xl ${isLevel1User ? 'user-level-1-game-launch' : ''} ${isLevel2User ? 'user-level-2-game-launch' : ''}`}
+          className={`bg-gradient-to-r from-purple-600 to-cyan-500 hover:opacity-90 text-lg px-8 py-6 rounded-xl ${isLevel1User ? 'user-level-1-game-launch' : ''} ${isLevel2User ? 'user-level-2-game-launch' : ''} ${isLevel3User ? 'user-level-3-button' : ''}`}
         >
           <Play className="w-6 h-6 mr-2 fill-white" /> Jugar
         </Button>

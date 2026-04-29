@@ -15,7 +15,6 @@ import {
 } from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-import { Textarea } from "@/components/ui/textarea";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { format } from "date-fns";
@@ -31,6 +30,7 @@ export default function Profile() {
   const isRegularUser = user && user.role !== "admin" && user.role !== "empresa";
   const isLevel1User = isRegularUser && getLevelFromXP(user.xp ?? 0).level === 1;
   const isLevel2User = isRegularUser && getLevelFromXP(user.xp ?? 0).level === 2;
+  const isLevel3User = isRegularUser && getLevelFromXP(user.xp ?? 0).level === 3;
 
   useEffect(() => { refreshUser(); }, []);
   const [isEditing, setIsEditing] = useState(false);
@@ -146,14 +146,14 @@ export default function Profile() {
   const earnedMedals = evaluateMedals({ totalPlays, totalWins, bestScore, totalTimePlayed, gamesPlayed, level: currentLevel.level });
 
   return (
-    <div className={`max-w-4xl mx-auto px-4 py-8 ${isLevel1User ? "user-level-1-profile-page" : ""} ${isLevel2User ? "user-level-2-profile-page" : ""}`}>
-      <Card className={`bg-gradient-to-br from-purple-900/30 to-cyan-900/30 border-white/10 mb-8 ${isLevel1User ? "user-level-1-game-card" : ""} ${isLevel2User ? "user-level-2-profile-hero" : ""}`}>
+    <div className={`max-w-4xl mx-auto px-4 py-8 ${isLevel1User ? "user-level-1-profile-page" : ""} ${isLevel2User ? "user-level-2-profile-page" : ""} ${isLevel3User ? "user-level-3-profile-page" : ""}`}>
+      <Card className={`bg-gradient-to-br from-purple-900/30 to-cyan-900/30 border-white/10 mb-8 ${isLevel1User ? "user-level-1-game-card" : ""} ${isLevel2User ? "user-level-2-profile-hero" : ""} ${isLevel3User ? "user-level-3-profile-hero" : ""}`}>
         <CardContent className="p-8">
           <div className="flex flex-col md:flex-row items-center gap-6">
             <div className="relative group cursor-pointer" onClick={() => avatarInputRef.current?.click()}>
-              <Avatar className={`w-28 h-28 border-4 border-purple-500/50 ${isLevel1User ? "user-level-1-profile-avatar" : ""} ${isLevel2User ? "user-level-2-profile-avatar" : ""}`}>
+              <Avatar className={`w-28 h-28 border-4 border-purple-500/50 ${isLevel1User ? "user-level-1-profile-avatar" : ""} ${isLevel2User ? "user-level-2-profile-avatar" : ""} ${isLevel3User ? "user-level-3-profile-avatar" : ""}`}>
                 <AvatarImage src={user.avatar_url} />
-                <AvatarFallback className={`bg-gradient-to-br from-purple-600 to-cyan-500 text-3xl ${isLevel1User ? "user-level-1-profile-avatar-fallback" : ""} ${isLevel2User ? "user-level-2-profile-avatar-fallback" : ""}`}>
+                <AvatarFallback className={`bg-gradient-to-br from-purple-600 to-cyan-500 text-3xl ${isLevel1User ? "user-level-1-profile-avatar-fallback" : ""} ${isLevel2User ? "user-level-2-profile-avatar-fallback" : ""} ${isLevel3User ? "user-level-3-profile-avatar-fallback" : ""}`}>
                   {(user.full_name || user.email)?.[0]?.toUpperCase()}
                 </AvatarFallback>
               </Avatar>
@@ -178,20 +178,20 @@ export default function Profile() {
                     value={editData.full_name}
                     onChange={(e) => setEditData({ ...editData, full_name: e.target.value })}
                     placeholder="Tu nombre"
-                    className={isLevel1User ? "user-level-1-profile-edit-input" : isLevel2User ? "user-level-2-profile-edit-input" : "bg-white/10 border-white/20 text-white"}
+                    className={isLevel1User ? "user-level-1-profile-edit-input" : isLevel2User ? "user-level-2-profile-edit-input" : isLevel3User ? "user-level-3-profile-edit-input" : "bg-white/10 border-white/20 text-white"}
                   />
                   <div className="flex gap-2">
                     <Button
                       onClick={handleSave}
                       disabled={isSaving}
-                      className={isLevel1User ? "user-level-1-profile-dialog-save" : isLevel2User ? "user-level-2-profile-dialog-save" : "bg-gradient-to-r from-purple-600 to-cyan-500"}
+                      className={isLevel1User ? "user-level-1-profile-dialog-save" : isLevel2User ? "user-level-2-profile-dialog-save" : isLevel3User ? "user-level-3-profile-dialog-save" : "bg-gradient-to-r from-purple-600 to-cyan-500"}
                     >
                       <Save className="w-4 h-4 mr-2" />Guardar
                     </Button>
                     <Button
                       variant="outline"
                       onClick={() => setIsEditing(false)}
-                      className={isLevel1User ? "user-level-1-profile-dialog-cancel" : isLevel2User ? "user-level-2-profile-dialog-cancel" : "border-white/20"}
+                      className={isLevel1User ? "user-level-1-profile-dialog-cancel" : isLevel2User ? "user-level-2-profile-dialog-cancel" : isLevel3User ? "user-level-3-profile-dialog-cancel" : "border-white/20"}
                     >
                       Cancelar
                     </Button>
@@ -200,37 +200,37 @@ export default function Profile() {
               ) : (
                 <>
                   <div className="flex items-center justify-center md:justify-start gap-3 mb-2">
-                    <h1 className={`text-2xl font-bold text-white ${isLevel1User ? "user-level-1-profile-name" : ""} ${isLevel2User ? "user-level-2-profile-name" : ""}`}>{user.full_name || "Usuario"}</h1>
+                    <h1 className={`text-2xl font-bold text-white ${isLevel1User ? "user-level-1-profile-name" : ""} ${isLevel2User ? "user-level-2-profile-name" : ""} ${isLevel3User ? "user-level-3-profile-name" : ""}`}>{user.full_name || "Usuario"}</h1>
                     <Button
                       variant="ghost" size="icon"
                       onClick={() => { setEditData({ full_name: user.full_name || "" }); setIsEditing(true); }}
-                      className={isLevel1User ? "user-level-1-profile-action-button" : isLevel2User ? "user-level-2-profile-action-button" : "text-gray-400 hover:text-white"}
+                      className={isLevel1User ? "user-level-1-profile-action-button" : isLevel2User ? "user-level-2-profile-action-button" : isLevel3User ? "user-level-3-profile-action-button" : "text-gray-400 hover:text-white"}
                     >
                       <Edit2 className="w-4 h-4" />
                     </Button>
                     <DropdownMenu modal={false}>
                       <DropdownMenuTrigger asChild>
-                        <Button variant="ghost" size="icon" className={isLevel1User ? "user-level-1-profile-action-button" : isLevel2User ? "user-level-2-profile-action-button" : "text-gray-400 hover:text-white"}>
+                        <Button variant="ghost" size="icon" className={isLevel1User ? "user-level-1-profile-action-button" : isLevel2User ? "user-level-2-profile-action-button" : isLevel3User ? "user-level-3-profile-action-button" : "text-gray-400 hover:text-white"}>
                           <MoreVertical className="w-4 h-4" />
                         </Button>
                       </DropdownMenuTrigger>
-                      <DropdownMenuContent align="start" className={isLevel2User ? "user-level-2-profile-menu" : "bg-[#0f0f18] border-white/10 text-white"}>
+                      <DropdownMenuContent align="start" className={isLevel2User ? "user-level-2-profile-menu" : isLevel3User ? "user-level-3-profile-menu" : "bg-[#0f0f18] border-white/10 text-white"}>
                         <DropdownMenuItem
                           onClick={() => { setPwForm({ current: "", next: "", confirm: "" }); setPwErrors({}); setShowPwDialog(true); }}
-                          className={isLevel1User ? "user-level-1-profile-menu-item" : isLevel2User ? "user-level-2-profile-menu-item" : "cursor-pointer hover:bg-white/5 gap-2"}
+                          className={isLevel1User ? "user-level-1-profile-menu-item" : isLevel2User ? "user-level-2-profile-menu-item" : isLevel3User ? "user-level-3-profile-menu-item" : "cursor-pointer hover:bg-white/5 gap-2"}
                         >
-                          <Lock className={`w-4 h-4 ${isLevel1User ? "user-level-1-profile-icon-soft" : isLevel2User ? "user-level-2-profile-icon-soft" : "text-purple-400"}`} />
+                          <Lock className={`w-4 h-4 ${isLevel1User ? "user-level-1-profile-icon-soft" : isLevel2User ? "user-level-2-profile-icon-soft" : isLevel3User ? "user-level-3-profile-icon-soft" : "text-purple-400"}`} />
                           Cambiar contraseña
                         </DropdownMenuItem>
                       </DropdownMenuContent>
                     </DropdownMenu>
                   </div>
-                  <div className={`flex items-center justify-center md:justify-start gap-2 text-gray-400 mb-2 ${isLevel1User ? "user-level-1-profile-meta" : ""} ${isLevel2User ? "user-level-2-profile-meta" : ""}`}>
-                    <Mail className={`w-4 h-4 ${isLevel1User ? "user-level-1-profile-icon-soft" : ""} ${isLevel2User ? "user-level-2-profile-icon-soft" : ""}`} />
+                  <div className={`flex items-center justify-center md:justify-start gap-2 text-gray-400 mb-2 ${isLevel1User ? "user-level-1-profile-meta" : ""} ${isLevel2User ? "user-level-2-profile-meta" : ""} ${isLevel3User ? "user-level-3-profile-meta" : ""}`}>
+                    <Mail className={`w-4 h-4 ${isLevel1User ? "user-level-1-profile-icon-soft" : ""} ${isLevel2User ? "user-level-2-profile-icon-soft" : ""} ${isLevel3User ? "user-level-3-profile-icon-soft" : ""}`} />
                     <span>{user.email}</span>
                   </div>
-                  <div className={`flex items-center justify-center md:justify-start gap-2 text-gray-500 text-sm mt-3 ${isLevel1User ? "user-level-1-profile-meta-muted" : ""} ${isLevel2User ? "user-level-2-profile-meta-muted" : ""}`}>
-                    <Calendar className={`w-4 h-4 ${isLevel1User ? "user-level-1-profile-icon-muted" : ""} ${isLevel2User ? "user-level-2-profile-icon-muted" : ""}`} />
+                  <div className={`flex items-center justify-center md:justify-start gap-2 text-gray-500 text-sm mt-3 ${isLevel1User ? "user-level-1-profile-meta-muted" : ""} ${isLevel2User ? "user-level-2-profile-meta-muted" : ""} ${isLevel3User ? "user-level-3-profile-meta-muted" : ""}`}>
+                    <Calendar className={`w-4 h-4 ${isLevel1User ? "user-level-1-profile-icon-muted" : ""} ${isLevel2User ? "user-level-2-profile-icon-muted" : ""} ${isLevel3User ? "user-level-3-profile-icon-muted" : ""}`} />
                     <span>Miembro desde {format(new Date(user.created_at), "MMMM yyyy", { locale: es })}</span>
                   </div>
 
@@ -238,24 +238,24 @@ export default function Profile() {
                   <div className="mt-4 max-w-xs mx-auto md:mx-0">
                     <div className="flex items-center justify-between mb-1.5">
                       <span
-                        className={`text-sm font-bold ${isLevel1User ? "user-level-1-profile-level-label" : ""} ${isLevel2User ? "user-level-2-profile-level-label" : ""}`}
-                        style={isLevel1User || isLevel2User ? undefined : { color: currentLevel.color }}
+                        className={`text-sm font-bold ${isLevel1User ? "user-level-1-profile-level-label" : ""} ${isLevel2User ? "user-level-2-profile-level-label" : ""} ${isLevel3User ? "user-level-3-profile-level-label" : ""}`}
+                        style={isLevel1User || isLevel2User || isLevel3User ? undefined : { color: currentLevel.color }}
                       >
                         Nv.{currentLevel.level} {currentLevel.name}
                       </span>
-                      <span className={`text-xs text-gray-400 ${isLevel1User ? "user-level-1-profile-xp-label" : ""} ${isLevel2User ? "user-level-2-profile-xp-label" : ""}`}>
+                      <span className={`text-xs text-gray-400 ${isLevel1User ? "user-level-1-profile-xp-label" : ""} ${isLevel2User ? "user-level-2-profile-xp-label" : ""} ${isLevel3User ? "user-level-3-profile-xp-label" : ""}`}>
                         {xp.toLocaleString()} XP
                         {nextLevel && ` / ${nextLevel.xpRequired.toLocaleString()}`}
                       </span>
                     </div>
-                    <div className={`h-2 rounded-full bg-white/10 overflow-hidden ${isLevel1User ? "user-level-1-profile-progress-track" : ""} ${isLevel2User ? "user-level-2-profile-progress-track" : ""}`}>
+                    <div className={`h-2 rounded-full bg-white/10 overflow-hidden ${isLevel1User ? "user-level-1-profile-progress-track" : ""} ${isLevel2User ? "user-level-2-profile-progress-track" : ""} ${isLevel3User ? "user-level-3-profile-progress-track" : ""}`}>
                       <div
-                        className={`h-full rounded-full transition-all duration-500 ${isLevel1User ? "user-level-1-profile-progress-fill" : ""} ${isLevel2User ? "user-level-2-profile-progress-fill" : ""}`}
-                        style={isLevel1User || isLevel2User ? { width: `${levelPct}%` } : { width: `${levelPct}%`, backgroundColor: currentLevel.color }}
+                        className={`h-full rounded-full transition-all duration-500 ${isLevel1User ? "user-level-1-profile-progress-fill" : ""} ${isLevel2User ? "user-level-2-profile-progress-fill" : ""} ${isLevel3User ? "user-level-3-profile-progress-fill" : ""}`}
+                        style={isLevel1User || isLevel2User || isLevel3User ? { width: `${levelPct}%` } : { width: `${levelPct}%`, backgroundColor: currentLevel.color }}
                       />
                     </div>
                     {nextLevel ? (
-                      <p className={`text-[11px] text-gray-500 mt-1 ${isLevel1User ? "user-level-1-profile-next-level" : ""} ${isLevel2User ? "user-level-2-profile-next-level" : ""}`}>
+                      <p className={`text-[11px] text-gray-500 mt-1 ${isLevel1User ? "user-level-1-profile-next-level" : ""} ${isLevel2User ? "user-level-2-profile-next-level" : ""} ${isLevel3User ? "user-level-3-profile-next-level" : ""}`}>
                         {(nextLevel.xpRequired - xp).toLocaleString()} XP para {nextLevel.name}
                       </p>
                     ) : (
@@ -270,25 +270,25 @@ export default function Profile() {
       </Card>
 
       <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-8">
-        <Card className={`bg-white/5 border-white/10 ${isLevel1User ? "user-level-1-game-card" : ""} ${isLevel2User ? "user-level-2-profile-stat-card" : ""}`}>
+        <Card className={`bg-white/5 border-white/10 ${isLevel1User ? "user-level-1-game-card" : ""} ${isLevel2User ? "user-level-2-profile-stat-card" : ""} ${isLevel3User ? "user-level-3-profile-stat-card" : ""}`}>
           <CardContent className="p-6 text-center">
-            <Gamepad2 className={`w-8 h-8 mx-auto mb-2 ${isLevel2User ? "user-level-2-profile-stat-icon-sky" : "text-purple-400"}`} />
-            <p className={`text-3xl font-bold ${isLevel2User ? "user-level-2-profile-stat-value" : "text-white"}`}>{totalPlays}</p>
-            <p className={`text-sm ${isLevel2User ? "user-level-2-profile-stat-copy" : "text-gray-400"}`}>Partidas jugadas</p>
+            <Gamepad2 className={`w-8 h-8 mx-auto mb-2 ${isLevel2User ? "user-level-2-profile-stat-icon-sky" : isLevel3User ? "user-level-3-profile-stat-icon-sky" : "text-purple-400"}`} />
+            <p className={`text-3xl font-bold ${isLevel2User ? "user-level-2-profile-stat-value" : isLevel3User ? "user-level-3-profile-stat-value" : "text-white"}`}>{totalPlays}</p>
+            <p className={`text-sm ${isLevel2User ? "user-level-2-profile-stat-copy" : isLevel3User ? "user-level-3-profile-stat-copy" : "text-gray-400"}`}>Partidas jugadas</p>
           </CardContent>
         </Card>
-        <Card className={`bg-white/5 border-white/10 ${isLevel1User ? "user-level-1-game-card" : ""} ${isLevel2User ? "user-level-2-profile-stat-card" : ""}`}>
+        <Card className={`bg-white/5 border-white/10 ${isLevel1User ? "user-level-1-game-card" : ""} ${isLevel2User ? "user-level-2-profile-stat-card" : ""} ${isLevel3User ? "user-level-3-profile-stat-card" : ""}`}>
           <CardContent className="p-6 text-center">
-            <Heart className={`w-8 h-8 mx-auto mb-2 ${isLevel2User ? "user-level-2-profile-stat-icon-grass" : "text-red-400"}`} />
-            <p className={`text-3xl font-bold ${isLevel2User ? "user-level-2-profile-stat-value" : "text-white"}`}>{favorites.length}</p>
-            <p className={`text-sm ${isLevel2User ? "user-level-2-profile-stat-copy" : "text-gray-400"}`}>Juegos favoritos</p>
+            <Heart className={`w-8 h-8 mx-auto mb-2 ${isLevel2User ? "user-level-2-profile-stat-icon-grass" : isLevel3User ? "user-level-3-profile-stat-icon-heart" : "text-red-400"}`} />
+            <p className={`text-3xl font-bold ${isLevel2User ? "user-level-2-profile-stat-value" : isLevel3User ? "user-level-3-profile-favorites-value" : "text-white"}`}>{favorites.length}</p>
+            <p className={`text-sm ${isLevel2User ? "user-level-2-profile-stat-copy" : isLevel3User ? "user-level-3-profile-favorites-copy" : "text-gray-400"}`}>Juegos favoritos</p>
           </CardContent>
         </Card>
-        <Card className={`bg-white/5 border-white/10 ${isLevel1User ? "user-level-1-game-card" : ""} ${isLevel2User ? "user-level-2-profile-stat-card" : ""}`}>
+        <Card className={`bg-white/5 border-white/10 ${isLevel1User ? "user-level-1-game-card" : ""} ${isLevel2User ? "user-level-2-profile-stat-card" : ""} ${isLevel3User ? "user-level-3-profile-stat-card" : ""}`}>
           <CardContent className="p-6 text-center">
             <span className="text-3xl block mb-2">🎖️</span>
-            <p className={`text-3xl font-bold ${isLevel2User ? "user-level-2-profile-stat-value" : "text-white"}`}>{earnedMedals.length}</p>
-            <p className={`text-sm ${isLevel2User ? "user-level-2-profile-stat-copy" : "text-gray-400"}`}>Medallas obtenidas</p>
+            <p className={`text-3xl font-bold ${isLevel2User ? "user-level-2-profile-stat-value" : isLevel3User ? "user-level-3-profile-medal-value" : "text-white"}`}>{earnedMedals.length}</p>
+            <p className={`text-sm ${isLevel2User ? "user-level-2-profile-stat-copy" : isLevel3User ? "user-level-3-profile-medal-copy" : "text-gray-400"}`}>Medallas obtenidas</p>
           </CardContent>
         </Card>
       </div>
@@ -296,10 +296,10 @@ export default function Profile() {
       {/* Change password dialog */}
       {showPwDialog && (
         <Dialog open onOpenChange={(open) => { if (!open) setShowPwDialog(false); }}>
-          <DialogContent className={isLevel1User ? "user-level-1-profile-dialog max-w-sm" : isLevel2User ? "user-level-2-profile-dialog max-w-sm" : "bg-[#0f0f18] border-white/10 text-white max-w-sm"}>
+          <DialogContent className={isLevel1User ? "user-level-1-profile-dialog max-w-sm" : isLevel2User ? "user-level-2-profile-dialog max-w-sm" : isLevel3User ? "user-level-3-profile-dialog max-w-sm" : "bg-[#0f0f18] border-white/10 text-white max-w-sm"}>
             <DialogHeader>
-              <DialogTitle className={`flex items-center gap-2 ${isLevel1User ? "user-level-1-profile-dialog-title" : ""} ${isLevel2User ? "user-level-2-profile-dialog-title" : ""}`}>
-                <Lock className={`w-4 h-4 ${isLevel1User ? "user-level-1-profile-icon-soft" : isLevel2User ? "user-level-2-profile-icon-soft" : "text-purple-400"}`} />
+              <DialogTitle className={`flex items-center gap-2 ${isLevel1User ? "user-level-1-profile-dialog-title" : ""} ${isLevel2User ? "user-level-2-profile-dialog-title" : ""} ${isLevel3User ? "user-level-3-profile-dialog-title" : ""}`}>
+                <Lock className={`w-4 h-4 ${isLevel1User ? "user-level-1-profile-icon-soft" : isLevel2User ? "user-level-2-profile-icon-soft" : isLevel3User ? "user-level-3-profile-icon-soft" : "text-purple-400"}`} />
                 Cambiar contraseña
               </DialogTitle>
             </DialogHeader>
@@ -309,7 +309,7 @@ export default function Profile() {
                 <input type="password" value={pwForm.current}
                   onChange={e => setPwForm(p => ({ ...p, current: e.target.value }))}
                   placeholder="••••••"
-                  className={isLevel2User ? "user-level-2-profile-dialog-input w-full rounded-md px-3 py-2 text-sm" : "w-full bg-white/5 border border-white/10 rounded-md px-3 py-2 text-white text-sm placeholder:text-gray-600 focus:outline-none focus:border-purple-500"}
+                  className={isLevel2User ? "user-level-2-profile-dialog-input w-full rounded-md px-3 py-2 text-sm" : isLevel3User ? "user-level-3-profile-dialog-input w-full rounded-md px-3 py-2 text-sm" : "w-full bg-white/5 border border-white/10 rounded-md px-3 py-2 text-white text-sm placeholder:text-gray-600 focus:outline-none focus:border-purple-500"}
                 />
                 {pwErrors.current && <p className="text-xs text-red-400">{pwErrors.current}</p>}
               </div>
@@ -318,7 +318,7 @@ export default function Profile() {
                 <input type="password" value={pwForm.next}
                   onChange={e => setPwForm(p => ({ ...p, next: e.target.value }))}
                   placeholder="Mínimo 6 caracteres"
-                  className={isLevel2User ? "user-level-2-profile-dialog-input w-full rounded-md px-3 py-2 text-sm" : "w-full bg-white/5 border border-white/10 rounded-md px-3 py-2 text-white text-sm placeholder:text-gray-600 focus:outline-none focus:border-purple-500"}
+                  className={isLevel2User ? "user-level-2-profile-dialog-input w-full rounded-md px-3 py-2 text-sm" : isLevel3User ? "user-level-3-profile-dialog-input w-full rounded-md px-3 py-2 text-sm" : "w-full bg-white/5 border border-white/10 rounded-md px-3 py-2 text-white text-sm placeholder:text-gray-600 focus:outline-none focus:border-purple-500"}
                 />
                 {pwErrors.next && <p className="text-xs text-red-400">{pwErrors.next}</p>}
               </div>
@@ -327,17 +327,17 @@ export default function Profile() {
                 <input type="password" value={pwForm.confirm}
                   onChange={e => setPwForm(p => ({ ...p, confirm: e.target.value }))}
                   placeholder="Repetir contraseña"
-                  className={isLevel2User ? "user-level-2-profile-dialog-input w-full rounded-md px-3 py-2 text-sm" : "w-full bg-white/5 border border-white/10 rounded-md px-3 py-2 text-white text-sm placeholder:text-gray-600 focus:outline-none focus:border-purple-500"}
+                  className={isLevel2User ? "user-level-2-profile-dialog-input w-full rounded-md px-3 py-2 text-sm" : isLevel3User ? "user-level-3-profile-dialog-input w-full rounded-md px-3 py-2 text-sm" : "w-full bg-white/5 border border-white/10 rounded-md px-3 py-2 text-white text-sm placeholder:text-gray-600 focus:outline-none focus:border-purple-500"}
                 />
                 {pwErrors.confirm && <p className="text-xs text-red-400">{pwErrors.confirm}</p>}
               </div>
             </div>
             <DialogFooter>
-              <Button variant="outline" onClick={() => setShowPwDialog(false)} className={isLevel1User ? "user-level-1-profile-dialog-cancel" : isLevel2User ? "user-level-2-profile-dialog-cancel" : "border-white/10"}>
+              <Button variant="outline" onClick={() => setShowPwDialog(false)} className={isLevel1User ? "user-level-1-profile-dialog-cancel" : isLevel2User ? "user-level-2-profile-dialog-cancel" : isLevel3User ? "user-level-3-profile-dialog-cancel" : "border-white/10"}>
                 Cancelar
               </Button>
               <Button onClick={handleChangePassword} disabled={isChangingPw}
-                className={isLevel1User ? "user-level-1-profile-dialog-save" : isLevel2User ? "user-level-2-profile-dialog-save" : "bg-gradient-to-r from-purple-600 to-cyan-500 border-0"}>
+                className={isLevel1User ? "user-level-1-profile-dialog-save" : isLevel2User ? "user-level-2-profile-dialog-save" : isLevel3User ? "user-level-3-profile-dialog-save" : "bg-gradient-to-r from-purple-600 to-cyan-500 border-0"}>
                 {isChangingPw ? <Loader2 className="w-4 h-4 animate-spin" /> : "Guardar"}
               </Button>
             </DialogFooter>
@@ -350,9 +350,9 @@ export default function Profile() {
       </div>
 
       {/* Medallas */}
-      <Card className={`bg-white/5 border-white/10 mb-6 ${isLevel1User ? "user-level-1-game-card" : ""} ${isLevel2User ? "user-level-2-profile-panel" : ""}`}>
+      <Card className={`bg-white/5 border-white/10 mb-6 ${isLevel1User ? "user-level-1-game-card" : ""} ${isLevel2User ? "user-level-2-profile-panel" : ""} ${isLevel3User ? "user-level-3-profile-panel" : ""}`}>
         <CardHeader>
-          <CardTitle className={`text-white flex items-center gap-2 ${isLevel2User ? "user-level-2-profile-panel-title" : ""}`}>
+          <CardTitle className={`text-white flex items-center gap-2 ${isLevel2User ? "user-level-2-profile-panel-title" : ""} ${isLevel3User ? "user-level-3-profile-panel-title" : ""}`}>
             <span className="text-xl">🎖️</span>
             Mis medallas
           </CardTitle>
@@ -365,15 +365,15 @@ export default function Profile() {
               {earnedMedals.map((medal) => {
                 const isUrl = /^https?:\/\/|^\/|^data:/.test(medal.icon) || /\.(png|svg|jpg|webp|gif)$/i.test(medal.icon);
                 return (
-                  <div key={medal.id} className="flex items-center gap-3 p-3 rounded-lg" style={{ backgroundColor: medal.color + '11', border: `1px solid ${medal.color}33` }}>
-                    <div className="w-10 h-10 rounded-full flex items-center justify-center flex-shrink-0 text-xl" style={{ backgroundColor: medal.color + '22' }}>
+                  <div key={medal.id} className={`flex items-center gap-3 p-3 rounded-lg ${isLevel2User ? "user-level-2-profile-medal-row" : ""}`} style={{ backgroundColor: medal.color + '11', border: `1px solid ${medal.color}33` }}>
+                    <div className={`w-10 h-10 rounded-full flex items-center justify-center flex-shrink-0 text-xl ${isLevel2User ? "user-level-2-profile-medal-icon" : ""}`} style={{ backgroundColor: medal.color + '22' }}>
                       {isUrl
                         ? <img src={medal.icon} alt="" className="w-7 h-7 object-contain" />
                         : medal.icon}
                     </div>
                     <div className="min-w-0">
-                      <p className={`font-semibold text-sm text-white ${isLevel2User ? "user-level-2-profile-panel-text" : ""}`}>{medal.name}</p>
-                      <p className="text-xs text-gray-400 truncate">{medal.description}</p>
+                      <p className={`font-semibold text-sm text-white ${isLevel2User ? "user-level-2-profile-panel-text" : ""} ${isLevel3User ? "user-level-3-profile-panel-text" : ""}`}>{medal.name}</p>
+                      <p className={`text-xs text-gray-400 truncate ${isLevel3User ? "user-level-3-profile-panel-copy" : ""}`}>{medal.description}</p>
                     </div>
                   </div>
                 );
@@ -383,10 +383,10 @@ export default function Profile() {
         </CardContent>
       </Card>
 
-      <Card className={`bg-white/5 border-white/10 ${isLevel1User ? "user-level-1-game-card" : ""} ${isLevel2User ? "user-level-2-profile-panel" : ""}`}>
+      <Card className={`bg-white/5 border-white/10 ${isLevel1User ? "user-level-1-game-card" : ""} ${isLevel2User ? "user-level-2-profile-panel" : ""} ${isLevel3User ? "user-level-3-profile-panel" : ""}`}>
         <CardHeader>
-          <CardTitle className={`text-white flex items-center gap-2 ${isLevel2User ? "user-level-2-profile-panel-title" : ""}`}>
-            <Trophy className="w-5 h-5 text-yellow-500" />
+          <CardTitle className={`text-white flex items-center gap-2 ${isLevel2User ? "user-level-2-profile-panel-title user-level-2-profile-scores-title" : ""} ${isLevel3User ? "user-level-3-profile-panel-title" : ""}`}>
+            <Trophy className={`w-5 h-5 text-yellow-500 ${isLevel2User ? "user-level-2-profile-scores-trophy" : ""}`} />
             Últimas puntuaciones
           </CardTitle>
         </CardHeader>
@@ -396,14 +396,14 @@ export default function Profile() {
           ) : (
             <div className="max-h-[336px] overflow-y-auto space-y-3 pr-1 [&::-webkit-scrollbar]:hidden [scrollbar-width:none]">
               {scores.map((stat) => (
-                <div key={stat.id} className={`flex items-center justify-between p-3 bg-white/5 rounded-lg ${isLevel2User ? "user-level-2-profile-score-row" : ""}`}>
+                <div key={stat.id} className={`flex items-center justify-between p-3 bg-white/5 rounded-lg ${isLevel2User ? "user-level-2-profile-score-row" : ""} ${isLevel3User ? "user-level-3-profile-score-row" : ""}`}>
                   <div>
-                    <p className={`font-medium text-white ${isLevel2User ? "user-level-2-profile-panel-text" : ""}`}>{stat.game_title ?? 'Juego'}</p>
-                    <p className="text-xs text-gray-500">
+                    <p className={`font-medium text-white ${isLevel2User ? "user-level-2-profile-panel-text" : ""} ${isLevel3User ? "user-level-3-profile-panel-text" : ""}`}>{stat.game_title ?? 'Juego'}</p>
+                    <p className={`text-xs text-gray-500 ${isLevel2User ? "user-level-2-profile-score-date" : ""}`}>
                       {format(new Date(stat.last_played), "d MMM yyyy", { locale: es })}
                     </p>
                   </div>
-                  <span className={`text-xl font-bold ${isLevel2User ? "user-level-2-profile-score" : "text-purple-400"}`}>{(stat.last_score || 0).toLocaleString()}</span>
+                  <span className={`text-xl font-bold ${isLevel2User ? "user-level-2-profile-score" : isLevel3User ? "user-level-3-profile-score" : "text-purple-400"}`}>{(stat.last_score || 0).toLocaleString()}</span>
                 </div>
               ))}
             </div>

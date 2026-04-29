@@ -5,16 +5,17 @@ import { createServer } from 'node:net';
 const isWindows = process.platform === 'win32';
 
 function runCommand(command, args, cwd, name) {
-  const executable = isWindows && command === 'npm' ? 'npm.cmd' : command;
-  const child = spawn(executable, args, {
+  const executable = isWindows ? 'cmd.exe' : command;
+  const finalArgs = isWindows
+    ? ['/d', '/c', [command, ...args].join(' ')]
+    : args;
+
+  const child = spawn(executable, finalArgs, {
     cwd,
     shell: false,
-    stdio: ['inherit', 'pipe', 'pipe'],
+    stdio: 'inherit',
     env: process.env,
   });
-
-  child.stdout.on('data', chunk => process.stdout.write(`[${name}] ${chunk}`));
-  child.stderr.on('data', chunk => process.stderr.write(`[${name}] ${chunk}`));
 
   child.on('exit', code => {
     if (code !== 0 && code !== null) {
@@ -58,7 +59,7 @@ const serverDir = new URL('../server/', import.meta.url);
 const children = [];
 
 if (await isPortFree(3001)) {
-  children.push(runCommand('npm', ['run', 'dev'], serverDir, 'api'));
+  children.push(runCommand('node', ['src/index.js'], serverDir, 'api'));
 } else if (await isApiHealthy()) {
   console.log('[api] Reusing existing API on http://localhost:3001');
 } else {
@@ -66,7 +67,7 @@ if (await isPortFree(3001)) {
   process.exit(1);
 }
 
-children.push(runCommand('npm', ['run', 'dev:web'], rootDir, 'web'));
+children.push(runCommand('node', ['scripts/vite-dev-safe.mjs', '--configLoader', 'runner'], rootDir, 'web'));
 
 function shutdown(signal) {
   for (const child of children) {

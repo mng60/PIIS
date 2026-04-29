@@ -15,6 +15,7 @@ export default function Favorites() {
   const userLevel = isRegularUser ? getLevelFromXP(user.xp ?? 0).level : null;
   const isLevel1User = userLevel === 1;
   const isLevel2User = userLevel === 2;
+  const isLevel3User = userLevel === 3;
 
   const { data: favorites = [], isLoading: favsLoading } = useQuery({
     queryKey: ["favorites", user?.email],
@@ -58,13 +59,13 @@ export default function Favorites() {
   }
 
   return (
-    <div className={`max-w-7xl mx-auto px-4 py-8 ${isLevel1User ? "user-level-1-favorites-page" : ""} ${isLevel2User ? "user-level-2-favorites-page" : ""}`}>
+    <div className={`max-w-7xl mx-auto px-4 py-8 ${isLevel1User ? "user-level-1-favorites-page" : ""} ${isLevel2User ? "user-level-2-favorites-page" : ""} ${isLevel3User ? "user-level-3-favorites-page" : ""}`}>
       <div className="mb-8">
-        <h1 className={`text-3xl font-bold text-white mb-2 flex items-center gap-3 ${isLevel1User ? "user-level-1-favorites-title" : ""} ${isLevel2User ? "user-level-2-section-heading" : ""}`}>
-          <Heart className={`w-8 h-8 ${isLevel1User ? "user-level-1-favorites-icon" : "text-red-500 fill-red-500"} ${isLevel2User ? "user-level-2-section-icon" : ""}`} />
+        <h1 className={`text-3xl font-bold text-white mb-2 flex items-center gap-3 ${isLevel1User ? "user-level-1-favorites-title" : ""} ${isLevel2User ? "user-level-2-section-heading" : ""} ${isLevel3User ? "user-level-3-section-heading" : ""}`}>
+          <Heart className={`w-8 h-8 ${isLevel1User ? "user-level-1-favorites-icon" : "text-red-500 fill-red-500"} ${isLevel2User ? "user-level-2-section-icon" : ""} ${isLevel3User ? "user-level-3-favorites-icon" : ""}`} />
           Mis Favoritos
         </h1>
-        <p className={`text-gray-400 ${isLevel1User ? "user-level-1-favorites-count" : ""}`}>
+        <p className={`text-gray-400 ${isLevel1User ? "user-level-1-favorites-count" : ""} ${isLevel2User ? "user-level-2-favorites-count" : ""} ${isLevel3User ? "user-level-3-copy" : ""}`}>
           {favoriteGames.length} juegos guardados
         </p>
       </div>

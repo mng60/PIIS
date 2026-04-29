@@ -12,6 +12,7 @@ export default function NewGamesSlider({ games }) {
   const userLevel = isRegularUser ? getLevelFromXP(user.xp ?? 0).level : null;
   const isLevel1User = userLevel === 1;
   const isLevel2User = userLevel === 2;
+  const isLevel3User = userLevel === 3;
 
   const scroll = (direction) => {
     if (scrollRef.current) {
@@ -37,8 +38,8 @@ export default function NewGamesSlider({ games }) {
   return (
     <div className="relative">
       <h2 className="text-2xl md:text-3xl font-bold mb-6 flex items-center gap-3">
-        <Sparkles className={`w-7 h-7 ${isLevel1User ? "user-level-1-new-games-icon" : "text-cyan-400"} ${isLevel2User ? "user-level-2-section-icon" : ""}`} />
-        <span className={`${isLevel1User ? "user-level-1-new-games-heading" : ""} ${isLevel2User ? "user-level-2-section-heading" : ""}`}>Novedades</span>
+        <Sparkles className={`w-7 h-7 ${isLevel1User ? "user-level-1-new-games-icon" : "text-cyan-400"} ${isLevel2User ? "user-level-2-section-icon" : ""} ${isLevel3User ? "user-level-3-section-icon" : ""}`} />
+        <span className={`${isLevel1User ? "user-level-1-new-games-heading" : ""} ${isLevel2User ? "user-level-2-section-heading" : ""} ${isLevel3User ? "user-level-3-section-heading" : ""}`}>Novedades</span>
       </h2>
       
       {games.length > 4 && (

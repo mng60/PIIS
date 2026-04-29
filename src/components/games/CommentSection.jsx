@@ -27,6 +27,7 @@ export default function CommentSection({ gameId, comments, user, onCommentAdded 
   const userLevel = isRegularUser ? getLevelFromXP(user.xp ?? 0).level : null;
   const isLevel1User = userLevel === 1;
   const isLevel2User = userLevel === 2;
+  const isLevel3User = userLevel === 3;
 
   const handleSubmit = async (e) => {
     e.preventDefault();
@@ -50,7 +51,7 @@ export default function CommentSection({ gameId, comments, user, onCommentAdded 
       {user ? (
         <form onSubmit={handleSubmit} className="space-y-4">
           <div>
-            <label className={`block text-sm text-gray-400 mb-2 ${isLevel1User ? "user-level-1-comment-label" : ""} ${isLevel2User ? "user-level-2-comment-label" : ""}`}>Tu valoracion</label>
+            <label className={`block text-sm text-gray-400 mb-2 ${isLevel1User ? "user-level-1-comment-label" : ""} ${isLevel2User ? "user-level-2-comment-label" : ""} ${isLevel3User ? "user-level-3-comment-label" : ""}`}>Tu valoracion</label>
             <div className="flex gap-1">
               {[1, 2, 3, 4, 5].map((star) => (
                 <button
@@ -72,13 +73,13 @@ export default function CommentSection({ gameId, comments, user, onCommentAdded 
             placeholder="Escribe tu comentario..."
             value={content}
             onChange={(e) => setContent(e.target.value)}
-            className={`bg-white/5 border-white/10 text-white placeholder:text-gray-500 min-h-24 ${isLevel1User ? "user-level-1-comment-textarea" : ""} ${isLevel2User ? "user-level-2-comment-textarea" : ""}`}
+            className={`bg-white/5 border-white/10 text-white placeholder:text-gray-500 min-h-24 ${isLevel1User ? "user-level-1-comment-textarea" : ""} ${isLevel2User ? "user-level-2-comment-textarea" : ""} ${isLevel3User ? "user-level-3-comment-textarea" : ""}`}
             maxLength={800}
           />
           <Button
             type="submit"
             disabled={!content.trim() || isSubmitting}
-            className={isLevel1User ? "user-level-1-comment-button" : isLevel2User ? "user-level-2-comment-button" : "bg-gradient-to-r from-purple-600 to-cyan-500 hover:opacity-90"}
+            className={isLevel1User ? "user-level-1-comment-button" : isLevel2User ? "user-level-2-comment-button" : isLevel3User ? "user-level-3-button" : "bg-gradient-to-r from-purple-600 to-cyan-500 hover:opacity-90"}
           >
             <Send className="w-4 h-4 mr-2" />
             Publicar
@@ -101,7 +102,7 @@ export default function CommentSection({ gameId, comments, user, onCommentAdded 
           comments.map((comment) => {
             const canReport = user && comment.user_email !== user.email;
             return (
-              <div key={comment.id} className="p-4 bg-white/5 rounded-xl border border-white/5">
+              <div key={comment.id} className={`p-4 bg-white/5 rounded-xl border border-white/5 ${isLevel3User ? "user-level-3-comment-card" : ""}`}>
                 <div className="flex items-start justify-between mb-2">
                   <div>
                     <p className="font-medium text-white">{comment.user_name}</p>

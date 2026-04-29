@@ -9,9 +9,15 @@ import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { format } from "date-fns";
 import { es } from "date-fns/locale";
+import { useAuth } from "@/lib/AuthContext";
+import { getLevelFromXP } from "@/lib/levels";
 
 export default function TournamentsSection() {
+  const { user } = useAuth();
   const scrollRef = useRef(null);
+  const isRegularUser = user && user.role !== "admin" && user.role !== "empresa";
+  const userLevel = isRegularUser ? getLevelFromXP(user.xp ?? 0).level : null;
+  const isLevel3User = userLevel === 3;
 
   const { data: tournaments = [] } = useQuery({
     queryKey: ["tournaments"],
@@ -44,9 +50,9 @@ export default function TournamentsSection() {
 
   return (
     <div className="relative">
-      <h2 className="text-2xl md:text-3xl font-bold mb-6 flex items-center gap-3">
-        <Trophy className="w-7 h-7 text-yellow-400" />
-        Torneos
+      <h2 className={`text-2xl md:text-3xl font-bold mb-6 flex items-center gap-3 ${isLevel3User ? "user-level-3-section-heading" : ""}`}>
+        <Trophy className={`w-7 h-7 text-yellow-400 ${isLevel3User ? "user-level-3-section-icon" : ""}`} />
+        <span>Torneos</span>
       </h2>
 
       {activeTournaments.length > 3 && (
@@ -70,15 +76,15 @@ export default function TournamentsSection() {
           const endDate = new Date(tournament.end_date);
           return (
             <Card key={tournament.id}
-              className="flex-shrink-0 w-72 sm:w-80 bg-white/5 border-white/10 hover:bg-white/10 hover:border-yellow-500/50 transition-all duration-300 overflow-hidden group">
-              <div className="relative aspect-video bg-gradient-to-br from-yellow-900/30 to-orange-900/30">
+              className={`flex-shrink-0 w-72 sm:w-80 bg-white/5 border-white/10 hover:bg-white/10 hover:border-yellow-500/50 transition-all duration-300 overflow-hidden group ${isLevel3User ? "user-level-3-widget user-level-3-tournament-card" : ""}`}>
+              <div className={`relative aspect-video bg-gradient-to-br from-yellow-900/30 to-orange-900/30 ${isLevel3User ? "user-level-3-widget-media" : ""}`}>
                 {tournament.thumbnail ? (
                   <img src={tournament.thumbnail} alt={tournament.title} className="w-full h-full object-cover" />
                 ) : game?.thumbnail ? (
                   <img src={game.thumbnail} alt={tournament.title} className="w-full h-full object-cover opacity-60" />
                 ) : (
                   <div className="w-full h-full flex items-center justify-center">
-                    <Trophy className="w-16 h-16 text-yellow-500/30" />
+                    <Trophy className={`w-16 h-16 text-yellow-500/30 ${isLevel3User ? "user-level-3-widget-accent-soft" : ""}`} />
                   </div>
                 )}
                 <div className="absolute inset-0 bg-gradient-to-t from-black/80 to-transparent" />
@@ -89,10 +95,10 @@ export default function TournamentsSection() {
                 </Badge>
               </div>
               <div className="p-5">
-                <h3 className="font-bold text-white text-lg mb-2 line-clamp-2 group-hover:text-yellow-300 transition-colors">
+                <h3 className={`font-bold text-white text-lg mb-2 line-clamp-2 group-hover:text-yellow-300 transition-colors ${isLevel3User ? "user-level-3-widget-title" : ""}`}>
                   {tournament.title}
                 </h3>
-                <p className="text-sm text-gray-400 mb-4 line-clamp-2">{tournament.description}</p>
+                <p className={`text-sm text-gray-400 mb-4 line-clamp-2 ${isLevel3User ? "user-level-3-copy" : ""}`}>{tournament.description}</p>
                 <div className="space-y-2 text-sm">
                   <div className="flex items-center gap-2 text-gray-300">
                     <Calendar className="w-4 h-4 text-yellow-400" />

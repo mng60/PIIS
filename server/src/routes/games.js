@@ -1,6 +1,7 @@
 import { Router } from 'express';
 import { PrismaClient } from '@prisma/client';
 import { requireAuth, requireAdmin } from '../middleware/auth.js';
+import { isDatabaseConnectionError, mockGames } from '../mockData.js';
 
 const router = Router();
 const prisma = new PrismaClient();
@@ -32,16 +33,36 @@ router.get('/', async (req, res) => {
     }),
   };
 
-  const [games, total] = await prisma.$transaction([
-    prisma.game.findMany({ where, orderBy: { created_at: 'desc' }, take: parseInt(limit), skip: parseInt(offset) }),
-    prisma.game.count({ where }),
-  ]);
+  let games;
+  let total;
+  try {
+    [games, total] = await prisma.$transaction([
+      prisma.game.findMany({ where, orderBy: { created_at: 'desc' }, take: parseInt(limit), skip: parseInt(offset) }),
+      prisma.game.count({ where }),
+    ]);
+  } catch (error) {
+    if (!isDatabaseConnectionError(error)) throw error;
+    games = mockGames
+      .filter(game => all === 'true' || game.is_active)
+      .filter(game => !category || game.category === category)
+      .filter(game => !game_type || game.game_type === game_type)
+      .filter(game => featured !== 'true' || game.is_featured)
+      .filter(game => !search || `${game.title} ${game.description}`.toLowerCase().includes(String(search).toLowerCase()));
+    total = games.length;
+    games = games.slice(parseInt(offset), parseInt(offset) + parseInt(limit));
+  }
   res.json({ games, total });
 });
 
 // GET /api/games/:id
 router.get('/:id', async (req, res) => {
-  const game = await prisma.game.findUnique({ where: { id: req.params.id } });
+  let game;
+  try {
+    game = await prisma.game.findUnique({ where: { id: req.params.id } });
+  } catch (error) {
+    if (!isDatabaseConnectionError(error)) throw error;
+    game = mockGames.find(g => g.id === req.params.id || g.game_code === req.params.id);
+  }
   if (!game) return res.status(404).json({ error: 'Juego no encontrado' });
   res.json(game);
 });
@@ -77,11 +98,18 @@ router.delete('/:id', requireAdmin, async (req, res) => {
 
 // POST /api/games/:id/play - increment plays_count
 router.post('/:id/play', async (req, res) => {
-  const game = await prisma.game.update({
-    where: { id: req.params.id },
-    data: { plays_count: { increment: 1 } },
-    select: { id: true, plays_count: true },
-  });
+  let game;
+  try {
+    game = await prisma.game.update({
+      where: { id: req.params.id },
+      data: { plays_count: { increment: 1 } },
+      select: { id: true, plays_count: true },
+    });
+  } catch (error) {
+    if (!isDatabaseConnectionError(error)) throw error;
+    const mockGame = mockGames.find(g => g.id === req.params.id);
+    game = { id: req.params.id, plays_count: (mockGame?.plays_count ?? 0) + 1 };
+  }
   res.json(game);
 });
 
