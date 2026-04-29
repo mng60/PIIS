@@ -1,9 +1,8 @@
 import { Router } from 'express';
-import Groq from 'groq-sdk';
 import { requireAuth } from '../middleware/auth.js';
 
 const router = Router();
-const groq = new Groq({ apiKey: process.env.GROQ_API_KEY });
+const GROQ_API_URL = 'https://api.groq.com/openai/v1/chat/completions';
 
 // ─── System prompts por rol ────────────────────────────────────────────────
 
@@ -122,21 +121,35 @@ router.post('/chat', requireAuth, async (req, res) => {
   }));
 
   try {
-    const completion = await groq.chat.completions.create({
-      model: 'llama-3.3-70b-versatile',
-      messages: [
-        { role: 'system', content: systemPrompt },
-        ...recentHistory,
-        { role: 'user', content: message.trim() },
-      ],
-      max_tokens: 350,
-      temperature: 0.6,
+    const groqRes = await fetch(GROQ_API_URL, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        'Authorization': `Bearer ${process.env.GROQ_API_KEY}`,
+      },
+      body: JSON.stringify({
+        model: 'llama-3.3-70b-versatile',
+        messages: [
+          { role: 'system', content: systemPrompt },
+          ...recentHistory,
+          { role: 'user', content: message.trim() },
+        ],
+        max_tokens: 350,
+        temperature: 0.6,
+      }),
     });
 
-    const reply = completion.choices[0]?.message?.content || 'No pude generar una respuesta.';
+    if (!groqRes.ok) {
+      const errBody = await groqRes.text();
+      console.error('[assistant] Groq HTTP error:', groqRes.status, errBody);
+      return res.status(502).json({ error: 'Error al contactar con el asistente. Inténtalo de nuevo.' });
+    }
+
+    const data = await groqRes.json();
+    const reply = data.choices?.[0]?.message?.content || 'No pude generar una respuesta.';
     return res.json({ reply, source: 'groq' });
   } catch (err) {
-    console.error('[assistant] Groq error:', err.message);
+    console.error('[assistant] Groq fetch error:', err.message);
     return res.status(502).json({ error: 'Error al contactar con el asistente. Inténtalo de nuevo.' });
   }
 });

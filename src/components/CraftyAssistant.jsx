@@ -71,6 +71,7 @@ export default function CraftyAssistant() {
     setMessages(nextMessages);
     setInput('');
     setLoading(true);
+    inputRef.current?.focus();
 
     try {
       const history = nextMessages.slice(-7, -1); // últimos 6 antes del actual
