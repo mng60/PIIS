@@ -43,10 +43,14 @@ export default function CraftyAssistant() {
     messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' });
   }, [messages, loading]);
 
-  // Focus al input al abrir
+  // Focus al input al abrir y al terminar de cargar
   useEffect(() => {
     if (open) setTimeout(() => inputRef.current?.focus(), 100);
   }, [open]);
+
+  useEffect(() => {
+    if (!loading && open) inputRef.current?.focus();
+  }, [loading]);
 
   // Cerrar al pinchar fuera
   useEffect(() => {
@@ -71,7 +75,6 @@ export default function CraftyAssistant() {
     setMessages(nextMessages);
     setInput('');
     setLoading(true);
-    inputRef.current?.focus();
 
     try {
       const history = nextMessages.slice(-7, -1); // últimos 6 antes del actual
