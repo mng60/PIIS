@@ -20,6 +20,7 @@ import { Button } from "@/components/ui/button";
 import { Sheet, SheetContent, SheetTrigger } from "@/components/ui/sheet";
 import NotificationsPanel from "@/components/NotificationsPanel";
 import PremiumUsername from "@/components/ui/PremiumUsername";
+import CraftyAssistant from "@/components/CraftyAssistant";
 
 export default function Layout({ children }) {
   const { user, logout } = useAuth();
@@ -264,6 +265,8 @@ export default function Layout({ children }) {
       <main className="min-h-[calc(100vh-80px)]">
         {children}
       </main>
+
+      <CraftyAssistant />
 
       <footer className={`border-t py-8 mt-12 ${isDark ? "border-white/5" : "border-gray-200"}`}>
         <div className={`max-w-7xl mx-auto px-4 text-center text-sm ${isDark ? "text-gray-500" : "text-gray-400"}`}>
