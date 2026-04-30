@@ -1,4 +1,5 @@
 import React, { useEffect, useRef, useState, useCallback } from "react";
+import { useQueryClient } from "@tanstack/react-query";
 import { createChessRoom, getChessRoom, updateChessRoom, deleteChessRoom, requestAiMove, requestGameSummary } from "@/api/chess";
 import { Button } from "@/components/ui/button";
 import { toast } from "sonner";
@@ -59,6 +60,7 @@ export default function ChessVsAIGame({
   onCoachMessage,
   onAnalysisLoadingChange,
 }) {
+  const queryClient = useQueryClient();
   const [board, setBoard] = useState(initBoard());
   const [currentTurn, setCurrentTurn] = useState("white");
   const [selectedSquare, setSelectedSquare] = useState(null);
@@ -235,8 +237,9 @@ export default function ChessVsAIGame({
       coachMessages: nextMessages,
     });
 
+    queryClient.invalidateQueries({ queryKey: ['myActiveChessGames'] });
     onAnalysisLoadingChange?.(false);
-  }, [onAnalysisLoadingChange, onCoachMessage, syncRoomState, user?.email]);
+  }, [onAnalysisLoadingChange, onCoachMessage, queryClient, syncRoomState, user?.email]);
 
   const resolveAiTurn = useCallback(async ({
     boardAfterPlayer,
@@ -358,35 +361,47 @@ export default function ChessVsAIGame({
 
       try {
         if (initialRoomCode) {
-          const room = await getChessRoom(initialRoomCode);
-          if (!cancelled && room?.is_vs_ai && room.host_email === user?.email) {
-            const { board: savedBoard, meta } = safeParseBoardState(room.board_state);
-            const savedHistory = Array.isArray(meta?.moveHistory) ? meta.moveHistory : [];
-            const savedMovePairs = Array.isArray(meta?.movePairs) ? meta.movePairs : [];
-            const savedCoachMessages = Array.isArray(meta?.coachMessages) && meta.coachMessages.length
-              ? meta.coachMessages
-              : [buildVsAiIntroMessage(room.ai_difficulty ?? difficulty)];
+          try {
+            const room = await getChessRoom(initialRoomCode);
+            if (!cancelled && room?.is_vs_ai && room.host_email === user?.email) {
+              const { board: savedBoard, meta } = safeParseBoardState(room.board_state);
+              const savedHistory = Array.isArray(meta?.moveHistory) ? meta.moveHistory : [];
+              const savedMovePairs = Array.isArray(meta?.movePairs) ? meta.movePairs : [];
+              const savedCoachMessages = Array.isArray(meta?.coachMessages) && meta.coachMessages.length
+                ? meta.coachMessages
+                : [buildVsAiIntroMessage(room.ai_difficulty ?? difficulty)];
 
-            roomCodeRef.current = room.room_code;
-            boardRef.current = savedBoard;
-            movePairsRef.current = savedMovePairs;
-            moveHistoryRef.current = savedHistory;
-            coachMessagesRef.current = savedCoachMessages;
-            gameOverRef.current = room.status === "finished";
-            autoResumeAttemptedRef.current = false;
+              roomCodeRef.current = room.room_code;
+              boardRef.current = savedBoard;
+              movePairsRef.current = savedMovePairs;
+              moveHistoryRef.current = savedHistory;
+              coachMessagesRef.current = savedCoachMessages;
+              gameOverRef.current = room.status === "finished";
+              autoResumeAttemptedRef.current = false;
 
-            setBoard(savedBoard);
-            setHistoryState(savedHistory);
-            setCheckState(!!meta?.playerInCheck);
-            setSelectedSquare(null);
-            setValidMoves([]);
-            setCurrentTurn(room.status === "finished" ? null : (room.current_turn || "white"));
-            setGameStatus(room.status === "waiting" ? "playing" : room.status);
-            setWinner(mapWinnerToResult(room.winner, user?.email));
-            setAiThinking(false);
-            setRoomReady(true);
+              setBoard(savedBoard);
+              setHistoryState(savedHistory);
+              setCheckState(!!meta?.playerInCheck);
+              setSelectedSquare(null);
+              setValidMoves([]);
+              setCurrentTurn(room.status === "finished" ? null : (room.current_turn || "white"));
+              setGameStatus(room.status === "waiting" ? "playing" : room.status);
+              setWinner(mapWinnerToResult(room.winner, user?.email));
+              setAiThinking(false);
+              setRoomReady(true);
+              return;
+            }
+          } catch {
+            if (!cancelled) {
+              onLeave?.();
+            }
             return;
           }
+
+          if (!cancelled) {
+            onLeave?.();
+          }
+          return;
         }
 
         const code = Math.random().toString(36).substring(2, 8).toUpperCase() + "A";
@@ -435,7 +450,7 @@ export default function ChessVsAIGame({
 
     setup();
     return () => { cancelled = true; };
-  }, [difficulty, initialRoomCode, setCheckState, setHistoryState, user?.email]);
+  }, [difficulty, initialRoomCode, onLeave, setCheckState, setHistoryState, user?.email]);
 
   useEffect(() => {
     if (!roomReady) return;
@@ -535,9 +550,10 @@ export default function ChessVsAIGame({
     }
   };
 
-  const handleLeave = () => {
+  const handleLeave = async () => {
     if (roomCodeRef.current && gameStatus === "finished") {
-      deleteChessRoom(roomCodeRef.current).catch(() => {});
+      await deleteChessRoom(roomCodeRef.current).catch(() => {});
+      queryClient.invalidateQueries({ queryKey: ['myActiveChessGames'] });
     }
     onLeave?.();
   };
