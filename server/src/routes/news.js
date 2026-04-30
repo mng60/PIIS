@@ -117,7 +117,12 @@ function looksLikeXml(payload) {
   return sample.startsWith('<?xml') || sample.startsWith('<rss') || sample.startsWith('<feed');
 }
 
+function getContentType(response) {
+  return response.headers?.get?.('content-type') || 'unknown';
+}
+
 async function fetchFeedUrl(feed, url) {
+  const startedAt = Date.now();
   const response = await fetchCompat(url, {
     timeoutMs: FEED_TIMEOUT_MS,
     headers: {
@@ -131,6 +136,7 @@ async function fetchFeedUrl(feed, url) {
     throw new Error(`HTTP ${response.status} en ${url}`);
   }
 
+  const contentType = getContentType(response);
   const xml = await response.text();
   if (!looksLikeXml(xml)) {
     throw new Error(`Respuesta no XML en ${url}`);
@@ -142,6 +148,11 @@ async function fetchFeedUrl(feed, url) {
   if (items.length === 0) {
     throw new Error(`Feed sin items en ${url}`);
   }
+
+  const durationMs = Date.now() - startedAt;
+  console.log(
+    `[news] feed ok source=${feed.name} status=${response.status} items=${Math.min(items.length, ITEMS_PER_FEED)} duration=${durationMs}ms type=${contentType}`
+  );
 
   return items.slice(0, ITEMS_PER_FEED).map(item => ({
     title: stripHtml(text(item.title)).slice(0, 160) || '-',
@@ -158,11 +169,13 @@ async function fetchFeed(feed) {
   let lastError = null;
 
   for (const url of urls) {
+    const startedAt = Date.now();
     try {
       return await fetchFeedUrl(feed, url);
     } catch (error) {
       lastError = error;
-      console.warn(`[news] ${feed.name} fallo con ${url}: ${error.message}`);
+      const durationMs = Date.now() - startedAt;
+      console.warn(`[news] feed fail source=${feed.name} url=${url} duration=${durationMs}ms error=${error.message}`);
     }
   }
 
@@ -171,12 +184,15 @@ async function fetchFeed(feed) {
 
 router.get('/', async (_req, res) => {
   const now = Date.now();
+  const startedAt = Date.now();
 
   if (cachedNews && now - cachedAt < CACHE_TTL) {
     return res.json(cachedNews);
   }
 
   const results = await Promise.allSettled(FEEDS.map(fetchFeed));
+  const okFeeds = results.filter(result => result.status === 'fulfilled').length;
+  const failedFeeds = results.length - okFeeds;
 
   const news = results
     .filter(result => result.status === 'fulfilled')
@@ -186,13 +202,22 @@ router.get('/', async (_req, res) => {
   if (news.length > 0) {
     cachedNews = news;
     cachedAt = now;
+    console.log(
+      `[news] response source=live items=${news.length} feeds_ok=${okFeeds} feeds_fail=${failedFeeds} duration=${Date.now() - startedAt}ms`
+    );
     return res.json(news);
   }
 
   if (cachedNews) {
+    console.warn(
+      `[news] response source=stale-cache items=${cachedNews.length} feeds_ok=${okFeeds} feeds_fail=${failedFeeds} duration=${Date.now() - startedAt}ms`
+    );
     return res.json(cachedNews);
   }
 
+  console.error(
+    `[news] response source=error feeds_ok=${okFeeds} feeds_fail=${failedFeeds} duration=${Date.now() - startedAt}ms`
+  );
   return res.status(503).json({ error: 'No se pudieron obtener noticias de los feeds externos' });
 });
 

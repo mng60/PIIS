@@ -30,6 +30,7 @@ import assistantRoutes from './routes/assistant.js';
 
 const app = express();
 const PORT = process.env.PORT || 3001;
+const SLOW_REQUEST_MS = 1500;
 
 const allowedOrigins = process.env.FRONTEND_URL
   ? process.env.FRONTEND_URL.split(',').map(o => o.trim())
@@ -46,6 +47,25 @@ app.use(cors({
   credentials: true,
 }));
 app.use(express.json({ limit: '10mb' }));
+
+app.use((req, res, next) => {
+  const startedAt = Date.now();
+
+  res.on('finish', () => {
+    const durationMs = Date.now() - startedAt;
+    const isNewsRoute = req.originalUrl.startsWith('/api/news');
+    const isSlow = durationMs >= SLOW_REQUEST_MS;
+    const isServerError = res.statusCode >= 500;
+
+    if (isNewsRoute || isSlow || isServerError) {
+      console.log(
+        `[http] ${req.method} ${req.originalUrl} -> ${res.statusCode} (${durationMs}ms)`
+      );
+    }
+  });
+
+  next();
+});
 
 // Routes
 app.use('/api/auth', authRoutes);
