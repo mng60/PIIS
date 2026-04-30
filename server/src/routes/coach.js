@@ -2,10 +2,17 @@ import { Router } from 'express';
 import { PrismaClient } from '@prisma/client';
 import { requireAuth } from '../middleware/auth.js';
 import { Chess } from 'chess.js';
-import stockfish from '../services/stockfishService.js';
-
 const router = Router();
 const prisma = new PrismaClient();
+
+let stockfishPromise = null;
+
+async function getStockfish() {
+  if (!stockfishPromise) {
+    stockfishPromise = import('../services/stockfishService.js').then(mod => mod.default);
+  }
+  return stockfishPromise;
+}
 
 // ─── Helpers ──────────────────────────────────────────────────────────────────
 
@@ -66,6 +73,7 @@ router.post('/ai-move', requireAuth, async (req, res) => {
 
   // Verify room is a vs AI room
   const room = await prisma.chessRoom.findUnique({ where: { room_code } });
+  const stockfish = await getStockfish();
   if (!room || !room.is_vs_ai) {
     return res.status(404).json({ error: 'Sala vs IA no encontrada' });
   }
@@ -136,6 +144,7 @@ router.post('/ai-move', requireAuth, async (req, res) => {
 // Returns: { accuracy, blunders, mistakes, inaccuracies, feedback }
 router.post('/game-summary', requireAuth, async (req, res) => {
   const { room_code, moves = [], result = 'unknown' } = req.body;
+  const stockfish = await getStockfish();
 
   const ready = await stockfish.waitUntilReady(10000);
   if (!ready) {
