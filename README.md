@@ -95,7 +95,7 @@ El seed hace dos cosas:
 | Usuario | usuario@playcraft.com | user1234 |
 | Empresa | empresa@playcraft.com | empresa123 |
 
-2. **Importa los juegos de producción** — descarga todos los juegos de la API de prod y los inserta en tu BD con `plays_count`, `rating_sum` y `rating_count` a 0. Los scores y comentarios de prod no se importan, así que esos contadores no tendrían sentido. Si ya tienes los juegos y vuelves a ejecutar el seed, solo actualiza los campos de contenido sin tocar tus contadores locales.
+2. **Importa los juegos de producción** — descarga todos los juegos de la API de prod y los inserta en tu BD con `plays_count`, `rating_sum` y `rating_count` a 0. Si la API de prod no responde, usa los 3 juegos locales de respaldo para que el seed siga funcionando. Los scores y comentarios de prod no se importan, así que esos contadores no tendrían sentido. Si ya tienes los juegos y vuelves a ejecutar el seed, solo actualiza los campos de contenido sin tocar tus contadores locales.
 
 El resto de tablas (`Comment`, `Favorite`, `Tournament`, `GameSession`, `ChessRoom`, `ChatMessage`, `Report`, `UserAchievement`…) se quedan vacías y se van rellenando mientras pruebas en local.
 

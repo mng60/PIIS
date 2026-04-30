@@ -28,18 +28,12 @@ export default function GameArea({
 
   useChessGame({ isPlaying, user, gameId, iframeRef, onRoomCodeChange: onChatSessionIdChange });
 
-  // Fetch HTML5 game content
+  // For HTML5 games with inline content, use srcDoc; otherwise use src directly
   useEffect(() => {
     if (game?.game_type !== 'html5') return;
     if (game.html_content) { setIframeSrcDoc(game.html_content); return; }
-    if (!game.game_url) return;
-    let cancelled = false;
-    fetch(game.game_url)
-      .then(r => r.text())
-      .then(html => { if (!cancelled) setIframeSrcDoc(html); })
-      .catch(console.error);
-    return () => { cancelled = true; };
-  }, [game?.html_content, game?.game_url, game?.game_type]);
+    setIframeSrcDoc(null);
+  }, [game?.html_content, game?.game_type]);
 
   // Forward score/game-over messages from the iframe to the parent handler
   useEffect(() => {
@@ -85,7 +79,7 @@ export default function GameArea({
     }
     if (game.game_type === 'html5') {
       if (!isPlaying) return <GameCover game={game} onPlay={onPlay} />;
-      if (!iframeSrcDoc) return (
+      if (!iframeSrcDoc && !game.game_url) return (
         <div className="aspect-video flex items-center justify-center">
           <Loader2 className="w-8 h-8 animate-spin text-purple-500" />
         </div>
@@ -93,7 +87,7 @@ export default function GameArea({
       return (
         <iframe
           ref={iframeRef}
-          srcDoc={iframeSrcDoc}
+          {...(iframeSrcDoc ? { srcDoc: iframeSrcDoc } : { src: game.game_url })}
           className="w-full aspect-video"
           sandbox="allow-scripts allow-forms allow-modals allow-pointer-lock"
           allow="pointer-lock"

@@ -11,6 +11,7 @@ import Login from './pages/Login';
 import Home from './pages/Home';
 import Games from './pages/Games';
 import GameDetail from './pages/GameDetail';
+import ExternalGameEmbed from './pages/ExternalGameEmbed';
 import Favorites from './pages/Favorites';
 import Profile from './pages/Profile';
 import Admin from './pages/Admin';
@@ -37,6 +38,7 @@ const AppRoutes = () => {
         <Route path="/" element={<Layout><Home /></Layout>} />
         <Route path="/games" element={<Layout><Games /></Layout>} />
         <Route path="/games/:id" element={<Layout><GameDetail /></Layout>} />
+        <Route path="/external-game" element={<Layout><ExternalGameEmbed /></Layout>} />
         <Route path="/favorites" element={<Layout><Favorites /></Layout>} />
         <Route path="/profile" element={<Layout><Profile /></Layout>} />
         <Route path="/admin" element={<Layout><Admin /></Layout>} />

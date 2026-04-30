@@ -46,6 +46,19 @@ const games = [
     publisher: 'PlayCraft',
     created_by: 'admin@playcraft.com',
   },
+  {
+    title: 'Settlers of Catan',
+    description: 'Clon web multijugador de Settlers of Catan.',
+    full_description: 'Juego multijugador web embebido en PIISy mediante iframe para jugar sin salir de la plataforma.',
+    category: 'arcade',
+    game_type: 'html5',
+    game_code: 'settlers-of-catan',
+    game_url: 'https://catan-rouge.vercel.app/',
+    is_active: true,
+    is_multiplayer: true,
+    publisher: 'External',
+    created_by: 'admin@playcraft.com',
+  },
 ];
 
 async function main() {
@@ -62,7 +75,14 @@ async function main() {
 
   console.log('\nSembrando juegos...\n');
   for (const g of games) {
-    const existing = await prisma.game.findFirst({ where: { game_code: g.game_code } });
+    const existing = await prisma.game.findFirst({
+      where: {
+        OR: [
+          { game_code: g.game_code },
+          ...(g.game_code === 'settlers-of-catan' ? [{ game_code: 'settlers-of-hexagonia' }, { game_code: 'traders-of-nadak' }, { game_code: 'external-demo' }] : []),
+        ],
+      },
+    });
     if (existing) {
       await prisma.game.update({ where: { id: existing.id }, data: g });
       console.log(`  [actualizado]  ${g.title}`);
