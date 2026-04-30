@@ -222,27 +222,20 @@ router.patch('/:room_code', requireAuth, async (req, res) => {
       const opponentEmail = requesterEmail === room.host_email ? room.guest_email : room.host_email;
       const requesterName = requesterEmail === room.host_email ? room.host_name : (room.guest_name ?? 'Rival');
 
-      // Si el rival estuvo activo en los últimos 45s está en la sala → el UI in-game ya lo notifica
-      const opponent = await prisma.user.findUnique({ where: { email: opponentEmail }, select: { last_seen: true } });
-      const onlineThreshold = new Date(Date.now() - 45_000);
-      const opponentIsOnline = opponent?.last_seen && new Date(opponent.last_seen) > onlineThreshold;
+      // Eliminar oferta previa del mismo room para no acumular
+      await prisma.notification.deleteMany({
+        where: { user_email: opponentEmail, type: 'draw_offer' },
+      });
 
-      if (!opponentIsOnline) {
-        // Eliminar oferta previa del mismo room para no acumular
-        await prisma.notification.deleteMany({
-          where: { user_email: opponentEmail, type: 'draw_offer' },
-        });
-
-        await prisma.notification.create({
-          data: {
-            user_email: opponentEmail,
-            type: 'draw_offer',
-            from_email: requesterEmail,
-            from_name: requesterName,
-            data: { room_code: room.room_code, game_id: notify_game_id ?? null, game_title: 'Ajedrez' },
-          },
-        });
-      }
+      await prisma.notification.create({
+        data: {
+          user_email: opponentEmail,
+          type: 'draw_offer',
+          from_email: requesterEmail,
+          from_name: requesterName,
+          data: { room_code: room.room_code, game_id: notify_game_id ?? null, game_title: 'Ajedrez' },
+        },
+      });
     } catch {}
   }
 });

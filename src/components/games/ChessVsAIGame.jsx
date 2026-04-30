@@ -556,7 +556,7 @@ export default function ChessVsAIGame({
   };
 
   const handleLeave = async () => {
-    if (roomCodeRef.current && gameStatus === "finished") {
+    if (roomCodeRef.current) {
       const roomCode = roomCodeRef.current;
       await deleteChessRoom(roomCodeRef.current).catch(() => {});
       roomCodeRef.current = null;
