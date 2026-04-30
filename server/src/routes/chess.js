@@ -116,15 +116,26 @@ router.get('/my-active-games', requireAuth, async (req, res) => {
     .filter(r => !timedOutCodes.has(r.room_code))
     .map(room => {
       const isHost = room.host_email === email;
+      const isVsAi = !!room.is_vs_ai;
+      const aiDifficulty = room.ai_difficulty ?? 2;
+
       return {
         room_code: room.room_code,
         game_id: chessGame?.id ?? null,
-        opponent_name: isHost ? (room.guest_name ?? 'Esperando rival') : room.host_name,
-        opponent_avatar: isHost ? room.guest_avatar_url : room.host_avatar_url,
-        my_color: isHost ? 'white' : 'black',
+        opponent_name: isVsAi
+          ? `Entrenador (${aiDifficulty})`
+          : (isHost ? (room.guest_name ?? 'Esperando rival') : room.host_name),
+        opponent_avatar: isVsAi
+          ? null
+          : (isHost ? room.guest_avatar_url : room.host_avatar_url),
+        my_color: isVsAi ? 'white' : (isHost ? 'white' : 'black'),
         current_turn: room.current_turn,
-        is_my_turn: isHost ? room.current_turn === 'white' : room.current_turn === 'black',
+        is_my_turn: isVsAi
+          ? room.current_turn === 'white'
+          : (isHost ? room.current_turn === 'white' : room.current_turn === 'black'),
         game_mode: room.game_mode,
+        is_vs_ai: isVsAi,
+        ai_difficulty: aiDifficulty,
       };
     });
 
@@ -154,7 +165,7 @@ router.get('/:room_code', async (req, res) => {
 
 // POST /api/chess
 router.post('/', requireAuth, async (req, res) => {
-  const { room_code, board_state, game_mode, host_elo } = req.body;
+  const { room_code, board_state, game_mode, host_elo, is_vs_ai, ai_difficulty, status, current_turn } = req.body;
   if (!room_code || !board_state) return res.status(400).json({ error: 'Faltan campos obligatorios' });
   const room = await prisma.chessRoom.create({
     data: {
@@ -165,6 +176,10 @@ router.post('/', requireAuth, async (req, res) => {
       host_avatar_url: req.user.avatar_url || null,
       game_mode: game_mode || 'normal',
       host_elo: host_elo ?? 1200,
+      is_vs_ai: is_vs_ai ?? false,
+      ai_difficulty: ai_difficulty ?? 2,
+      ...((status || is_vs_ai) ? { status: status || 'playing' } : {}),
+      ...(current_turn ? { current_turn } : {}),
     },
   });
   res.status(201).json(room);
@@ -207,27 +222,20 @@ router.patch('/:room_code', requireAuth, async (req, res) => {
       const opponentEmail = requesterEmail === room.host_email ? room.guest_email : room.host_email;
       const requesterName = requesterEmail === room.host_email ? room.host_name : (room.guest_name ?? 'Rival');
 
-      // Si el rival estuvo activo en los últimos 45s está en la sala → el UI in-game ya lo notifica
-      const opponent = await prisma.user.findUnique({ where: { email: opponentEmail }, select: { last_seen: true } });
-      const onlineThreshold = new Date(Date.now() - 45_000);
-      const opponentIsOnline = opponent?.last_seen && new Date(opponent.last_seen) > onlineThreshold;
+      // Eliminar oferta previa del mismo room para no acumular
+      await prisma.notification.deleteMany({
+        where: { user_email: opponentEmail, type: 'draw_offer' },
+      });
 
-      if (!opponentIsOnline) {
-        // Eliminar oferta previa del mismo room para no acumular
-        await prisma.notification.deleteMany({
-          where: { user_email: opponentEmail, type: 'draw_offer' },
-        });
-
-        await prisma.notification.create({
-          data: {
-            user_email: opponentEmail,
-            type: 'draw_offer',
-            from_email: requesterEmail,
-            from_name: requesterName,
-            data: { room_code: room.room_code, game_id: notify_game_id ?? null, game_title: 'Ajedrez' },
-          },
-        });
-      }
+      await prisma.notification.create({
+        data: {
+          user_email: opponentEmail,
+          type: 'draw_offer',
+          from_email: requesterEmail,
+          from_name: requesterName,
+          data: { room_code: room.room_code, game_id: notify_game_id ?? null, game_title: 'Ajedrez' },
+        },
+      });
     } catch {}
   }
 });
@@ -235,7 +243,11 @@ router.patch('/:room_code', requireAuth, async (req, res) => {
 // DELETE /api/chess/:room_code
 router.delete('/:room_code', requireAuth, async (req, res) => {
   await cleanupChatMessages(req.params.room_code);
-  await prisma.chessRoom.delete({ where: { room_code: req.params.room_code } });
+  try {
+    await prisma.chessRoom.delete({ where: { room_code: req.params.room_code } });
+  } catch {
+    // P2025: room already deleted or never existed — not an error
+  }
   res.status(204).end();
 });
 

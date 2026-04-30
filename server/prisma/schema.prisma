@@ -328,6 +328,8 @@ model ChessRoom {
   guest_avatar_url String?
   elo_processed    Boolean     @default(false)
   game_mode        String      @default("normal")
+  is_vs_ai         Boolean     @default(false)
+  ai_difficulty    Int         @default(2)
   status           ChessStatus @default(waiting)
   current_turn     TurnColor   @default(white)
   board_state      String

@@ -5,10 +5,8 @@ import { recordAbandon } from "@/api/users";
 import { useAbandonWarning } from "@/lib/abandonWarning";
 import { useCurrentRoom } from "@/lib/CurrentRoomContext";
 import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
-import { Card } from "@/components/ui/card";
 import { toast } from "sonner";
-import { Loader2, Copy, Trophy, Settings, Scale, LogOut, Check } from "lucide-react";
+import { Copy, Trophy, Scale, LogOut, Check } from "lucide-react";
 
 import {
   Dialog,
@@ -38,11 +36,12 @@ import {
 
 import { joinQueue, getMatchStatus, cancelSearch } from "@/api/matchmaking";
 import { initBoard, safeParseBoardState, packBoardState, FILES, getPieceColor, getPieceType } from "@/components/chess/chessState";
-import { calculateValidMoves } from "@/components/chess/chessMoves";
+import { calculateValidMoves, getLegalMoves, isSquareAttacked } from "@/components/chess/chessMoves";
 import { PIECE_SETS, renderPieceNode, getPieceDataUri } from "@/components/chess/chessPieces";
 import { TIME_LIMITS, initClockFromMinutes, formatMs, getDisplayedMs, applyClockOnMove } from "@/components/chess/chessClock";
 import OnlineGameLobby from "@/components/games/OnlineGameLobby";
 import OnlineGamePlayerZone from "@/components/games/OnlineGamePlayerZone";
+import ChessVsAIGame from "@/components/games/ChessVsAIGame";
 
 
 const BOARD_THEMES = {
@@ -63,7 +62,8 @@ const nickName = (name) => {
   return name;
 };
 
-export default function ChessOnlineGame({ user, gameId, myEloRating = 1200, onScoreUpdate, onEloApplied, onRoomCodeChange, onMoveHistoryChange, initialRoomCode, onLeave }) {
+export default function ChessOnlineGame({ user, gameId, myEloRating = 1200, onScoreUpdate, onEloApplied, onRoomCodeChange, onMoveHistoryChange, initialRoomCode, onLeave, onVsAiChange, onVsAiRestore, onVsAiMessage, onVsAiAnalysisLoading }) {
+  const [vsAiDifficulty, setVsAiDifficulty] = useState(null);
   const [screen, setScreen] = useState("lobby");
   const [roomCode, setRoomCode] = useState("");
   useEffect(() => {
@@ -308,6 +308,16 @@ export default function ChessOnlineGame({ user, gameId, myEloRating = 1200, onSc
         metaRef.current = meta || {};
         setCurrentTurn(room.current_turn || "white");
 
+        if (room.is_vs_ai) {
+          setVsAiDifficulty(room.ai_difficulty ?? 2);
+          onVsAiRestore?.({
+            difficulty: room.ai_difficulty ?? 2,
+            messages: Array.isArray(meta?.coachMessages) ? meta.coachMessages : [],
+          });
+          if (!cancelled) setLoading(false);
+          return;
+        }
+
         if (user.email === room.host_email) {
           setRoomCode(initialRoomCode);
           setPlayerColor("white");
@@ -340,7 +350,11 @@ export default function ChessOnlineGame({ user, gameId, myEloRating = 1200, onSc
           startPolling();
         }
       } catch (e) {
-        if (!cancelled) { console.error(e); setError("Error al unirse a la partida"); }
+        if (!cancelled) {
+          console.error(e);
+          setError("Error al unirse a la partida");
+          onLeave?.();
+        }
       }
       if (!cancelled) setLoading(false);
     };
@@ -460,8 +474,30 @@ export default function ChessOnlineGame({ user, gameId, myEloRating = 1200, onSc
         setMoveHistory(newHistory);
         if (onMoveHistoryChange) onMoveHistoryChange(newHistory);
 
+        // Detección de jaque mate: rey rival en jaque sin movimientos legales
+        const opponentColor = nextTurn;
+        const opponentKingCode = opponentColor === 'white' ? 'wK' : 'bK';
+        let opKr = -1, opKc = -1;
+        outerKing: for (let r = 0; r < 8; r++) {
+          for (let c = 0; c < 8; c++) {
+            if (newBoard[r][c] === opponentKingCode) { opKr = r; opKc = c; break outerKing; }
+          }
+        }
+        let isCheckmate = false;
+        if (opKr !== -1 && isSquareAttacked(newBoard, opKr, opKc, currentTurn)) {
+          let hasLegal = false;
+          outerLegal: for (let r = 0; r < 8; r++) {
+            for (let c = 0; c < 8; c++) {
+              if (newBoard[r][c] && getPieceColor(newBoard[r][c]) === opponentColor) {
+                if (getLegalMoves(newBoard, r, c).length > 0) { hasLegal = true; break outerLegal; }
+              }
+            }
+          }
+          if (!hasLegal) isCheckmate = true;
+        }
+
         try {
-          if (capturedPiece && getPieceType(capturedPiece) === "K") {
+          if (isCheckmate || (capturedPiece && getPieceType(capturedPiece) === "K")) {
             didAwardRef.current = false;
             await updateChessRoom(roomCodeRef.current, {
               board_state: packBoardState(newBoard, nextMeta),
@@ -864,6 +900,25 @@ export default function ChessOnlineGame({ user, gameId, myEloRating = 1200, onSc
     didSyncNameRef.current = false;
   };
 
+  if (vsAiDifficulty !== null) {
+    return (
+      <ChessVsAIGame
+        user={user}
+        difficulty={vsAiDifficulty}
+        initialRoomCode={initialRoomCode}
+        onMoveHistoryChange={onMoveHistoryChange}
+        onCoachMessage={onVsAiMessage}
+        onAnalysisLoadingChange={onVsAiAnalysisLoading}
+        onLeave={() => {
+          setVsAiDifficulty(null);
+          if (onMoveHistoryChange) onMoveHistoryChange([]);
+          onVsAiChange?.(false, null);
+          onLeave?.();
+        }}
+      />
+    );
+  }
+
   if (screen === "lobby") {
     return (
       <OnlineGameLobby
@@ -879,6 +934,8 @@ export default function ChessOnlineGame({ user, gameId, myEloRating = 1200, onSc
         onCancelSearch={handleCancelSearch}
         loading={loading}
         error={error}
+        showVsAI
+        onVsAI={(diff) => { setVsAiDifficulty(diff); onVsAiChange?.(true, diff); }}
       />
     );
   }
@@ -967,7 +1024,19 @@ export default function ChessOnlineGame({ user, gameId, myEloRating = 1200, onSc
           </div>
         )}
       <div className="grid grid-cols-8 border-2 border-white/10 rounded-lg overflow-hidden shadow-2xl w-full h-full">
-        {Array.from({ length: 8 }).map((_, ri) => {
+        {(() => {
+          const myKingCode = playerColor === 'white' ? 'wK' : 'bK';
+          let myKr = -1, myKc = -1;
+          if (playerColor) {
+            outer: for (let r = 0; r < 8; r++) {
+              for (let c = 0; c < 8; c++) {
+                if (board[r][c] === myKingCode) { myKr = r; myKc = c; break outer; }
+              }
+            }
+          }
+          const myKingInCheck = myKr !== -1 && isSquareAttacked(board, myKr, myKc, playerColor === 'white' ? 'black' : 'white');
+
+          return Array.from({ length: 8 }).map((_, ri) => {
           const row = flip ? 7 - ri : ri;
           return Array.from({ length: 8 }).map((_, ci) => {
             const col = flip ? 7 - ci : ci;
@@ -976,6 +1045,7 @@ export default function ChessOnlineGame({ user, gameId, myEloRating = 1200, onSc
             const isLight = (row + col) % 2 === 0;
             const isSelected = selectedSquare?.row === row && selectedSquare?.col === col;
             const isValidMove = validMoves.some((m) => m.row === row && m.col === col);
+            const isKingInCheck = myKingInCheck && piece === myKingCode;
 
             const bg = isLight ? theme.light : theme.dark;
             const labelColor = isLight ? theme.labelLight : theme.labelDark;
@@ -984,7 +1054,7 @@ export default function ChessOnlineGame({ user, gameId, myEloRating = 1200, onSc
               <div
                 key={`${row}-${col}`}
                 onClick={() => (canInteract ? handleSquareClick(row, col) : null)}
-                className={`aspect-square flex items-center justify-center relative overflow-hidden ${canInteract ? "cursor-pointer hover:brightness-110" : "cursor-default"} ${isSelected ? "ring-4 ring-yellow-400 ring-inset" : ""}`}
+                className={`aspect-square flex items-center justify-center relative overflow-hidden ${canInteract ? "cursor-pointer hover:brightness-110" : "cursor-default"} ${isSelected ? "ring-4 ring-yellow-400 ring-inset" : isKingInCheck ? "ring-4 ring-red-500 ring-inset" : ""}`}
                 style={{ backgroundColor: bg }}
               >
                 {piece && renderPieceNode(piece, pieceSet)}
@@ -1008,7 +1078,8 @@ export default function ChessOnlineGame({ user, gameId, myEloRating = 1200, onSc
               </div>
             );
           });
-        })}
+        });
+        })()}
       </div>
       </div>
 

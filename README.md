@@ -25,6 +25,10 @@ Plataforma de juegos web — Proyecto Universitario PIIS.
 - **Base de datos:** PostgreSQL (Neon)
 - **Auth:** JWT (localStorage)
 
+## Personalizar Crafty
+
+La foto del asistente se carga desde `public/crafty.png`. Si quieres cambiar la imagen de Crafty, sustituye ese archivo por otra imagen con el mismo nombre.
+
 ---
 
 ## Puesta en marcha
@@ -564,19 +568,21 @@ Disponibles para cualquier juego multijugador:
 
 ---
 
-## Partidas activas en segundo plano (actualmente solo ajedrez)
+## Partidas activas en segundo plano (ajedrez online + entrenador)
 
-El sistema permite tener **varias partidas simultáneas** de un mismo juego. Mientras el usuario navega por la plataforma, un widget persistente (bottom-right) le recuerda sus partidas en curso e indica en cuáles es su turno. Al pinchar navega directamente a la sala.
+El sistema permite tener **varias partidas simultáneas** de ajedrez. Mientras el usuario navega por la plataforma, un widget persistente (bottom-left) le recuerda sus partidas en curso e indica en cuáles es su turno. Al pinchar navega directamente a la sala.
 
 ### Cómo funciona
 
 - `ActiveChessGamesAlert` hace polling cada 15 s a `GET /api/chess/my-active-games`.
+- El endpoint devuelve tanto partidas **1v1 online** como partidas **vs AI** que sigan en estado `playing`.
 - El servidor devuelve las partidas activas del usuario y, **antes de responder**, comprueba si alguna ha expirado por tiempo usando el campo `lastTickAt` almacenado en `board_state.meta.clock`:
   - Si `ahora - lastTickAt > ms_restantes_del_jugador_en_turno` → la partida se cierra automáticamente.
   - Se notifica a ambos jugadores vía el panel de notificaciones (`game_timeout`).
   - Si la partida era ranked y aún no se había procesado el ELO, se procesa en ese momento.
   - Si la partida estaba ligada a un torneo, se avanza el bracket.
 - Partidas sin límite de tiempo (`clock === null`) nunca expiran en segundo plano.
+- En `vs AI`, el tablero y el contexto del entrenador se guardan en `board_state.meta` (`movePairs`, `moveHistory`, `coachMessages`, `playerInCheck`) para poder salir y retomar más tarde.
 
 ### Extender a otros juegos 1v1
 
@@ -604,3 +610,5 @@ Si el juego no tiene tiempo, `clock` debe ser `null` o estar ausente.
 **4. Registrar el componente** en `App.jsx` junto al resto de alerts.
 
 No hay cambios de schema: `GameSession` ya tiene los campos necesarios y la notificación `game_timeout` ya existe en `NotificationType`.
+
+

@@ -1,5 +1,6 @@
 import { Router } from 'express';
 import { XMLParser } from 'fast-xml-parser';
+import { fetchCompat } from '../lib/httpFetch.js';
 
 const router = Router();
 
@@ -75,9 +76,9 @@ function getLink(item) {
 // ── Fetch + parseo de un feed ─────────────────────────────────────────────────
 
 async function fetchFeed(feed) {
-  const res = await fetch(feed.url, {
+  const res = await fetchCompat(feed.url, {
     headers: { 'User-Agent': 'PlayCraft/1.0 RSS Reader' },
-    signal: AbortSignal.timeout(6000),
+    timeoutMs: 6000,
   });
   if (!res.ok) throw new Error(`HTTP ${res.status} en ${feed.url}`);
 
