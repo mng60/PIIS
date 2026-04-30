@@ -62,7 +62,7 @@ export default function GameDetail() {
 
   const navigate = useNavigate();
   const [searchParams] = useSearchParams();
-  const tournamentRoom = searchParams.get('room') || null;
+  const roomCode = searchParams.get('room') || null;
   const tournamentId = searchParams.get('tournament') || null;
   const tournamentRedirectRef = useRef(false);
 
@@ -82,7 +82,7 @@ export default function GameDetail() {
     enabled: !!gameId && !!game?.elo_enabled,
   });
 
-  const [isPlaying,       setIsPlaying]       = useState(!!tournamentRoom);
+  const [isPlaying,       setIsPlaying]       = useState(!!roomCode);
   const [sessionStart,    setSessionStart]     = useState(null);
   const [chatSessionId,   setChatSessionId]    = useState(null);
   const [ageGateOpen,     setAgeGateOpen]      = useState(false);
@@ -92,17 +92,17 @@ export default function GameDetail() {
   const [waitingOpponent, setWaitingOpponent]  = useState(false);
 
   useEffect(() => {
-    if (tournamentRoom && game) {
+    if (roomCode && game) {
       recordPlay(gameId).catch(() => {});
       invalidateGame();
     }
-  }, [!!tournamentRoom, !!game]);
+  }, [!!roomCode, !!game]);
 
   // Checkin periódico: marca presencia y detecta cuando llega el rival
   useEffect(() => {
-    if (!tournamentRoom || !user) return;
+    if (!roomCode || !user || !tournamentId) return;
     const doCheckin = () =>
-      checkinMatch(tournamentRoom)
+      checkinMatch(roomCode)
         .then(data => {
           if (data?.ok) {
             setWaitingOpponent(data.waiting_for_opponent);
@@ -113,7 +113,7 @@ export default function GameDetail() {
     doCheckin();
     const iv = setInterval(doCheckin, 10_000);
     return () => clearInterval(iv);
-  }, [tournamentRoom, user?.email]);
+  }, [roomCode, tournamentId, user?.email]);
 
   const doStart = async () => {
     const now = Date.now();
@@ -356,8 +356,14 @@ export default function GameDetail() {
           serverBestScore={serverBestScore}
           myEloRating={userGameStatsArr[0]?.elo_rating ?? 1200}
           onEloApplied={() => queryClient.invalidateQueries(['userGameStats', user?.email, gameId])}
-          initialRoomCode={tournamentRoom}
-          onLeave={tournamentId ? () => navigate(`/tournaments/${tournamentId}`) : undefined}
+          initialRoomCode={roomCode}
+          onLeave={
+            tournamentId
+              ? () => navigate(`/tournaments/${tournamentId}`)
+              : roomCode
+                ? () => navigate(`/games/${gameId}`, { replace: true })
+                : undefined
+          }
         />
 
         {(game.full_description || game.description) && (

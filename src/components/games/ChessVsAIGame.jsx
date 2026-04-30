@@ -84,6 +84,11 @@ export default function ChessVsAIGame({
   const gameOverRef = useRef(false);
   const playerInCheckRef = useRef(false);
   const autoResumeAttemptedRef = useRef(false);
+  const onLeaveRef = useRef(onLeave);
+
+  useEffect(() => {
+    onLeaveRef.current = onLeave;
+  }, [onLeave]);
 
   useEffect(() => { localStorage.setItem("chess_board_theme", boardTheme); }, [boardTheme]);
   useEffect(() => { localStorage.setItem("chess_piece_set", pieceSet); }, [pieceSet]);
@@ -393,13 +398,13 @@ export default function ChessVsAIGame({
             }
           } catch {
             if (!cancelled) {
-              onLeave?.();
+              onLeaveRef.current?.();
             }
             return;
           }
 
           if (!cancelled) {
-            onLeave?.();
+            onLeaveRef.current?.();
           }
           return;
         }
@@ -450,7 +455,7 @@ export default function ChessVsAIGame({
 
     setup();
     return () => { cancelled = true; };
-  }, [difficulty, initialRoomCode, onLeave, setCheckState, setHistoryState, user?.email]);
+  }, [difficulty, initialRoomCode, setCheckState, setHistoryState, user?.email]);
 
   useEffect(() => {
     if (!roomReady) return;
@@ -552,7 +557,12 @@ export default function ChessVsAIGame({
 
   const handleLeave = async () => {
     if (roomCodeRef.current && gameStatus === "finished") {
+      const roomCode = roomCodeRef.current;
       await deleteChessRoom(roomCodeRef.current).catch(() => {});
+      roomCodeRef.current = null;
+      queryClient.setQueryData(['myActiveChessGames'], (prev = []) =>
+        Array.isArray(prev) ? prev.filter(game => game.room_code !== roomCode) : []
+      );
       queryClient.invalidateQueries({ queryKey: ['myActiveChessGames'] });
     }
     onLeave?.();

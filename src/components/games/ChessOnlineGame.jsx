@@ -350,7 +350,11 @@ export default function ChessOnlineGame({ user, gameId, myEloRating = 1200, onSc
           startPolling();
         }
       } catch (e) {
-        if (!cancelled) { console.error(e); setError("Error al unirse a la partida"); }
+        if (!cancelled) {
+          console.error(e);
+          setError("Error al unirse a la partida");
+          onLeave?.();
+        }
       }
       if (!cancelled) setLoading(false);
     };
