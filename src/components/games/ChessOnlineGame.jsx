@@ -913,6 +913,7 @@ export default function ChessOnlineGame({ user, gameId, myEloRating = 1200, onSc
           setVsAiDifficulty(null);
           if (onMoveHistoryChange) onMoveHistoryChange([]);
           onVsAiChange?.(false, null);
+          onLeave?.();
         }}
       />
     );
