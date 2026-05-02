@@ -48,6 +48,8 @@ const allowedOrigins = [
 ];
 
 const allowedOriginPatterns = [
+  /^http:\/\/localhost:\d+$/,
+  /^http:\/\/127\.0\.0\.1:\d+$/,
   /^https:\/\/playcraft(?:-[a-z0-9-]+)?\.vercel\.app$/,
   /^https:\/\/playcraft-git-[a-z0-9-]+-sofia-mng60s-projects\.vercel\.app$/,
   /^https:\/\/[\w-]+\.vercel\.app$/,
