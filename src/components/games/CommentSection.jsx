@@ -105,7 +105,7 @@ export default function CommentSection({ gameId, comments, user, onCommentAdded 
               <div key={comment.id} className={`p-4 bg-white/5 rounded-xl border border-white/5 ${isLevel3User ? "user-level-3-comment-card" : ""}`}>
                 <div className="flex items-start justify-between mb-2">
                   <div>
-                    <p className="font-medium text-white">{comment.user_name}</p>
+                    <p className="font-medium text-white">{comment.user_name?.includes('@') ? comment.user_name.split('@')[0] : comment.user_name}</p>
                     <p className="text-xs text-gray-500">
                       {format(new Date(comment.created_at), "d MMM yyyy", { locale: es })}
                     </p>

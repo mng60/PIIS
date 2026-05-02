@@ -10,19 +10,23 @@ datasource db {
 // ─── Users ───────────────────────────────────────────────────────────────────
 
 model User {
-  id                String    @id @default(cuid())
-  email             String    @unique
-  password          String
-  full_name         String
-  role              Role      @default(user)
-  avatar_url        String?
-  xp                Int       @default(0)
-  is_banned         Boolean   @default(false)
-  chat_muted_until  DateTime?
-  play_banned_until DateTime?
-  pending_warning   String?   @db.VarChar(800)
-  created_at        DateTime  @default(now())
-  updated_at        DateTime  @updatedAt
+  id                     String    @id @default(cuid())
+  email                  String    @unique
+  password               String
+  full_name              String
+  role                   Role      @default(user)
+  avatar_url             String?
+  xp                     Int       @default(0)
+  is_banned              Boolean   @default(false)
+  chat_muted_until       DateTime?
+  play_banned_until      DateTime?
+  pending_warning        String?   @db.VarChar(800)
+  abandon_count          Int       @default(0)
+  last_seen              DateTime?
+  premium_until          DateTime?
+  subscription_cancel_at DateTime?
+  created_at             DateTime  @default(now())
+  updated_at             DateTime  @updatedAt
 }
 
 enum Role {
@@ -47,13 +51,18 @@ model Game {
   plays_count      Int          @default(0)
   rating_sum       Float        @default(0)
   rating_count     Int          @default(0)
-  is_featured      Boolean      @default(false)
-  is_active        Boolean      @default(true)
+  is_featured          Boolean      @default(false)
+  is_active            Boolean      @default(true)
+  early_access_until   DateTime?
   is_adult         Boolean      @default(false)
   is_multiplayer      Boolean      @default(false)
   show_leaderboard    Boolean      @default(true)
   show_achievements   Boolean      @default(true)
   xp_per_play         Int          @default(10)
+  elo_enabled           Boolean      @default(false)
+  elo_k_factor          Int          @default(32)
+  elo_min_rating        Int          @default(0)
+  elo_position_points   String?      // JSON: puntos por posición para 3+ jugadores, ej: "[20,10,-5,-15]"
   publisher           String?
   created_by       String?
   created_at       DateTime     @default(now())
@@ -95,15 +104,17 @@ model UserGameStats {
   user_email  String
   user_name   String
   game_id     String
-  plays_count Int      @default(0)   // nº de partidas jugadas
-  best_score  Float    @default(0)   // mejor puntuación histórica
-  last_score  Float    @default(0)   // puntuación de la última partida
-  wins_count  Int      @default(0)   // partidas con score > 0
-  total_score Float    @default(0)   // suma acumulada de todos los scores
-  time_played Int      @default(0)   // segundos acumulados jugando
-  last_played DateTime @default(now())
-  created_at  DateTime @default(now())
-  updated_at  DateTime @updatedAt
+  plays_count  Int      @default(0)
+  best_score   Float    @default(0)
+  last_score   Float    @default(0)
+  wins_count   Int      @default(0)
+  total_score  Float    @default(0)
+  time_played  Int      @default(0)
+  elo_rating   Int      @default(1200)
+  elo_games    Int      @default(0)
+  last_played  DateTime @default(now())
+  created_at   DateTime @default(now())
+  updated_at   DateTime @updatedAt
 
   @@unique([user_email, game_id])
 }
@@ -128,13 +139,63 @@ model Tournament {
   game_id          String
   start_date       DateTime
   end_date         DateTime
-  prize            String?
-  thumbnail        String?
+  prize                  String?
+  premium_prize_months   Int?
+  thumbnail              String?
   max_participants Int?
-  status           TournamentStatus  @default(upcoming)
-  is_active        Boolean           @default(true)
-  created_at       DateTime          @default(now())
-  updated_at       DateTime          @updatedAt
+  status                TournamentStatus  @default(upcoming)
+  is_active             Boolean           @default(true)
+  created_by            String?           // email del creador (admin o empresa)
+  elo_min               Int?              // ELO mínimo para inscribirse (null = sin restricción)
+  elo_max               Int?              // ELO máximo para inscribirse (null = sin restricción)
+  position_elo_points   String?           // JSON: puntos ELO por posición final, ej "[100,40,10,10,-15,-15,-25,-25]"
+  tournament_k_multiplier Float           @default(1.5) // multiplicador del K-factor para partidas del torneo
+  activated_at          DateTime?
+  room_time_minutes     Int?              // Duración máxima de cada sala en minutos (null = sin límite)
+  created_at            DateTime          @default(now())
+  updated_at            DateTime          @updatedAt
+}
+
+model TournamentParticipant {
+  id            String   @id @default(cuid())
+  tournament_id String
+  user_email    String
+  user_name     String
+  elo_at_signup Int      @default(1200)
+  bracket_name  String   @default("Principiante")
+  joined_at     DateTime @default(now())
+
+  @@unique([tournament_id, user_email])
+}
+
+model TournamentMatch {
+  id                  String      @id @default(cuid())
+  tournament_id       String
+  bracket_name        String
+  round               Int
+  match_index         Int
+  player1_email       String?
+  player1_name        String?
+  player2_email       String?
+  player2_name        String?
+  winner_email        String?
+  room_code           String?
+  status              MatchStatus @default(pending)
+  player1_joined_at   DateTime?
+  player2_joined_at   DateTime?
+  forfeit_after       DateTime?
+  created_at          DateTime    @default(now())
+  updated_at          DateTime    @updatedAt
+
+  @@index([tournament_id])
+  @@index([room_code])
+}
+
+enum MatchStatus {
+  pending
+  playing
+  finished
+  bye
 }
 
 enum TournamentStatus {
@@ -219,6 +280,9 @@ model GameSession {
   current_turn  String        @default("host")
   winner        String?
   status        SessionStatus @default(waiting)
+  game_mode     String        @default("normal")
+  min_players   Int           @default(2)
+  max_players   Int           @default(2)
   created_at    DateTime      @default(now())
   updated_at    DateTime      @updatedAt
 }
@@ -229,21 +293,49 @@ enum SessionStatus {
   finished
 }
 
+// ─── Game Session Players (multi-player abstraction) ──────────────────────────
+// One row per player per session. Seat 0 = host, 1 = first guest, 2+… for N players.
+// Phase 1: populated alongside host_email/guest_email for backward compat.
+// Phase 2: host_email/guest_email will be deprecated in favour of this table.
+
+model GameSessionPlayer {
+  id         String   @id @default(cuid())
+  room_code  String
+  user_email String
+  user_name  String
+  seat       Int      // 0 = host, 1..N = guests in join order
+  role       String   @default("player")  // "host" | "player"
+  color      String?  // hex color assigned by seat (e.g. "#22d3ee")
+  status     String   @default("active")  // "active" | "left"
+  joined_at  DateTime @default(now())
+
+  @@unique([room_code, user_email])
+  @@unique([room_code, seat])
+  @@index([room_code])
+}
+
 // ─── Chess Rooms ─────────────────────────────────────────────────────────────
 
 model ChessRoom {
-  id           String     @id @default(cuid())
-  room_code    String     @unique
-  host_email   String
-  host_name    String
-  guest_email  String?
-  guest_name   String?
-  status       ChessStatus @default(waiting)
-  current_turn TurnColor  @default(white)
-  board_state  String
-  winner       String?
-  created_at   DateTime   @default(now())
-  updated_at   DateTime   @updatedAt
+  id               String      @id @default(cuid())
+  room_code        String      @unique
+  host_email       String
+  host_name        String
+  host_avatar_url  String?
+  host_elo         Int         @default(1200)
+  guest_email      String?
+  guest_name       String?
+  guest_avatar_url String?
+  elo_processed    Boolean     @default(false)
+  game_mode        String      @default("normal")
+  is_vs_ai         Boolean     @default(false)
+  ai_difficulty    Int         @default(2)
+  status           ChessStatus @default(waiting)
+  current_turn     TurnColor   @default(white)
+  board_state      String
+  winner           String?
+  created_at       DateTime    @default(now())
+  updated_at       DateTime    @updatedAt
 }
 
 enum ChessStatus {
@@ -311,6 +403,84 @@ enum AdminAction {
   ban_play
   ban_account
   delete_content
+}
+
+// ─── Social ──────────────────────────────────────────────────────────────────
+
+model Friendship {
+  id             String           @id @default(cuid())
+  sender_email   String
+  receiver_email String
+  status         FriendshipStatus @default(pending)
+  created_at     DateTime         @default(now())
+  updated_at     DateTime         @updatedAt
+
+  @@unique([sender_email, receiver_email])
+}
+
+enum FriendshipStatus {
+  pending
+  accepted
+  rejected
+}
+
+model Block {
+  id            String   @id @default(cuid())
+  blocker_email String
+  blocked_email String
+  created_at    DateTime @default(now())
+
+  @@unique([blocker_email, blocked_email])
+}
+
+model Notification {
+  id         String           @id @default(cuid())
+  user_email String
+  type       NotificationType
+  from_email String
+  from_name  String
+  is_read    Boolean          @default(false)
+  data       Json             @default("{}")
+  created_at DateTime         @default(now())
+}
+
+enum NotificationType {
+  friend_request
+  friend_accepted
+  game_invite
+  game_timeout
+  draw_offer
+}
+
+// ─── Matchmaking ─────────────────────────────────────────────────────────────
+
+model MatchmakingQueue {
+  id         String   @id @default(cuid())
+  user_email String   @unique
+  user_name  String
+  elo_rating Int      @default(1200)
+  game_id    String
+  game_mode  String   @default("normal")
+  time_key   String   @default("5")
+  status     String   @default("waiting")
+  room_code  String?
+  role       String?
+  created_at DateTime @default(now())
+  updated_at DateTime @updatedAt
+}
+
+// ─── Direct Messages ─────────────────────────────────────────────────────────
+
+model DirectMessage {
+  id             String   @id @default(cuid())
+  sender_email   String
+  receiver_email String
+  message        String   @db.VarChar(1000)
+  is_read        Boolean  @default(false)
+  created_at     DateTime @default(now())
+
+  @@index([sender_email, receiver_email])
+  @@index([receiver_email, is_read])
 }
 
 // ─── Password Reset Tickets ───────────────────────────────────────────────────

@@ -16,10 +16,18 @@ import { RARITY_CONFIG } from "@/lib/levels";
 import { format } from "date-fns";
 import { es } from "date-fns/locale";
 
-export default function UserAchievementsSection({ userEmail }) {
+export default function UserAchievementsSection({ userEmail, externalSelectedKey, onExternalClose, hideCard = false }) {
   const [selectedKey, setSelectedKey] = useState(null); // gameId o "__global__"
   const [filterMode, setFilterMode] = useState("all"); // all | completed | incomplete
   const [sortMode, setSortMode] = useState("default"); // default | name | completed | incomplete
+
+  useEffect(() => {
+    if (externalSelectedKey != null) {
+      setSelectedKey(externalSelectedKey);
+      setFilterMode("all");
+      setSortMode("default");
+    }
+  }, [externalSelectedKey]);
 
   const { data: userAchievements = [] } = useQuery({
     queryKey: ["userAchievementsAll", userEmail],
@@ -168,6 +176,8 @@ export default function UserAchievementsSection({ userEmail }) {
   // -------------------------
   // Vista detalle (overlay con scroll propio)
   // -------------------------
+  // When hideCard=true and no overlay is open, render nothing (card view suppressed)
+  if (hideCard && !selectedGroup) return null;
   if (selectedGroup) {
     return (
       <div className="fixed inset-0 z-40 bg-black/70 backdrop-blur-md flex flex-col">
@@ -182,6 +192,7 @@ export default function UserAchievementsSection({ userEmail }) {
                   setSelectedKey(null);
                   setFilterMode("all");
                   setSortMode("default");
+                  onExternalClose?.();
                 }}
               >
                 <ArrowLeft className="w-4 h-4 mr-2" />

@@ -1,8 +1,8 @@
-import { useState } from 'react';
-import { Link, useParams } from 'react-router-dom';
+import { useState, useEffect, useRef } from 'react';
+import { Link, useParams, useSearchParams, useNavigate } from 'react-router-dom';
 import { useAuth } from '@/lib/AuthContext';
 import { useQueryClient, useQuery } from '@tanstack/react-query';
-import { Loader2, Gamepad, Trophy, MessageSquare } from 'lucide-react';
+import { Loader2, Gamepad, Trophy, MessageSquare, TrendingUp, Clock } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { toast } from 'sonner';
 import { useGameDetail } from '@/hooks/useGameDetail';
@@ -15,8 +15,44 @@ import AgeGateDialog from '@/components/AgeGateDialog';
 import { evaluateAndUpdateAchievements } from '@/components/achievements';
 import { recordPlay } from '@/api/games';
 import { submitScore, recordGamePlay, getUserGameScores, getUserScores } from '@/api/scores';
+import { getEloLeaderboard } from '@/api/elo';
 import { getLevelFromXP } from '@/lib/levels';
 import { evaluateMedals } from '@/lib/medals';
+import { checkinMatch } from '@/api/tournaments';
+
+// ─── Banner de espera de oponente con countdown ───────────────────────────────
+
+function WaitingForfeitBanner({ forfeitAt, onExpire }) {
+  const [secsLeft, setSecsLeft] = useState(() =>
+    Math.max(0, Math.floor((forfeitAt - Date.now()) / 1000))
+  );
+
+  useEffect(() => {
+    if (secsLeft <= 0) { onExpire(); return; }
+    const id = setInterval(() => {
+      setSecsLeft(prev => {
+        if (prev <= 1) { clearInterval(id); onExpire(); return 0; }
+        return prev - 1;
+      });
+    }, 1000);
+    return () => clearInterval(id);
+  }, []);
+
+  const mm = String(Math.floor(secsLeft / 60)).padStart(2, '0');
+  const ss = String(secsLeft % 60).padStart(2, '0');
+
+  return (
+    <div className="flex items-center gap-3 px-4 py-3 rounded-lg border border-yellow-500/30 bg-yellow-500/10 text-sm">
+      <Clock className="w-4 h-4 text-yellow-400 flex-shrink-0" />
+      <span className="text-yellow-300">
+        Tu oponente aún no ha llegado. Si no aparece en{' '}
+        <span className="font-mono font-bold">{mm}:{ss}</span>, serás declarado ganador.
+      </span>
+    </div>
+  );
+}
+
+// ─── Main page ────────────────────────────────────────────────────────────────
 
 export default function GameDetail() {
   const { id: gameId } = useParams();
@@ -24,8 +60,19 @@ export default function GameDetail() {
   const ageKey = user ? `playcraft_age_${user.email}_${gameId}` : null;
   const queryClient = useQueryClient();
 
+  const navigate = useNavigate();
+  const [searchParams] = useSearchParams();
+  const roomCode = searchParams.get('room') || null;
+  const tournamentId = searchParams.get('tournament') || null;
+  const tournamentRedirectRef = useRef(false);
+
   const { game, gameLoading, scores, comments, refetchComments, isFavorite, toggleFavorite, invalidateGame } =
     useGameDetail(gameId, user);
+  const isRegularUser = user && user.role !== "admin" && user.role !== "empresa";
+  const userLevel = isRegularUser ? getLevelFromXP(user.xp ?? 0).level : null;
+  const isLevel1User = userLevel === 1;
+  const isLevel2User = userLevel === 2;
+  const isLevel3User = userLevel === 3;
 
   const { data: userGameStatsArr = [] } = useQuery({
     queryKey: ['userGameStats', user?.email, gameId],
@@ -33,18 +80,45 @@ export default function GameDetail() {
     enabled: !!user && !!gameId,
   });
   const serverBestScore = userGameStatsArr[0]?.best_score ?? 0;
-  const isRegularUser = user && user.role !== 'admin' && user.role !== 'empresa';
-  const userLevel = isRegularUser ? getLevelFromXP(user.xp ?? 0).level : null;
-  const isLevel1User = userLevel === 1;
-  const isLevel2User = userLevel === 2;
-  const isLevel3User = userLevel === 3;
 
-  const [isPlaying,       setIsPlaying]       = useState(false);
+  const { data: eloLeaderboard = [] } = useQuery({
+    queryKey: ['eloLeaderboard', gameId],
+    queryFn: () => getEloLeaderboard(gameId),
+    enabled: !!gameId && !!game?.elo_enabled,
+  });
+
+  const [isPlaying,       setIsPlaying]       = useState(!!roomCode);
   const [sessionStart,    setSessionStart]     = useState(null);
   const [chatSessionId,   setChatSessionId]    = useState(null);
   const [ageGateOpen,     setAgeGateOpen]      = useState(false);
   const [pendingStart,    setPendingStart]     = useState(false);
   const [chessMoveHistory, setChessMoveHistory] = useState([]);
+  const [forfeitAt,       setForfeitAt]        = useState(null);
+  const [waitingOpponent, setWaitingOpponent]  = useState(false);
+
+  useEffect(() => {
+    if (roomCode && game) {
+      recordPlay(gameId).catch(() => {});
+      invalidateGame();
+    }
+  }, [!!roomCode, !!game]);
+
+  // Checkin periódico: marca presencia y detecta cuando llega el rival
+  useEffect(() => {
+    if (!roomCode || !user || !tournamentId) return;
+    const doCheckin = () =>
+      checkinMatch(roomCode)
+        .then(data => {
+          if (data?.ok) {
+            setWaitingOpponent(data.waiting_for_opponent);
+            setForfeitAt(data.forfeit_at ? new Date(data.forfeit_at) : null);
+          }
+        })
+        .catch(() => {});
+    doCheckin();
+    const iv = setInterval(doCheckin, 10_000);
+    return () => clearInterval(iv);
+  }, [roomCode, tournamentId, user?.email]);
 
   const doStart = async () => {
     const now = Date.now();
@@ -54,9 +128,17 @@ export default function GameDetail() {
     if (game) { await recordPlay(gameId); invalidateGame(); }
   };
 
+  const isPlayBanned = () =>
+    user?.play_banned_until && new Date(user.play_banned_until) > new Date();
+
   const handlePlay = async () => {
     if (!user) { toast.error('¡Inicia sesión para jugar!'); return; }
     if (user.is_banned) { toast.error('Tu cuenta está baneada'); return; }
+    if (isPlayBanned()) {
+      const until = new Date(user.play_banned_until).toLocaleString('es-ES', { day: 'numeric', month: 'long', hour: '2-digit', minute: '2-digit' });
+      toast.error(`No puedes jugar hasta el ${until}.`);
+      return;
+    }
     if (game?.is_adult && localStorage.getItem(ageKey) !== 'yes') {
       setPendingStart(true); setAgeGateOpen(true); return;
     }
@@ -66,6 +148,11 @@ export default function GameDetail() {
   const handleGameStart = async () => {
     if (!user) { toast.error('¡Inicia sesión para jugar!'); return false; }
     if (user.is_banned) { toast.error('Tu cuenta está baneada'); return false; }
+    if (isPlayBanned()) {
+      const until = new Date(user.play_banned_until).toLocaleString('es-ES', { day: 'numeric', month: 'long', hour: '2-digit', minute: '2-digit' });
+      toast.error(`No puedes jugar hasta el ${until}.`);
+      return false;
+    }
     if (game?.is_adult && localStorage.getItem(ageKey) !== 'yes') {
       setPendingStart(true); setAgeGateOpen(true); return false;
     }
@@ -150,6 +237,7 @@ export default function GameDetail() {
     totalXp += result?.xpGained ?? 0;
 
     queryClient.invalidateQueries(['scores', gameId]);
+    queryClient.invalidateQueries(['userGameStats', user?.email, gameId]);
     const achievementToasts = await evaluateAndUpdateAchievements({
       userEmail: user.email,
       gameId,
@@ -163,6 +251,26 @@ export default function GameDetail() {
     checkNewMedals(prevMedalIds, newXp, ((achievementToasts ?? 0) + (leveledUp ? 1 : 0)) * 3000);
     queryClient.invalidateQueries(['userAchievements', user.email]);
     queryClient.invalidateQueries(['userAchievementsAll', user.email]);
+
+    if (tournamentId && !tournamentRedirectRef.current) {
+      tournamentRedirectRef.current = true;
+      queryClient.invalidateQueries(['myActiveMatch']);
+      let remaining = 10;
+      const toastId = 'tournament-redirect';
+      const updateToast = () =>
+        toast.info(`Redirigiendo al torneo en ${remaining}s...`, { id: toastId, duration: Infinity });
+      updateToast();
+      const iv = setInterval(() => {
+        remaining--;
+        if (remaining > 0) {
+          updateToast();
+        } else {
+          clearInterval(iv);
+          toast.dismiss(toastId);
+          navigate(`/tournaments/${tournamentId}?autoplay=1`);
+        }
+      }, 1000);
+    }
   };
 
   const handleShare = () => {
@@ -202,6 +310,33 @@ export default function GameDetail() {
       />
 
       <div className="space-y-6">
+        {waitingOpponent && forfeitAt && (
+          <WaitingForfeitBanner
+            forfeitAt={forfeitAt}
+            onExpire={() => {
+              setWaitingOpponent(false);
+              if (tournamentId && !tournamentRedirectRef.current) {
+                tournamentRedirectRef.current = true;
+                queryClient.invalidateQueries(['myActiveMatch']);
+                let remaining = 10;
+                const toastId = 'tournament-redirect';
+                const updateToast = () =>
+                  toast.success(`¡Has ganado por W.O.! Redirigiendo al torneo en ${remaining}s...`, { id: toastId, duration: Infinity });
+                updateToast();
+                const iv = setInterval(() => {
+                  remaining--;
+                  if (remaining > 0) {
+                    updateToast();
+                  } else {
+                    clearInterval(iv);
+                    toast.dismiss(toastId);
+                    navigate(`/tournaments/${tournamentId}?autoplay=1`);
+                  }
+                }, 1000);
+              }
+            }}
+          />
+        )}
         <GameHeader
           game={game}
           user={user}
@@ -224,12 +359,22 @@ export default function GameDetail() {
           onChessMoveHistoryChange={setChessMoveHistory}
           onChatSessionIdChange={setChatSessionId}
           serverBestScore={serverBestScore}
+          myEloRating={userGameStatsArr[0]?.elo_rating ?? 1200}
+          onEloApplied={() => queryClient.invalidateQueries(['userGameStats', user?.email, gameId])}
+          initialRoomCode={roomCode}
+          onLeave={
+            tournamentId
+              ? () => navigate(`/tournaments/${tournamentId}`)
+              : roomCode
+                ? () => navigate(`/games/${gameId}`, { replace: true })
+                : undefined
+          }
         />
 
         {(game.full_description || game.description) && (
-          <div className={`bg-white/5 rounded-xl border border-white/10 p-5 ${isLevel2User ? 'user-level-2-detail-panel' : ''} ${isLevel3User ? 'user-level-3-detail-panel' : ''}`}>
-            <h2 className={`text-base font-semibold text-white mb-2 ${isLevel2User ? 'user-level-2-detail-panel-title' : ''} ${isLevel3User ? 'user-level-3-detail-panel-title' : ''}`}>Descripción</h2>
-            <p className={`text-gray-300 text-sm leading-relaxed ${isLevel3User ? 'user-level-3-copy' : ''}`}>
+          <div className={`bg-white/5 rounded-xl border border-white/10 p-5 ${isLevel2User ? "user-level-2-detail-panel" : ""} ${isLevel3User ? "user-level-3-detail-panel" : ""}`}>
+            <h2 className={`text-base font-semibold text-white mb-2 ${isLevel2User ? "user-level-2-detail-panel-title" : ""} ${isLevel3User ? "user-level-3-detail-panel-title" : ""}`}>Descripción</h2>
+            <p className={`text-gray-300 text-sm leading-relaxed ${isLevel3User ? "user-level-3-copy" : ""}`}>
               {game.full_description || game.description}
             </p>
           </div>
@@ -238,11 +383,11 @@ export default function GameDetail() {
         {(game.show_leaderboard !== false || game.show_achievements !== false) && (
           <div className="grid sm:grid-cols-2 gap-4">
             {game.show_leaderboard !== false && (
-              <div className={`bg-white/5 rounded-xl border border-white/10 p-5 ${isLevel2User ? 'user-level-2-detail-panel' : ''} ${isLevel3User ? 'user-level-3-detail-panel' : ''}`}>
-                <h2 className={`text-base font-semibold text-white mb-4 flex items-center gap-2 ${isLevel2User ? 'user-level-2-detail-panel-title' : ''} ${isLevel3User ? 'user-level-3-detail-panel-title' : ''}`}>
+              <div className={`bg-white/5 rounded-xl border border-white/10 p-5 ${isLevel1User ? "user-level-1-game-card" : ""} ${isLevel2User ? "user-level-2-detail-panel" : ""} ${isLevel3User ? "user-level-3-detail-panel" : ""}`}>
+                <h2 className={`text-base font-semibold text-white mb-4 flex items-center gap-2 ${isLevel2User ? "user-level-2-detail-panel-title" : ""} ${isLevel3User ? "user-level-3-detail-panel-title" : ""}`}>
                   <Trophy className={`w-4 h-4 text-yellow-500 ${isLevel2User ? 'user-level-2-detail-icon-yellow' : ''} ${isLevel3User ? 'user-level-3-detail-icon-yellow' : ''}`} /> Top 5
                 </h2>
-                <Leaderboard scores={scores} />
+                <Leaderboard scores={scores} isMultiplayer={game.is_multiplayer} />
               </div>
             )}
             {game.show_achievements !== false && (
@@ -251,8 +396,26 @@ export default function GameDetail() {
           </div>
         )}
 
-        <div className={`bg-white/5 rounded-xl border border-white/10 p-5 ${isLevel2User ? 'user-level-2-detail-panel' : ''} ${isLevel3User ? 'user-level-3-detail-panel' : ''}`}>
-          <h2 className={`text-base font-semibold text-white mb-4 flex items-center gap-2 ${isLevel2User ? 'user-level-2-detail-panel-title' : ''} ${isLevel3User ? 'user-level-3-detail-panel-title' : ''}`}>
+        {game.elo_enabled && eloLeaderboard.length > 0 && (
+          <div className={`bg-white/5 rounded-xl border border-white/10 p-5 ${isLevel2User ? "user-level-2-detail-panel" : ""} ${isLevel3User ? "user-level-3-detail-panel" : ""}`}>
+            <h2 className={`text-base font-semibold text-white mb-4 flex items-center gap-2 ${isLevel2User ? "user-level-2-detail-panel-title" : ""} ${isLevel3User ? "user-level-3-detail-panel-title" : ""}`}>
+              <TrendingUp className="w-4 h-4 text-cyan-400" /> Ranking ELO
+            </h2>
+            <div className="space-y-2">
+              {eloLeaderboard.slice(0, 10).map((entry, i) => (
+                <div key={entry.id} className="flex items-center gap-3 px-3 py-2 rounded-lg bg-white/5">
+                  <span className="text-xs text-gray-500 w-5 text-right">{i + 1}</span>
+                  <span className="flex-1 text-sm text-white truncate">{entry.user_name}</span>
+                  <span className="text-sm font-mono font-semibold text-cyan-400">{entry.elo_rating}</span>
+                  <span className="text-xs text-gray-500">{entry.elo_games} partidas</span>
+                </div>
+              ))}
+            </div>
+          </div>
+        )}
+
+        <div className={`bg-white/5 rounded-xl border border-white/10 p-5 ${isLevel2User ? "user-level-2-detail-panel" : ""} ${isLevel3User ? "user-level-3-detail-panel" : ""}`}>
+          <h2 className={`text-base font-semibold text-white mb-4 flex items-center gap-2 ${isLevel2User ? "user-level-2-detail-panel-title" : ""} ${isLevel3User ? "user-level-3-detail-panel-title" : ""}`}>
             <MessageSquare className={`w-4 h-4 ${isLevel2User ? 'user-level-2-detail-icon-blue' : ''} ${isLevel3User ? 'user-level-3-detail-icon-blue' : ''}`} /> Comentarios ({comments.length})
           </h2>
           <CommentSection

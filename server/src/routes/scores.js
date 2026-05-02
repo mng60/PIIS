@@ -1,7 +1,6 @@
 import { Router } from 'express';
 import { PrismaClient } from '@prisma/client';
 import { requireAuth } from '../middleware/auth.js';
-import { isDatabaseConnectionError } from '../mockData.js';
 
 const router = Router();
 const prisma = new PrismaClient();
@@ -13,8 +12,7 @@ const prisma = new PrismaClient();
 router.get('/', async (req, res) => {
   const { game_id, user_email, limit = '20' } = req.query;
 
-  try {
-    if (user_email && game_id) {
+  if (user_email && game_id) {
     // Logros: stats de un usuario en un juego concreto
     const stat = await prisma.userGameStats.findUnique({
       where: { user_email_game_id: { user_email, game_id } },
@@ -22,7 +20,7 @@ router.get('/', async (req, res) => {
     return res.json(stat ? [stat] : []);
   }
 
-    if (user_email) {
+  if (user_email) {
     // Perfil: todos los juegos del usuario ordenados por última partida
     const stats = await prisma.userGameStats.findMany({
       where: { user_email },
@@ -32,20 +30,35 @@ router.get('/', async (req, res) => {
     const gameIds = stats.map(s => s.game_id);
     const games = await prisma.game.findMany({
       where: { id: { in: gameIds } },
-      select: { id: true, title: true },
+      select: { id: true, title: true, thumbnail: true, category: true, is_multiplayer: true, elo_enabled: true },
     });
-    const gameMap = Object.fromEntries(games.map(g => [g.id, g.title]));
-    return res.json(stats.map(s => ({ ...s, game_title: gameMap[s.game_id] ?? 'Juego desconocido' })));
+    const gameMap = Object.fromEntries(games.map(g => [g.id, g]));
+    return res.json(stats.map(s => ({
+      ...s,
+      game_title: gameMap[s.game_id]?.title ?? 'Juego desconocido',
+      game_thumbnail: gameMap[s.game_id]?.thumbnail ?? null,
+      game_category: gameMap[s.game_id]?.category ?? null,
+      game_is_multiplayer: gameMap[s.game_id]?.is_multiplayer ?? false,
+      game_elo_enabled: gameMap[s.game_id]?.elo_enabled ?? false,
+    })));
   }
 
-    if (game_id) {
+  if (game_id) {
     // Leaderboard: top jugadores de un juego por best_score
     const stats = await prisma.userGameStats.findMany({
       where: { game_id },
       orderBy: { best_score: 'desc' },
       take: parseInt(limit),
     });
-      return res.json(stats);
+      const emails = stats.map(s => s.user_email);
+      const users = await prisma.user.findMany({
+        where: { email: { in: emails } },
+        select: { email: true, premium_until: true },
+      });
+      const premiumSet = new Set(
+        users.filter(u => u.premium_until && new Date(u.premium_until) > new Date()).map(u => u.email)
+      );
+      return res.json(stats.map(s => ({ ...s, is_premium: premiumSet.has(s.user_email) })));
     }
   } catch (error) {
     if (!isDatabaseConnectionError(error)) throw error;
@@ -65,27 +78,10 @@ router.post('/', requireAuth, async (req, res) => {
   const base     = { user_email: req.user.email, game_id };
 
   // Obtener datos del juego y nombre del usuario en paralelo
-  let game;
-  let dbUser;
-  try {
-    [game, dbUser] = await Promise.all([
-      prisma.game.findUnique({ where: { id: game_id }, select: { xp_per_play: true, is_multiplayer: true } }),
-      prisma.user.findUnique({ where: { id: req.user.id }, select: { full_name: true } }),
-    ]);
-  } catch (error) {
-    if (!isDatabaseConnectionError(error)) throw error;
-    const scoreVal = parseFloat(score ?? 0);
-    return res.status(201).json({
-      id: `mock-score-${Date.now()}`,
-      user_email: req.user.email,
-      user_name: req.user.email.split('@')[0],
-      game_id,
-      plays_count: 1,
-      best_score: scoreVal,
-      last_score: scoreVal,
-      xpGained: 10,
-    });
-  }
+  const [game, dbUser] = await Promise.all([
+    prisma.game.findUnique({ where: { id: game_id }, select: { xp_per_play: true, is_multiplayer: true } }),
+    prisma.user.findUnique({ where: { id: req.user.id }, select: { full_name: true } }),
+  ]);
   const displayName = dbUser?.full_name || req.user.email.split('@')[0];
 
   if (minimal) {

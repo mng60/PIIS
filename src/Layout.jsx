@@ -7,14 +7,20 @@ import {
   User,
   Settings,
   Menu,
+  X,
   LogOut,
   Shield,
   Heart,
   Sun,
-  Moon
+  Moon,
+  Trophy,
+  Users,
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Sheet, SheetContent, SheetTrigger } from "@/components/ui/sheet";
+import NotificationsPanel from "@/components/NotificationsPanel";
+import PremiumUsername from "@/components/ui/PremiumUsername";
+import CraftyAssistant from "@/components/CraftyAssistant";
 import "@/styles/userBackgrounds.css";
 import "@/styles/StylesLevels/level1.css";
 import "@/styles/StylesLevels/level2.css";
@@ -42,8 +48,9 @@ export default function Layout({ children }) {
   }, [isDark]);
 
   const navItems = [
-    { name: "Inicio", path: "/", icon: Home },
-    { name: "Juegos", path: "/games", icon: Gamepad2 },
+    { name: "Inicio",   path: "/",            icon: Home },
+    { name: "Juegos",   path: "/games",        icon: Gamepad2 },
+    { name: "Torneos",  path: "/tournaments",  icon: Trophy },
   ];
 
   const isRestrictedArea =
@@ -60,6 +67,7 @@ export default function Layout({ children }) {
   if (user) {
     if (user.role !== "admin" && user.role !== "empresa") {
       navItems.push({ name: "Favoritos", path: "/favorites", icon: Heart });
+      navItems.push({ name: "Amigos", path: "/friends", icon: Users });
     }
     navItems.push({ name: "Perfil", path: "/profile", icon: User });
     if (user.role === "admin") {
@@ -73,7 +81,8 @@ export default function Layout({ children }) {
     <div className={mobile ? "flex flex-col gap-2" : "hidden md:flex items-center gap-1"}>
       {navItems.map((item) => {
         const Icon = item.icon;
-        const isActive = location.pathname === item.path;
+        const isActive = location.pathname === item.path ||
+          (item.path === '/friends' && location.pathname.startsWith('/profile/'));
         return (
           <Link
             key={item.path}
@@ -90,9 +99,9 @@ export default function Layout({ children }) {
                       : "bg-gradient-to-r from-purple-600 to-cyan-500 text-white shadow-lg shadow-purple-500/25"
                 : isLevel3User
                   ? "user-level-3-nav-idle"
-                : isLevel2User
-                  ? "user-level-2-nav-idle"
-                : isDark
+                  : isLevel2User
+                    ? "user-level-2-nav-idle"
+                    : isDark
                   ? "text-gray-400 hover:text-white hover:bg-white/5"
                   : "text-gray-600 hover:text-gray-900 hover:bg-gray-100"
             }`}
@@ -189,14 +198,16 @@ export default function Layout({ children }) {
       {/* Header */}
       <header className={`sticky top-0 z-50 border-b backdrop-blur-xl ${isLevel3User ? "user-level-3-header" : isDark ? "border-white/5 bg-[#0a0a0f]/80" : "border-gray-200 bg-white/90"}`}>
         <div className="max-w-7xl mx-auto px-4 py-4 flex items-center justify-between">
-          <Link to="/" className="flex items-center gap-3 group">
-            <div className={`p-2 rounded-xl bg-gradient-to-br from-purple-600 to-cyan-500 neon-glow group-hover:scale-105 transition-transform ${isLevel1User ? "user-level-1-logo-box" : ""} ${isLevel2User ? "user-level-2-logo-box" : ""} ${isLevel3User ? "user-level-3-logo-box" : ""}`}>
-              <Gamepad2 className="w-6 h-6 text-white" />
-            </div>
-            <span className={`text-xl font-bold bg-gradient-to-r from-purple-400 to-cyan-400 bg-clip-text text-transparent neon-text ${isLevel1User ? "user-level-1-logo-text" : ""} ${isLevel2User ? "user-level-2-logo-text" : ""} ${isLevel3User ? "user-level-3-logo-text" : ""}`}>
-              PlayCraft
-            </span>
-          </Link>
+          <div className="flex items-center gap-2">
+            <Link to="/" className="flex items-center gap-3 group">
+              <div className={`p-2 rounded-xl bg-gradient-to-br from-purple-600 to-cyan-500 neon-glow group-hover:scale-105 transition-transform ${isLevel1User ? "user-level-1-logo-box" : ""} ${isLevel2User ? "user-level-2-logo-box" : ""} ${isLevel3User ? "user-level-3-logo-box" : ""}`}>
+                <Gamepad2 className="w-6 h-6 text-white" />
+              </div>
+              <span className={`text-xl font-bold bg-gradient-to-r from-purple-400 to-cyan-400 bg-clip-text text-transparent neon-text ${isLevel1User ? "user-level-1-logo-text" : ""} ${isLevel2User ? "user-level-2-logo-text" : ""} ${isLevel3User ? "user-level-3-logo-text" : ""}`}>
+                PlayCraft
+              </span>
+            </Link>
+          </div>
 
           <NavLinks />
 
@@ -210,10 +221,13 @@ export default function Layout({ children }) {
             >
               {isDark ? <Sun className="w-4 h-4" /> : <Moon className="w-4 h-4" />}
             </Button>
+            {user && <NotificationsPanel isDark={isDark} />}
 
             {user ? (
               <div className="hidden md:flex items-center gap-3">
-                <span className={`text-sm ${isLevel3User ? "user-level-3-topbar-text" : isLevel2User ? "user-level-2-topbar-text" : isDark ? "text-gray-400" : "text-gray-600"}`}>{user.full_name || user.email}</span>
+                {user.premium_until && new Date(user.premium_until) > new Date()
+                  ? <PremiumUsername name={user.full_name || user.email} className={`text-sm ${isLevel3User ? "user-level-3-topbar-text" : isLevel2User ? "user-level-2-topbar-text" : ""}`} />
+                  : <span className={`text-sm ${isLevel3User ? "user-level-3-topbar-text" : isLevel2User ? "user-level-2-topbar-text" : isDark ? "text-gray-400" : "text-gray-600"}`}>{user.full_name || user.email}</span>}
                 <Button
                   variant="ghost"
                   size="icon"
@@ -246,7 +260,9 @@ export default function Layout({ children }) {
                       <div className="space-y-4">
                         <div className="px-4 py-3 bg-white/5 rounded-lg">
                           <p className="text-sm text-gray-400">Conectado como</p>
-                          <p className="font-medium truncate">{user.full_name || user.email}</p>
+                          {user.premium_until && new Date(user.premium_until) > new Date()
+                            ? <PremiumUsername name={user.full_name || user.email} className="font-medium" />
+                            : <p className="font-medium truncate">{user.full_name || user.email}</p>}
                         </div>
                         <Button
                           variant="ghost"
@@ -275,6 +291,8 @@ export default function Layout({ children }) {
       <main className="min-h-[calc(100vh-80px)]">
         {children}
       </main>
+
+      <CraftyAssistant />
 
       <footer className={`border-t py-8 mt-12 ${isDark ? "border-white/5" : "border-gray-200"}`}>
         <div className={`max-w-7xl mx-auto px-4 text-center text-sm ${isLevel2User ? "user-level-2-footer-text" : isDark ? "text-gray-500" : "text-gray-400"}`}>
