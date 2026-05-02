@@ -40,7 +40,7 @@ export default function GameHeader({ game, user, isFavorite, onToggleFavorite, o
             )}
           </div>
 
-          <h1 className="text-2xl sm:text-3xl font-bold text-white">{game.title}</h1>
+          <h1 className={`text-2xl sm:text-3xl font-bold text-white ${isLevel2User ? "user-level-2-game-detail-title" : ""}`}>{game.title}</h1>
 
           <div className="flex flex-wrap items-center gap-4 mt-2 text-sm text-gray-400">
             {rating ? (
@@ -66,7 +66,7 @@ export default function GameHeader({ game, user, isFavorite, onToggleFavorite, o
             variant="outline"
             size="icon"
             onClick={onToggleFavorite}
-            className={`border-white/10 ${isFavorite ? 'text-red-500 bg-red-500/10 border-red-500/20' : 'text-gray-400 hover:text-white'}`}
+            className={`border-white/10 ${isLevel2User ? `user-level-2-game-detail-action ${isFavorite ? 'user-level-2-game-detail-action-favorite' : ''}` : ''} ${isFavorite ? 'text-red-500 bg-red-500/10 border-red-500/20' : 'text-gray-400 hover:text-white'}`}
           >
             <Heart className={`w-4 h-4 ${isFavorite ? 'fill-current' : ''}`} />
           </Button>
@@ -74,7 +74,7 @@ export default function GameHeader({ game, user, isFavorite, onToggleFavorite, o
             variant="outline"
             size="icon"
             onClick={onShare}
-            className="border-white/10 text-gray-400 hover:text-white"
+            className={`border-white/10 text-gray-400 hover:text-white ${isLevel2User ? "user-level-2-game-detail-action user-level-2-game-detail-action-share" : ""}`}
           >
             <Share2 className="w-4 h-4" />
           </Button>

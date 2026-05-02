@@ -9,24 +9,24 @@ const MODES = [
     icon: Swords,
     label: "Normal",
     desc: "Sin efecto ELO · Cualquier nivel",
-    color: "#8b5cf6",
-    glow: "rgba(139,92,246,0.4)",
+    color: "#16a34a",
+    glow: "rgba(22,163,74,0.32)",
   },
   {
     key: "ranked",
     icon: Trophy,
     label: "Clasificatoria",
     desc: "Afecta al ELO · Misma banda",
-    color: "#f59e0b",
-    glow: "rgba(245,158,11,0.4)",
+    color: "#0e7490",
+    glow: "rgba(14,116,144,0.28)",
   },
 ];
 
 const AI_DIFFICULTIES = [
-  { key: 1, label: "Principiante", color: "#22c55e" },
-  { key: 2, label: "Intermedio",   color: "#3b82f6" },
-  { key: 3, label: "Avanzado",     color: "#f59e0b" },
-  { key: 4, label: "Maestro",      color: "#ef4444" },
+  { key: 1, label: "Principiante", color: "#65a30d" },
+  { key: 2, label: "Intermedio",   color: "#0e7490" },
+  { key: 3, label: "Avanzado",     color: "#16a34a" },
+  { key: 4, label: "Maestro",      color: "#166534" },
 ];
 
 function formatSearchTime(s) {
@@ -58,7 +58,7 @@ export default function OnlineGameLobby({
     <div className="online-game-lobby flex items-center justify-center min-h-[420px] p-4">
       <div className="w-full max-w-md space-y-4">
         <div className="online-game-lobby__header text-center mb-4">
-          <h2 className="online-game-lobby__title text-3xl font-bold bg-gradient-to-r from-purple-400 to-cyan-400 bg-clip-text text-transparent mb-2">
+          <h2 className="online-game-lobby__title text-3xl font-bold bg-gradient-to-r from-green-700 to-cyan-600 bg-clip-text text-transparent mb-2">
             {title}
           </h2>
           <p className="online-game-lobby__description text-gray-400 text-sm">{description}</p>
@@ -68,8 +68,8 @@ export default function OnlineGameLobby({
         {showVsAI && onVsAI && (
           <Card className="bg-white/5 border-white/10 p-4 space-y-3">
             <div className="flex items-center gap-2 mb-1">
-              <Bot className="w-4 h-4 text-purple-400" />
-              <h3 className="text-sm font-semibold text-gray-300">vs Entrenador (IA)</h3>
+              <Bot className="w-4 h-4 text-green-700" />
+              <h3 className="text-sm font-semibold" style={{ color: "#166534" }}>vs Entrenador (IA)</h3>
             </div>
             <p className="text-xs text-gray-500">
               Juega contra Stockfish y recibe análisis de tu partida al terminar.
@@ -85,7 +85,7 @@ export default function OnlineGameLobby({
                   style={{
                     borderColor: aiDifficulty === d.key ? d.color : "rgba(255,255,255,0.08)",
                     background: aiDifficulty === d.key ? `${d.color}18` : "rgba(255,255,255,0.03)",
-                    color: aiDifficulty === d.key ? "#fff" : "#9ca3af",
+                    color: aiDifficulty === d.key ? "#ffffff" : "#2f4f1f",
                   }}
                 >
                   {d.label}
@@ -99,7 +99,7 @@ export default function OnlineGameLobby({
               onClick={() => onVsAI(aiDifficulty)}
               disabled={loading || isSearching}
               className="w-full"
-              style={{ background: "linear-gradient(to right, #7c3aed, #0891b2)" }}
+              style={{ background: "linear-gradient(to right, #166534, #0e7490)" }}
             >
               <Bot className="w-4 h-4 mr-2" />
               Jugar vs Entrenador
@@ -136,10 +136,10 @@ export default function OnlineGameLobby({
                 }}
               >
                 <Icon className="w-6 h-6" style={{ color: selected ? m.color : "#6b7280" }} />
-                <span className="text-sm font-bold" style={{ color: selected ? "#fff" : "#9ca3af" }}>
+                <span className="text-sm font-bold" style={{ color: selected ? "#ffffff" : "#23410c" }}>
                   {m.label}
                 </span>
-                <span className="text-[11px] text-center leading-tight" style={{ color: selected ? "#d1d5db" : "#6b7280" }}>
+                <span className="text-[11px] text-center leading-tight" style={{ color: selected ? "#eef8df" : "#35592a" }}>
                   {m.desc}
                 </span>
                 {selected && (
@@ -163,7 +163,7 @@ export default function OnlineGameLobby({
                     disabled={isSearching}
                     className={`online-game-lobby__time-option ${selectedTimeKey === t.key ? "online-game-lobby__time-option--active" : ""} px-3 py-1 rounded-full text-xs font-medium border transition-colors disabled:opacity-40
                       ${selectedTimeKey === t.key
-                        ? "bg-purple-600/80 border-purple-400/60 text-white"
+                        ? "bg-green-700/80 border-cyan-600/60 text-white"
                         : "bg-white/5 border-white/10 text-gray-300 hover:bg-white/10 hover:text-white"}`}
                   >
                     {t.label}
@@ -175,7 +175,7 @@ export default function OnlineGameLobby({
           <Button
             onClick={() => onCreateRoom?.(mode)}
             disabled={loading || isSearching}
-            className="online-game-lobby__create-button w-full bg-gradient-to-r from-purple-600 to-cyan-500"
+            className="online-game-lobby__create-button w-full bg-gradient-to-r from-green-700 to-cyan-600"
           >
             {loading ? <Loader2 className="w-4 h-4 animate-spin" /> : "Crear sala nueva"}
           </Button>
@@ -191,10 +191,10 @@ export default function OnlineGameLobby({
           <Card className="bg-white/5 border-white/10 p-5">
             <div className="flex flex-col items-center gap-3">
               <div className="flex items-center gap-3">
-                <Loader2 className="w-5 h-5 animate-spin text-purple-400" />
+                <Loader2 className="w-5 h-5 animate-spin text-green-700" />
                 <span className="text-sm font-semibold text-white">Buscando rival...</span>
               </div>
-              <span className="text-2xl font-mono font-bold text-cyan-400">{formatSearchTime(searchSeconds)}</span>
+              <span className="text-2xl font-mono font-bold text-cyan-700">{formatSearchTime(searchSeconds)}</span>
               <Button onClick={onCancelSearch} variant="secondary" size="sm" className="w-full mt-1">
                 Cancelar búsqueda
               </Button>

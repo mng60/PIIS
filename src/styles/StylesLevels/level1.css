@@ -221,17 +221,62 @@
   box-shadow: 0 0 14px rgba(223, 181, 119, 0.2) !important;
 }
 
+.user-level-1-profile-premium-card {
+  background:
+    radial-gradient(circle at 85% 15%, rgba(198, 145, 58, 0.2) 0%, transparent 34%),
+    linear-gradient(135deg, rgba(74, 48, 26, 0.72) 0%, rgba(29, 20, 14, 0.88) 54%, rgba(88, 58, 30, 0.66) 100%) !important;
+  border-color: rgba(207, 157, 76, 0.28) !important;
+  box-shadow:
+    inset 0 1px 0 rgba(255, 223, 168, 0.08),
+    0 18px 34px rgba(0, 0, 0, 0.24) !important;
+}
+
+.user-level-1-profile-premium-card .text-white,
+.user-level-1-profile-premium-card .text-gray-300 {
+  color: #ead0a3 !important;
+}
+
+.user-level-1-profile-premium-card .text-gray-400,
+.user-level-1-profile-premium-card .text-gray-500 {
+  color: #bba386 !important;
+}
+
+.user-level-1-profile-premium-card .text-yellow-400,
+.user-level-1-profile-premium-card .text-orange-400 {
+  color: #d2a04c !important;
+}
+
+.user-level-1-profile-premium-button {
+  background: linear-gradient(90deg, rgba(111, 74, 34, 0.96), rgba(186, 136, 61, 0.96)) !important;
+  color: #fff4df !important;
+  box-shadow: 0 10px 22px rgba(94, 59, 28, 0.3) !important;
+}
+
 .user-level-1-profile-dialog {
-  background: linear-gradient(180deg, rgba(24, 18, 12, 0.98) 0%, rgba(19, 14, 11, 0.98) 100%) !important;
+  background:
+    radial-gradient(circle at 18% 0%, rgba(164, 111, 50, 0.18) 0%, transparent 34%),
+    linear-gradient(180deg, rgba(24, 18, 12, 0.98) 0%, rgba(15, 11, 8, 0.99) 100%) !important;
   border: 1px solid rgba(223, 181, 119, 0.26) !important;
   color: #e3c496 !important;
   box-shadow:
     0 0 0 1px rgba(120, 83, 52, 0.16),
-    0 18px 40px rgba(0, 0, 0, 0.42) !important;
+    0 18px 40px rgba(0, 0, 0, 0.42),
+    inset 0 1px 0 rgba(255, 223, 168, 0.08),
+    inset 0 -24px 50px rgba(59, 38, 23, 0.28) !important;
+}
+
+.user-level-1-profile-password-dialog {
+  max-width: 36rem !important;
+  border-radius: 10px !important;
 }
 
 .user-level-1-profile-dialog-title {
   color: #e3c496 !important;
+}
+
+.user-level-1-profile-dialog-icon {
+  color: #d8aa58 !important;
+  filter: drop-shadow(0 0 8px rgba(216, 170, 88, 0.28));
 }
 
 .user-level-1-profile-dialog label {
@@ -242,6 +287,16 @@
   background: rgba(46, 31, 20, 0.7) !important;
   border: 1px solid rgba(223, 181, 119, 0.34) !important;
   color: #e3c496 !important;
+}
+
+.user-level-1-profile-password-input {
+  min-height: 56px;
+  border-radius: 8px !important;
+  background:
+    linear-gradient(180deg, rgba(48, 34, 24, 0.82), rgba(31, 22, 16, 0.86)) !important;
+  box-shadow:
+    inset 0 0 18px rgba(0, 0, 0, 0.24),
+    inset 0 1px 0 rgba(255, 223, 168, 0.06) !important;
 }
 
 .user-level-1-profile-dialog input::placeholder {
@@ -911,4 +966,318 @@
   background: linear-gradient(180deg, rgba(88, 60, 35, 0.92) 0%, rgba(57, 38, 23, 0.94) 100%) !important;
   color: #f7ead2 !important;
   border: 1px solid rgba(223, 181, 119, 0.16) !important;
+}
+
+/* Nivel 1: pantallas sociales, torneos y paneles flotantes */
+.user-level-1-tournaments-page,
+.user-level-1-friends-page,
+.user-level-1-profile-page {
+  font-family: "Cinzel", "Garamond", "Times New Roman", serif;
+}
+
+.user-level-1-friends-title {
+  background: linear-gradient(90deg, #f2d28f 0%, #c99642 45%, #7b4c25 100%) !important;
+  -webkit-background-clip: text !important;
+  background-clip: text !important;
+  color: transparent !important;
+  text-shadow: 0 0 18px rgba(201, 150, 66, 0.22);
+  letter-spacing: 0.03em;
+  font-weight: 900;
+}
+
+.user-level-1-tournaments-title,
+.user-level-1-tournaments-icon {
+  color: var(--level1-text) !important;
+}
+
+.user-level-1-tournaments-icon,
+.user-level-1-tournaments-bracket-icon,
+.user-level-1-friends-empty-icon,
+.user-level-1-friends-loader,
+.user-level-1-tournaments-loader {
+  color: #d1a04a !important;
+  filter: drop-shadow(0 0 8px rgba(209, 160, 74, 0.22));
+}
+
+.user-level-1-tournaments-icon {
+  color: var(--level1-text) !important;
+}
+
+.user-level-1-tournaments-copy,
+.user-level-1-tournaments-bracket,
+.user-level-1-friends-section-title,
+.user-level-1-friends-page .text-gray-400,
+.user-level-1-friends-page .text-gray-500 {
+  color: #c3a57f !important;
+}
+
+.user-level-1-tournaments-page .text-purple-300,
+.user-level-1-tournaments-page .text-purple-400,
+.user-level-1-tournaments-page .text-cyan-400,
+.user-level-1-friends-page .text-purple-400,
+.user-level-1-friends-page .text-cyan-400 {
+  color: #d3a24d !important;
+}
+
+.user-level-1-tournaments-tabs {
+  background: transparent !important;
+  border: 0 !important;
+  box-shadow: none !important;
+  gap: 0.75rem !important;
+  padding: 0 !important;
+}
+
+.user-level-1-friends-icon-box,
+.user-level-1-friends-page .bg-gradient-to-r.from-purple-600.to-cyan-500,
+.user-level-1-friends-page .bg-gradient-to-br.from-purple-600.to-cyan-500 {
+  background: linear-gradient(135deg, #7a4d26 0%, #c9953e 54%, #e3bc66 100%) !important;
+  color: #fff7e5 !important;
+  border: 1px solid rgba(238, 198, 111, 0.42) !important;
+  box-shadow: 0 10px 26px rgba(118, 75, 35, 0.34), 0 0 18px rgba(209, 160, 74, 0.2) !important;
+}
+
+.user-level-1-tournaments-tab,
+.user-level-1-tournaments-tab-active {
+  min-width: 112px;
+  border-radius: 8px !important;
+  padding: 0.875rem 1.5rem !important;
+  font-size: 1rem !important;
+}
+
+.user-level-1-tournaments-empty,
+.user-level-1-friends-empty,
+.user-level-1-floating-chat-empty,
+.user-level-1-friends-page .text-center.py-10 {
+  color: #a98f73 !important;
+}
+
+.user-level-1-tournaments-empty-icon {
+  color: rgba(205, 155, 80, 0.55) !important;
+}
+
+.user-level-1-tournaments-empty-title,
+.user-level-1-friends-empty-copy,
+.user-level-1-friends-page .text-center.py-10 p {
+  color: #c8a77d !important;
+  font-size: 1.15rem;
+}
+
+.user-level-1-tournaments-empty-copy,
+.user-level-1-tournaments-empty p:last-child {
+  color: #9f8164 !important;
+}
+
+.user-level-1-tournament-card,
+.user-level-1-friends-page .bg-white\/5,
+.user-level-1-profile-page .bg-white\/5 {
+  background:
+    linear-gradient(135deg, rgba(63, 40, 24, 0.62) 0%, rgba(29, 20, 14, 0.76) 55%, rgba(74, 49, 27, 0.52) 100%) !important;
+  border-color: rgba(207, 157, 76, 0.24) !important;
+  box-shadow:
+    inset 0 0 0 1px rgba(255, 220, 160, 0.04),
+    0 14px 32px rgba(0, 0, 0, 0.22) !important;
+}
+
+.user-level-1-tournament-card:hover,
+.user-level-1-friends-page .bg-white\/5:hover {
+  border-color: rgba(228, 184, 96, 0.46) !important;
+  box-shadow:
+    0 16px 34px rgba(0, 0, 0, 0.26),
+    0 0 20px rgba(207, 157, 76, 0.16) !important;
+}
+
+.user-level-1-tournament-card-title,
+.user-level-1-tournament-card:hover .user-level-1-tournament-card-title,
+.user-level-1-profile-page h2,
+.user-level-1-profile-page h3,
+.user-level-1-profile-page .font-bold,
+.user-level-1-profile-page .font-semibold {
+  color: #e2c18c !important;
+}
+
+.user-level-1-tournament-elo,
+.user-level-1-tournament-elo svg {
+  color: #d2a149 !important;
+}
+
+.user-level-1-tournaments-page .bg-blue-500\/20,
+.user-level-1-tournaments-page .bg-green-500\/20,
+.user-level-1-tournaments-page .bg-gray-500\/20 {
+  background: rgba(104, 68, 35, 0.38) !important;
+  color: #e6bf76 !important;
+  border-color: rgba(218, 170, 84, 0.36) !important;
+}
+
+.user-level-1-friends-search,
+.user-level-1-friends-search:focus,
+.user-level-1-friends-search:focus-visible,
+.user-level-1-profile-page input,
+.user-level-1-profile-page textarea {
+  background: rgba(36, 24, 17, 0.72) !important;
+  border-color: rgba(203, 154, 67, 0.36) !important;
+  color: #e6c79b !important;
+  box-shadow: none !important;
+}
+
+.user-level-1-friends-search::placeholder,
+.user-level-1-profile-page input::placeholder,
+.user-level-1-profile-page textarea::placeholder {
+  color: #9c846d !important;
+}
+
+.user-level-1-crafty .user-level-1-crafty-panel,
+.user-level-1-floating-chat .user-level-1-floating-chat-panel {
+  background: rgba(22, 15, 10, 0.98) !important;
+  border-color: rgba(209, 160, 74, 0.28) !important;
+  box-shadow: 0 24px 48px rgba(0, 0, 0, 0.42), 0 0 30px rgba(142, 92, 39, 0.18) !important;
+}
+
+.user-level-1-crafty .user-level-1-crafty-header,
+.user-level-1-floating-chat .user-level-1-floating-chat-header {
+  background: linear-gradient(135deg, rgba(105, 65, 28, 0.96), rgba(180, 128, 48, 0.92)) !important;
+  border-color: rgba(238, 198, 111, 0.28) !important;
+}
+
+.user-level-1-crafty .rounded-full.bg-gradient-to-br,
+.user-level-1-crafty .user-level-1-crafty-button,
+.user-level-1-floating-chat .user-level-1-floating-chat-button,
+.user-level-1-floating-chat .user-level-1-floating-chat-send,
+.user-level-1-floating-chat .bg-purple-600,
+.user-level-1-floating-chat .bg-purple-700 {
+  background: linear-gradient(135deg, #6e4523 0%, #c28e38 58%, #e1b95c 100%) !important;
+  box-shadow: 0 0 22px rgba(198, 145, 58, 0.42) !important;
+}
+
+.user-level-1-crafty .user-level-1-crafty-avatar {
+  background: transparent !important;
+  background-image: none !important;
+  box-shadow: none !important;
+  border-radius: 0 !important;
+  overflow: visible !important;
+  padding: 0;
+}
+
+.user-level-1-crafty .user-level-1-crafty-avatar-fallback-icon {
+  background: transparent !important;
+  filter: none;
+}
+
+.user-level-1-crafty .user-level-1-crafty-avatar-img {
+  transform: scale(1.72);
+  object-fit: contain;
+  mix-blend-mode: normal;
+  filter: none;
+}
+
+.user-level-1-crafty .user-level-1-crafty-assistant-message,
+.user-level-1-crafty .bg-white\/5,
+.user-level-1-floating-chat .bg-white\/5,
+.user-level-1-floating-chat .user-level-1-floating-chat-message {
+  background: rgba(55, 37, 24, 0.76) !important;
+  color: #e4c69d !important;
+  border: 1px solid rgba(207, 157, 76, 0.12);
+}
+
+.user-level-1-crafty .user-level-1-crafty-user-message,
+.user-level-1-floating-chat .user-level-1-floating-chat-message-mine {
+  background: linear-gradient(135deg, #7a4d26, #c9953e) !important;
+  color: #fff6df !important;
+}
+
+.user-level-1-crafty .user-level-1-crafty-input-wrap,
+.user-level-1-floating-chat .user-level-1-floating-chat-input-wrap {
+  border-color: rgba(207, 157, 76, 0.18) !important;
+}
+
+.user-level-1-crafty .user-level-1-crafty-input,
+.user-level-1-floating-chat .user-level-1-floating-chat-input {
+  background: rgba(37, 25, 18, 0.86) !important;
+  border-color: rgba(207, 157, 76, 0.26) !important;
+}
+
+.user-level-1-floating-chat .user-level-1-floating-chat-input:focus,
+.user-level-1-floating-chat .user-level-1-floating-chat-input:focus-visible {
+  border-color: rgba(226, 184, 98, 0.56) !important;
+}
+
+.user-level-1-crafty .user-level-1-crafty-input-field,
+.user-level-1-floating-chat .user-level-1-floating-chat-input {
+  color: #e5c79d !important;
+}
+
+.user-level-1-crafty .user-level-1-crafty-input-field::placeholder,
+.user-level-1-floating-chat .user-level-1-floating-chat-input::placeholder {
+  color: #967e67 !important;
+}
+
+.user-level-1-crafty .user-level-1-crafty-send,
+.user-level-1-floating-chat .user-level-1-floating-chat-send svg,
+.user-level-1-floating-chat .user-level-1-floating-chat-friend-row [style*="#a78bfa"] {
+  color: #d4a24a !important;
+}
+
+.user-level-1-floating-chat .user-level-1-floating-chat-friend-row:hover {
+  background: rgba(116, 76, 38, 0.2) !important;
+}
+
+.user-level-1-profile-page .from-yellow-900\/20,
+.user-level-1-profile-page .to-purple-900\/20,
+.user-level-1-profile-page .from-yellow-500,
+.user-level-1-profile-page .to-orange-500,
+.user-level-1-profile-page .from-purple-600,
+.user-level-1-profile-page .to-cyan-500,
+.user-level-1-profile-page .bg-cyan-500\/80 {
+  background-image: linear-gradient(135deg, #6f4725 0%, #c49442 100%) !important;
+  background-color: transparent !important;
+}
+
+.user-level-1-profile-page .text-yellow-400,
+.user-level-1-profile-page .text-cyan-400,
+.user-level-1-profile-page .text-purple-400,
+.user-level-1-profile-page .text-orange-400,
+.user-level-1-profile-page .text-red-400 {
+  color: #d3a24d !important;
+}
+
+.user-level-1-profile-page .border-yellow-500\/20,
+.user-level-1-profile-page .border-white\/10,
+.user-level-1-profile-page .border-white\/20 {
+  border-color: rgba(207, 157, 76, 0.26) !important;
+}
+
+.user-level-1-profile-page button:not(.user-level-1-profile-action-button):not(.user-level-1-profile-dialog-cancel) {
+  color: #f3ddb6;
+}
+
+.user-level-1-profile-page .user-level-1-profile-premium-card {
+  background:
+    radial-gradient(ellipse at 52% 42%, rgba(230, 172, 67, 0.3) 0%, rgba(188, 134, 51, 0.16) 30%, transparent 60%),
+    radial-gradient(circle at 85% 12%, rgba(195, 141, 54, 0.16) 0%, transparent 34%),
+    linear-gradient(135deg, rgba(78, 51, 28, 0.82) 0%, rgba(42, 28, 18, 0.9) 55%, rgba(101, 67, 33, 0.76) 100%) !important;
+  border-color: rgba(190, 139, 56, 0.24) !important;
+  box-shadow:
+    inset 0 1px 0 rgba(255, 223, 168, 0.08),
+    inset 0 0 46px rgba(214, 158, 59, 0.08),
+    0 18px 34px rgba(0, 0, 0, 0.24) !important;
+}
+
+.user-level-1-profile-page .user-level-1-profile-premium-card h3,
+.user-level-1-profile-page .user-level-1-profile-premium-card .text-white {
+  color: #f0d59e !important;
+}
+
+.user-level-1-profile-page .user-level-1-profile-premium-card .text-gray-300,
+.user-level-1-profile-page .user-level-1-profile-premium-card .text-gray-400,
+.user-level-1-profile-page .user-level-1-profile-premium-card .text-gray-500 {
+  color: #c7aa7d !important;
+}
+
+.user-level-1-profile-page .user-level-1-profile-premium-card .text-yellow-400,
+.user-level-1-profile-page .user-level-1-profile-premium-card .text-orange-400 {
+  color: #d0a155 !important;
+}
+
+.user-level-1-profile-page .user-level-1-profile-premium-button {
+  background: linear-gradient(90deg, rgba(92, 60, 30, 0.98), rgba(166, 117, 48, 0.95)) !important;
+  color: #f4dca9 !important;
 }

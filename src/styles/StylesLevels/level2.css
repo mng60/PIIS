@@ -1336,3 +1336,546 @@
 .user-level-2-game-detail-page .user-level-2-detail-panel {
   color: #173c13 !important;
 }
+
+/* Overrides finales nivel 2: jardin, verde/azul con acentos amarillos */
+.user-level-2-crafty .rounded-full.bg-gradient-to-br.from-purple-600.to-cyan-500,
+.user-level-2-floating-chat .rounded-full.bg-purple-600,
+.user-level-2-floating-chat .rounded-full.bg-purple-700 {
+  background: linear-gradient(135deg, #166534 0%, #22c55e 62%, #eab308 100%) !important;
+  color: #f7fff1 !important;
+}
+
+.user-level-2-crafty-avatar {
+  width: 3.1rem !important;
+  height: 3.1rem !important;
+  border-radius: 0 !important;
+  overflow: visible !important;
+  background: transparent !important;
+  background-image: none !important;
+  box-shadow: none !important;
+  padding: 0 !important;
+}
+
+.user-level-2-crafty-avatar-img {
+  transform: scale(1.06);
+  transform-origin: center center;
+  object-fit: contain !important;
+  mix-blend-mode: normal;
+  filter: none;
+}
+
+.user-level-2-crafty-avatar-fallback-icon {
+  background: transparent !important;
+  filter: none;
+  width: 1.15rem !important;
+  height: 1.15rem !important;
+}
+
+.user-level-2-crafty-panel {
+  background: linear-gradient(180deg, rgba(18, 58, 30, 0.98) 0%, rgba(16, 73, 45, 0.98) 100%) !important;
+  border-color: rgba(226, 255, 199, 0.3) !important;
+  box-shadow: 0 22px 44px rgba(18, 69, 31, 0.28) !important;
+}
+
+.user-level-2-crafty-header,
+.user-level-2-floating-chat-header {
+  background: linear-gradient(135deg, rgba(22, 101, 52, 0.96) 0%, rgba(34, 197, 94, 0.9) 54%, rgba(14, 116, 144, 0.88) 100%) !important;
+  border-color: rgba(240, 255, 220, 0.14) !important;
+}
+
+.user-level-2-crafty-assistant-message,
+.user-level-2-floating-chat-message:not(.user-level-2-floating-chat-message-mine) {
+  background: rgba(239, 250, 219, 0.92) !important;
+  color: #1c3f16 !important;
+  border: 1px solid rgba(134, 191, 88, 0.32) !important;
+}
+
+.user-level-2-crafty-user-message,
+.user-level-2-floating-chat-message-mine,
+.user-level-2-crafty-button,
+.user-level-2-floating-chat-button,
+.user-level-2-floating-chat-send {
+  background: linear-gradient(135deg, #166534 0%, #22c55e 60%, #0e7490 100%) !important;
+  color: #f7fff1 !important;
+  box-shadow: 0 14px 28px rgba(18, 95, 45, 0.22) !important;
+}
+
+.user-level-2-crafty-input-wrap,
+.user-level-2-floating-chat-input-wrap {
+  border-color: rgba(226, 255, 199, 0.16) !important;
+}
+
+.user-level-2-crafty-input,
+.user-level-2-floating-chat-input {
+  background: rgba(238, 250, 219, 0.9) !important;
+  border-color: rgba(82, 139, 50, 0.34) !important;
+  color: #173c13 !important;
+}
+
+.user-level-2-crafty-input-field,
+.user-level-2-floating-chat-input {
+  color: #173c13 !important;
+}
+
+.user-level-2-crafty-input-field::placeholder,
+.user-level-2-floating-chat-input::placeholder {
+  color: #537241 !important;
+}
+
+.user-level-2-crafty-send {
+  color: #166534 !important;
+}
+
+.user-level-2-floating-chat-panel {
+  background: linear-gradient(180deg, rgba(16, 57, 33, 0.98) 0%, rgba(21, 77, 52, 0.96) 100%) !important;
+  border-color: rgba(226, 255, 199, 0.24) !important;
+}
+
+.user-level-2-floating-chat-friend-row:hover {
+  background: rgba(240, 255, 220, 0.08) !important;
+}
+
+.user-level-2-floating-chat .text-white\/30,
+.user-level-2-floating-chat .text-white\/40,
+.user-level-2-floating-chat .text-white\/50,
+.user-level-2-floating-chat .text-white\/60,
+.user-level-2-floating-chat .text-white\/90 {
+  color: #eaffd9 !important;
+}
+
+.user-level-2-floating-chat [style*="#a78bfa"] {
+  color: #eab308 !important;
+}
+
+.user-level-2-friends-page,
+.user-level-2-tournaments-page {
+  color: #173c13;
+}
+
+.user-level-2-friends-title,
+.user-level-2-tournaments-title {
+  background: none !important;
+  -webkit-background-clip: initial !important;
+  background-clip: initial !important;
+  color: #15803d !important;
+  text-shadow: 0 0 12px rgba(34, 197, 94, 0.16);
+}
+
+.user-level-2-friends-icon-box {
+  background: linear-gradient(135deg, #166534 0%, #22c55e 64%, #0e7490 100%) !important;
+  box-shadow: 0 14px 30px rgba(22, 101, 52, 0.18) !important;
+}
+
+.user-level-2-friends-section-title,
+.user-level-2-tournaments-copy,
+.user-level-2-tournaments-bracket,
+.user-level-2-tournaments-bracket-icon,
+.user-level-2-friends-page .text-gray-400,
+.user-level-2-friends-page .text-gray-500,
+.user-level-2-tournaments-page .text-gray-400,
+.user-level-2-tournaments-page .text-gray-500 {
+  color: #335f28 !important;
+}
+
+.user-level-2-friends-search {
+  background: rgba(241, 250, 229, 0.88) !important;
+  border-color: rgba(103, 156, 72, 0.34) !important;
+  color: #173c13 !important;
+}
+
+.user-level-2-friends-search::placeholder {
+  color: #5b7246 !important;
+}
+
+.user-level-2-friends-row,
+.user-level-2-tournament-card {
+  background: linear-gradient(180deg, rgba(243, 252, 232, 0.94) 0%, rgba(219, 242, 194, 0.9) 100%) !important;
+  border: 1px solid rgba(124, 179, 83, 0.32) !important;
+  box-shadow:
+    0 14px 28px rgba(34, 75, 31, 0.12),
+    0 0 0 1px rgba(250, 255, 238, 0.22) inset !important;
+}
+
+.user-level-2-tournament-card:hover,
+.user-level-2-friends-row:hover {
+  background: linear-gradient(180deg, rgba(248, 255, 240, 0.98) 0%, rgba(231, 248, 211, 0.94) 100%) !important;
+  border-color: rgba(34, 197, 94, 0.42) !important;
+}
+
+.user-level-2-tournament-card-title,
+.user-level-2-friends-page .font-medium,
+.user-level-2-friends-page .text-purple-400 {
+  color: #14532d !important;
+}
+
+.user-level-2-tournament-elo,
+.user-level-2-tournaments-icon {
+  color: #0e7490 !important;
+}
+
+.user-level-2-tournaments-tabs {
+  background: rgba(241, 250, 229, 0.72) !important;
+  border: 1px solid rgba(124, 179, 83, 0.22) !important;
+}
+
+.user-level-2-tournaments-tab {
+  color: #496f3b !important;
+}
+
+.user-level-2-tournaments-tab:hover {
+  color: #14532d !important;
+}
+
+.user-level-2-tournaments-tab-active {
+  background: linear-gradient(135deg, #166534 0%, #22c55e 62%, #eab308 100%) !important;
+  color: #f7fff1 !important;
+}
+
+.user-level-2-tournaments-empty,
+.user-level-2-tournaments-empty-title,
+.user-level-2-tournaments-empty-icon {
+  color: #335f28 !important;
+}
+
+.user-level-2-game-detail-page h1.text-white,
+.user-level-2-game-detail-page .text-white.font-medium {
+  color: #14532d !important;
+}
+
+.user-level-2-game-detail-page .bg-white\/10.text-white.border-white\/20 {
+  background: rgba(229, 255, 205, 0.56) !important;
+  border-color: rgba(103, 156, 72, 0.34) !important;
+  color: #23410c !important;
+}
+
+.user-level-2-game-detail-page .bg-purple-500\/20.text-purple-300.border-purple-500\/30 {
+  background: rgba(186, 230, 253, 0.28) !important;
+  border-color: rgba(14, 116, 144, 0.28) !important;
+  color: #0e7490 !important;
+}
+
+.user-level-2-game-detail-action {
+  background: rgba(238, 250, 219, 0.92) !important;
+  color: #14532d !important;
+}
+
+.user-level-2-game-detail-action-favorite {
+  background: rgba(250, 224, 120, 0.26) !important;
+  color: #b7791f !important;
+}
+
+.user-level-2-game-detail-action-share {
+  background: rgba(186, 230, 253, 0.34) !important;
+  color: #0e7490 !important;
+}
+
+.user-level-2-game-launch {
+  background: linear-gradient(135deg, #14532d 0%, #22c55e 62%, #166534 100%) !important;
+  border: 1px solid rgba(226, 255, 199, 0.24) !important;
+  color: #f7fff1 !important;
+  box-shadow: 0 16px 34px rgba(18, 95, 45, 0.24) !important;
+}
+
+.user-level-2-profile-premium-card {
+  background: linear-gradient(135deg, rgba(255, 244, 179, 0.9) 0%, rgba(230, 244, 191, 0.88) 52%, rgba(204, 236, 182, 0.9) 100%) !important;
+  border-color: rgba(229, 193, 74, 0.42) !important;
+  box-shadow:
+    0 18px 36px rgba(105, 92, 19, 0.12),
+    0 0 0 1px rgba(255, 250, 205, 0.28) inset !important;
+}
+
+.user-level-2-profile-premium-card .text-white,
+.user-level-2-profile-premium-card .text-gray-300,
+.user-level-2-profile-premium-card .text-gray-400,
+.user-level-2-profile-premium-card .text-gray-500 {
+  color: #4b5b1f !important;
+}
+
+.user-level-2-profile-premium-card .text-yellow-400,
+.user-level-2-profile-premium-card .text-orange-400 {
+  color: #c58b10 !important;
+}
+
+.user-level-2-profile-premium-card button.bg-gradient-to-r {
+  background: linear-gradient(135deg, #eab308 0%, #facc15 100%) !important;
+  color: #21431a !important;
+}
+
+.user-level-2-game-surface {
+  background:
+    linear-gradient(180deg, rgba(12, 39, 23, 0.94) 0%, rgba(16, 58, 34, 0.96) 100%) !important;
+  border-color: rgba(196, 232, 170, 0.24) !important;
+  box-shadow:
+    0 18px 40px rgba(18, 69, 31, 0.18),
+    0 0 0 1px rgba(240, 255, 220, 0.08) inset !important;
+}
+
+.user-level-2-chess .bg-purple-500\/10,
+.user-level-2-chess .border-purple-500\/30 {
+  background: rgba(186, 230, 253, 0.18) !important;
+  border-color: rgba(14, 116, 144, 0.28) !important;
+}
+
+.user-level-2-chess .text-cyan-400,
+.user-level-2-chess .text-purple-400 {
+  color: #7dd3fc !important;
+}
+
+.user-level-2-chess .text-gray-300,
+.user-level-2-chess-copy {
+  color: #d5f2d0 !important;
+}
+
+.user-level-2-chess .text-gray-400,
+.user-level-2-chess .text-gray-200 {
+  color: #a7d6a0 !important;
+}
+
+.user-level-2-chess .text-white,
+.user-level-2-chess .font-semibold {
+  color: #f7fff1 !important;
+}
+
+.user-level-2-chess .bg-black\/70 {
+  background: rgba(18, 69, 31, 0.78) !important;
+}
+
+.user-level-2-chess-pill {
+  background: rgba(238, 250, 219, 0.14) !important;
+  border-color: rgba(196, 232, 170, 0.26) !important;
+  color: #eefbdf !important;
+}
+
+.user-level-2-chess-finish {
+  background: linear-gradient(135deg, rgba(22, 101, 52, 0.42) 0%, rgba(14, 116, 144, 0.34) 100%) !important;
+  border: 1px solid rgba(196, 232, 170, 0.22) !important;
+}
+
+.user-level-2-chess-board {
+  border-color: rgba(196, 232, 170, 0.28) !important;
+  box-shadow:
+    0 20px 40px rgba(8, 22, 12, 0.34),
+    0 0 0 1px rgba(240, 255, 220, 0.08) inset !important;
+}
+
+.user-level-2-chess-outline-button {
+  background: rgba(238, 250, 219, 0.1) !important;
+  border-color: rgba(196, 232, 170, 0.3) !important;
+  color: #eefbdf !important;
+}
+
+.user-level-2-chess-outline-button:hover {
+  background: rgba(238, 250, 219, 0.18) !important;
+}
+
+.user-level-2-chess-secondary-button {
+  background: linear-gradient(135deg, rgba(40, 77, 48, 0.96) 0%, rgba(28, 58, 36, 0.96) 100%) !important;
+  color: #eefbdf !important;
+  border: 1px solid rgba(196, 232, 170, 0.18) !important;
+}
+
+.user-level-2-chess-primary-button {
+  background: linear-gradient(135deg, #166534 0%, #22c55e 56%, #0e7490 100%) !important;
+  color: #f7fff1 !important;
+  border: 0 !important;
+  box-shadow: 0 12px 24px rgba(18, 95, 45, 0.22) !important;
+}
+
+.user-level-2-chess-dialog {
+  background: linear-gradient(180deg, rgba(16, 58, 34, 0.98) 0%, rgba(12, 39, 23, 0.98) 100%) !important;
+  border-color: rgba(196, 232, 170, 0.24) !important;
+  color: #f7fff1 !important;
+}
+
+.user-level-2-chess-cancel {
+  background: rgba(238, 250, 219, 0.08) !important;
+  border-color: rgba(196, 232, 170, 0.22) !important;
+  color: #eefbdf !important;
+}
+
+.user-level-2-chess-tabs {
+  background: rgba(238, 250, 219, 0.08) !important;
+  border: 1px solid rgba(196, 232, 170, 0.18) !important;
+}
+
+.user-level-2-chess .data-\[state\=active\]\:bg-background[data-state="active"],
+.user-level-2-chess [data-state="active"] {
+  color: #14532d !important;
+}
+
+.user-level-2-game-surface .online-game-lobby__card {
+  background:
+    linear-gradient(180deg, rgba(226, 246, 198, 0.72) 0%, rgba(191, 232, 162, 0.56) 100%) !important;
+  border-color: rgba(196, 232, 170, 0.4) !important;
+}
+
+.user-level-2-game-surface .online-game-lobby__description,
+.user-level-2-game-surface .online-game-lobby__section-title,
+.user-level-2-game-surface .online-game-lobby__separator,
+.user-level-2-game-surface .online-game-lobby__card p,
+.user-level-2-game-surface .online-game-lobby__card span {
+  color: #2f5f24 !important;
+}
+
+.user-level-2-game-surface .online-game-lobby__card h3,
+.user-level-2-game-surface .online-game-lobby__card h3.text-sm.font-semibold {
+  color: #166534 !important;
+}
+
+.user-level-2-game-surface .online-game-lobby__card .lucide-bot {
+  color: #166534 !important;
+}
+
+.user-level-2-chess .online-game-lobby__card h3,
+.user-level-2-chess .online-game-lobby__card h3.text-sm.font-semibold,
+.user-level-2-chess .online-game-lobby__card .lucide-bot {
+  color: #166534 !important;
+}
+
+.user-level-2-game-surface .online-game-lobby__time-option {
+  background: rgba(246, 252, 236, 0.74) !important;
+  border-color: rgba(122, 169, 92, 0.3) !important;
+  color: #315f24 !important;
+}
+
+.user-level-2-game-surface .online-game-lobby__time-option:hover {
+  color: #1f4d1f !important;
+  border-color: rgba(22, 101, 52, 0.4) !important;
+}
+
+.user-level-2-game-surface .online-game-lobby__time-option--active {
+  background: linear-gradient(135deg, #166534 0%, #22c55e 58%, #0e7490 100%) !important;
+  color: #f7fff1 !important;
+  border-color: rgba(14, 116, 144, 0.38) !important;
+  box-shadow:
+    0 8px 18px rgba(22, 101, 52, 0.18),
+    0 0 0 1px rgba(125, 211, 252, 0.16) inset !important;
+}
+
+.user-level-2-game-surface .online-game-lobby__create-button,
+.user-level-2-game-surface .online-game-lobby__join-button:not(:disabled) {
+  background: linear-gradient(135deg, #166534 0%, #22c55e 58%, #0e7490 100%) !important;
+  color: #f7fff1 !important;
+}
+
+.user-level-2-game-surface .online-game-lobby__join-button {
+  background: linear-gradient(135deg, rgba(43, 83, 41, 0.96) 0%, rgba(35, 66, 48, 0.96) 100%) !important;
+  color: #eefbdf !important;
+}
+
+.user-level-2-game-surface .online-game-lobby__card .text-purple-400,
+.user-level-2-game-surface .online-game-lobby__card .text-purple-300,
+.user-level-2-game-surface .online-game-lobby__card .text-cyan-400,
+.user-level-2-game-surface .online-game-lobby__card .text-cyan-300,
+.user-level-2-game-surface .online-game-lobby__card [class*="text-purple"],
+.user-level-2-game-surface .online-game-lobby__card [class*="text-cyan"] {
+  color: #1f5b25 !important;
+}
+
+.user-level-2-game-surface .online-game-lobby__card [class*="border-purple"],
+.user-level-2-game-surface .online-game-lobby__card [class*="border-cyan"] {
+  border-color: rgba(22, 101, 52, 0.34) !important;
+}
+
+.user-level-2-game-surface .online-game-lobby__card [class*="ring-purple"],
+.user-level-2-game-surface .online-game-lobby__card [class*="ring-cyan"] {
+  --tw-ring-color: rgba(22, 101, 52, 0.26) !important;
+}
+
+.user-level-2-chess .text-purple-500,
+.user-level-2-chess .text-purple-400,
+.user-level-2-chess .text-purple-300,
+.user-level-2-chess .text-cyan-500,
+.user-level-2-chess .text-cyan-400,
+.user-level-2-chess .text-cyan-300 {
+  color: #1f5b25 !important;
+}
+
+.user-level-2-chess [class*="border-purple"],
+.user-level-2-chess [class*="border-cyan"] {
+  border-color: rgba(22, 101, 52, 0.36) !important;
+}
+
+.user-level-2-chess [class*="bg-purple"],
+.user-level-2-chess [class*="bg-cyan"] {
+  background: rgba(217, 242, 184, 0.44) !important;
+}
+
+.user-level-2-game-surface .online-game-lobby__card button {
+  color: #245824 !important;
+}
+
+.user-level-2-game-surface .online-game-lobby__card .text-sm.font-bold,
+.user-level-2-game-surface .online-game-lobby__card .text-\[11px\],
+.user-level-2-game-surface .online-game-lobby__card .relative.flex.flex-col.items-center span,
+.user-level-2-game-surface .online-game-lobby__card button span {
+  color: #2a4f1f !important;
+}
+
+.user-level-2-game-surface .online-game-lobby__card .relative.flex.flex-col.items-center .text-\[11px\] {
+  color: #35592a !important;
+}
+
+.user-level-2-game-surface .online-game-lobby__card .grid.grid-cols-2.gap-2 button:not([style*="color: rgb(255, 255, 255)"]):not([style*="color:#fff"]):not([style*="color: #fff"]) {
+  color: #23410c !important;
+}
+
+.user-level-2-game-surface .online-game-lobby__card .relative.flex.flex-col.items-center[style*="color: rgb(255, 255, 255)"] span,
+.user-level-2-game-surface .online-game-lobby__card .relative.flex.flex-col.items-center[style*="color:#fff"] span,
+.user-level-2-game-surface .online-game-lobby__card .relative.flex.flex-col.items-center[style*="color: #fff"] span {
+  color: #ffffff !important;
+}
+
+.user-level-2-game-surface .online-game-lobby__card button[class*="time-option--active"],
+.user-level-2-game-surface .online-game-lobby__card .online-game-lobby__time-option--active,
+.user-level-2-game-surface .online-game-lobby__card .online-game-lobby__create-button,
+.user-level-2-game-surface .online-game-lobby__card .online-game-lobby__join-button:not(:disabled) {
+  color: #f7fff1 !important;
+}
+
+.user-level-2-chess .text-white\/80,
+.user-level-2-chess .text-white\/70,
+.user-level-2-chess .text-white\/60 {
+  color: #e6f7dd !important;
+}
+
+.user-level-2-chess .ring-yellow-400,
+.user-level-2-chess .ring-red-500 {
+  --tw-ring-color: rgba(14, 116, 144, 0.58) !important;
+}
+
+.user-level-2-chess .border-green-500\/60,
+.user-level-2-chess .ring-green-500\/30 {
+  border-color: rgba(22, 101, 52, 0.42) !important;
+  --tw-ring-color: rgba(22, 101, 52, 0.24) !important;
+}
+
+.user-level-2-chess button[class*="border-green"],
+.user-level-2-chess [class*="border-green-500"] {
+  border-color: rgba(22, 101, 52, 0.42) !important;
+}
+
+.user-level-2-chess [style*="#7c3aed"],
+.user-level-2-chess [style*="#8b5cf6"],
+.user-level-2-chess [style*="#06b6d4"],
+.user-level-2-chess [style*="#3b82f6"],
+.user-level-2-chess [style*="#4f46e5"] {
+  color: #1f5b25 !important;
+}
+
+.user-level-2-game-surface .online-game-lobby__card svg,
+.user-level-2-game-surface .online-game-lobby__card .lucide-swords,
+.user-level-2-game-surface .online-game-lobby__card .lucide-trophy,
+.user-level-2-game-surface .online-game-lobby__card .lucide-bot,
+.user-level-2-game-surface .online-game-lobby__card .lucide-briefcase {
+  color: #2f6f2e !important;
+}
+
+.user-level-2-game-surface .online-game-lobby__card .online-game-lobby__create-button svg,
+.user-level-2-game-surface .online-game-lobby__card .online-game-lobby__join-button svg {
+  color: #f7fff1 !important;
+}
+
+.user-level-2-chess .online-game-lobby__card .border-white\/10 {
+  border-color: rgba(122, 169, 92, 0.28) !important;
+}

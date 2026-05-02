@@ -65,6 +65,7 @@ const nickName = (name) => {
 
 export default function ChessOnlineGame({ user, gameId, myEloRating = 1200, onScoreUpdate, onEloApplied, onRoomCodeChange, onMoveHistoryChange, initialRoomCode, onLeave, onVsAiChange, onVsAiRestore, onVsAiMessage, onVsAiAnalysisLoading }) {
   const isRegularUser = user && user.role !== "admin" && user.role !== "empresa";
+  const isLevel2User = isRegularUser && getLevelFromXP(user.xp ?? 0).level === 2;
   const isLevel3User = isRegularUser && getLevelFromXP(user.xp ?? 0).level === 3;
   const [vsAiDifficulty, setVsAiDifficulty] = useState(null);
   const [screen, setScreen] = useState("lobby");
@@ -924,7 +925,7 @@ export default function ChessOnlineGame({ user, gameId, myEloRating = 1200, onSc
 
   if (screen === "lobby") {
     return (
-      <div className={isLevel3User ? "user-level-3-chess" : ""}>
+      <div className={`${isLevel2User ? "user-level-2-chess" : ""} ${isLevel3User ? "user-level-3-chess" : ""}`}>
         <OnlineGameLobby
           title="♔ Ajedrez Online ♚"
           description="Juega en tiempo real con otro jugador"
@@ -966,7 +967,7 @@ export default function ChessOnlineGame({ user, gameId, myEloRating = 1200, onSc
   const isBottomPlayerActive = flip ? currentTurn === "black" : currentTurn === "white";
 
   return (
-    <div className="flex flex-col items-center gap-3 p-2 sm:p-4 w-full">
+    <div className={`flex flex-col items-center gap-3 p-2 sm:p-4 w-full ${isLevel2User ? "user-level-2-chess" : ""}`}>
       <OnlineGamePlayerZone
         topPlayer={{
           label: flip ? "Blancas" : "Negras",
@@ -1002,16 +1003,16 @@ export default function ChessOnlineGame({ user, gameId, myEloRating = 1200, onSc
         }
       />
 
-      {gameStatus === "waiting" && <div className="text-sm text-gray-400">Esperando rival...</div>}
+      {gameStatus === "waiting" && <div className={`text-sm text-gray-400 ${isLevel2User ? "user-level-2-chess-copy" : ""}`}>Esperando rival...</div>}
 
       {drawPill && (
-        <div className="text-xs text-gray-300 bg-white/5 border border-white/10 rounded-full px-4 py-1">
+        <div className={`text-xs text-gray-300 bg-white/5 border border-white/10 rounded-full px-4 py-1 ${isLevel2User ? "user-level-2-chess-pill" : ""}`}>
           {drawPill}
         </div>
       )}
 
       {gameStatus === "finished" && (
-        <div className="bg-white/10 rounded-lg px-6 py-3 flex items-center gap-3">
+        <div className={`bg-white/10 rounded-lg px-6 py-3 flex items-center gap-3 ${isLevel2User ? "user-level-2-chess-finish" : ""}`}>
           <Trophy className="w-6 h-6 text-yellow-500" />
           <span className="font-semibold">{finishedLabel}</span>
         </div>
@@ -1028,7 +1029,7 @@ export default function ChessOnlineGame({ user, gameId, myEloRating = 1200, onSc
             </div>
           </div>
         )}
-      <div className="grid grid-cols-8 border-2 border-white/10 rounded-lg overflow-hidden shadow-2xl w-full h-full">
+      <div className={`grid grid-cols-8 border-2 border-white/10 rounded-lg overflow-hidden shadow-2xl w-full h-full ${isLevel2User ? "user-level-2-chess-board" : ""}`}>
         {(() => {
           const myKingCode = playerColor === 'white' ? 'wK' : 'bK';
           let myKr = -1, myKc = -1;
@@ -1090,13 +1091,13 @@ export default function ChessOnlineGame({ user, gameId, myEloRating = 1200, onSc
 
       <div className="flex gap-3">
         {gameStatus === "playing" && (
-          <Button onClick={handleOfferDraw} variant="outline" className="border-white/10 text-gray-200">
+          <Button onClick={handleOfferDraw} variant="outline" className={isLevel2User ? "user-level-2-chess-outline-button" : "border-white/10 text-gray-200"}>
             <Scale className="w-4 h-4 mr-2" />
             {drawOfferBy === user?.email ? "Cancelar tablas" : "Ofrecer tablas"}
           </Button>
         )}
 
-        <Button onClick={() => setLeaveOpen(true)} variant="secondary">
+        <Button onClick={() => setLeaveOpen(true)} variant="secondary" className={isLevel2User ? "user-level-2-chess-secondary-button" : ""}>
           <LogOut className="w-4 h-4 mr-2" />
           {gameStatus === "finished" ? "Volver" : "Salir"}
         </Button>
@@ -1104,18 +1105,18 @@ export default function ChessOnlineGame({ user, gameId, myEloRating = 1200, onSc
 
       {/* Tablas */}
       <AlertDialog open={incomingDrawOpen} onOpenChange={setIncomingDrawOpen}>
-        <AlertDialogContent className="bg-zinc-950 border-white/10 text-white">
+        <AlertDialogContent className={isLevel2User ? "user-level-2-chess-dialog" : "bg-zinc-950 border-white/10 text-white"}>
           <AlertDialogHeader>
             <AlertDialogTitle>Oferta de tablas</AlertDialogTitle>
-            <AlertDialogDescription className="text-gray-400">
+            <AlertDialogDescription className={isLevel2User ? "user-level-2-chess-copy" : "text-gray-400"}>
               Si aceptas, la partida termina sin ganador y nadie suma puntos.
             </AlertDialogDescription>
           </AlertDialogHeader>
           <AlertDialogFooter>
-            <AlertDialogCancel className="bg-white/5 border-white/10 text-white hover:bg-white/10" onClick={handleDeclineDraw}>
+            <AlertDialogCancel className={isLevel2User ? "user-level-2-chess-cancel" : "bg-white/5 border-white/10 text-white hover:bg-white/10"} onClick={handleDeclineDraw}>
               Rechazar
             </AlertDialogCancel>
-            <AlertDialogAction className="bg-gradient-to-r from-purple-600 to-cyan-500 hover:opacity-90" onClick={handleAcceptDraw}>
+            <AlertDialogAction className={isLevel2User ? "user-level-2-chess-primary-button" : "bg-gradient-to-r from-purple-600 to-cyan-500 hover:opacity-90"} onClick={handleAcceptDraw}>
               Aceptar
             </AlertDialogAction>
           </AlertDialogFooter>
@@ -1124,20 +1125,20 @@ export default function ChessOnlineGame({ user, gameId, myEloRating = 1200, onSc
 
       {/* Salir */}
       <AlertDialog open={leaveOpen} onOpenChange={setLeaveOpen}>
-        <AlertDialogContent className="bg-zinc-950 border-white/10 text-white">
+        <AlertDialogContent className={isLevel2User ? "user-level-2-chess-dialog" : "bg-zinc-950 border-white/10 text-white"}>
           <AlertDialogHeader>
             <AlertDialogTitle>¿Salir de la partida?</AlertDialogTitle>
-            <AlertDialogDescription className="text-gray-400">
+            <AlertDialogDescription className={isLevel2User ? "user-level-2-chess-copy" : "text-gray-400"}>
               {gameStatus === "playing"
                 ? "Si sales ahora, se considerará abandono, tu rival ganará y recibirás una penalización."
                 : "Volverás al lobby."}
             </AlertDialogDescription>
           </AlertDialogHeader>
           <AlertDialogFooter>
-            <AlertDialogCancel className="bg-white/5 border-white/10 text-white hover:bg-white/10">
+            <AlertDialogCancel className={isLevel2User ? "user-level-2-chess-cancel" : "bg-white/5 border-white/10 text-white hover:bg-white/10"}>
               Cancelar
             </AlertDialogCancel>
-            <AlertDialogAction className="bg-gradient-to-r from-purple-600 to-cyan-500 hover:opacity-90" onClick={handleConfirmLeave}>
+            <AlertDialogAction className={isLevel2User ? "user-level-2-chess-primary-button" : "bg-gradient-to-r from-purple-600 to-cyan-500 hover:opacity-90"} onClick={handleConfirmLeave}>
               Salir
             </AlertDialogAction>
           </AlertDialogFooter>
@@ -1146,13 +1147,13 @@ export default function ChessOnlineGame({ user, gameId, myEloRating = 1200, onSc
 
       {/* Personalizar */}
       <Dialog open={settingsOpen} onOpenChange={setSettingsOpen}>
-        <DialogContent className="bg-zinc-950 border-white/10 text-white w-[980px] max-w-[95vw]">
+        <DialogContent className={`${isLevel2User ? "user-level-2-chess-dialog" : "bg-zinc-950 border-white/10 text-white"} w-[980px] max-w-[95vw]`}>
           <DialogHeader>
             <DialogTitle>Personalizar</DialogTitle>
           </DialogHeader>
 
           <Tabs defaultValue="piezas" className="w-full">
-            <TabsList className="bg-white/5 border border-white/10">
+            <TabsList className={isLevel2User ? "user-level-2-chess-tabs" : "bg-white/5 border border-white/10"}>
               <TabsTrigger value="tableros">Tableros</TabsTrigger>
               <TabsTrigger value="piezas">Piezas</TabsTrigger>
             </TabsList>
