@@ -52,9 +52,9 @@ export default function Layout({ children }) {
 
 React.useEffect(() => {
   if (useLevelTheme) {
-    document.documentElement.classList.remove("dark");
-    document.documentElement.classList.add("light");
-    localStorage.setItem("playcraft-theme", "light");
+    document.documentElement.classList.remove("light");
+    document.documentElement.classList.add("dark");
+    localStorage.setItem("playcraft-theme", "dark");
     return;
   }
 
