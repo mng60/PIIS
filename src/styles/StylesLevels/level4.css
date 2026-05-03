@@ -1055,124 +1055,369 @@
 .user-level-4-profile-page .text-gray-600 {
   color: #b58ccf !important;
 }
-/* ========================= */
-/* 🔮 PULIDO FINAL NIVEL 4 🔮 */
-/* ========================= */
+/* ================================================= */
+/* PULIDO REAL NIVEL 4 - ATMOSFERA / ETER MORADO */
+/* ================================================= */
 
-/* ---------- IA / CRAFTY ---------- */
+/* Titulo de inicio */
+.user-level-4-shell .user-level-4-home-title,
+.user-level-4-home-title,
+.user-level-4-home h1,
+.user-level-4-shell h1 {
+  background: linear-gradient(90deg, #fff1ff 0%, #e879f9 35%, #a855f7 65%, #38bdf8 100%) !important;
+  -webkit-background-clip: text !important;
+  background-clip: text !important;
+  color: transparent !important;
+  -webkit-text-stroke: 0 !important;
+  text-shadow:
+    0 0 16px rgba(232, 121, 249, 0.42),
+    0 0 36px rgba(168, 85, 247, 0.32),
+    0 2px 12px rgba(24, 10, 44, 0.78) !important;
+}
 
-.user-level-4-crafty-panel {
-  border: 1px solid rgba(216, 180, 254, 0.4) !important;
-  background: linear-gradient(180deg, rgba(30, 10, 54, 0.96), rgba(12, 6, 24, 0.96)) !important;
+/* Subtitulo inicio */
+.user-level-4-home-subtitle,
+.user-level-4-home p,
+.user-level-4-shell .user-level-4-copy {
+  color: #f3d8ff !important;
+  text-shadow: 0 0 12px rgba(168, 85, 247, 0.22);
+}
+
+/* Buscador de juegos */
+.user-level-4-games-search,
+.user-level-4-games-page input,
+.user-level-4-shell input[type="text"],
+.user-level-4-shell input[type="search"] {
+  background: rgba(24, 10, 44, 0.72) !important;
+  border: 1px solid rgba(216, 180, 254, 0.42) !important;
+  color: #fff7ff !important;
+  -webkit-text-fill-color: #fff7ff !important;
   box-shadow:
-    0 20px 40px rgba(18, 5, 34, 0.5),
-    0 0 30px rgba(168, 85, 247, 0.2);
+    0 0 0 1px rgba(250, 232, 255, 0.05) inset,
+    0 10px 24px rgba(24, 10, 44, 0.24) !important;
 }
 
-.user-level-4-crafty-header {
-  border-bottom: 1px solid rgba(216, 180, 254, 0.25);
-  color: #f0abfc;
+.user-level-4-games-search::placeholder,
+.user-level-4-games-page input::placeholder,
+.user-level-4-shell input[type="text"]::placeholder,
+.user-level-4-shell input[type="search"]::placeholder {
+  color: #caa7df !important;
+  -webkit-text-fill-color: #caa7df !important;
 }
 
-.user-level-4-crafty-message {
-  background: rgba(168, 85, 247, 0.12);
-  color: #fff7ff;
+/* Filtros de categorias */
+.user-level-4-games-filter,
+.user-level-4-games-page button:not(.user-level-4-games-filter-active):not(.user-level-4-button) {
+  border: 1px solid rgba(216, 180, 254, 0.28) !important;
+  background: linear-gradient(135deg, rgba(24, 10, 44, 0.92), rgba(49, 18, 78, 0.88)) !important;
+  color: #f3d8ff !important;
+  box-shadow:
+    0 8px 18px rgba(24, 10, 44, 0.26),
+    0 0 14px rgba(168, 85, 247, 0.08) !important;
 }
 
-.user-level-4-crafty-message-mine {
-  background: linear-gradient(135deg, #7e22ce, #c084fc);
-  color: white;
+.user-level-4-games-filter:hover,
+.user-level-4-games-page button:not(.user-level-4-games-filter-active):hover {
+  background: linear-gradient(135deg, rgba(76, 29, 149, 0.94), rgba(126, 34, 206, 0.88)) !important;
+  border-color: rgba(232, 121, 249, 0.48) !important;
+  color: #ffffff !important;
 }
 
-.user-level-4-crafty-input {
-  background: rgba(24, 10, 44, 0.6);
-  border: 1px solid rgba(216, 180, 254, 0.3);
-  color: #fff;
+.user-level-4-games-filter-active,
+.user-level-4-games-page button.bg-gradient-to-r,
+.user-level-4-games-page button[class*="from-purple"],
+.user-level-4-games-page button[class*="to-cyan"] {
+  background: linear-gradient(135deg, #7e22ce 0%, #a855f7 52%, #06b6d4 100%) !important;
+  border: 1px solid rgba(245, 208, 254, 0.38) !important;
+  color: #fff7ff !important;
+  box-shadow:
+    0 12px 26px rgba(168, 85, 247, 0.32),
+    0 0 24px rgba(6, 182, 212, 0.14) !important;
 }
 
-.user-level-4-crafty-send {
-  background: linear-gradient(135deg, #7e22ce, #e879f9);
-  color: white;
+/* Tabs torneos */
+.user-level-4-tournaments-tab,
+.user-level-4-tournaments-page button {
+  border: 1px solid rgba(216, 180, 254, 0.22) !important;
+  background: rgba(24, 10, 44, 0.72) !important;
+  color: #e9d5ff !important;
 }
 
+.user-level-4-tournaments-tab-active,
+.user-level-4-tournaments-page button[class*="from-purple"],
+.user-level-4-tournaments-page button[class*="to-cyan"] {
+  background: linear-gradient(135deg, #7e22ce 0%, #a855f7 52%, #06b6d4 100%) !important;
+  color: #fff7ff !important;
+  box-shadow: 0 12px 26px rgba(168, 85, 247, 0.28) !important;
+}
 
-/* ---------- CHAT / MENSAJES ---------- */
+/* Footer */
+.user-level-4-footer,
+.user-level-4-shell footer {
+  border-color: rgba(216, 180, 254, 0.22) !important;
+  background: rgba(24, 10, 44, 0.28) !important;
+}
 
+.user-level-4-footer-text,
+.user-level-4-shell footer p {
+  color: #fff7ff !important;
+  text-shadow: 0 0 12px rgba(168, 85, 247, 0.24);
+}
+
+/* Perfil */
+.user-level-4-profile-hero,
+.user-level-4-profile-page > div:first-child,
+.user-level-4-profile-page .bg-gradient-to-r,
+.user-level-4-profile-page .bg-white\/5 {
+  border-color: rgba(216, 180, 254, 0.32) !important;
+  background:
+    radial-gradient(circle at 12% 20%, rgba(232, 121, 249, 0.18) 0%, transparent 32%),
+    linear-gradient(135deg, rgba(49, 18, 78, 0.7), rgba(24, 10, 44, 0.82)) !important;
+  box-shadow:
+    0 18px 42px rgba(18, 5, 34, 0.28),
+    0 0 28px rgba(168, 85, 247, 0.12) !important;
+}
+
+.user-level-4-profile-name,
+.user-level-4-profile-page h1,
+.user-level-4-profile-page h2 {
+  color: #fff7ff !important;
+  text-shadow: 0 0 16px rgba(232, 121, 249, 0.24);
+}
+
+.user-level-4-profile-level-label,
+.user-level-4-profile-page .text-orange-400,
+.user-level-4-profile-page .text-yellow-400,
+.user-level-4-profile-page .text-yellow-500 {
+  color: #f9d56e !important;
+}
+
+.user-level-4-profile-progress-fill,
+.user-level-4-profile-page [class*="bg-gradient-to-r"][class*="from-yellow"],
+.user-level-4-profile-page [class*="bg-yellow"] {
+  background: linear-gradient(90deg, #f59e0b 0%, #e879f9 52%, #a855f7 100%) !important;
+  box-shadow: 0 0 18px rgba(232, 121, 249, 0.22) !important;
+}
+
+/* Boton cambiar contraseña y acciones perfil */
+.user-level-4-profile-action-button,
+.user-level-4-profile-page button,
+.user-level-4-profile-dialog-save {
+  border-color: rgba(245, 208, 254, 0.34) !important;
+}
+
+.user-level-4-profile-page button[class*="bg-cyan"],
+.user-level-4-profile-page button[class*="to-cyan"],
+.user-level-4-profile-page button[class*="from-cyan"] {
+  background: linear-gradient(135deg, #7e22ce 0%, #e879f9 58%, #06b6d4 100%) !important;
+  color: #fff7ff !important;
+  box-shadow:
+    0 12px 26px rgba(168, 85, 247, 0.28),
+    0 0 20px rgba(6, 182, 212, 0.16) !important;
+}
+
+/* Tarjetas generales */
+.user-level-4-game-card,
+.user-level-4-news-card,
+.user-level-4-featured-card,
+.user-level-4-profile-panel,
+.user-level-4-profile-stat-card,
+.user-level-4-detail-panel,
+.user-level-4-game-surface,
+.user-level-4-history,
+.user-level-4-comment-card {
+  border-color: rgba(216, 180, 254, 0.32) !important;
+  background:
+    radial-gradient(circle at 18% 0%, rgba(232, 121, 249, 0.16) 0%, transparent 34%),
+    linear-gradient(145deg, rgba(49, 18, 78, 0.78), rgba(18, 9, 34, 0.86)) !important;
+  box-shadow:
+    0 0 0 1px rgba(250, 232, 255, 0.06) inset,
+    0 18px 42px rgba(18, 5, 34, 0.34),
+    0 0 28px rgba(168, 85, 247, 0.14) !important;
+}
+
+/* IA / Crafty - nombres reales usados en nivel 2 */
+.user-level-4-crafty .rounded-full.bg-gradient-to-br.from-purple-600.to-cyan-500,
+.user-level-4-floating-chat .rounded-full.bg-purple-600,
+.user-level-4-floating-chat .rounded-full.bg-purple-700 {
+  background: linear-gradient(135deg, #7e22ce 0%, #e879f9 62%, #06b6d4 100%) !important;
+  color: #fff7ff !important;
+  box-shadow: 0 0 22px rgba(232, 121, 249, 0.28) !important;
+}
+
+.user-level-4-crafty-panel,
 .user-level-4-floating-chat-panel {
-  background: linear-gradient(180deg, rgba(30, 10, 54, 0.96), rgba(12, 6, 24, 0.96)) !important;
-  border: 1px solid rgba(216, 180, 254, 0.3);
+  background:
+    radial-gradient(circle at 18% 0%, rgba(232, 121, 249, 0.2) 0%, transparent 34%),
+    linear-gradient(180deg, rgba(30, 10, 54, 0.98), rgba(12, 6, 24, 0.98)) !important;
+  border-color: rgba(216, 180, 254, 0.32) !important;
+  box-shadow:
+    0 24px 50px rgba(12, 6, 24, 0.48),
+    0 0 34px rgba(168, 85, 247, 0.2) !important;
 }
 
+.user-level-4-crafty-header,
 .user-level-4-floating-chat-header {
-  color: #e879f9;
+  background: linear-gradient(135deg, rgba(88, 28, 135, 0.96), rgba(168, 85, 247, 0.92), rgba(6, 182, 212, 0.82)) !important;
+  border-color: rgba(245, 208, 254, 0.18) !important;
+  color: #fff7ff !important;
 }
 
-.user-level-4-floating-chat-message {
-  background: rgba(168, 85, 247, 0.12);
-  color: #fff;
+.user-level-4-crafty-assistant-message,
+.user-level-4-floating-chat-message:not(.user-level-4-floating-chat-message-mine) {
+  background: rgba(49, 18, 78, 0.72) !important;
+  color: #fff7ff !important;
+  border: 1px solid rgba(216, 180, 254, 0.24) !important;
 }
 
-.user-level-4-floating-chat-message-mine {
-  background: linear-gradient(135deg, #7e22ce, #c084fc);
-  color: white;
-}
-
-.user-level-4-floating-chat-input {
-  background: rgba(24, 10, 44, 0.6);
-  border: 1px solid rgba(216, 180, 254, 0.3);
-  color: white;
-}
-
+.user-level-4-crafty-user-message,
+.user-level-4-floating-chat-message-mine,
+.user-level-4-crafty-button,
+.user-level-4-floating-chat-button,
 .user-level-4-floating-chat-send {
-  background: linear-gradient(135deg, #7e22ce, #e879f9);
-  color: white;
+  background: linear-gradient(135deg, #7e22ce 0%, #e879f9 60%, #06b6d4 100%) !important;
+  color: #fff7ff !important;
+  box-shadow: 0 14px 28px rgba(168, 85, 247, 0.26) !important;
 }
 
-
-/* ---------- BOTONES IA / ICONOS ---------- */
-
-.user-level-4-shell button svg {
-  filter: drop-shadow(0 0 6px rgba(232, 121, 249, 0.4));
+.user-level-4-crafty-input-wrap,
+.user-level-4-floating-chat-input-wrap {
+  border-color: rgba(216, 180, 254, 0.18) !important;
 }
 
-
-/* ---------- FILTROS DE JUEGOS (FIX MORADO) ---------- */
-
-.user-level-4-games-filter {
-  border: 1px solid rgba(192, 132, 252, 0.5) !important;
-  background: linear-gradient(135deg, #3b0764, #6d28d9) !important;
-  color: #f5d0fe !important;
+.user-level-4-crafty-input,
+.user-level-4-crafty-input-field,
+.user-level-4-floating-chat-input {
+  background: rgba(24, 10, 44, 0.72) !important;
+  border-color: rgba(216, 180, 254, 0.34) !important;
+  color: #fff7ff !important;
+  -webkit-text-fill-color: #fff7ff !important;
 }
 
-.user-level-4-games-filter:hover {
-  background: linear-gradient(135deg, #4c1d95, #a855f7) !important;
-  color: white !important;
+.user-level-4-crafty-input-field::placeholder,
+.user-level-4-floating-chat-input::placeholder {
+  color: #caa7df !important;
 }
 
-
-/* ---------- BOTONES GENERALES EXTRA ---------- */
-
-.user-level-4-comment-button,
-.user-level-4-hero-button,
-.user-level-4-featured-button {
-  background: linear-gradient(135deg, #6d28d9, #e879f9) !important;
-  color: white !important;
-  box-shadow: 0 10px 24px rgba(168, 85, 247, 0.3);
+/* Ajedrez - quitar verdes/azules heredados */
+.user-level-4-chess .online-game-lobby__title,
+.user-level-4-chess h1,
+.user-level-4-chess h2 {
+  background: linear-gradient(90deg, #fff1ff 0%, #e879f9 48%, #06b6d4 100%) !important;
+  -webkit-background-clip: text !important;
+  background-clip: text !important;
+  color: transparent !important;
+  text-shadow: 0 0 18px rgba(232, 121, 249, 0.28) !important;
 }
 
-.user-level-4-comment-button:hover,
-.user-level-4-hero-button:hover,
-.user-level-4-featured-button:hover {
-  background: linear-gradient(135deg, #7e22ce, #f0abfc) !important;
+.user-level-4-chess .online-game-lobby__card,
+.user-level-4-chess .online-game-player-zone__card,
+.user-level-4-chess-dialog,
+.user-level-4-chess-room-code {
+  border-color: rgba(216, 180, 254, 0.36) !important;
+  background:
+    radial-gradient(circle at 18% 0%, rgba(232, 121, 249, 0.14), transparent 34%),
+    linear-gradient(180deg, rgba(49, 18, 78, 0.78), rgba(18, 9, 34, 0.88)) !important;
 }
 
-
-/* ---------- MICRO DETALLES ---------- */
-
-.user-level-4-shell a:hover {
-  color: #f0abfc !important;
+.user-level-4-chess .online-game-lobby__time-option,
+.user-level-4-chess .online-game-lobby__mode-option,
+.user-level-4-chess button {
+  border-color: rgba(216, 180, 254, 0.34) !important;
+  background: rgba(24, 10, 44, 0.68) !important;
+  color: #e9d5ff !important;
 }
 
-.user-level-4-shell hr {
-  border-color: rgba(216, 180, 254, 0.2);
+.user-level-4-chess .online-game-lobby__time-option:hover,
+.user-level-4-chess .online-game-lobby__mode-option:hover,
+.user-level-4-chess button:hover {
+  border-color: rgba(232, 121, 249, 0.58) !important;
+  background: rgba(88, 28, 135, 0.58) !important;
+  color: #fff7ff !important;
+}
+
+.user-level-4-chess .online-game-lobby__time-option--active,
+.user-level-4-chess .online-game-lobby__mode-option--active,
+.user-level-4-chess button[class*="border-green"],
+.user-level-4-chess button[class*="bg-green"],
+.user-level-4-chess button[class*="bg-cyan"],
+.user-level-4-chess .online-game-player-zone__card--active {
+  border-color: rgba(232, 121, 249, 0.78) !important;
+  background: linear-gradient(135deg, #7e22ce 0%, #e879f9 58%, #06b6d4 100%) !important;
+  color: #fff7ff !important;
+  box-shadow:
+    0 0 0 2px rgba(232, 121, 249, 0.22),
+    0 14px 30px rgba(168, 85, 247, 0.22) !important;
+}
+
+.user-level-4-chess [class*="text-green"],
+.user-level-4-chess [class*="text-emerald"],
+.user-level-4-chess [class*="text-teal"],
+.user-level-4-chess [class*="text-cyan"] {
+  color: #e879f9 !important;
+}
+
+/* Snake */
+.user-level-4-snake-shell,
+.user-level-4-snake-shell .bg-black,
+.user-level-4-snake-shell [class*="bg-black"] {
+  border-color: rgba(216, 180, 254, 0.34) !important;
+  background:
+    radial-gradient(circle at 50% 38%, rgba(168, 85, 247, 0.08), transparent 36%),
+    linear-gradient(180deg, rgba(8, 5, 16, 0.98), rgba(2, 2, 6, 0.98)) !important;
+  box-shadow:
+    0 18px 44px rgba(18, 5, 34, 0.42),
+    0 0 30px rgba(168, 85, 247, 0.16) !important;
+}
+
+.user-level-4-snake-shell [class*="text-green"],
+.user-level-4-snake-shell [class*="text-emerald"],
+.user-level-4-snake-shell button[class*="bg-green"] {
+  color: #e879f9 !important;
+}
+
+.user-level-4-snake-button,
+.user-level-4-snake-shell button[class*="bg-green"],
+.user-level-4-snake-shell button[class*="bg-emerald"] {
+  background: linear-gradient(135deg, #7e22ce 0%, #e879f9 62%, #06b6d4 100%) !important;
+  color: #fff7ff !important;
+  border: 1px solid rgba(245, 208, 254, 0.34) !important;
+}
+
+/* Pong */
+.user-level-4-pong,
+.user-level-4-pong [class*="bg-black"] {
+  color: #f8e7ff !important;
+}
+
+.user-level-4-pong-canvas,
+.user-level-4-pong .bg-black,
+.user-level-4-pong [class*="bg-black"] {
+  border-color: rgba(216, 180, 254, 0.34) !important;
+  background:
+    radial-gradient(circle at 50% 40%, rgba(168, 85, 247, 0.08), transparent 36%),
+    linear-gradient(180deg, rgba(8, 5, 16, 0.98), rgba(2, 2, 6, 0.98)) !important;
+  box-shadow:
+    0 18px 44px rgba(18, 5, 34, 0.42),
+    0 0 30px rgba(168, 85, 247, 0.16) !important;
+}
+
+.user-level-4-pong-option,
+.user-level-4-pong button:not(.user-level-4-pong-button) {
+  background: rgba(24, 10, 44, 0.72) !important;
+  border-color: rgba(216, 180, 254, 0.24) !important;
+  color: #e9d5ff !important;
+}
+
+.user-level-4-pong-option-active,
+.user-level-4-pong button[class*="bg-purple"],
+.user-level-4-pong button[class*="from-purple"] {
+  background: linear-gradient(135deg, #7e22ce 0%, #e879f9 58%, #06b6d4 100%) !important;
+  color: #fff7ff !important;
+}
+
+.user-level-4-pong-button {
+  background: linear-gradient(135deg, #7e22ce 0%, #e879f9 58%, #06b6d4 100%) !important;
+  color: #fff7ff !important;
+  border: 1px solid rgba(245, 208, 254, 0.34) !important;
 }
