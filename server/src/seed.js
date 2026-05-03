@@ -4,9 +4,10 @@ import bcrypt from 'bcryptjs';
 const prisma = new PrismaClient();
 
 const users = [
-  { email: 'admin@playcraft.com',   full_name: 'Admin PlayCraft',   password: 'admin123',   role: 'admin'   },
-  { email: 'usuario@playcraft.com', full_name: 'Usuario Normal',    password: 'user123',    role: 'user'    },
-  { email: 'empresa@playcraft.com', full_name: 'Empresa PlayCraft', password: 'empresa123', role: 'empresa' },
+  { email: 'admin@playcraft.com',      full_name: 'Admin PlayCraft',   password: 'admin123',    role: 'admin'   },
+  { email: 'usuario@playcraft.com',    full_name: 'Usuario Normal',    password: 'user123',     role: 'user'    },
+  { email: 'empresa@playcraft.com',    full_name: 'Empresa PlayCraft', password: 'empresa123',  role: 'empresa' },
+  { email: 'gonzalo1904@playcraft.com', full_name: 'gonzalo1904',      password: 'gonzalo1904', role: 'empresa' },
 ];
 
 const games = [
@@ -58,6 +59,19 @@ const games = [
     publisher: 'PlayCraft',
     created_by: 'admin@playcraft.com',
   },
+  {
+    title: 'Settlers of Catan',
+    description: 'Clon web multijugador de Settlers of Catan.',
+    full_description: 'Juego multijugador web embebido en PIISy mediante iframe para jugar sin salir de la plataforma.',
+    category: 'arcade',
+    game_type: 'html5',
+    game_code: 'settlers-of-catan',
+    game_url: 'https://catan-rouge.vercel.app/?hideChat=1',
+    is_active: true,
+    is_multiplayer: true,
+    publisher: 'gonzalo1904',
+    created_by: 'gonzalo1904@playcraft.com',
+  },
 ];
 
 async function main() {
@@ -74,7 +88,14 @@ async function main() {
 
   console.log('\nSembrando juegos...\n');
   for (const g of games) {
-    const existing = await prisma.game.findFirst({ where: { game_code: g.game_code } });
+    const existing = await prisma.game.findFirst({
+      where: {
+        OR: [
+          { game_code: g.game_code },
+          ...(g.game_code === 'settlers-of-catan' ? [{ game_code: 'settlers-of-hexagonia' }, { game_code: 'traders-of-nadak' }, { game_code: 'external-demo' }] : []),
+        ],
+      },
+    });
     if (existing) {
       await prisma.game.update({ where: { id: existing.id }, data: g });
       console.log(`  [actualizado]  ${g.title}`);

@@ -276,6 +276,8 @@ model GameSession {
   host_name     String
   guest_email   String?
   guest_name    String?
+  players       Json          @default("[]")
+  max_players   Int           @default(2)
   game_state    Json          @default("{}")
   current_turn  String        @default("host")
   winner        String?

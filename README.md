@@ -99,7 +99,7 @@ El seed hace dos cosas:
 | Usuario | usuario@playcraft.com | user1234 |
 | Empresa | empresa@playcraft.com | empresa123 |
 
-2. **Importa los juegos de producción** — descarga todos los juegos de la API de prod y los inserta en tu BD con `plays_count`, `rating_sum` y `rating_count` a 0. Los scores y comentarios de prod no se importan, así que esos contadores no tendrían sentido. Si ya tienes los juegos y vuelves a ejecutar el seed, solo actualiza los campos de contenido sin tocar tus contadores locales.
+2. **Importa los juegos de producción** — descarga todos los juegos de la API de prod y los inserta en tu BD con `plays_count`, `rating_sum` y `rating_count` a 0. Si la API de prod no responde, usa los 3 juegos locales de respaldo para que el seed siga funcionando. Los scores y comentarios de prod no se importan, así que esos contadores no tendrían sentido. Si ya tienes los juegos y vuelves a ejecutar el seed, solo actualiza los campos de contenido sin tocar tus contadores locales.
 
 El resto de tablas (`Comment`, `Favorite`, `Tournament`, `GameSession`, `ChessRoom`, `ChatMessage`, `Report`, `UserAchievement`…) se quedan vacías y se van rellenando mientras pruebas en local.
 
@@ -180,7 +180,8 @@ Los cinco hooks se dividen en tres roles:
 |-----|------|
 | Datos del detalle de juego | `useGameDetail` |
 | Ciclo de vida single-player | `useSinglePlayerGame` |
-| **Multijugador activo** — sincronización iframe | `useTurnGameRelay` ← base |
+| **Multijugador activo (2)** — sincronización iframe | `useTurnGameRelay` ← base |
+| **Multijugador grupo (2-6)** — sincronización iframe | `useGroupGameRelay` |
 | **Multijugador activo** — protocolo de ajedrez | `useChessGame` ← capa sobre la base |
 | **Multijugador activo** — componentes React propios (2 ó N jugadores) | `useGameRoom` |
 
@@ -247,6 +248,20 @@ const { moveHistory } = useTurnGameRelay({
 // Contiene las jugadas de ambos jugadores en orden de llegada.
 // Solo se rellena si se pasa formatMoveLabel.
 ```
+
+---
+
+### `useGroupGameRelay` — multijugador activo en grupo (hasta 6 jugadores)
+
+**Es un superset de `useTurnGameRelay` diseñado para gestionar salas grandes o juegos de mesa.** En lugar de estar limitado a `host` y `guest`, este hook incorpora dinámicamente jugadores al JSON `players` de la sala y asigna roles secuenciales (`player_0`, `player_1`, `player_2`, etc.).
+
+| Novedad | Descripción |
+|---------|-------------|
+| Diferente inicialización | En `CREATE_ROOM` puedes enviar un parámetro `maxPlayers` al iframe (por defecto 6). |
+| Arranque automático | La sala pasa a `playing` cuando se llega a `max_players` y se rechazan futuras conexiones. |
+| Arranque forzado temprano | El host (`player_0`) puede enviar un mensaje `START_GAME` desde el iframe para comenzar el juego inmediatamente (ej. jugar 4 personas en sala de 6). El hook bloqueará la entrada a nuevos invitados notificando a todos con `GAME_STARTED`. |
+
+El formato de callbacks y mensajes es idéntico a `useTurnGameRelay` (`actionType`, `buildOpponentMessage`, etc.), haciéndolo muy robusto y fácil de implementar.
 
 ---
 

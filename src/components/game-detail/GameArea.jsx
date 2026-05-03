@@ -41,6 +41,7 @@ export default function GameArea({
   const [vsAiDifficulty, setVsAiDifficulty] = useState(null);
   const [vsAiAnalysisLoading, setVsAiAnalysisLoading] = useState(false);
   const vsAiChatContainerRef = useRef(null);
+  const [iframeMoveHistory, setIframeMoveHistory] = useState([]);
 
   useEffect(() => {
     if (vsAiChatContainerRef.current) {
@@ -68,26 +69,27 @@ export default function GameArea({
 
   useChessGame({ isPlaying, user, gameId, iframeRef, onRoomCodeChange: onChatSessionIdChange });
 
-  // Fetch HTML5 game content
+  // Reset iframe move history when a new session starts
+  useEffect(() => { setIframeMoveHistory([]); }, [chatSessionId]);
+
+  // For HTML5 games with inline content, use srcDoc; otherwise use src directly
   useEffect(() => {
     if (game?.game_type !== 'html5') return;
     if (game.html_content) { setIframeSrcDoc(game.html_content); return; }
-    if (!game.game_url) return;
-    let cancelled = false;
-    fetch(game.game_url)
-      .then(r => r.text())
-      .then(html => { if (!cancelled) setIframeSrcDoc(html); })
-      .catch(console.error);
-    return () => { cancelled = true; };
-  }, [game?.html_content, game?.game_url, game?.game_type]);
+    setIframeSrcDoc(null);
+  }, [game?.html_content, game?.game_type]);
 
-  // Forward score/game-over messages from the iframe to the parent handler
+  // Forward score/game-over/move messages from the iframe to the parent handler
   useEffect(() => {
     const handler = (event) => {
       const { data } = event;
       if (!data || typeof data !== 'object') return;
       if ((data.type === 'SCORE_UPDATE' || data.type === 'GAME_OVER') && typeof data.score === 'number') {
         onScoreUpdate(data.score);
+      }
+      // MOVE_UPDATE: { type: 'MOVE_UPDATE', move: { player, move, timestamp } }
+      if (data.type === 'MOVE_UPDATE' && data.move) {
+        setIframeMoveHistory(prev => [...prev, data.move]);
       }
     };
     window.addEventListener('message', handler);
@@ -149,7 +151,7 @@ export default function GameArea({
     }
     if (game.game_type === 'html5') {
       if (!isPlaying) return <GameCover game={game} onPlay={onPlay} />;
-      if (!iframeSrcDoc) return (
+      if (!iframeSrcDoc && !game.game_url) return (
         <div className="aspect-video flex items-center justify-center">
           <Loader2 className="w-8 h-8 animate-spin text-purple-500" />
         </div>
@@ -157,10 +159,10 @@ export default function GameArea({
       return (
         <iframe
           ref={iframeRef}
-          srcDoc={iframeSrcDoc}
+          {...(iframeSrcDoc ? { srcDoc: iframeSrcDoc } : { src: game.game_url })}
           className="w-full aspect-video"
-          sandbox="allow-scripts allow-forms allow-modals allow-pointer-lock"
-          allow="pointer-lock"
+          sandbox="allow-scripts allow-forms allow-modals allow-pointer-lock allow-same-origin allow-popups"
+          allow="pointer-lock *"
           title={game.title}
           onLoad={handleIframeLoad}
         />
@@ -226,7 +228,7 @@ export default function GameArea({
           {/* History: 35% */}
           <div className="min-h-0" style={{ flex: '7 0 0' }}>
             <OnlineGameMoveHistory
-              moves={chessMoveHistory}
+              moves={game.game_type === 'html5' ? iframeMoveHistory : chessMoveHistory}
               title="Historial de jugadas"
               emptyMessage="Aún no hay movimientos"
               chessPairs={game.game_code === 'chess-online'}
