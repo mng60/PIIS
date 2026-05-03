@@ -64,20 +64,9 @@ export default function Layout({ children }) {
 
 
 
-React.useEffect(() => {
-  if (useLevelTheme) {
-    document.documentElement.classList.remove("dark");
-    localStorage.setItem("playcraft-theme", "light");
-  } else {
-    if (isDark) {
-      document.documentElement.classList.add("dark");
-      localStorage.setItem("playcraft-theme", "dark");
-    } else {
-      document.documentElement.classList.remove("dark");
-      localStorage.setItem("playcraft-theme", "light");
-    }
-  }
-}, [isDark, useLevelTheme]);
+  React.useEffect(() => {
+  localStorage.setItem("playcraft-level-theme", String(useLevelTheme));
+}, [useLevelTheme]);
 
 
 
@@ -258,33 +247,20 @@ const isLevel5User = useLevelTheme && userLevel === 5;
           <NavLinks />
 
           <div className="flex items-center gap-3">
-<Button
+            <Button
   variant="ghost"
   size="icon"
-  onClick={() => {
-    if (!useLevelTheme) {
-      setIsDark(!isDark);
-    }
-  }}
-  disabled={useLevelTheme}
-  className={`
-    ${useLevelTheme 
-      ? "opacity-40 cursor-not-allowed" 
-      : isLevel5User ? "user-level-5-topbar-idle"
-      : isLevel4User ? "user-level-4-topbar-idle"
-      : isLevel3User ? "user-level-3-topbar-idle"
-      : isLevel2User ? "user-level-2-topbar-idle"
-      : isLevel1User ? "user-level-1-topbar-idle"
-      : isDark ? "text-gray-400 hover:text-white hover:bg-white/5"
-      : "text-gray-500 hover:text-gray-900 hover:bg-gray-100"}
-  `}
-  title={
+  onClick={() => setUseLevelTheme(!useLevelTheme)}
+  className={
     useLevelTheme
-      ? "Desactiva niveles para cambiar tema"
-      : isDark ? "Modo claro" : "Modo oscuro"
+      ? "text-purple-400 hover:text-white hover:bg-purple-500/10"
+      : isDark
+        ? "text-gray-400 hover:text-white hover:bg-white/5"
+        : "text-gray-500 hover:text-gray-900 hover:bg-gray-100"
   }
+  title={useLevelTheme ? "Desactivar estilos de nivel" : "Activar estilos de nivel"}
 >
-  {isDark ? <Sun className="w-4 h-4" /> : <Moon className="w-4 h-4" />}
+  <Trophy className="w-4 h-4" />
 </Button>
             <Button
               variant="ghost"
