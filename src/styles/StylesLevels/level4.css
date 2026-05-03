@@ -1,19 +1,60 @@
-/* Estilos completos del nivel 4 para la parte de usuario.
-   Basado en la estructura real de level1.css y level2.css, manteniendo las mismas clases y estados.
-   Nivel 4: penultimo nivel, energia violeta, cristal neon y atmosfera previa al nivel maximo.
-*/
+/* =========================================================
+   NIVEL 4 - CORREGIDO COMPLETO
+   Penultimo nivel: energia violeta, cristal oscuro y neon.
+   Mantiene compatibilidad con los componentes definidos en nivel 1 y nivel 2.
+   ========================================================= */
 
 .user-level-4-shell {
   --level4-primary: #a855f7;
   --level4-primary-strong: #6d28d9;
   --level4-accent: #e879f9;
-  --level4-surface: rgba(4, 20, 34, 0.72);
-  --level4-surface-strong: rgba(7, 27, 44, 0.82);
-  --level4-border: rgba(232, 121, 249, 0.30);
+  --level4-gold: #facc15;
+  --level4-title: #fff7ff;
   --level4-text: #f5d0fe;
-  --level4-text-soft: #d8b4fe;
+  --level4-text-soft: #e9d5ff;
+  --level4-muted: #c4a7d8;
+  --level4-surface: rgba(26, 10, 48, 0.72);
+  --level4-surface-strong: rgba(39, 14, 71, 0.88);
+  --level4-border: rgba(232, 121, 249, 0.34);
+  --level4-border-strong: rgba(245, 208, 254, 0.72);
   --level4-shadow: rgba(168, 85, 247, 0.32);
+  --level4-glow-soft: rgba(232, 121, 249, 0.28);
+  --level4-card-bg: linear-gradient(180deg, rgba(34, 12, 64, 0.88) 0%, rgba(76, 29, 149, 0.74) 100%);
+  --level4-card-shadow: 0 16px 38px rgba(10, 4, 24, 0.42), 0 0 0 1px rgba(245, 208, 254, 0.10) inset, 0 0 24px rgba(168, 85, 247, 0.12);
+  --level4-card-shadow-hover: 0 20px 50px rgba(10, 4, 24, 0.52), 0 0 36px rgba(232, 121, 249, 0.30), 0 0 0 1px rgba(245, 208, 254, 0.18) inset;
+  --level4-media-bg: linear-gradient(135deg, rgba(168, 85, 247, 0.30), rgba(232, 121, 249, 0.16));
+  --level4-button-bg: linear-gradient(135deg, #9333ea 0%, #c026d3 55%, #e879f9 100%);
+  --level4-button-bg-hover: linear-gradient(135deg, #a855f7 0%, #d946ef 55%, #f0abfc 100%);
+  --level4-button-border: rgba(245, 208, 254, 0.36);
+  --level4-button-text: #fff7ff;
+  --level4-button-shadow: 0 12px 28px rgba(88, 28, 135, 0.36), 0 0 22px rgba(232, 121, 249, 0.22);
+  --level4-button-shadow-hover: 0 14px 34px rgba(88, 28, 135, 0.44), 0 0 30px rgba(232, 121, 249, 0.32);
+  --level4-control-bg: rgba(34, 12, 64, 0.58);
+  --level4-control-bg-hover: rgba(76, 29, 149, 0.70);
+  --level4-control-border: rgba(232, 121, 249, 0.26);
+  --level4-badge-bg: linear-gradient(135deg, #7e22ce 0%, #c026d3 55%, #e879f9 100%);
+  --level4-badge-shadow: 0 10px 24px rgba(168, 85, 247, 0.28), 0 0 18px rgba(232, 121, 249, 0.22);
+  --level4-danger-bg: linear-gradient(135deg, #facc15 0%, #a855f7 100%);
+  --level4-danger-border: rgba(250, 204, 21, 0.46);
+  --level4-danger-text: #21102f;
+  --level4-favorite-bg: rgba(250, 204, 21, 0.16);
+  --level4-favorite-border: rgba(250, 204, 21, 0.38);
+  --level4-share-bg: rgba(232, 121, 249, 0.14);
+  --level4-share-border: rgba(232, 121, 249, 0.34);
+  --level4-input-bg: rgba(24, 9, 45, 0.76);
+  --level4-input-border: rgba(232, 121, 249, 0.34);
+  --level4-input-shadow: inset 0 0 16px rgba(10, 4, 24, 0.20), 0 10px 24px rgba(10, 4, 24, 0.18);
+  --level4-focus-shadow: 0 0 0 1px rgba(245, 208, 254, 0.34), 0 0 24px rgba(232, 121, 249, 0.26);
+  --level4-hero-card-bg: radial-gradient(circle at 78% 12%, rgba(232, 121, 249, 0.22) 0%, transparent 34%), linear-gradient(135deg, rgba(49, 18, 86, 0.86) 0%, rgba(22, 7, 44, 0.92) 56%, rgba(76, 29, 149, 0.70) 100%);
+  --level4-hero-shadow: 0 22px 52px rgba(10, 4, 24, 0.50), 0 0 34px rgba(232, 121, 249, 0.18);
+  --level4-avatar-shadow: 0 0 0 3px rgba(232, 121, 249, 0.18), 0 0 28px rgba(232, 121, 249, 0.34);
+  --level4-track-bg: rgba(245, 208, 254, 0.14);
+  --level4-progress-bg: linear-gradient(90deg, #9333ea 0%, #e879f9 100%);
+  --level4-progress-shadow: 0 0 18px rgba(232, 121, 249, 0.34);
+  --level4-overlay-bg: linear-gradient(180deg, rgba(10, 4, 24, 0.90), rgba(49, 18, 86, 0.82));
+  --level4-soft-bg: rgba(38, 16, 72, 0.42);
 }
+
 
 .user-level-4-shell .neon-glow {
   box-shadow:
@@ -25,7 +66,7 @@
   background: linear-gradient(135deg, rgba(168, 85, 247, 0.94), rgba(217, 70, 239, 0.94)) !important;
   color: #fff7ff !important;
   box-shadow: 0 14px 32px var(--level4-shadow) !important;
-  border: 1px solid rgba(245, 208, 254, 0.24);
+  border: 1px solid rgba(186, 230, 253, 0.18);
 }
 
 .user-level-4-nav-idle {
@@ -50,8 +91,8 @@
 .user-level-4-logo-box {
   background: linear-gradient(135deg, #7e22ce 0%, #e879f9 100%) !important;
   box-shadow:
-    0 0 18px rgba(232, 121, 249, 0.38),
-    0 0 34px rgba(126, 34, 206, 0.34) !important;
+    0 0 18px rgba(34, 211, 238, 0.28),
+    0 0 34px rgba(2, 132, 199, 0.2) !important;
 }
 
 .user-level-4-logo-text {
@@ -59,13 +100,13 @@
   -webkit-background-clip: text !important;
   background-clip: text !important;
   color: transparent !important;
-  text-shadow: 0 0 14px rgba(232, 121, 249, 0.32);
+  text-shadow: 0 0 14px rgba(180, 240, 255, 0.22);
 }
 
 .user-level-4-shell header {
   border-color: rgba(216, 180, 254, 0.14) !important;
   background: rgba(38, 16, 72, 0.72) !important;
-  box-shadow: 0 12px 32px rgba(12, 4, 28, 0.34);
+  box-shadow: 0 12px 32px rgba(2, 12, 24, 0.22);
 }
 
 .user-level-4-shell footer {
@@ -73,7 +114,7 @@
 }
 
 .user-level-4-footer-text {
-  color: #2c401f !important;
+  color: #e9d5ff !important;
 }
 
 .user-level-4-shell .game-card:hover {
@@ -93,8 +134,8 @@
   color: transparent;
   font-weight: 900;
   text-shadow:
-    0 0 12px rgba(192, 132, 252, 0.34),
-    0 0 24px rgba(168, 85, 247, 0.24);
+    0 0 12px rgba(22, 163, 74, 0.24),
+    0 0 24px rgba(15, 107, 61, 0.16);
 }
 
 .user-level-4-home-subtitle {
@@ -108,15 +149,15 @@
 
 .user-level-4-game-card,
 .user-level-4-news-card {
-  background: linear-gradient(180deg, rgba(31, 14, 58, 0.88) 0%, rgba(55, 22, 92, 0.86) 100%) !important;
-  border: 1px solid rgba(232, 121, 249, 0.32) !important;
+  background: linear-gradient(180deg, rgba(31, 14, 58, 0.90) 0%, rgba(55, 22, 92, 0.88) 100%) !important;
+  border: 1px solid rgba(232, 121, 249, 0.34) !important;
   box-shadow:
-    0 14px 34px rgba(10, 4, 24, 0.42),
-    0 0 0 1px rgba(245, 208, 254, 0.12) inset !important;
+    0 14px 34px rgba(22, 44, 15, 0.16),
+    0 0 0 1px rgba(187, 227, 159, 0.32) inset !important;
 }
 
 .user-level-4-featured-card {
-  border: 1px solid rgba(118, 189, 68, 0.3) !important;
+  border: 1px solid rgba(232, 121, 249, 0.32) !important;
   box-shadow:
     0 18px 42px rgba(21, 44, 14, 0.24),
     0 0 0 1px rgba(187, 227, 159, 0.18) inset !important;
@@ -191,8 +232,8 @@
 }
 
 .user-level-4-highlight-section {
-  background: linear-gradient(135deg, rgba(38, 16, 72, 0.70) 0%, rgba(88, 28, 135, 0.55) 100%) !important;
-  border-color: rgba(232, 121, 249, 0.28) !important;
+  background: linear-gradient(135deg, rgba(255, 255, 255, 0.68) 0%, rgba(187, 227, 159, 0.72) 100%) !important;
+  border-color: rgba(46, 133, 121, 0.26) !important;
 }
 
 .user-level-4-highlight-copy {
@@ -201,23 +242,23 @@
 
 .user-level-4-hero-button {
   background: linear-gradient(135deg, #a855f7 0%, #6d28d9 100%) !important;
-  border: 1px solid rgba(232, 121, 249, 0.36) !important;
-  color: #f6fff3 !important;
+  border: 1px solid rgba(168, 85, 247, 0.35) !important;
+  color: #fff7ff !important;
   box-shadow:
-    0 12px 28px rgba(88, 28, 135, 0.34),
-    0 0 18px rgba(232, 121, 249, 0.24) !important;
+    0 12px 28px rgba(88, 28, 135, 0.24),
+    0 0 18px rgba(168, 85, 247, 0.18) !important;
 }
 
 .user-level-4-hero-button:hover {
   background: linear-gradient(135deg, #c084fc 0%, #581c87 100%) !important;
   box-shadow:
-    0 14px 32px rgba(38, 74, 38, 0.28),
-    0 0 24px rgba(78, 159, 80, 0.22) !important;
+    0 14px 32px rgba(88, 28, 135, 0.28),
+    0 0 24px rgba(168, 85, 247, 0.22) !important;
 }
 
 .user-level-4-featured-badge {
   background: linear-gradient(90deg, #9333ea 0%, #e879f9 100%) !important;
-  color: #f4fff7 !important;
+  color: #fff7ff !important;
   box-shadow: 0 10px 20px rgba(46, 133, 121, 0.18) !important;
 }
 
@@ -230,18 +271,18 @@
 
 .user-level-4-featured-button {
   background: linear-gradient(90deg, #9333ea 0%, #c026d3 100%) !important;
-  border: 1px solid rgba(58, 166, 200, 0.24) !important;
-  color: #f6fff9 !important;
+  border: 1px solid rgba(232, 121, 249, 0.24) !important;
+  color: #fff7ff !important;
   box-shadow:
-    0 12px 28px rgba(44, 94, 0, 0.24),
+    0 12px 28px rgba(88, 28, 135, 0.24),
     0 0 22px rgba(50, 152, 190, 0.16) !important;
 }
 
 .user-level-4-featured-button:hover {
   background: linear-gradient(90deg, #a855f7 0%, #e879f9 100%) !important;
   box-shadow:
-    0 14px 32px rgba(44, 94, 0, 0.28),
-    0 0 26px rgba(58, 166, 200, 0.2) !important;
+    0 14px 32px rgba(88, 28, 135, 0.28),
+    0 0 26px rgba(232, 121, 249, 0.2) !important;
 }
 
 .user-level-4-game-detail-page .text-gray-300 {
@@ -269,7 +310,7 @@
 }
 
 .user-level-4-game-detail-meta {
-  color: #d8b4fe !important;
+  color: #5b8374 !important;
 }
 
 .user-level-4-game-detail-publisher {
@@ -282,26 +323,26 @@
 
 .user-level-4-game-detail-chip {
   background: linear-gradient(90deg, #a855f7 0%, #e879f9 100%) !important;
-  border-color: rgba(58, 166, 200, 0.24) !important;
+  border-color: rgba(232, 121, 249, 0.24) !important;
   color: #f8fff8 !important;
 }
 
 .user-level-4-game-detail-multi {
-  background: rgba(58, 166, 200, 0.16) !important;
-  border-color: rgba(58, 166, 200, 0.3) !important;
-  color: #f0abfc !important;
+  background: rgba(232, 121, 249, 0.16) !important;
+  border-color: rgba(232, 121, 249, 0.3) !important;
+  color: #2a7f96 !important;
 }
 
 .user-level-4-game-detail-adult {
   background: linear-gradient(90deg, #facc15 0%, #a855f7 100%) !important;
   border-color: rgba(195, 169, 62, 0.36) !important;
-  color: #21102f !important;
+  color: #27481c !important;
 }
 
 .user-level-4-game-detail-action {
   background: rgba(242, 251, 231, 0.72) !important;
   border-color: rgba(77, 135, 119, 0.28) !important;
-  color: #e9d5ff !important;
+  color: #3f7f73 !important;
 }
 
 .user-level-4-game-detail-action:hover {
@@ -312,13 +353,13 @@
 .user-level-4-game-detail-action-favorite {
   background: rgba(214, 233, 126, 0.24) !important;
   border-color: rgba(196, 169, 62, 0.3) !important;
-  color: #facc15 !important;
+  color: #a58f2a !important;
 }
 
 .user-level-4-game-detail-action-share {
-  background: rgba(58, 166, 200, 0.14) !important;
-  border-color: rgba(58, 166, 200, 0.3) !important;
-  color: #e879f9 !important;
+  background: rgba(232, 121, 249, 0.14) !important;
+  border-color: rgba(232, 121, 249, 0.3) !important;
+  color: #2f90a8 !important;
 }
 
 .user-level-4-detail-panel,
@@ -351,7 +392,7 @@
   color: #f7fff8 !important;
   box-shadow:
     0 12px 26px rgba(63, 105, 64, 0.12),
-    0 0 18px rgba(58, 166, 200, 0.08) !important;
+    0 0 18px rgba(232, 121, 249, 0.08) !important;
 }
 
 .user-level-4-comment-label {
@@ -364,7 +405,7 @@
 
 .user-level-4-comment-textarea {
   background: linear-gradient(180deg, rgba(195, 221, 183, 0.76) 0%, rgba(176, 207, 166, 0.66) 100%) !important;
-  border: 1px solid rgba(86, 161, 84, 0.82) !important;
+  border: 1px solid rgba(232, 121, 249, 0.82) !important;
   color: #ffffff !important;
   caret-color: #ffffff !important;
   box-shadow:
@@ -379,9 +420,9 @@
   color: #ffffff !important;
   -webkit-text-fill-color: #ffffff !important;
   caret-color: #ffffff !important;
-  border: 1px solid rgba(86, 161, 84, 0.98) !important;
+  border: 1px solid rgba(232, 121, 249, 0.98) !important;
   outline: none !important;
-  --tw-ring-color: rgba(86, 161, 84, 0.98) !important;
+  --tw-ring-color: rgba(232, 121, 249, 0.98) !important;
   --tw-ring-shadow: 0 0 #0000 !important;
 }
 
@@ -391,10 +432,10 @@
 
 .user-level-4-comment-textarea:focus,
 .user-level-4-comment-textarea:focus-visible {
-  border-color: rgba(86, 161, 84, 0.98) !important;
+  border-color: rgba(232, 121, 249, 0.98) !important;
   box-shadow:
-    0 0 0 1px rgba(86, 161, 84, 0.24),
-    0 0 18px rgba(86, 161, 84, 0.12),
+    0 0 0 1px rgba(232, 121, 249, 0.24),
+    0 0 18px rgba(232, 121, 249, 0.12),
     0 10px 24px rgba(37, 73, 39, 0.08) !important;
 }
 
@@ -425,26 +466,26 @@
 }
 
 .user-level-4-game-detail-page .bg-white\/5 {
-  background: rgba(38, 16, 72, 0.42) !important;
+  background: rgba(73, 112, 79, 0.22) !important;
 }
 
 .user-level-4-game-detail-page .user-level-4-detail-panel,
 .user-level-4-game-detail-page .user-level-4-game-surface,
 .user-level-4-game-detail-page .user-level-4-history {
-  background: linear-gradient(180deg, rgba(38, 16, 72, 0.56) 0%, rgba(88, 28, 135, 0.34) 100%) !important;
-  background-color: rgba(38, 16, 72, 0.42) !important;
+  background: linear-gradient(180deg, rgba(73, 112, 79, 0.28) 0%, rgba(128, 167, 132, 0.2) 100%) !important;
+  background-color: rgba(80, 122, 86, 0.22) !important;
 }
 
 .user-level-4-game-detail-page .user-level-4-detail-panel.bg-white\/5,
 .user-level-4-game-detail-page .user-level-4-game-surface.bg-white\/5,
 .user-level-4-game-detail-page .user-level-4-history.bg-white\/5 {
-  background: linear-gradient(180deg, rgba(38, 16, 72, 0.56) 0%, rgba(88, 28, 135, 0.34) 100%) !important;
-  background-color: rgba(38, 16, 72, 0.42) !important;
+  background: linear-gradient(180deg, rgba(73, 112, 79, 0.28) 0%, rgba(128, 167, 132, 0.2) 100%) !important;
+  background-color: rgba(80, 122, 86, 0.22) !important;
 }
 
 .user-level-4-game-detail-page .border-white\/10,
 .user-level-4-game-detail-page .border-white\/5 {
-  border-color: rgba(232, 121, 249, 0.22) !important;
+  border-color: rgba(77, 135, 119, 0.2) !important;
 }
 
 .user-level-4-game-detail-page .text-yellow-500,
@@ -498,7 +539,7 @@
 .user-level-4-game-detail-page [class*="border-purple"],
 .user-level-4-game-detail-page [class*="text-purple"] {
   color: #e879f9 !important;
-  border-color: rgba(58, 166, 200, 0.28) !important;
+  border-color: rgba(232, 121, 249, 0.28) !important;
 }
 
 .user-level-4-game-detail-page .text-gray-300,
@@ -524,7 +565,7 @@
 .user-level-4-game-detail-publisher,
 .user-level-4-detail-panel-title,
 .user-level-4-detail-icon-blue {
-  color: #7e22ce !important;
+  color: #9333ea !important;
 }
 
 .user-level-4-detail-rating,
@@ -552,7 +593,7 @@
 }
 
 .user-level-4-game-detail-adult {
-  background: linear-gradient(135deg, #facc15 0%, #9333ea 100%) !important;
+  background: linear-gradient(135deg, #facc15 0%, #a855f7 100%) !important;
   border-color: rgba(146, 99, 10, 0.28) !important;
   color: #23410c !important;
 }
@@ -577,7 +618,7 @@
 .user-level-4-game-detail-action-share {
   background: rgba(186, 230, 253, 0.28) !important;
   border-color: rgba(14, 116, 144, 0.28) !important;
-  color: #e879f9 !important;
+  color: #0e7490 !important;
 }
 
 .user-level-4-game-detail-page .bg-white\/5,
@@ -588,16 +629,16 @@
 .user-level-4-game-detail-page .user-level-4-game-surface.bg-white\/5,
 .user-level-4-game-detail-page .user-level-4-history.bg-white\/5 {
   background:
-    linear-gradient(180deg, rgba(38, 16, 72, 0.72) 0%, rgba(88, 28, 135, 0.52) 100%) !important;
-  border-color: rgba(245, 208, 254, 0.28) !important;
+    linear-gradient(180deg, rgba(207, 237, 180, 0.72) 0%, rgba(168, 215, 132, 0.56) 100%) !important;
+  border-color: rgba(229, 255, 205, 0.5) !important;
   box-shadow:
     0 16px 34px rgba(24, 51, 31, 0.14),
-    0 0 0 1px rgba(245, 208, 254, 0.12) inset !important;
+    0 0 0 1px rgba(250, 255, 238, 0.2) inset !important;
 }
 
 .user-level-4-comment-label,
 .user-level-4-game-detail-page .user-level-4-comment-label {
-  color: #f5d0fe !important;
+  color: #2d642b !important;
 }
 
 .user-level-4-game-detail-page .user-level-4-detail-panel p,
@@ -619,28 +660,28 @@
   border-color: rgba(70, 135, 48, 0.78) !important;
   color: #fff7ff !important;
   -webkit-text-fill-color: #fff7ff !important;
-  caret-color: #7e22ce !important;
+  caret-color: #9333ea !important;
 }
 
 .user-level-4-comment-textarea::placeholder {
-  color: #a78bfa !important;
+  color: #496f3b !important;
 }
 
 .user-level-4-comment-textarea:focus,
 .user-level-4-comment-textarea:focus-visible {
-  border-color: rgba(22, 101, 52, 0.95) !important;
+  border-color: rgba(168, 85, 247, 0.95) !important;
   box-shadow:
-    0 0 0 1px rgba(22, 101, 52, 0.28),
+    0 0 0 1px rgba(168, 85, 247, 0.28),
     0 0 20px rgba(202, 255, 112, 0.16) !important;
 }
 
 .user-level-4-comment-button,
 .user-level-4-game-launch,
 .user-level-4-pong-button {
-  background: linear-gradient(135deg, #7e22ce 0%, #d946ef 58%, #facc15 100%) !important;
+  background: linear-gradient(135deg, #9333ea 0%, #d946ef 58%, #facc15 100%) !important;
   border-color: rgba(244, 255, 240, 0.22) !important;
   color: #f7fff1 !important;
-  box-shadow: 0 12px 26px rgba(22, 101, 52, 0.2) !important;
+  box-shadow: 0 12px 26px rgba(168, 85, 247, 0.2) !important;
 }
 
 .user-level-4-pong-green {
@@ -648,16 +689,16 @@
 }
 
 .user-level-4-pong-blue {
-  color: #e879f9 !important;
+  color: #0e7490 !important;
 }
 
 .user-level-4-pong-option {
   background: rgba(32, 55, 27, 0.72) !important;
-  color: #f5d0fe !important;
+  color: #d7f5c8 !important;
 }
 
 .user-level-4-pong-option-active {
-  background: linear-gradient(135deg, #9333ea 0%, #d946ef 100%) !important;
+  background: linear-gradient(135deg, #a855f7 0%, #d946ef 100%) !important;
   color: #f7fff1 !important;
 }
 
@@ -670,21 +711,21 @@
 .user-level-4-games-search {
   background: linear-gradient(135deg, rgba(242, 251, 231, 0.82) 0%, rgba(227, 236, 180, 0.78) 100%) !important;
   border-color: rgba(123, 157, 58, 0.38) !important;
-  color: #f5d0fe !important;
+  color: #31562b !important;
   box-shadow:
-    0 10px 24px rgba(122, 160, 62, 0.12),
+    0 10px 24px rgba(168, 85, 247, 0.12),
     0 0 0 1px rgba(234, 211, 116, 0.14) inset !important;
 }
 
 .user-level-4-games-search::placeholder {
-  color: #c4b5fd !important;
+  color: #6d845d !important;
 }
 
 .user-level-4-games-search:focus,
 .user-level-4-games-search:focus-visible {
-  border-color: rgba(122, 160, 62, 0.62) !important;
+  border-color: rgba(168, 85, 247, 0.62) !important;
   box-shadow:
-    0 0 0 1px rgba(122, 160, 62, 0.22),
+    0 0 0 1px rgba(168, 85, 247, 0.22),
     0 0 20px rgba(234, 211, 116, 0.12) !important;
 }
 
@@ -693,22 +734,22 @@
 }
 
 .user-level-4-games-copy {
-  color: #e9d5ff !important;
+  color: #2f6f2e !important;
 }
 
 .user-level-4-games-results {
-  color: #d8b4fe !important;
+  color: #4d8c45 !important;
 }
 
 .user-level-4-games-empty-tone,
 .user-level-4-games-empty-tone.text-gray-500,
 .user-level-4-games-empty-tone.text-gray-400,
 .user-level-4-games-empty-tone.text-gray-600 {
-  color: #d8b4fe !important;
+  color: #2f6b3c !important;
 }
 
 .user-level-4-favorites-empty-tone {
-  color: #c4b5fd !important;
+  color: #596b4d !important;
 }
 
 .user-level-4-favorites-count {
@@ -716,25 +757,25 @@
 }
 
 .user-level-4-games-filter {
-  border-color: rgba(122, 160, 62, 0.34) !important;
-  color: #d8b4fe !important;
+  border-color: rgba(168, 85, 247, 0.34) !important;
+  color: #466c33 !important;
   background: linear-gradient(135deg, rgba(242, 251, 231, 0.66) 0%, rgba(232, 222, 150, 0.54) 100%) !important;
-  box-shadow: 0 8px 18px rgba(122, 160, 62, 0.08) !important;
+  box-shadow: 0 8px 18px rgba(168, 85, 247, 0.08) !important;
 }
 
 .user-level-4-games-filter:hover {
-  color: #f5d0fe !important;
+  color: #2c5d1c !important;
   background: linear-gradient(135deg, rgba(232, 246, 205, 0.86) 0%, rgba(230, 216, 129, 0.68) 100%) !important;
-  border-color: rgba(122, 160, 62, 0.48) !important;
+  border-color: rgba(168, 85, 247, 0.48) !important;
 }
 
 .user-level-4-games-filter-active {
-  background: linear-gradient(135deg, #c084fc 0%, #f0abfc 100%) !important;
+  background: linear-gradient(135deg, #c084fc 0%, #e879f9 100%) !important;
   border: 0 !important;
   color: #fffef5 !important;
   box-shadow:
-    0 12px 24px rgba(122, 160, 62, 0.2),
-    0 0 20px rgba(216, 198, 95, 0.14) !important;
+    0 12px 24px rgba(168, 85, 247, 0.2),
+    0 0 20px rgba(232, 121, 249, 0.14) !important;
 }
 
 .user-level-4-pong-green {
@@ -742,26 +783,26 @@
 }
 
 .user-level-4-pong-blue {
-  color: #e879f9 !important;
+  color: #0e7490 !important;
 }
 
 .user-level-4-pong-option {
   background: rgba(32, 55, 27, 0.72) !important;
-  color: #f5d0fe !important;
+  color: #d7f5c8 !important;
 }
 
 .user-level-4-pong-option:hover {
   background: rgba(54, 90, 32, 0.9) !important;
-  color: #fff7ff !important;
+  color: #f3ffe8 !important;
 }
 
 .user-level-4-pong-option-active {
-  background: linear-gradient(135deg, #9333ea 0%, #d946ef 100%) !important;
+  background: linear-gradient(135deg, #a855f7 0%, #d946ef 100%) !important;
   color: #f7fff1 !important;
 }
 
 .user-level-4-pong-button {
-  background: linear-gradient(135deg, #7e22ce 0%, #d946ef 58%, #facc15 100%) !important;
+  background: linear-gradient(135deg, #9333ea 0%, #d946ef 58%, #facc15 100%) !important;
   color: #f7fff1 !important;
   border: 1px solid rgba(244, 255, 240, 0.22) !important;
 }
@@ -846,7 +887,7 @@
 }
 
 .user-level-4-profile-level-label {
-  color: #d8b4fe !important;
+  color: #2f6b3c !important;
 }
 
 .user-level-4-profile-progress-track {
@@ -867,11 +908,11 @@
 }
 
 .user-level-4-profile-stat-value {
-  color: #e879f9 !important;
+  color: #4aaed6 !important;
 }
 
 .user-level-4-profile-stat-copy {
-  color: #c4b5fd !important;
+  color: #83a1a4 !important;
 }
 
 .user-level-4-profile-stat-icon-sky {
@@ -885,7 +926,7 @@
 .user-level-4-profile-dialog {
   background: linear-gradient(180deg, rgba(17, 34, 33, 0.98) 0%, rgba(19, 43, 39, 0.98) 52%, rgba(18, 38, 49, 0.98) 100%) !important;
   border: 1px solid rgba(104, 193, 171, 0.24) !important;
-  color: #f6fff9 !important;
+  color: #fff7ff !important;
   box-shadow:
     0 22px 48px rgba(8, 23, 29, 0.38),
     0 0 0 1px rgba(144, 216, 202, 0.08) inset,
@@ -899,7 +940,7 @@
 .user-level-4-profile-dialog-input {
   background: linear-gradient(180deg, rgba(28, 51, 48, 0.88) 0%, rgba(27, 47, 58, 0.88) 100%) !important;
   border: 1px solid rgba(94, 170, 154, 0.32) !important;
-  color: #f6fff9 !important;
+  color: #fff7ff !important;
   box-shadow: inset 0 1px 0 rgba(198, 240, 230, 0.04) !important;
 }
 
@@ -919,7 +960,7 @@
 .user-level-4-profile-edit-input {
   background: linear-gradient(180deg, rgba(28, 51, 48, 0.88) 0%, rgba(27, 47, 58, 0.88) 100%) !important;
   border: 1px solid rgba(94, 170, 154, 0.32) !important;
-  color: #f6fff9 !important;
+  color: #fff7ff !important;
   box-shadow: inset 0 1px 0 rgba(198, 240, 230, 0.04) !important;
 }
 
@@ -971,7 +1012,7 @@
 
 .user-level-4-profile-panel-title,
 .user-level-4-profile-panel-text {
-  color: #d8b4fe !important;
+  color: #2f6b3c !important;
 }
 
 .user-level-4-profile-score {
@@ -982,7 +1023,7 @@
 .user-level-4-profile-page .user-level-4-profile-panel-title *,
 .user-level-4-profile-page .user-level-4-profile-panel-text,
 .user-level-4-profile-page .user-level-4-profile-panel-text * {
-  color: #d8b4fe !important;
+  color: #2f6b3c !important;
 }
 
 .user-level-4-profile-page .user-level-4-profile-score,
@@ -1003,14 +1044,14 @@
 
 .user-level-4-profile-page .text-gray-400,
 .user-level-4-profile-meta {
-  color: #f5d0fe !important;
+  color: #2d642b !important;
 }
 
 .user-level-4-profile-page .text-gray-500,
 .user-level-4-profile-meta-muted,
 .user-level-4-profile-xp-label,
 .user-level-4-profile-next-level {
-  color: #a78bfa !important;
+  color: #496f3b !important;
 }
 
 .user-level-4-profile-hero {
@@ -1025,12 +1066,12 @@
 .user-level-4-profile-avatar {
   border-color: rgba(196, 232, 170, 0.75) !important;
   box-shadow:
-    0 0 0 4px rgba(22, 101, 52, 0.16),
+    0 0 0 4px rgba(168, 85, 247, 0.16),
     0 0 26px rgba(229, 255, 205, 0.24) !important;
 }
 
 .user-level-4-profile-avatar-fallback {
-  background: linear-gradient(135deg, #7e22ce 0%, #d946ef 100%) !important;
+  background: linear-gradient(135deg, #9333ea 0%, #d946ef 100%) !important;
   color: #f7fff1 !important;
 }
 
@@ -1048,7 +1089,7 @@
 }
 
 .user-level-4-profile-progress-fill {
-  background: linear-gradient(90deg, #7e22ce 0%, #d946ef 72%, #eab308 100%) !important;
+  background: linear-gradient(90deg, #9333ea 0%, #d946ef 72%, #eab308 100%) !important;
   box-shadow: 0 0 16px rgba(34, 197, 94, 0.26) !important;
 }
 
@@ -1061,7 +1102,7 @@
 }
 
 .user-level-4-profile-stat-value {
-  color: #7e22ce !important;
+  color: #9333ea !important;
 }
 
 .user-level-4-profile-stat-copy {
@@ -1085,7 +1126,7 @@
 .user-level-4-profile-panel-title *,
 .user-level-4-profile-panel-text,
 .user-level-4-profile-panel-text * {
-  color: #7e22ce !important;
+  color: #9333ea !important;
 }
 
 .user-level-4-profile-score-row {
@@ -1109,7 +1150,7 @@
 }
 
 .user-level-4-profile-score-date {
-  color: #e9d5ff !important;
+  color: #2f6f2e !important;
 }
 
 .user-level-4-profile-page .user-level-4-profile-panel .user-level-4-profile-panel-title,
@@ -1250,15 +1291,15 @@
 
 .user-level-4-detail-panel .user-level-4-leaderboard-empty,
 .user-level-4-detail-panel .user-level-4-leaderboard-empty p {
-  color: #e9d5ff !important;
+  color: #2f6f2e !important;
 }
 
 .user-level-4-detail-panel .user-level-4-leaderboard-empty-icon {
-  color: #9333ea !important;
+  color: #a855f7 !important;
 }
 
 .user-level-4-game-surface .online-game-lobby__title {
-  background: linear-gradient(90deg, #7e22ce 0%, #22a447 48%, #5d8f1f 100%) !important;
+  background: linear-gradient(90deg, #9333ea 0%, #22a447 48%, #5d8f1f 100%) !important;
   -webkit-background-clip: text !important;
   background-clip: text !important;
   color: transparent !important;
@@ -1266,7 +1307,7 @@
 }
 
 .user-level-4-game-surface .online-game-lobby__description {
-  color: #e9d5ff !important;
+  color: #2f6f2e !important;
 }
 
 .user-level-4-game-surface .online-game-lobby__section-title,
@@ -1295,17 +1336,17 @@
 }
 
 .user-level-4-game-surface .online-game-lobby__time-option--active {
-  background: linear-gradient(135deg, #9333ea 0%, #d946ef 100%) !important;
+  background: linear-gradient(135deg, #a855f7 0%, #d946ef 100%) !important;
   border-color: rgba(244, 255, 180, 0.5) !important;
   color: #f7fff1 !important;
-  box-shadow: 0 8px 18px rgba(22, 101, 52, 0.18) !important;
+  box-shadow: 0 8px 18px rgba(168, 85, 247, 0.18) !important;
 }
 
 .user-level-4-game-surface .online-game-lobby__create-button {
-  background: linear-gradient(135deg, #7e22ce 0%, #d946ef 62%, #eab308 100%) !important;
+  background: linear-gradient(135deg, #9333ea 0%, #d946ef 62%, #eab308 100%) !important;
   color: #f7fff1 !important;
   border: 1px solid rgba(244, 255, 240, 0.2) !important;
-  box-shadow: 0 12px 24px rgba(22, 101, 52, 0.18) !important;
+  box-shadow: 0 12px 24px rgba(168, 85, 247, 0.18) !important;
 }
 
 .user-level-4-game-surface .online-game-lobby__input {
@@ -1334,7 +1375,7 @@
 .user-level-4-detail-panel .online-game-chat__empty p,
 .user-level-4-history .online-game-history__empty,
 .user-level-4-history .online-game-history__empty p {
-  color: #e9d5ff !important;
+  color: #2f6f2e !important;
 }
 
 .user-level-4-game-detail-page .user-level-4-history,
@@ -1346,7 +1387,7 @@
 .user-level-4-crafty .rounded-full.bg-gradient-to-br.from-purple-600.to-cyan-500,
 .user-level-4-floating-chat .rounded-full.bg-purple-600,
 .user-level-4-floating-chat .rounded-full.bg-purple-700 {
-  background: linear-gradient(135deg, #7e22ce 0%, #d946ef 62%, #eab308 100%) !important;
+  background: linear-gradient(135deg, #9333ea 0%, #d946ef 62%, #eab308 100%) !important;
   color: #f7fff1 !important;
 }
 
@@ -1384,7 +1425,7 @@
 
 .user-level-4-crafty-header,
 .user-level-4-floating-chat-header {
-  background: linear-gradient(135deg, rgba(22, 101, 52, 0.96) 0%, rgba(34, 197, 94, 0.9) 54%, rgba(14, 116, 144, 0.88) 100%) !important;
+  background: linear-gradient(135deg, rgba(168, 85, 247, 0.96) 0%, rgba(34, 197, 94, 0.9) 54%, rgba(14, 116, 144, 0.88) 100%) !important;
   border-color: rgba(240, 255, 220, 0.14) !important;
 }
 
@@ -1400,7 +1441,7 @@
 .user-level-4-crafty-button,
 .user-level-4-floating-chat-button,
 .user-level-4-floating-chat-send {
-  background: linear-gradient(135deg, #7e22ce 0%, #d946ef 60%, #e879f9 100%) !important;
+  background: linear-gradient(135deg, #9333ea 0%, #d946ef 60%, #0e7490 100%) !important;
   color: #f7fff1 !important;
   box-shadow: 0 14px 28px rgba(18, 95, 45, 0.22) !important;
 }
@@ -1428,7 +1469,7 @@
 }
 
 .user-level-4-crafty-send {
-  color: #7e22ce !important;
+  color: #9333ea !important;
 }
 
 .user-level-4-floating-chat-panel {
@@ -1467,8 +1508,8 @@
 }
 
 .user-level-4-friends-icon-box {
-  background: linear-gradient(135deg, #7e22ce 0%, #d946ef 64%, #e879f9 100%) !important;
-  box-shadow: 0 14px 30px rgba(22, 101, 52, 0.18) !important;
+  background: linear-gradient(135deg, #9333ea 0%, #d946ef 64%, #0e7490 100%) !important;
+  box-shadow: 0 14px 30px rgba(168, 85, 247, 0.18) !important;
 }
 
 .user-level-4-friends-section-title,
@@ -1515,7 +1556,7 @@
 
 .user-level-4-tournament-elo,
 .user-level-4-tournaments-icon {
-  color: #e879f9 !important;
+  color: #0e7490 !important;
 }
 
 .user-level-4-tournaments-tabs {
@@ -1524,7 +1565,7 @@
 }
 
 .user-level-4-tournaments-tab {
-  color: #a78bfa !important;
+  color: #496f3b !important;
 }
 
 .user-level-4-tournaments-tab:hover {
@@ -1532,7 +1573,7 @@
 }
 
 .user-level-4-tournaments-tab-active {
-  background: linear-gradient(135deg, #7e22ce 0%, #d946ef 62%, #eab308 100%) !important;
+  background: linear-gradient(135deg, #9333ea 0%, #d946ef 62%, #eab308 100%) !important;
   color: #f7fff1 !important;
 }
 
@@ -1556,7 +1597,7 @@
 .user-level-4-game-detail-page .bg-purple-500\/20.text-purple-300.border-purple-500\/30 {
   background: rgba(186, 230, 253, 0.28) !important;
   border-color: rgba(14, 116, 144, 0.28) !important;
-  color: #e879f9 !important;
+  color: #0e7490 !important;
 }
 
 .user-level-4-game-detail-action {
@@ -1571,11 +1612,11 @@
 
 .user-level-4-game-detail-action-share {
   background: rgba(186, 230, 253, 0.34) !important;
-  color: #e879f9 !important;
+  color: #0e7490 !important;
 }
 
 .user-level-4-game-launch {
-  background: linear-gradient(135deg, #f5d0fe 0%, #d946ef 62%, #7e22ce 100%) !important;
+  background: linear-gradient(135deg, #f5d0fe 0%, #d946ef 62%, #9333ea 100%) !important;
   border: 1px solid rgba(226, 255, 199, 0.24) !important;
   color: #f7fff1 !important;
   box-shadow: 0 16px 34px rgba(18, 95, 45, 0.24) !important;
@@ -1617,7 +1658,7 @@
 
 .user-level-4-chess .bg-purple-500\/10,
 .user-level-4-chess .border-purple-500\/30 {
-  background: rgba(245, 208, 254, 0.24) !important;
+  background: rgba(186, 230, 253, 0.18) !important;
   border-color: rgba(14, 116, 144, 0.28) !important;
 }
 
@@ -1652,7 +1693,7 @@
 }
 
 .user-level-4-chess-finish {
-  background: linear-gradient(135deg, rgba(22, 101, 52, 0.42) 0%, rgba(14, 116, 144, 0.34) 100%) !important;
+  background: linear-gradient(135deg, rgba(168, 85, 247, 0.42) 0%, rgba(14, 116, 144, 0.34) 100%) !important;
   border: 1px solid rgba(196, 232, 170, 0.22) !important;
 }
 
@@ -1680,7 +1721,7 @@
 }
 
 .user-level-4-chess-primary-button {
-  background: linear-gradient(135deg, #7e22ce 0%, #d946ef 56%, #e879f9 100%) !important;
+  background: linear-gradient(135deg, #9333ea 0%, #d946ef 56%, #0e7490 100%) !important;
   color: #f7fff1 !important;
   border: 0 !important;
   box-shadow: 0 12px 24px rgba(18, 95, 45, 0.22) !important;
@@ -1724,17 +1765,17 @@
 
 .user-level-4-game-surface .online-game-lobby__card h3,
 .user-level-4-game-surface .online-game-lobby__card h3.text-sm.font-semibold {
-  color: #7e22ce !important;
+  color: #9333ea !important;
 }
 
 .user-level-4-game-surface .online-game-lobby__card .lucide-bot {
-  color: #7e22ce !important;
+  color: #9333ea !important;
 }
 
 .user-level-4-chess .online-game-lobby__card h3,
 .user-level-4-chess .online-game-lobby__card h3.text-sm.font-semibold,
 .user-level-4-chess .online-game-lobby__card .lucide-bot {
-  color: #7e22ce !important;
+  color: #9333ea !important;
 }
 
 .user-level-4-game-surface .online-game-lobby__time-option {
@@ -1745,21 +1786,21 @@
 
 .user-level-4-game-surface .online-game-lobby__time-option:hover {
   color: #1f4d1f !important;
-  border-color: rgba(22, 101, 52, 0.4) !important;
+  border-color: rgba(168, 85, 247, 0.4) !important;
 }
 
 .user-level-4-game-surface .online-game-lobby__time-option--active {
-  background: linear-gradient(135deg, #7e22ce 0%, #d946ef 58%, #e879f9 100%) !important;
+  background: linear-gradient(135deg, #9333ea 0%, #d946ef 58%, #0e7490 100%) !important;
   color: #f7fff1 !important;
   border-color: rgba(14, 116, 144, 0.38) !important;
   box-shadow:
-    0 8px 18px rgba(22, 101, 52, 0.18),
+    0 8px 18px rgba(168, 85, 247, 0.18),
     0 0 0 1px rgba(125, 211, 252, 0.16) inset !important;
 }
 
 .user-level-4-game-surface .online-game-lobby__create-button,
 .user-level-4-game-surface .online-game-lobby__join-button:not(:disabled) {
-  background: linear-gradient(135deg, #7e22ce 0%, #d946ef 58%, #e879f9 100%) !important;
+  background: linear-gradient(135deg, #9333ea 0%, #d946ef 58%, #0e7490 100%) !important;
   color: #f7fff1 !important;
 }
 
@@ -1779,12 +1820,12 @@
 
 .user-level-4-game-surface .online-game-lobby__card [class*="border-purple"],
 .user-level-4-game-surface .online-game-lobby__card [class*="border-cyan"] {
-  border-color: rgba(22, 101, 52, 0.34) !important;
+  border-color: rgba(168, 85, 247, 0.34) !important;
 }
 
 .user-level-4-game-surface .online-game-lobby__card [class*="ring-purple"],
 .user-level-4-game-surface .online-game-lobby__card [class*="ring-cyan"] {
-  --tw-ring-color: rgba(22, 101, 52, 0.26) !important;
+  --tw-ring-color: rgba(168, 85, 247, 0.26) !important;
 }
 
 .user-level-4-chess .text-purple-500,
@@ -1798,7 +1839,7 @@
 
 .user-level-4-chess [class*="border-purple"],
 .user-level-4-chess [class*="border-cyan"] {
-  border-color: rgba(22, 101, 52, 0.36) !important;
+  border-color: rgba(168, 85, 247, 0.36) !important;
 }
 
 .user-level-4-chess [class*="bg-purple"],
@@ -1851,13 +1892,13 @@
 
 .user-level-4-chess .border-green-500\/60,
 .user-level-4-chess .ring-green-500\/30 {
-  border-color: rgba(22, 101, 52, 0.42) !important;
-  --tw-ring-color: rgba(22, 101, 52, 0.24) !important;
+  border-color: rgba(168, 85, 247, 0.42) !important;
+  --tw-ring-color: rgba(168, 85, 247, 0.24) !important;
 }
 
 .user-level-4-chess button[class*="border-green"],
 .user-level-4-chess [class*="border-green-500"] {
-  border-color: rgba(22, 101, 52, 0.42) !important;
+  border-color: rgba(168, 85, 247, 0.42) !important;
 }
 
 .user-level-4-chess [style*="#7c3aed"],
@@ -1873,7 +1914,7 @@
 .user-level-4-game-surface .online-game-lobby__card .lucide-trophy,
 .user-level-4-game-surface .online-game-lobby__card .lucide-bot,
 .user-level-4-game-surface .online-game-lobby__card .lucide-briefcase {
-  color: #e9d5ff !important;
+  color: #2f6f2e !important;
 }
 
 .user-level-4-game-surface .online-game-lobby__card .online-game-lobby__create-button svg,
@@ -1886,264 +1927,147 @@
 }
 
 
-/* ==========================================================
-   NIVEL 4 — REFINADO FINAL PENULTIMO NIVEL
-   Capa extra para que el nivel 4 sea mas potente que el 1 y 2,
-   pero sin competir con el nivel 5 galactico.
-   ========================================================== */
+/* =========================================================
+   COBERTURA EXTRA DE COMPONENTES COMPARTIDOS ENTRE PAGES
+   Estas reglas cubren clases que aparecen en paginas antiguas,
+   componentes de perfil, juegos, torneos, amigos, noticias,
+   overlays y minijuegos que no siempre usan las mismas clases.
+   ========================================================= */
 
-.user-level-4-shell {
-  --level4-primary: #a855f7;
-  --level4-primary-strong: #6d28d9;
-  --level4-accent: #e879f9;
-  --level4-accent-soft: #c4b5fd;
-  --level4-surface: rgba(25, 10, 48, 0.74);
-  --level4-surface-strong: rgba(18, 7, 38, 0.9);
-  --level4-border: rgba(232, 121, 249, 0.32);
-  --level4-text: #f8ecff;
-  --level4-text-soft: #dec6ff;
-  --level4-shadow: rgba(168, 85, 247, 0.36);
-  color: var(--level4-text);
+.user-level-4-home,
+.user-level-4-profile-page,
+.user-level-4-games-page,
+.user-level-4-tournaments-page,
+.user-level-4-game-detail-page,
+.user-level-4-friends-page,
+.user-level-4-news-page {
+  color: var(--level4-text) !important;
 }
 
-.user-level-4-shell::before {
-  content: "";
-  position: fixed;
-  inset: 0;
-  pointer-events: none;
-  z-index: 0;
-  background:
-    radial-gradient(circle at 18% 18%, rgba(232, 121, 249, 0.18) 0%, transparent 28%),
-    radial-gradient(circle at 82% 24%, rgba(168, 85, 247, 0.16) 0%, transparent 30%),
-    radial-gradient(circle at 50% 88%, rgba(109, 40, 217, 0.26) 0%, transparent 42%),
-    linear-gradient(180deg, rgba(10, 3, 24, 0.22) 0%, rgba(8, 2, 18, 0.44) 100%);
-  mix-blend-mode: screen;
+.user-level-4-shell .text-white,
+.user-level-4-home .text-white,
+.user-level-4-profile-page .text-white,
+.user-level-4-games-page .text-white,
+.user-level-4-tournaments-page .text-white,
+.user-level-4-game-detail-page .text-white {
+  color: var(--level4-text) !important;
 }
 
-.user-level-4-shell::after {
-  content: "";
-  position: fixed;
-  inset: 0;
-  pointer-events: none;
-  z-index: 0;
-  background:
-    linear-gradient(115deg, transparent 0 22%, rgba(255, 255, 255, 0.07) 23%, transparent 34%),
-    linear-gradient(155deg, transparent 0 58%, rgba(232, 121, 249, 0.08) 59%, transparent 70%);
-  opacity: 0.9;
+.user-level-4-shell .text-gray-300,
+.user-level-4-shell .text-gray-400,
+.user-level-4-home .text-gray-300,
+.user-level-4-home .text-gray-400,
+.user-level-4-profile-page .text-gray-300,
+.user-level-4-profile-page .text-gray-400,
+.user-level-4-games-page .text-gray-300,
+.user-level-4-games-page .text-gray-400,
+.user-level-4-tournaments-page .text-gray-300,
+.user-level-4-tournaments-page .text-gray-400,
+.user-level-4-game-detail-page .text-gray-300,
+.user-level-4-game-detail-page .text-gray-400 {
+  color: var(--level4-text-soft) !important;
 }
 
-.user-level-4-shell > * {
-  position: relative;
-  z-index: 1;
-}
-
-.user-level-4-shell header {
-  background:
-    linear-gradient(135deg, rgba(45, 16, 86, 0.82) 0%, rgba(22, 8, 48, 0.86) 56%, rgba(58, 18, 96, 0.72) 100%) !important;
-  border-color: rgba(232, 121, 249, 0.18) !important;
-  box-shadow:
-    0 18px 42px rgba(8, 2, 22, 0.42),
-    0 0 0 1px rgba(245, 208, 254, 0.08) inset,
-    0 0 28px rgba(168, 85, 247, 0.18) !important;
-  backdrop-filter: blur(18px) saturate(1.2);
-}
-
-.user-level-4-shell footer {
-  border-color: rgba(232, 121, 249, 0.14) !important;
-  background: rgba(15, 6, 34, 0.28) !important;
-}
-
-.user-level-4-footer-text {
-  color: #d8b4fe !important;
-}
-
-.user-level-4-nav-active,
-.user-level-4-games-filter-active,
-.user-level-4-pong-option-active {
-  background: linear-gradient(135deg, #7e22ce 0%, #a855f7 48%, #e879f9 100%) !important;
-  color: #fff7ff !important;
-  border-color: rgba(245, 208, 254, 0.38) !important;
-  box-shadow:
-    0 14px 34px rgba(88, 28, 135, 0.36),
-    0 0 22px rgba(232, 121, 249, 0.26),
-    0 0 0 1px rgba(255, 255, 255, 0.1) inset !important;
-}
-
-.user-level-4-nav-idle:hover,
-.user-level-4-topbar-idle:hover {
-  background: rgba(168, 85, 247, 0.16) !important;
-  box-shadow: 0 0 18px rgba(168, 85, 247, 0.16) inset !important;
-}
-
-.user-level-4-logo-box {
-  background:
-    radial-gradient(circle at 30% 20%, rgba(255, 255, 255, 0.26) 0%, transparent 32%),
-    linear-gradient(135deg, #581c87 0%, #9333ea 45%, #e879f9 100%) !important;
-  box-shadow:
-    0 0 20px rgba(232, 121, 249, 0.42),
-    0 0 42px rgba(168, 85, 247, 0.28),
-    0 0 0 1px rgba(245, 208, 254, 0.22) inset !important;
-}
-
-.user-level-4-logo-text,
-.user-level-4-home-title,
-.user-level-4-game-detail-title {
-  background: linear-gradient(90deg, #fff7ff 0%, #f5d0fe 24%, #c084fc 55%, #e879f9 100%) !important;
-  -webkit-background-clip: text !important;
-  background-clip: text !important;
-  color: transparent !important;
-  text-shadow:
-    0 0 14px rgba(232, 121, 249, 0.28),
-    0 0 30px rgba(168, 85, 247, 0.2) !important;
-}
-
-.user-level-4-home-subtitle,
-.user-level-4-highlight-copy,
-.user-level-4-games-copy,
-.user-level-4-games-results,
-.user-level-4-favorites-count,
-.user-level-4-favorites-empty-tone {
-  color: #e9d5ff !important;
+.user-level-4-shell .text-gray-500,
+.user-level-4-shell .text-gray-600,
+.user-level-4-profile-page .text-gray-500,
+.user-level-4-profile-page .text-gray-600,
+.user-level-4-games-page .text-gray-500,
+.user-level-4-games-page .text-gray-600,
+.user-level-4-tournaments-page .text-gray-500,
+.user-level-4-tournaments-page .text-gray-600,
+.user-level-4-game-detail-page .text-gray-500,
+.user-level-4-game-detail-page .text-gray-600 {
+  color: var(--level4-muted) !important;
 }
 
 .user-level-4-section-heading,
 .user-level-4-section-icon,
 .user-level-4-games-title,
 .user-level-4-games-icon,
+.user-level-4-favorites-title,
+.user-level-4-favorites-icon,
 .user-level-4-news-heading,
 .user-level-4-news-icon,
+.user-level-4-news-title,
 .user-level-4-featured-heading,
 .user-level-4-featured-icon,
 .user-level-4-new-games-heading,
 .user-level-4-new-games-icon,
-.user-level-4-favorites-title,
-.user-level-4-favorites-icon {
-  color: #f0abfc !important;
-  text-shadow: 0 0 16px rgba(232, 121, 249, 0.24);
+.user-level-4-tournaments-title,
+.user-level-4-tournaments-icon,
+.user-level-4-highlight-title {
+  color: var(--level4-accent) !important;
+  text-shadow: 0 0 16px var(--level4-glow-soft) !important;
 }
 
 .user-level-4-game-card,
 .user-level-4-news-card,
+.user-level-4-tournament-card,
 .user-level-4-featured-card,
 .user-level-4-profile-stat-card,
 .user-level-4-profile-premium-card,
 .user-level-4-detail-panel,
 .user-level-4-game-surface,
 .user-level-4-history,
-.user-level-4-comment-card {
-  position: relative;
-  overflow: hidden;
-  background:
-    radial-gradient(circle at 84% 12%, rgba(232, 121, 249, 0.18) 0%, transparent 34%),
-    linear-gradient(180deg, rgba(42, 16, 78, 0.82) 0%, rgba(22, 8, 48, 0.9) 100%) !important;
-  border: 1px solid rgba(232, 121, 249, 0.28) !important;
-  box-shadow:
-    0 16px 38px rgba(8, 2, 22, 0.42),
-    0 0 0 1px rgba(245, 208, 254, 0.08) inset,
-    0 0 24px rgba(168, 85, 247, 0.14) !important;
-  backdrop-filter: blur(16px) saturate(1.18);
+.user-level-4-comment-card,
+.user-level-4-chess-dialog,
+.user-level-4-profile-dialog,
+.user-level-4-floating-chat-empty {
+  background: var(--level4-card-bg) !important;
+  border-color: var(--level4-border) !important;
+  color: var(--level4-text) !important;
+  box-shadow: var(--level4-card-shadow) !important;
+  backdrop-filter: blur(12px);
 }
 
-.user-level-4-featured-card {
-  border-color: rgba(245, 208, 254, 0.42) !important;
-  box-shadow:
-    0 22px 54px rgba(8, 2, 22, 0.48),
-    0 0 0 1px rgba(245, 208, 254, 0.14) inset,
-    0 0 40px rgba(232, 121, 249, 0.22) !important;
-}
-
-.user-level-4-featured-card::before,
-.user-level-4-game-card::before,
-.user-level-4-news-card::before,
-.user-level-4-profile-premium-card::before {
-  content: "";
-  position: absolute;
-  inset: 0;
-  pointer-events: none;
-  background:
-    linear-gradient(120deg, transparent 0%, rgba(255, 255, 255, 0.12) 44%, transparent 62%),
-    radial-gradient(circle at 50% 0%, rgba(232, 121, 249, 0.12) 0%, transparent 34%);
-  opacity: 0.55;
-}
-
-.user-level-4-featured-card::after,
-.user-level-4-game-card::after,
-.user-level-4-news-card::after {
-  content: "";
-  position: absolute;
-  inset: 0;
-  pointer-events: none;
-  background: linear-gradient(110deg, transparent 0%, rgba(255, 255, 255, 0.18) 46%, transparent 62%);
-  opacity: 0;
-  transform: translateX(-42%);
-  transition: opacity .25s ease, transform .55s ease;
-}
-
-.user-level-4-featured-card:hover::after,
-.user-level-4-game-card:hover::after,
-.user-level-4-news-card:hover::after {
-  opacity: 0.75;
-  transform: translateX(42%);
-}
-
-.user-level-4-shell .game-card:hover,
 .user-level-4-game-card:hover,
 .user-level-4-news-card:hover,
-.user-level-4-featured-card:hover {
-  box-shadow:
-    0 18px 54px rgba(88, 28, 135, 0.42),
-    0 0 0 1px rgba(245, 208, 254, 0.2) inset,
-    0 0 42px rgba(232, 121, 249, 0.24) !important;
+.user-level-4-tournament-card:hover,
+.user-level-4-featured-card:hover,
+.user-level-4-shell .game-card:hover,
+.user-level-4-shell .news-card:hover {
+  border-color: var(--level4-border-strong) !important;
+  box-shadow: var(--level4-card-shadow-hover) !important;
+}
+
+.user-level-4-widget-media,
+.user-level-4-game-card .bg-gradient-to-br,
+.user-level-4-news-card .bg-gradient-to-br,
+.user-level-4-tournament-card .bg-gradient-to-br {
+  background-image: var(--level4-media-bg) !important;
+  background-color: transparent !important;
 }
 
 .user-level-4-widget-title,
 .user-level-4-game-card h3,
 .user-level-4-news-card h3,
-.user-level-4-profile-name,
-.user-level-4-detail-panel-title,
-.user-level-4-game-detail-title,
-.user-level-4-profile-dialog-title {
-  color: #fff7ff !important;
+.user-level-4-tournament-card h3,
+.user-level-4-game-card .font-semibold,
+.user-level-4-news-card .font-semibold,
+.user-level-4-tournament-card .font-semibold {
+  color: var(--level4-title) !important;
 }
 
 .user-level-4-widget-accent,
 .user-level-4-widget-accent-soft,
 .user-level-4-games-search-icon,
 .user-level-4-games-empty-icon,
-.user-level-4-detail-icon-blue,
-.user-level-4-profile-stat-value,
-.user-level-4-profile-stat-icon-sky,
-.user-level-4-profile-stat-icon-grass,
-.user-level-4-profile-level-label {
-  color: #e879f9 !important;
-}
-
-.user-level-4-game-card .text-gray-300,
-.user-level-4-game-card .text-gray-400,
-.user-level-4-game-card .text-gray-500,
-.user-level-4-news-card .text-gray-300,
-.user-level-4-news-card .text-gray-400,
-.user-level-4-news-card .text-gray-500,
-.user-level-4-profile-page .text-gray-400,
-.user-level-4-profile-page .text-gray-500,
-.user-level-4-game-detail-page .text-gray-300,
-.user-level-4-game-detail-page .text-gray-400,
-.user-level-4-game-detail-page .text-gray-500 {
-  color: #d8b4fe !important;
-}
-
-.user-level-4-game-card .text-white,
-.user-level-4-news-card .text-white,
-.user-level-4-profile-page .text-white,
-.user-level-4-game-detail-page .text-white {
-  color: #fff7ff !important;
-}
-
+.user-level-4-tournaments-empty-icon,
+.user-level-4-friends-empty-icon,
+.user-level-4-news-link,
 .user-level-4-game-detail-link,
-.user-level-4-game-detail-link:hover,
-.user-level-4-game-detail-meta,
-.user-level-4-game-detail-publisher {
-  color: #e9d5ff !important;
+.user-level-4-game-detail-title,
+.user-level-4-game-detail-publisher,
+.user-level-4-detail-panel-title,
+.user-level-4-detail-icon-blue,
+.user-level-4-game-detail-panel-title,
+.user-level-4-game-detail-panel-icon,
+.user-level-4-game-detail-panel-copy,
+.user-level-4-profile-level-label,
+.user-level-4-profile-stat-value {
+  color: var(--level4-accent) !important;
+  fill: var(--level4-accent) !important;
 }
 
 .user-level-4-detail-rating,
@@ -2153,10 +2077,13 @@
 .user-level-4-detail-panel .text-amber-400,
 .user-level-4-detail-panel .text-amber-500,
 .user-level-4-detail-panel .text-amber-600,
-.user-level-4-detail-panel .user-level-4-detail-icon-yellow {
-  color: #facc15 !important;
-  fill: #facc15 !important;
-  filter: drop-shadow(0 0 8px rgba(250, 204, 21, 0.22));
+.user-level-4-detail-panel .user-level-4-detail-icon-yellow,
+.user-level-4-game-detail-page .text-yellow-500,
+.user-level-4-game-detail-page .fill-yellow-500,
+.user-level-4-profile-premium-card .text-yellow-400,
+.user-level-4-profile-premium-card .text-orange-400 {
+  color: var(--level4-gold) !important;
+  fill: var(--level4-gold) !important;
 }
 
 .user-level-4-hero-button,
@@ -2164,15 +2091,16 @@
 .user-level-4-comment-button,
 .user-level-4-game-launch,
 .user-level-4-pong-button,
+.user-level-4-snake-button,
+.user-level-4-chess-primary-button,
 .user-level-4-profile-dialog-save,
 .user-level-4-profile-premium-button,
-.user-level-4-snake-button {
-  background: linear-gradient(135deg, #7e22ce 0%, #a855f7 50%, #e879f9 100%) !important;
-  color: #fff7ff !important;
-  border: 1px solid rgba(245, 208, 254, 0.3) !important;
-  box-shadow:
-    0 14px 30px rgba(88, 28, 135, 0.34),
-    0 0 24px rgba(232, 121, 249, 0.22) !important;
+.user-level-4-button,
+.user-level-4-primary-button {
+  background: var(--level4-button-bg) !important;
+  border-color: var(--level4-button-border) !important;
+  color: var(--level4-button-text) !important;
+  box-shadow: var(--level4-button-shadow) !important;
 }
 
 .user-level-4-hero-button:hover,
@@ -2180,92 +2108,99 @@
 .user-level-4-comment-button:hover,
 .user-level-4-game-launch:hover,
 .user-level-4-pong-button:hover,
+.user-level-4-snake-button:hover,
+.user-level-4-chess-primary-button:hover,
 .user-level-4-profile-dialog-save:hover,
 .user-level-4-profile-premium-button:hover,
-.user-level-4-snake-button:hover {
-  background: linear-gradient(135deg, #9333ea 0%, #c084fc 48%, #f0abfc 100%) !important;
-  box-shadow:
-    0 18px 38px rgba(88, 28, 135, 0.42),
-    0 0 32px rgba(232, 121, 249, 0.3) !important;
-  opacity: 1 !important;
-}
-
-.user-level-4-featured-badge,
-.user-level-4-game-detail-chip {
-  background: linear-gradient(90deg, #7e22ce 0%, #a855f7 48%, #e879f9 100%) !important;
-  color: #fff7ff !important;
-  border-color: rgba(245, 208, 254, 0.3) !important;
-  box-shadow: 0 10px 22px rgba(168, 85, 247, 0.28) !important;
-}
-
-.user-level-4-game-detail-multi {
-  background: rgba(168, 85, 247, 0.18) !important;
-  border-color: rgba(232, 121, 249, 0.34) !important;
-  color: #f0abfc !important;
-}
-
-.user-level-4-game-detail-adult {
-  background: linear-gradient(135deg, #581c87 0%, #be123c 100%) !important;
-  border-color: rgba(251, 113, 133, 0.38) !important;
-  color: #fff7ff !important;
+.user-level-4-button:hover,
+.user-level-4-primary-button:hover {
+  background: var(--level4-button-bg-hover) !important;
+  box-shadow: var(--level4-button-shadow-hover) !important;
 }
 
 .user-level-4-game-detail-action,
 .user-level-4-profile-action-button,
 .user-level-4-profile-dialog-cancel,
+.user-level-4-chess-outline-button,
+.user-level-4-chess-cancel,
+.user-level-4-tournaments-tab,
 .user-level-4-games-filter,
 .user-level-4-pong-option {
-  background: rgba(39, 16, 72, 0.58) !important;
-  border-color: rgba(232, 121, 249, 0.26) !important;
-  color: #e9d5ff !important;
-  box-shadow: 0 8px 20px rgba(8, 2, 22, 0.22) !important;
+  background: var(--level4-control-bg) !important;
+  border-color: var(--level4-control-border) !important;
+  color: var(--level4-text-soft) !important;
 }
 
 .user-level-4-game-detail-action:hover,
 .user-level-4-profile-action-button:hover,
 .user-level-4-profile-dialog-cancel:hover,
+.user-level-4-chess-outline-button:hover,
+.user-level-4-chess-cancel:hover,
+.user-level-4-tournaments-tab:hover,
 .user-level-4-games-filter:hover,
 .user-level-4-pong-option:hover {
-  background: rgba(88, 28, 135, 0.64) !important;
-  border-color: rgba(232, 121, 249, 0.42) !important;
-  color: #fff7ff !important;
-  box-shadow: 0 0 24px rgba(168, 85, 247, 0.2) !important;
+  background: var(--level4-control-bg-hover) !important;
+  border-color: var(--level4-border-strong) !important;
+  color: var(--level4-title) !important;
+}
+
+.user-level-4-games-filter-active,
+.user-level-4-tournaments-tab-active,
+.user-level-4-pong-option-active,
+.user-level-4-category-arcade,
+.user-level-4-category-estrategia,
+.user-level-4-category-default,
+.user-level-4-adult-badge,
+.user-level-4-featured-badge,
+.user-level-4-game-detail-chip,
+.user-level-4-game-detail-multi,
+.user-level-4-chess-pill {
+  background: var(--level4-badge-bg) !important;
+  border-color: var(--level4-border-strong) !important;
+  color: var(--level4-button-text) !important;
+  box-shadow: var(--level4-badge-shadow) !important;
+}
+
+.user-level-4-game-detail-adult {
+  background: var(--level4-danger-bg) !important;
+  border-color: var(--level4-danger-border) !important;
+  color: var(--level4-danger-text) !important;
 }
 
 .user-level-4-game-detail-action-favorite {
-  background: rgba(250, 204, 21, 0.14) !important;
-  border-color: rgba(250, 204, 21, 0.34) !important;
-  color: #facc15 !important;
+  background: var(--level4-favorite-bg) !important;
+  border-color: var(--level4-favorite-border) !important;
+  color: var(--level4-gold) !important;
 }
 
 .user-level-4-game-detail-action-share {
-  background: rgba(232, 121, 249, 0.16) !important;
-  border-color: rgba(232, 121, 249, 0.36) !important;
-  color: #f0abfc !important;
+  background: var(--level4-share-bg) !important;
+  border-color: var(--level4-share-border) !important;
+  color: var(--level4-accent) !important;
 }
 
 .user-level-4-games-search,
 .user-level-4-comment-textarea,
 .user-level-4-profile-dialog input,
 .user-level-4-profile-edit-input,
-.user-level-4-profile-password-input {
-  background:
-    linear-gradient(180deg, rgba(30, 12, 58, 0.86) 0%, rgba(18, 7, 38, 0.92) 100%) !important;
-  border: 1px solid rgba(232, 121, 249, 0.34) !important;
-  color: #fff7ff !important;
-  -webkit-text-fill-color: #fff7ff !important;
-  caret-color: #e879f9 !important;
-  box-shadow:
-    inset 0 0 18px rgba(8, 2, 22, 0.28),
-    0 8px 22px rgba(8, 2, 22, 0.2) !important;
+.user-level-4-profile-password-input,
+.user-level-4-input,
+.user-level-4-textarea {
+  background: var(--level4-input-bg) !important;
+  border-color: var(--level4-input-border) !important;
+  color: var(--level4-text) !important;
+  caret-color: var(--level4-accent) !important;
+  -webkit-text-fill-color: var(--level4-text) !important;
+  box-shadow: var(--level4-input-shadow) !important;
 }
 
 .user-level-4-games-search::placeholder,
 .user-level-4-comment-textarea::placeholder,
 .user-level-4-profile-dialog input::placeholder,
-.user-level-4-profile-edit-input::placeholder {
-  color: #a78bfa !important;
-  -webkit-text-fill-color: #a78bfa !important;
+.user-level-4-profile-edit-input::placeholder,
+.user-level-4-profile-password-input::placeholder {
+  color: var(--level4-muted) !important;
+  -webkit-text-fill-color: var(--level4-muted) !important;
 }
 
 .user-level-4-games-search:focus,
@@ -2275,102 +2210,81 @@
 .user-level-4-profile-dialog input:focus,
 .user-level-4-profile-dialog input:focus-visible,
 .user-level-4-profile-edit-input:focus,
-.user-level-4-profile-edit-input:focus-visible {
-  border-color: rgba(232, 121, 249, 0.78) !important;
+.user-level-4-profile-edit-input:focus-visible,
+.user-level-4-profile-password-input:focus,
+.user-level-4-profile-password-input:focus-visible {
+  border-color: var(--level4-border-strong) !important;
   outline: none !important;
-  box-shadow:
-    0 0 0 1px rgba(232, 121, 249, 0.26),
-    0 0 24px rgba(168, 85, 247, 0.26),
-    inset 0 0 18px rgba(8, 2, 22, 0.22) !important;
+  box-shadow: var(--level4-focus-shadow) !important;
 }
 
 .user-level-4-profile-hero,
-.user-level-4-profile-dialog,
-.user-level-4-profile-menu {
-  background:
-    radial-gradient(circle at 85% 10%, rgba(232, 121, 249, 0.18) 0%, transparent 34%),
-    linear-gradient(135deg, rgba(44, 16, 82, 0.92) 0%, rgba(18, 7, 38, 0.96) 100%) !important;
-  border: 1px solid rgba(232, 121, 249, 0.32) !important;
-  color: #fff7ff !important;
-  box-shadow:
-    0 22px 48px rgba(8, 2, 22, 0.44),
-    0 0 0 1px rgba(245, 208, 254, 0.08) inset,
-    0 0 32px rgba(168, 85, 247, 0.18) !important;
+.user-level-4-profile-page > .user-level-4-game-card:first-child {
+  background: var(--level4-hero-card-bg) !important;
+  border-color: var(--level4-border) !important;
+  box-shadow: var(--level4-hero-shadow) !important;
 }
 
 .user-level-4-profile-avatar {
-  border-color: rgba(232, 121, 249, 0.78) !important;
-  box-shadow:
-    0 0 0 3px rgba(168, 85, 247, 0.22),
-    0 0 30px rgba(232, 121, 249, 0.34) !important;
+  border-color: var(--level4-border-strong) !important;
+  box-shadow: var(--level4-avatar-shadow) !important;
 }
 
 .user-level-4-profile-avatar-fallback {
-  background: linear-gradient(135deg, #7e22ce 0%, #a855f7 52%, #e879f9 100%) !important;
-  color: #fff7ff !important;
+  background: var(--level4-button-bg) !important;
+  color: var(--level4-button-text) !important;
 }
 
+.user-level-4-profile-name,
+.user-level-4-profile-dialog-title,
+.user-level-4-profile-dialog-icon {
+  color: var(--level4-title) !important;
+  filter: drop-shadow(0 0 8px var(--level4-glow-soft));
+}
+
+.user-level-4-profile-menu,
 .user-level-4-profile-menu-item {
-  color: #f5d0fe !important;
+  background: var(--level4-card-bg) !important;
+  border-color: var(--level4-border) !important;
+  color: var(--level4-text) !important;
 }
 
 .user-level-4-profile-menu-item:hover,
 .user-level-4-profile-menu-item:focus {
-  background: rgba(168, 85, 247, 0.22) !important;
-  color: #fff7ff !important;
+  background: var(--level4-control-bg-hover) !important;
+  color: var(--level4-title) !important;
 }
 
 .user-level-4-profile-progress-track {
-  background: rgba(245, 208, 254, 0.14) !important;
+  background: var(--level4-track-bg) !important;
 }
 
 .user-level-4-profile-progress-fill {
-  background: linear-gradient(90deg, #7e22ce 0%, #a855f7 52%, #e879f9 100%) !important;
-  box-shadow: 0 0 22px rgba(232, 121, 249, 0.32) !important;
+  background: var(--level4-progress-bg) !important;
+  box-shadow: var(--level4-progress-shadow) !important;
 }
 
 .user-level-4-profile-meta,
 .user-level-4-profile-icon-soft,
 .user-level-4-profile-xp-label,
-.user-level-4-profile-next-level,
 .user-level-4-profile-stat-copy,
+.user-level-4-game-detail-meta {
+  color: var(--level4-text-soft) !important;
+}
+
 .user-level-4-profile-meta-muted,
-.user-level-4-profile-icon-muted {
-  color: #d8b4fe !important;
-}
-
-.user-level-4-comment-label,
-.user-level-4-game-detail-page .user-level-4-comment-label {
-  color: #f5d0fe !important;
-}
-
+.user-level-4-profile-icon-muted,
+.user-level-4-profile-next-level,
+.user-level-4-favorites-empty-tone,
+.user-level-4-friends-empty,
+.user-level-4-friends-empty-copy,
+.user-level-4-games-empty-tone,
+.user-level-4-games-empty-copy,
+.user-level-4-tournaments-empty-copy,
 .user-level-4-comment-empty,
 .user-level-4-comment-empty-icon,
-.user-level-4-games-empty-tone,
-.user-level-4-games-empty-title,
-.user-level-4-games-empty-copy {
-  color: #c4b5fd !important;
-}
-
-.user-level-4-game-detail-page .bg-white\/5,
-.user-level-4-game-detail-page .border-white\/10,
-.user-level-4-game-detail-page .border-white\/5 {
-  border-color: rgba(232, 121, 249, 0.22) !important;
-}
-
-.user-level-4-game-detail-page .bg-white\/5 {
-  background: rgba(30, 12, 58, 0.58) !important;
-}
-
-.user-level-4-detail-panel .space-y-2 > div {
-  background: linear-gradient(90deg, rgba(168, 85, 247, 0.18) 0%, rgba(232, 121, 249, 0.08) 100%) !important;
-  border-color: rgba(232, 121, 249, 0.26) !important;
-}
-
-.user-level-4-detail-panel .space-y-2 > div .text-white,
-.user-level-4-detail-panel .space-y-2 > div .text-gray-400,
-.user-level-4-detail-panel .space-y-2 > div .text-gray-600 {
-  color: #f5d0fe !important;
+.user-level-4-floating-chat-empty {
+  color: var(--level4-muted) !important;
 }
 
 .user-level-4-snake-shell .text-white,
@@ -2379,48 +2293,83 @@
 .user-level-4-snake-shell .text-gray-500,
 .user-level-4-snake-shell .text-gray-600,
 .user-level-4-snake-title,
-.user-level-4-snake-value {
-  color: #f5d0fe !important;
+.user-level-4-snake-value,
+.user-level-4-pong,
+.user-level-4-pong-title,
+.user-level-4-pong-player-one,
+.user-level-4-pong-player-two,
+.user-level-4-pong-copy,
+.user-level-4-pong-versus,
+.user-level-4-chess,
+.user-level-4-chess-copy,
+.user-level-4-chess-finish {
+  color: var(--level4-text) !important;
 }
 
 .user-level-4-snake-points,
-.user-level-4-pong-blue {
-  color: #e879f9 !important;
-}
-
 .user-level-4-snake-level,
-.user-level-4-pong-green {
-  color: #c084fc !important;
+.user-level-4-pong-green,
+.user-level-4-pong-blue,
+.user-level-4-chess-primary {
+  color: var(--level4-accent) !important;
 }
 
 .user-level-4-snake-record,
 .user-level-4-snake-value-highlight {
-  color: #facc15 !important;
+  color: var(--level4-gold) !important;
 }
 
 .user-level-4-snake-checkbox {
-  accent-color: #a855f7;
+  accent-color: var(--level4-accent);
 }
 
-.user-level-4-shell svg.animate-spin {
-  color: #e879f9 !important;
-  filter: drop-shadow(0 0 8px rgba(232, 121, 249, 0.34));
+.user-level-4-pong-canvas,
+.user-level-4-chess-board {
+  border-color: var(--level4-border) !important;
+  box-shadow: var(--level4-card-shadow) !important;
 }
 
-@media (prefers-reduced-motion: no-preference) {
-  .user-level-4-nav-active,
-  .user-level-4-logo-box,
-  .user-level-4-hero-button,
-  .user-level-4-featured-button,
-  .user-level-4-comment-button,
-  .user-level-4-game-launch {
-    transition: box-shadow .25s ease, transform .25s ease, background .25s ease;
-  }
+.user-level-4-pong-overlay {
+  background: var(--level4-overlay-bg) !important;
+}
 
-  .user-level-4-hero-button:hover,
-  .user-level-4-featured-button:hover,
-  .user-level-4-comment-button:hover,
-  .user-level-4-game-launch:hover {
-    transform: translateY(-1px);
-  }
+.user-level-4-tournaments-tabs {
+  background: var(--level4-control-bg) !important;
+  border: 1px solid var(--level4-control-border) !important;
+}
+
+.user-level-4-tournaments-loader,
+.user-level-4-friends-loader {
+  color: var(--level4-accent) !important;
+}
+
+.user-level-4-game-detail-page .bg-white\/5,
+.user-level-4-profile-page .bg-white\/5,
+.user-level-4-games-page .bg-white\/5,
+.user-level-4-tournaments-page .bg-white\/5 {
+  background: var(--level4-soft-bg) !important;
+}
+
+.user-level-4-game-detail-page .border-white\/10,
+.user-level-4-game-detail-page .border-white\/5,
+.user-level-4-profile-page .border-white\/10,
+.user-level-4-profile-page .border-white\/5,
+.user-level-4-games-page .border-white\/10,
+.user-level-4-games-page .border-white\/5,
+.user-level-4-tournaments-page .border-white\/10,
+.user-level-4-tournaments-page .border-white\/5 {
+  border-color: var(--level4-border) !important;
+}
+
+.user-level-4-shell [class*="text-purple"],
+.user-level-4-shell [class*="text-cyan"],
+.user-level-4-shell [class*="text-sky"] {
+  color: var(--level4-accent) !important;
+}
+
+.user-level-4-shell [class*="from-purple"],
+.user-level-4-shell [class*="to-cyan"],
+.user-level-4-shell [class*="from-cyan"],
+.user-level-4-shell [class*="to-purple"] {
+  background-image: var(--level4-button-bg) !important;
 }
