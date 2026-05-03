@@ -310,12 +310,12 @@ export default function Profile() {
                       />
                     </div>
                     {nextLevel ? (
-                      <p className="text-[11px] text-gray-500 mt-1">
+                      <p className={`text-[11px] text-gray-500 mt-1 ${isLevel1User ? "user-level-1-profile-next-level" : ""} ${isLevel2User ? "user-level-2-profile-next-level" : ""} ${isLevel3User ? "user-level-3-profile-next-level" : ""}`}>
                         {(nextLevel.xpRequired - xp).toLocaleString()} XP para {nextLevel.name}
                         {isPremium && <span className="text-yellow-400 ml-1">(descuento premium activo)</span>}
                       </p>
                     ) : (
-                      <p className="text-[11px] mt-1" style={{ color: currentLevel.color }}>Nivel máximo alcanzado</p>
+                      <p className={`text-[11px] mt-1 ${isLevel1User ? "user-level-1-profile-level-label" : ""}`} style={isLevel1User ? undefined : { color: currentLevel.color }}>Nivel máximo alcanzado</p>
                     )}
                   </div>
                 </>
@@ -326,7 +326,7 @@ export default function Profile() {
       </Card>
 
       {/* Premium */}
-      <Card className="bg-gradient-to-br from-yellow-900/20 to-purple-900/20 border-yellow-500/20 mb-8">
+      <Card className={`bg-gradient-to-br from-yellow-900/20 to-purple-900/20 border-yellow-500/20 mb-8 ${isLevel1User ? "user-level-1-profile-premium-card" : ""} ${isLevel2User ? "user-level-2-profile-premium-card" : ""}`}>
         <CardHeader>
           <CardTitle className="text-white flex items-center gap-2">
             <Crown className="w-5 h-5 text-yellow-400" />
@@ -377,7 +377,7 @@ export default function Profile() {
               <Button
                 onClick={handleSubscribePremium}
                 disabled={isPremiumLoading}
-                className="bg-gradient-to-r from-yellow-500 to-orange-500 text-black font-bold border-0 hover:opacity-90"
+                className={`bg-gradient-to-r from-yellow-500 to-orange-500 text-black font-bold border-0 hover:opacity-90 ${isLevel1User ? "user-level-1-profile-premium-button" : ""}`}
               >
                 {isPremiumLoading
                   ? <Loader2 className="w-4 h-4 animate-spin" />
@@ -389,10 +389,10 @@ export default function Profile() {
       </Card>
 
       {/* Juegos jugados */}
-      <Card className="bg-white/5 border-white/10 mb-8">
+      <Card className={`bg-white/5 border-white/10 mb-8 ${isLevel1User ? "user-level-1-game-card" : ""} ${isLevel2User ? "user-level-2-profile-panel" : ""} ${isLevel3User ? "user-level-3-profile-panel" : ""}`}>
         <CardHeader>
-          <CardTitle className="text-white flex items-center gap-2">
-            <Gamepad2 className="w-5 h-5 text-purple-400" />
+          <CardTitle className={`text-white flex items-center gap-2 ${isLevel2User ? "user-level-2-profile-panel-title" : ""} ${isLevel3User ? "user-level-3-profile-panel-title" : ""}`}>
+            <Gamepad2 className={`w-5 h-5 text-purple-400 ${isLevel2User ? "user-level-2-profile-stat-icon-sky" : isLevel3User ? "user-level-3-profile-stat-icon-sky" : ""}`} />
             Juegos jugados
             <span className="text-sm font-normal text-gray-400">({gamesPlayed})</span>
           </CardTitle>
@@ -403,7 +403,7 @@ export default function Profile() {
             <div className="flex flex-wrap gap-1.5">
               {Object.entries(CATEGORY_LABELS).map(([key, label]) => (
                 <button key={key} onClick={() => setCategoryFilter(key)}
-                  className={`px-3 py-1 rounded-full text-xs font-medium transition-colors ${categoryFilter === key ? "bg-gradient-to-r from-purple-600 to-cyan-500 text-white" : "bg-white/5 text-gray-400 hover:text-white"}`}>
+                  className={`px-3 py-1 rounded-full text-xs font-medium transition-colors ${categoryFilter === key ? (isLevel2User ? "user-level-2-games-filter-active" : "bg-gradient-to-r from-purple-600 to-cyan-500 text-white") : (isLevel2User ? "user-level-2-games-filter" : "bg-white/5 text-gray-400 hover:text-white")}`}>
                   {label}
                 </button>
               ))}
@@ -411,7 +411,7 @@ export default function Profile() {
             <div className="flex gap-1.5 ml-auto">
               {[["all","Todos"],["solo","Solo"],["multi","Multi"]].map(([key,label]) => (
                 <button key={key} onClick={() => setModeFilter(key)}
-                  className={`px-3 py-1 rounded-full text-xs font-medium transition-colors ${modeFilter === key ? "bg-cyan-500/80 text-white" : "bg-white/5 text-gray-400 hover:text-white"}`}>
+                  className={`px-3 py-1 rounded-full text-xs font-medium transition-colors ${modeFilter === key ? (isLevel2User ? "user-level-2-games-filter-active" : "bg-cyan-500/80 text-white") : (isLevel2User ? "user-level-2-games-filter" : "bg-white/5 text-gray-400 hover:text-white")}`}>
                   {label}
                 </button>
               ))}
@@ -424,7 +424,7 @@ export default function Profile() {
             <div className="max-h-[256px] overflow-y-auto space-y-2 [&::-webkit-scrollbar]:hidden [scrollbar-width:none]">
               {filteredGames.map(s => (
                 <button key={s.game_id} onClick={() => setSelectedGameForAchievements(s.game_id)}
-                  className="w-full flex gap-3 items-center p-3 bg-white/5 hover:bg-white/10 rounded-xl transition-colors text-left">
+                  className={`w-full flex gap-3 items-center p-3 bg-white/5 hover:bg-white/10 rounded-xl transition-colors text-left ${isLevel2User ? "user-level-2-profile-score-row" : ""}`}>
                   {s.game_thumbnail
                     ? <img src={s.game_thumbnail} alt={s.game_title} className="w-12 h-12 rounded-lg object-cover flex-shrink-0" />
                     : <div className="w-12 h-12 rounded-lg bg-gradient-to-br from-purple-600/30 to-cyan-500/30 flex items-center justify-center flex-shrink-0"><Gamepad2 className="w-5 h-5 text-purple-400" /></div>
@@ -457,10 +457,10 @@ export default function Profile() {
       {/* Change password dialog */}
       {showPwDialog && (
         <Dialog open onOpenChange={(open) => { if (!open) setShowPwDialog(false); }}>
-          <DialogContent className="bg-[#0f0f18] border-white/10 text-white max-w-sm">
+          <DialogContent className={`bg-[#0f0f18] border-white/10 text-white max-w-sm ${isLevel1User ? "user-level-1-profile-dialog user-level-1-profile-password-dialog" : ""} ${isLevel2User ? "user-level-2-profile-dialog" : ""}`}>
             <DialogHeader>
-              <DialogTitle className="flex items-center gap-2">
-                <Lock className="w-4 h-4 text-purple-400" />
+              <DialogTitle className={`flex items-center gap-2 ${isLevel1User ? "user-level-1-profile-dialog-title" : ""} ${isLevel2User ? "user-level-2-profile-dialog-title" : ""}`}>
+                <Lock className={`w-4 h-4 text-purple-400 ${isLevel1User ? "user-level-1-profile-dialog-icon" : ""} ${isLevel2User ? "user-level-2-profile-icon-soft" : ""}`} />
                 Cambiar contraseña
               </DialogTitle>
             </DialogHeader>
@@ -470,7 +470,7 @@ export default function Profile() {
                 <input type="password" value={pwForm.current}
                   onChange={e => setPwForm(p => ({ ...p, current: e.target.value }))}
                   placeholder="••••••"
-                  className="w-full bg-white/5 border border-white/10 rounded-md px-3 py-2 text-white text-sm placeholder:text-gray-600 focus:outline-none focus:border-purple-500"
+                  className={`w-full bg-white/5 border border-white/10 rounded-md px-3 py-2 text-white text-sm placeholder:text-gray-600 focus:outline-none focus:border-purple-500 ${isLevel1User ? "user-level-1-profile-password-input" : ""} ${isLevel2User ? "user-level-2-profile-dialog-input" : ""}`}
                 />
                 {pwErrors.current && <p className="text-xs text-red-400">{pwErrors.current}</p>}
               </div>
@@ -479,7 +479,7 @@ export default function Profile() {
                 <input type="password" value={pwForm.next}
                   onChange={e => setPwForm(p => ({ ...p, next: e.target.value }))}
                   placeholder="Mínimo 6 caracteres"
-                  className="w-full bg-white/5 border border-white/10 rounded-md px-3 py-2 text-white text-sm placeholder:text-gray-600 focus:outline-none focus:border-purple-500"
+                  className={`w-full bg-white/5 border border-white/10 rounded-md px-3 py-2 text-white text-sm placeholder:text-gray-600 focus:outline-none focus:border-purple-500 ${isLevel1User ? "user-level-1-profile-password-input" : ""} ${isLevel2User ? "user-level-2-profile-dialog-input" : ""}`}
                 />
                 {pwErrors.next && <p className="text-xs text-red-400">{pwErrors.next}</p>}
               </div>
@@ -488,17 +488,17 @@ export default function Profile() {
                 <input type="password" value={pwForm.confirm}
                   onChange={e => setPwForm(p => ({ ...p, confirm: e.target.value }))}
                   placeholder="Repetir contraseña"
-                  className="w-full bg-white/5 border border-white/10 rounded-md px-3 py-2 text-white text-sm placeholder:text-gray-600 focus:outline-none focus:border-purple-500"
+                  className={`w-full bg-white/5 border border-white/10 rounded-md px-3 py-2 text-white text-sm placeholder:text-gray-600 focus:outline-none focus:border-purple-500 ${isLevel1User ? "user-level-1-profile-password-input" : ""} ${isLevel2User ? "user-level-2-profile-dialog-input" : ""}`}
                 />
                 {pwErrors.confirm && <p className="text-xs text-red-400">{pwErrors.confirm}</p>}
               </div>
             </div>
             <DialogFooter>
-              <Button variant="outline" onClick={() => setShowPwDialog(false)} className="border-white/10">
+              <Button variant="outline" onClick={() => setShowPwDialog(false)} className={isLevel1User ? "user-level-1-profile-dialog-cancel" : isLevel2User ? "user-level-2-profile-dialog-cancel" : "border-white/10"}>
                 Cancelar
               </Button>
               <Button onClick={handleChangePassword} disabled={isChangingPw}
-                className="bg-gradient-to-r from-purple-600 to-cyan-500 border-0">
+                className={isLevel1User ? "user-level-1-profile-dialog-save" : isLevel2User ? "user-level-2-profile-dialog-save" : "bg-gradient-to-r from-purple-600 to-cyan-500 border-0"}>
                 {isChangingPw ? <Loader2 className="w-4 h-4 animate-spin" /> : "Guardar"}
               </Button>
             </DialogFooter>
@@ -508,9 +508,9 @@ export default function Profile() {
 
       {/* Medallas */}
       {earnedMedals.length > 0 && (
-        <Card className="bg-white/5 border-white/10 mb-8">
+        <Card className={`bg-white/5 border-white/10 mb-8 ${isLevel1User ? "user-level-1-game-card" : ""} ${isLevel2User ? "user-level-2-profile-panel" : ""} ${isLevel3User ? "user-level-3-profile-panel" : ""}`}>
           <CardHeader>
-            <CardTitle className="text-white flex items-center gap-2">
+            <CardTitle className={`text-white flex items-center gap-2 ${isLevel2User ? "user-level-2-profile-panel-title" : ""} ${isLevel3User ? "user-level-3-profile-panel-title" : ""}`}>
               <span className="text-xl">🎖️</span>
               Mis medallas
             </CardTitle>
@@ -520,13 +520,13 @@ export default function Profile() {
               {earnedMedals.map((medal) => {
                 const isUrl = /^https?:\/\/|^\/|^data:/.test(medal.icon) || /\.(png|svg|jpg|webp|gif)$/i.test(medal.icon);
                 return (
-                  <div key={medal.id} className="flex items-center gap-3 p-3 rounded-lg" style={{ backgroundColor: medal.color + '11', border: `1px solid ${medal.color}33` }}>
-                    <div className="w-10 h-10 rounded-full flex items-center justify-center flex-shrink-0 text-xl" style={{ backgroundColor: medal.color + '22' }}>
+                  <div key={medal.id} className={`flex items-center gap-3 p-3 rounded-lg ${isLevel2User ? "user-level-2-profile-medal-row" : ""}`} style={{ backgroundColor: medal.color + '11', border: `1px solid ${medal.color}33` }}>
+                    <div className={`w-10 h-10 rounded-full flex items-center justify-center flex-shrink-0 text-xl ${isLevel2User ? "user-level-2-profile-medal-icon" : ""}`} style={{ backgroundColor: medal.color + '22' }}>
                       {isUrl ? <img src={medal.icon} alt="" className="w-7 h-7 object-contain" /> : medal.icon}
                     </div>
                     <div className="min-w-0">
-                      <p className="font-semibold text-sm text-white">{medal.name}</p>
-                      <p className="text-xs text-gray-400 truncate">{medal.description}</p>
+                      <p className={`font-semibold text-sm text-white ${isLevel2User ? "user-level-2-profile-panel-text" : ""} ${isLevel3User ? "user-level-3-profile-panel-text" : ""}`}>{medal.name}</p>
+                      <p className={`text-xs text-gray-400 truncate ${isLevel3User ? "user-level-3-profile-panel-copy" : ""}`}>{medal.description}</p>
                     </div>
                   </div>
                 );

@@ -7,6 +7,7 @@ import { sendGameInvite } from '@/api/notifications';
 import { useCurrentRoom } from '@/lib/CurrentRoomContext';
 import { toast } from 'sonner';
 import PremiumUsername from '@/components/ui/PremiumUsername';
+import { getLevelFromXP } from '@/lib/levels';
 
 const ONLINE_THRESHOLD_MS = 40 * 1000; // 40s — heartbeat cada 15s, 2 misses = offline
 
@@ -23,6 +24,9 @@ function formatTime(dateStr) {
 export default function FloatingChat() {
   const { isAuthenticated, user } = useAuth();
   const { currentRoom } = useCurrentRoom();
+  const isRegularUser = user && user.role !== 'admin' && user.role !== 'empresa';
+  const isLevel1User = isRegularUser && getLevelFromXP(user.xp ?? 0).level === 1;
+  const isLevel2User = isRegularUser && getLevelFromXP(user.xp ?? 0).level === 2;
 
   const [open, setOpen] = useState(false);
   const [activeFriend, setActiveFriend] = useState(null);
@@ -155,14 +159,14 @@ export default function FloatingChat() {
   const offlineFriends = friends.filter(f => !isOnline(f.last_seen));
 
   return (
-    <div ref={containerRef} className="fixed bottom-6 right-6 z-50 flex flex-col items-end gap-3">
+    <div ref={containerRef} className={`fixed bottom-6 right-6 z-50 flex flex-col items-end gap-3 ${isLevel1User ? "user-level-1-floating-chat" : ""} ${isLevel2User ? "user-level-2-floating-chat" : ""}`}>
       {/* Panel principal */}
       {open && (
-        <div className="w-80 rounded-2xl border border-white/10 shadow-2xl overflow-hidden flex flex-col"
+        <div className={`${isLevel1User ? "user-level-1-floating-chat-panel" : ""} ${isLevel2User ? "user-level-2-floating-chat-panel" : ""} w-80 rounded-2xl border border-white/10 shadow-2xl overflow-hidden flex flex-col`}
           style={{ background: 'rgba(15,10,30,0.97)', backdropFilter: 'blur(16px)' }}>
 
           {/* Header */}
-          <div className="flex items-center justify-between px-4 py-3 border-b border-white/10"
+          <div className={`${isLevel1User ? "user-level-1-floating-chat-header" : ""} ${isLevel2User ? "user-level-2-floating-chat-header" : ""} flex items-center justify-between px-4 py-3 border-b border-white/10`}
             style={{ background: 'linear-gradient(135deg, rgba(139,92,246,0.3), rgba(6,182,212,0.2))' }}>
             {activeFriend ? (
               <div className="flex items-center gap-2">
@@ -227,9 +231,9 @@ export default function FloatingChat() {
                   const mine = msg.sender_email === user?.email;
                   return (
                     <div key={msg.id} className={`flex ${mine ? 'justify-end' : 'justify-start'}`}>
-                      <div className={`max-w-[75%] px-3 py-2 rounded-2xl text-sm break-words ${
+                      <div className={`${isLevel1User ? 'user-level-1-floating-chat-message' : ''} ${isLevel2User ? 'user-level-2-floating-chat-message' : ''} max-w-[75%] px-3 py-2 rounded-2xl text-sm break-words ${
                         mine
-                          ? 'text-white rounded-br-sm'
+                          ? `${isLevel1User ? 'user-level-1-floating-chat-message-mine' : ''} ${isLevel2User ? 'user-level-2-floating-chat-message-mine' : ''} text-white rounded-br-sm`
                           : 'text-white/90 rounded-bl-sm'
                       }`} style={{
                         background: mine
@@ -248,19 +252,19 @@ export default function FloatingChat() {
               </div>
 
               {/* Input */}
-              <div className="px-3 py-3 border-t border-white/10 flex gap-2">
+              <div className={`${isLevel1User ? "user-level-1-floating-chat-input-wrap" : ""} ${isLevel2User ? "user-level-2-floating-chat-input-wrap" : ""} px-3 py-3 border-t border-white/10 flex gap-2`}>
                 <input
                   value={input}
                   onChange={e => setInput(e.target.value)}
                   onKeyDown={handleKey}
                   placeholder="Escribe un mensaje..."
                   maxLength={1000}
-                  className="flex-1 bg-white/5 border border-white/10 rounded-xl px-3 py-2 text-sm text-white placeholder-white/30 outline-none focus:border-purple-500 transition-colors"
+                  className={`${isLevel1User ? "user-level-1-floating-chat-input" : ""} ${isLevel2User ? "user-level-2-floating-chat-input" : ""} flex-1 bg-white/5 border border-white/10 rounded-xl px-3 py-2 text-sm text-white placeholder-white/30 outline-none focus:border-purple-500 transition-colors`}
                 />
                 <button
                   onClick={handleSend}
                   disabled={!input.trim() || sending}
-                  className="p-2 rounded-xl transition-all disabled:opacity-40"
+                  className={`${isLevel1User ? "user-level-1-floating-chat-send" : ""} ${isLevel2User ? "user-level-2-floating-chat-send" : ""} p-2 rounded-xl transition-all disabled:opacity-40`}
                   style={{ background: 'linear-gradient(135deg, #7c3aed, #06b6d4)' }}>
                   <Send className="w-4 h-4 text-white" />
                 </button>
@@ -273,7 +277,7 @@ export default function FloatingChat() {
       {/* Botón flotante */}
       <button
         onClick={() => { setOpen(o => !o); if (!open) { loadFriends(); setActiveFriend(null); } }}
-        className="relative w-14 h-14 rounded-full flex items-center justify-center shadow-lg transition-all hover:scale-110 active:scale-95"
+        className={`${isLevel1User ? "user-level-1-floating-chat-button" : ""} ${isLevel2User ? "user-level-2-floating-chat-button" : ""} relative w-14 h-14 rounded-full flex items-center justify-center shadow-lg transition-all hover:scale-110 active:scale-95`}
         style={{ background: 'linear-gradient(135deg, #7c3aed, #06b6d4)', boxShadow: '0 0 20px rgba(139,92,246,0.5)' }}>
         <MessageCircle className="w-6 h-6 text-white" />
         {totalUnread > 0 && (
@@ -288,7 +292,7 @@ export default function FloatingChat() {
 
 function FriendRow({ friend, online, unread, onClick, canInvite, onInvite }) {
   return (
-    <div className="flex items-center hover:bg-white/5 transition-colors px-4">
+    <div className="user-level-1-floating-chat-friend-row user-level-2-floating-chat-friend-row flex items-center hover:bg-white/5 transition-colors px-4">
       <button onClick={onClick} className="flex items-center gap-3 py-3 flex-1 min-w-0 text-left">
         <div className="flex-shrink-0">
           {friend.avatar_url
