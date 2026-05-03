@@ -199,15 +199,20 @@ export default function Profile() {
   const levelPct     = Math.round(getLevelProgress(xp, isPremium) * 100);
   const earnedMedals = evaluateMedals({ totalPlays, totalWins, bestScore, totalTimePlayed, gamesPlayed, level: currentLevel.level });
 
+  const isRegularUser = user && user.role !== "admin" && user.role !== "empresa";
+  const isLevel1User = isRegularUser && currentLevel.level === 1;
+  const isLevel2User = isRegularUser && currentLevel.level === 2;
+  const isLevel3User = isRegularUser && currentLevel.level === 3;
+
   return (
-    <div className="max-w-4xl mx-auto px-4 py-8">
-      <Card className="bg-gradient-to-br from-purple-900/30 to-cyan-900/30 border-white/10 mb-8">
+    <div className={`max-w-4xl mx-auto px-4 py-8 ${isLevel1User ? "user-level-1-profile-page" : ""} ${isLevel2User ? "user-level-2-profile-page" : ""} ${isLevel3User ? "user-level-3-profile-page" : ""}`}>
+      <Card className={`bg-gradient-to-br from-purple-900/30 to-cyan-900/30 border-white/10 mb-8 ${isLevel1User ? "user-level-1-game-card" : ""} ${isLevel2User ? "user-level-2-profile-hero" : ""} ${isLevel3User ? "user-level-3-profile-hero" : ""}`}>
         <CardContent className="p-8">
           <div className="flex flex-col md:flex-row items-center gap-6">
             <div className="relative group cursor-pointer" onClick={() => avatarInputRef.current?.click()}>
-              <Avatar className="w-28 h-28 border-4 border-purple-500/50">
+              <Avatar className={`w-28 h-28 border-4 border-purple-500/50 ${isLevel1User ? "user-level-1-profile-avatar" : ""} ${isLevel2User ? "user-level-2-profile-avatar" : ""} ${isLevel3User ? "user-level-3-profile-avatar" : ""}`}>
                 <AvatarImage src={user.avatar_url} />
-                <AvatarFallback className="bg-gradient-to-br from-purple-600 to-cyan-500 text-3xl">
+                <AvatarFallback className={`bg-gradient-to-br from-purple-600 to-cyan-500 text-3xl ${isLevel1User ? "user-level-1-profile-avatar-fallback" : ""} ${isLevel2User ? "user-level-2-profile-avatar-fallback" : ""} ${isLevel3User ? "user-level-3-profile-avatar-fallback" : ""}`}>
                   {(user.full_name || user.email)?.[0]?.toUpperCase()}
                 </AvatarFallback>
               </Avatar>
@@ -232,13 +237,13 @@ export default function Profile() {
                     value={editData.full_name}
                     onChange={(e) => setEditData({ ...editData, full_name: e.target.value })}
                     placeholder="Tu nombre"
-                    className="bg-white/10 border-white/20 text-white"
+                    className={isLevel1User ? "user-level-1-profile-edit-input" : isLevel2User ? "user-level-2-profile-edit-input" : isLevel3User ? "user-level-3-profile-edit-input" : "bg-white/10 border-white/20 text-white"}
                   />
                   <div className="flex gap-2">
-                    <Button onClick={handleSave} disabled={isSaving} className="bg-gradient-to-r from-purple-600 to-cyan-500">
+                    <Button onClick={handleSave} disabled={isSaving} className={isLevel1User ? "user-level-1-profile-dialog-save" : isLevel2User ? "user-level-2-profile-dialog-save" : isLevel3User ? "user-level-3-profile-dialog-save" : "bg-gradient-to-r from-purple-600 to-cyan-500"}>
                       <Save className="w-4 h-4 mr-2" />Guardar
                     </Button>
-                    <Button variant="outline" onClick={() => setIsEditing(false)} className="border-white/20">
+                    <Button variant="outline" onClick={() => setIsEditing(false)} className={isLevel1User ? "user-level-1-profile-dialog-cancel" : isLevel2User ? "user-level-2-profile-dialog-cancel" : isLevel3User ? "user-level-3-profile-dialog-cancel" : "border-white/20"}>
                       Cancelar
                     </Button>
                   </div>
@@ -246,7 +251,7 @@ export default function Profile() {
               ) : (
                 <>
                   <div className="flex items-center justify-center md:justify-start gap-3 mb-2">
-                    <h1 className="text-2xl font-bold">
+                    <h1 className={`text-2xl font-bold ${isLevel1User ? "user-level-1-profile-name" : ""} ${isLevel2User ? "user-level-2-profile-name" : ""} ${isLevel3User ? "user-level-3-profile-name" : ""}`}>
                       {isPremium
                         ? <PremiumUsername name={user.full_name || "Usuario"} />
                         : <span className="text-white">{user.full_name || "Usuario"}</span>}
@@ -254,33 +259,33 @@ export default function Profile() {
                     <Button
                       variant="ghost" size="icon"
                       onClick={() => { setEditData({ full_name: user.full_name || "" }); setIsEditing(true); }}
-                      className="text-gray-400 hover:text-white"
+                      className={isLevel1User ? "user-level-1-profile-action-button" : isLevel2User ? "user-level-2-profile-action-button" : isLevel3User ? "user-level-3-profile-action-button" : "text-gray-400 hover:text-white"}
                     >
                       <Edit2 className="w-4 h-4" />
                     </Button>
                     <DropdownMenu modal={false}>
                       <DropdownMenuTrigger asChild>
-                        <Button variant="ghost" size="icon" className="text-gray-400 hover:text-white">
+                        <Button variant="ghost" size="icon" className={isLevel1User ? "user-level-1-profile-action-button" : isLevel2User ? "user-level-2-profile-action-button" : isLevel3User ? "user-level-3-profile-action-button" : "text-gray-400 hover:text-white"}>
                           <MoreVertical className="w-4 h-4" />
                         </Button>
                       </DropdownMenuTrigger>
-                      <DropdownMenuContent align="start" className="bg-[#0f0f18] border-white/10 text-white">
+                      <DropdownMenuContent align="start" className={isLevel2User ? "user-level-2-profile-menu" : isLevel3User ? "user-level-3-profile-menu" : "bg-[#0f0f18] border-white/10 text-white"}>
                         <DropdownMenuItem
                           onClick={() => { setPwForm({ current: "", next: "", confirm: "" }); setPwErrors({}); setShowPwDialog(true); }}
-                          className="cursor-pointer hover:bg-white/5 gap-2"
+                          className={isLevel1User ? "user-level-1-profile-menu-item" : isLevel2User ? "user-level-2-profile-menu-item" : isLevel3User ? "user-level-3-profile-menu-item" : "cursor-pointer hover:bg-white/5 gap-2"}
                         >
-                          <Lock className="w-4 h-4 text-purple-400" />
+                          <Lock className={`w-4 h-4 ${isLevel1User ? "user-level-1-profile-icon-soft" : isLevel2User ? "user-level-2-profile-icon-soft" : isLevel3User ? "user-level-3-profile-icon-soft" : "text-purple-400"}`} />
                           Cambiar contraseña
                         </DropdownMenuItem>
                       </DropdownMenuContent>
                     </DropdownMenu>
                   </div>
-                  <div className="flex items-center justify-center md:justify-start gap-2 text-gray-400 mb-2">
-                    <Mail className="w-4 h-4" />
+                  <div className={`flex items-center justify-center md:justify-start gap-2 text-gray-400 mb-2 ${isLevel1User ? "user-level-1-profile-meta" : ""} ${isLevel2User ? "user-level-2-profile-meta" : ""} ${isLevel3User ? "user-level-3-profile-meta" : ""}`}>
+                    <Mail className={`w-4 h-4 ${isLevel1User ? "user-level-1-profile-icon-soft" : ""} ${isLevel2User ? "user-level-2-profile-icon-soft" : ""} ${isLevel3User ? "user-level-3-profile-icon-soft" : ""}`} />
                     <span>{user.email}</span>
                   </div>
-                  <div className="flex items-center justify-center md:justify-start gap-2 text-gray-500 text-sm mt-3">
-                    <Calendar className="w-4 h-4" />
+                  <div className={`flex items-center justify-center md:justify-start gap-2 text-gray-500 text-sm mt-3 ${isLevel1User ? "user-level-1-profile-meta-muted" : ""} ${isLevel2User ? "user-level-2-profile-meta-muted" : ""} ${isLevel3User ? "user-level-3-profile-meta-muted" : ""}`}>
+                    <Calendar className={`w-4 h-4 ${isLevel1User ? "user-level-1-profile-icon-muted" : ""} ${isLevel2User ? "user-level-2-profile-icon-muted" : ""} ${isLevel3User ? "user-level-3-profile-icon-muted" : ""}`} />
                     <span>Miembro desde {format(new Date(user.created_at), "MMMM yyyy", { locale: es })}</span>
                   </div>
 
@@ -288,20 +293,20 @@ export default function Profile() {
                   <div className="mt-4 max-w-xs mx-auto md:mx-0">
                     <div className="flex items-center justify-between mb-1.5">
                       <span
-                        className="text-sm font-bold"
-                        style={{ color: currentLevel.color }}
+                        className={`text-sm font-bold ${isLevel1User ? "user-level-1-profile-level-label" : ""} ${isLevel2User ? "user-level-2-profile-level-label" : ""} ${isLevel3User ? "user-level-3-profile-level-label" : ""}`}
+                        style={isLevel1User || isLevel2User || isLevel3User ? undefined : { color: currentLevel.color }}
                       >
                         Nv.{currentLevel.level} {currentLevel.name}
                       </span>
-                      <span className="text-xs text-gray-400">
+                      <span className={`text-xs text-gray-400 ${isLevel1User ? "user-level-1-profile-xp-label" : ""} ${isLevel2User ? "user-level-2-profile-xp-label" : ""} ${isLevel3User ? "user-level-3-profile-xp-label" : ""}`}>
                         {xp.toLocaleString()} XP
                         {nextLevel && ` / ${nextLevel.xpRequired.toLocaleString()}`}
                       </span>
                     </div>
-                    <div className="h-2 rounded-full bg-white/10 overflow-hidden">
+                    <div className={`h-2 rounded-full bg-white/10 overflow-hidden ${isLevel1User ? "user-level-1-profile-progress-track" : ""} ${isLevel2User ? "user-level-2-profile-progress-track" : ""} ${isLevel3User ? "user-level-3-profile-progress-track" : ""}`}>
                       <div
-                        className="h-full rounded-full transition-all duration-500"
-                        style={{ width: `${levelPct}%`, backgroundColor: currentLevel.color }}
+                        className={`h-full rounded-full transition-all duration-500 ${isLevel1User ? "user-level-1-profile-progress-fill" : ""} ${isLevel2User ? "user-level-2-profile-progress-fill" : ""} ${isLevel3User ? "user-level-3-profile-progress-fill" : ""}`}
+                        style={isLevel1User || isLevel2User || isLevel3User ? { width: `${levelPct}%` } : { width: `${levelPct}%`, backgroundColor: currentLevel.color }}
                       />
                     </div>
                     {nextLevel ? (

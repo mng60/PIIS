@@ -13,18 +13,19 @@ import {
   Users, Search, UserPlus, UserMinus, ShieldOff,
   UserX, Clock, X, Loader2,
 } from "lucide-react";
+import { getLevelFromXP } from "@/lib/levels";
 
-function Avatar({ url, name, size = "md" }) {
+function Avatar({ url, name, size = "md", isLevel2User = false }) {
   const sz = size === "lg" ? "w-14 h-14 text-xl" : "w-10 h-10 text-base";
   if (url) return <img src={url} alt={name} className={`${sz} rounded-full object-cover`} />;
   return (
-    <div className={`${sz} rounded-full bg-gradient-to-br from-purple-600 to-cyan-500 flex items-center justify-center font-bold text-white`}>
+    <div className={`${sz} rounded-full flex items-center justify-center font-bold text-white ${isLevel2User ? "user-level-2-friends-avatar" : "bg-gradient-to-br from-purple-600 to-cyan-500"}`}>
       {name?.[0]?.toUpperCase() || "?"}
     </div>
   );
 }
 
-function XpBadge({ xp }) {
+function XpBadge({ xp, isLevel2User = false }) {
   const level = Math.floor(Math.sqrt(xp / 100)) + 1;
   return <span className="text-xs text-purple-400">Nv. {level} · {xp} XP</span>;
 }
@@ -45,6 +46,9 @@ export default function Friends() {
   const [pendingActions, setPendingActions] = useState({});
   const searchTimeout = useRef(null);
   const prevUserEmail = useRef(user?.email);
+  const isRegularUser = user && user.role !== "admin" && user.role !== "empresa";
+  const isLevel1User = isRegularUser && getLevelFromXP(user.xp ?? 0).level === 1;
+  const isLevel2User = isRegularUser && getLevelFromXP(user.xp ?? 0).level === 2;
 
   useEffect(() => {
     loadFriends();
@@ -252,7 +256,7 @@ export default function Friends() {
 
   function UserRow({ u, inSearch = false }) {
     return (
-      <div className="flex items-center gap-3 p-3 rounded-xl bg-white/5 hover:bg-white/8 transition-colors">
+      <div className={`flex items-center gap-3 p-3 rounded-xl bg-white/5 hover:bg-white/8 transition-colors ${isLevel2User ? "user-level-2-friends-row" : ""}`}>
         <button className="flex-shrink-0" onClick={() => navigate(`/profile/${encodeURIComponent(u.email)}`)}>
           <Avatar url={u.avatar_url} name={u.full_name} />
         </button>
@@ -270,26 +274,26 @@ export default function Friends() {
   if (!user) return null;
 
   return (
-    <div className="max-w-2xl mx-auto px-4 py-10">
+    <div className={`max-w-2xl mx-auto px-4 py-10 ${isLevel1User ? "user-level-1-friends-page" : ""} ${isLevel2User ? "user-level-2-friends-page" : ""}`}>
       <div className="flex items-center gap-3 mb-8">
-        <div className="p-2 rounded-xl bg-gradient-to-br from-purple-600 to-cyan-500">
+        <div className={`p-2 rounded-xl bg-gradient-to-br from-purple-600 to-cyan-500 ${isLevel1User ? "user-level-1-friends-icon-box" : ""} ${isLevel2User ? "user-level-2-friends-icon-box" : ""}`}>
           <Users className="w-5 h-5 text-white" />
         </div>
-        <h1 className="text-2xl font-bold bg-gradient-to-r from-purple-400 to-cyan-400 bg-clip-text text-transparent">
+        <h1 className={`text-2xl font-bold ${isLevel1User ? "user-level-1-friends-title" : ""} ${isLevel2User ? "user-level-2-section-heading" : "bg-gradient-to-r from-purple-400 to-cyan-400 bg-clip-text text-transparent"} ${isLevel2User ? "user-level-2-friends-title" : ""}`}>
           Amigos
         </h1>
       </div>
 
       {/* Buscar usuarios */}
       <div className="mb-8">
-        <h2 className="text-sm font-semibold text-gray-400 uppercase tracking-wider mb-3">Buscar jugadores</h2>
+        <h2 className={`text-sm font-semibold text-gray-400 uppercase tracking-wider mb-3 ${isLevel1User ? "user-level-1-friends-section-title" : ""} ${isLevel2User ? "user-level-2-friends-section-title" : ""}`}>Buscar jugadores</h2>
         <div className="relative">
           <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-500" />
           <Input
             value={searchQuery}
             onChange={e => setSearchQuery(e.target.value)}
             placeholder="Buscar por nombre o email..."
-            className="pl-9 bg-white/5 border-white/10"
+            className={`pl-9 bg-white/5 border-white/10 ${isLevel1User ? "user-level-1-friends-search" : ""} ${isLevel2User ? "user-level-2-friends-search" : ""}`}
           />
           {searchLoading && <Loader2 className="absolute right-3 top-1/2 -translate-y-1/2 w-4 h-4 animate-spin text-gray-400" />}
         </div>
@@ -306,11 +310,11 @@ export default function Friends() {
 
       {/* Lista de amigos */}
       <div>
-        <h2 className="text-sm font-semibold text-gray-400 uppercase tracking-wider mb-3">
+        <h2 className={`text-sm font-semibold text-gray-400 uppercase tracking-wider mb-3 ${isLevel1User ? "user-level-1-friends-section-title" : ""} ${isLevel2User ? "user-level-2-friends-section-title" : ""}`}>
           Mis amigos {!loadingFriends && `(${friends.length})`}
         </h2>
         {loadingFriends ? (
-          <div className="flex justify-center py-8"><Loader2 className="w-6 h-6 animate-spin text-purple-400" /></div>
+          <div className="flex justify-center py-8"><Loader2 className={`w-6 h-6 animate-spin text-purple-400 ${isLevel1User ? "user-level-1-friends-loader" : ""}`} /></div>
         ) : friends.length === 0 ? (
           <div className="text-center py-10 text-gray-500">
             <Users className="w-10 h-10 mx-auto mb-3 opacity-30" />
