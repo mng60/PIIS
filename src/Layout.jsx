@@ -128,7 +128,7 @@ export default function Layout({ children }) {
   );
 
   return (
-    <div className={`min-h-screen ${isDark ? "bg-[#0a0a0f] text-white" : "bg-[#f0f1f8] text-gray-900"} ${!isRestrictedArea && isLevel1User ? "user-screen-background" : ""} ${!isRestrictedArea && isLevel2User ? "user-screen-background user-screen-background-level-2" : ""} ${!isRestrictedArea && isLevel3User ? "user-screen-background user-screen-background-level-3" : ""} ${!isRestrictedArea && isLevel4User ? "user-screen-background user-screen-background-level-4" : ""} ${!isRestrictedArea && isLevelUser5 ? "user-screen-background user-screen-background-level-5" : ""} ${isLevel1User ? "user-level-1-shell" : ""} ${isLevel2User ? "user-level-2-shell" : ""} ${!isRestrictedArea && isLevel3User ? "user-level-3-shell" : ""}`}>
+    <div className={`min-h-screen ${isDark ? "bg-[#0a0a0f] text-white" : "bg-[#f0f1f8] text-gray-900"} ${!isRestrictedArea && isLevel1User ? "user-screen-background" : ""} ${!isRestrictedArea && isLevel2User ? "user-screen-background user-screen-background-level-2" : ""} ${!isRestrictedArea && isLevel3User ? "user-screen-background user-screen-background-level-3" : ""} ${!isRestrictedArea && isLevel4User ? "user-screen-background user-screen-background-level-4" : ""} ${!isRestrictedArea && isLevel5User ? "user-screen-background user-screen-background-level-5" : ""} ${isLevel1User ? "user-level-1-shell" : ""} ${isLevel2User ? "user-level-2-shell" : ""} ${!isRestrictedArea && isLevel3User ? "user-level-3-shell" : ""}`}>
       <style>{`
         :root {
           --background: 0 0% 4%;
