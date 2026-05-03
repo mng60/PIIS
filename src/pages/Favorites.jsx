@@ -16,6 +16,8 @@ export default function Favorites() {
   const isLevel1User = userLevel === 1;
   const isLevel2User = userLevel === 2;
   const isLevel3User = userLevel === 3;
+  const isLevel4User = userLevel === 4;
+  const isLevel5User = userLevel === 5;
 
   const { data: favorites = [], isLoading: favsLoading } = useQuery({
     queryKey: ["favorites", user?.email],
@@ -59,24 +61,24 @@ export default function Favorites() {
   }
 
   return (
-    <div className={`max-w-7xl mx-auto px-4 py-8 ${isLevel1User ? "user-level-1-favorites-page" : ""} ${isLevel2User ? "user-level-2-favorites-page" : ""} ${isLevel3User ? "user-level-3-favorites-page" : ""}`}>
+    <div className={`max-w-7xl mx-auto px-4 py-8 ${isLevel1User ? "user-level-1-favorites-page" : ""} ${isLevel2User ? "user-level-2-favorites-page" : ""} ${isLevel3User ? "user-level-3-favorites-page" : ""} ${isLevel3User ? "user-level-3-favorites-page" : ""} ${isLevel4User ? "user-level-4-favorites-page" : ""} ${isLevel5User ? "user-level-5-favorites-page" : ""}`} >
       <div className="mb-8">
-        <h1 className={`text-3xl font-bold text-white mb-2 flex items-center gap-3 ${isLevel1User ? "user-level-1-favorites-title" : ""} ${isLevel2User ? "user-level-2-section-heading" : ""} ${isLevel3User ? "user-level-3-section-heading" : ""}`}>
-          <Heart className={`w-8 h-8 ${isLevel1User ? "user-level-1-favorites-icon" : "text-red-500 fill-red-500"} ${isLevel2User ? "user-level-2-section-icon" : ""} ${isLevel3User ? "user-level-3-favorites-icon" : ""}`} />
+        <h1 className={`text-3xl font-bold text-white mb-2 flex items-center gap-3 ${isLevel1User ? "user-level-1-favorites-title" : ""} ${isLevel2User ? "user-level-2-section-heading" : ""} ${isLevel3User ? "user-level-3-section-heading" : ""} ${isLevel4User ? "user-level-4-section-heading" : ""} ${isLevel5User ? "user-level-5-section-heading" : ""}`}>
+          <Heart className={`w-8 h-8 ${isLevel1User ? "user-level-1-favorites-icon" : "text-red-500 fill-red-500"} ${isLevel2User ? "user-level-2-section-icon" : ""} ${isLevel3User ? "user-level-3-favorites-icon" : ""} ${isLevel4User ? "user-level-4-favorites-icon" : ""} ${isLevel5User ? "user-level-5-favorites-icon" : ""}`} />
           Mis Favoritos
         </h1>
-        <p className={`text-gray-400 ${isLevel1User ? "user-level-1-favorites-count" : ""} ${isLevel2User ? "user-level-2-favorites-count" : ""} ${isLevel3User ? "user-level-3-copy" : ""}`}>
+        <p className={`text-gray-400 ${isLevel1User ? "user-level-1-favorites-count" : ""} ${isLevel2User ? "user-level-2-favorites-count" : ""} ${isLevel3User ? "user-level-3-copy" : ""} ${isLevel4User ? "user-level-4-copy" : ""} ${isLevel5User ? "user-level-5-copy" : ""}`}>
           {favoriteGames.length} juegos guardados
         </p>
       </div>
 
       {favoriteGames.length === 0 ? (
         <div className="text-center py-16">
-          <Gamepad2 className={`w-16 h-16 mx-auto mb-4 ${isLevel1User ? "user-level-1-favorites-empty-tone" : "text-gray-600"} ${isLevel2User ? "user-level-2-favorites-empty-tone" : ""}`} />
-          <h3 className={`text-xl font-medium text-gray-400 mb-2 ${isLevel1User ? "user-level-1-favorites-empty-tone" : ""} ${isLevel2User ? "user-level-2-favorites-empty-tone" : ""}`}>
+          <Gamepad2 className={`w-16 h-16 mx-auto mb-4 ${isLevel1User ? "user-level-1-favorites-empty-tone" : "text-gray-600"} ${isLevel2User ? "user-level-2-favorites-empty-tone" : ""} ${isLevel3User ? "user-level-3-favorites-empty-tone" : ""} ${isLevel4User ? "user-level-4-favorites-empty-tone" : ""} ${isLevel5User ? "user-level-5-favorites-empty-tone" : ""}`} />
+          <h3 className={`text-xl font-medium text-gray-400 mb-2 ${isLevel1User ? "user-level-1-favorites-empty-tone" : ""} ${isLevel2User ? "user-level-2-favorites-empty-tone" : ""} ${isLevel3User ? "user-level-3-favorites-empty-tone" : ""} ${isLevel4User ? "user-level-4-favorites-empty-tone" : ""} ${isLevel5User ? "user-level-5-favorites-empty-tone" : ""}`}>
             No tienes favoritos
           </h3>
-          <p className={`text-gray-500 ${isLevel1User ? "user-level-1-favorites-empty-tone" : ""} ${isLevel2User ? "user-level-2-favorites-empty-tone" : ""}`}>
+          <p className={`text-gray-500 ${isLevel1User ? "user-level-1-favorites-empty-tone" : ""} ${isLevel2User ? "user-level-2-favorites-empty-tone" : ""} ${isLevel3User ? "user-level-3-favorites-empty-tone" : ""} ${isLevel4User ? "user-level-4-favorites-empty-tone" : ""} ${isLevel5User ? "user-level-5-favorites-empty-tone" : ""}`}>
             Explora el catalogo y anade juegos a tu lista
           </p>
         </div>

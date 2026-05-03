@@ -73,6 +73,8 @@ export default function GameDetail() {
   const isLevel1User = userLevel === 1;
   const isLevel2User = userLevel === 2;
   const isLevel3User = userLevel === 3;
+  const isLevel4User = userLevel === 4;
+  const isLevel5User = userLevel === 5;
 
   const { data: userGameStatsArr = [] } = useQuery({
     queryKey: ['userGameStats', user?.email, gameId],
@@ -298,7 +300,7 @@ export default function GameDetail() {
   }
 
   return (
-    <div className={`max-w-7xl mx-auto px-4 py-6 ${isLevel1User ? 'user-level-1-game-detail-page' : ''} ${isLevel2User ? 'user-level-2-game-detail-page' : ''} ${isLevel3User ? 'user-level-3-game-detail-page' : ''}`}>
+    <div className={`max-w-7xl mx-auto px-4 py-6 ${isLevel1User ? 'user-level-1-game-detail-page' : ''} ${isLevel2User ? 'user-level-2-game-detail-page' : ''} ${isLevel4User ? 'user-level-4-game-detail-page' : ''} ${isLevel5User ? 'user-level-5-game-detail-page' : ''}`}>
       <AgeGateDialog
         open={ageGateOpen}
         onConfirm={() => {
@@ -383,7 +385,7 @@ export default function GameDetail() {
         {(game.show_leaderboard !== false || game.show_achievements !== false) && (
           <div className="grid sm:grid-cols-2 gap-4">
             {game.show_leaderboard !== false && (
-              <div className={`bg-white/5 rounded-xl border border-white/10 p-5 ${isLevel1User ? "user-level-1-game-card" : ""} ${isLevel2User ? "user-level-2-detail-panel" : ""} ${isLevel3User ? "user-level-3-detail-panel" : ""}`}>
+              <div className={`bg-white/5 rounded-xl border border-white/10 p-5 ${isLevel1User ? "user-level-1-game-card" : ""} ${isLevel2User ? "user-level-2-detail-panel" : ""} ${isLevel3User ? "user-level-3-detail-panel" : ""} ${isLevel4User ? "user-level-4-detail-panel" : ""} ${isLevel5User ? "user-level-5-detail-panel" : ""}`}>
                 <h2 className={`text-base font-semibold text-white mb-4 flex items-center gap-2 ${isLevel2User ? "user-level-2-detail-panel-title" : ""} ${isLevel3User ? "user-level-3-detail-panel-title" : ""}`}>
                   <Trophy className={`w-4 h-4 text-yellow-500 ${isLevel2User ? 'user-level-2-detail-icon-yellow' : ''} ${isLevel3User ? 'user-level-3-detail-icon-yellow' : ''}`} /> Top 5
                 </h2>

@@ -27,6 +27,8 @@ export default function Games() {
   const isLevel1User = userLevel === 1;
   const isLevel2User = userLevel === 2;
   const isLevel3User = userLevel === 3;
+  const isLevel4User = userLevel === 4;
+  const isLevel5User = userLevel === 5;
 
   const { data: { games = [] } = {}, isLoading } = useQuery({
     queryKey: ["games"],
@@ -60,13 +62,13 @@ export default function Games() {
   }
 
   return (
-    <div className={`max-w-7xl mx-auto px-4 py-8 ${isLevel1User ? "user-level-1-games-page" : ""} ${isLevel2User ? "user-level-2-games-page" : ""} ${isLevel3User ? "user-level-3-games-page" : ""}`}>
+    <div className={`max-w-7xl mx-auto px-4 py-8 ${isLevel1User ? "user-level-1-games-page" : ""} ${isLevel2User ? "user-level-2-games-page" : ""} ${isLevel3User ? "user-level-3-games-page" : ""} ${isLevel4User ? "user-level-4-games-page" : ""} ${isLevel5User ? "user-level-5-games-page" : ""}`}>
       <div className="mb-8">
-        <h1 className={`text-3xl font-bold text-white mb-2 flex items-center gap-3 ${isLevel1User ? "user-level-1-games-title" : ""} ${isLevel2User ? "user-level-2-section-heading" : ""} ${isLevel3User ? "user-level-3-section-heading" : ""}`}>
-          <Gamepad2 className={`w-8 h-8 ${isLevel1User ? "user-level-1-games-icon" : "text-purple-400"} ${isLevel2User ? "user-level-2-section-icon" : ""} ${isLevel3User ? "user-level-3-section-icon" : ""}`} />
+        <h1 className={`text-3xl font-bold text-white mb-2 flex items-center gap-3 ${isLevel1User ? "user-level-1-games-title" : ""} ${isLevel2User ? "user-level-2-section-heading" : ""} ${isLevel3User ? "user-level-3-section-heading" : ""} ${isLevel4User ? "user-level-4-section-heading" : ""} ${isLevel5User ? "user-level-5-section-heading" : ""}`}>
+          <Gamepad2 className={`w-8 h-8 ${isLevel1User ? "user-level-1-games-icon" : "text-purple-400"} ${isLevel2User ? "user-level-2-section-icon" : ""} ${isLevel3User ? "user-level-3-section-icon" : ""} ${isLevel4User ? "user-level-4-section-icon" : ""} ${isLevel5User ? "user-level-5-section-icon" : ""}`} />
           Catalogo de Juegos
         </h1>
-        <p className={`text-gray-400 ${isLevel1User ? "user-level-1-games-copy" : ""} ${isLevel2User ? "user-level-2-games-copy" : ""} ${isLevel3User ? "user-level-3-copy" : ""}`}>
+        <p className={`text-gray-400 ${isLevel1User ? "user-level-1-games-copy" : ""} ${isLevel2User ? "user-level-2-games-copy" : ""} ${isLevel3User ? "user-level-3-copy" : ""} ${isLevel4User ? "user-level-4-copy" : ""} ${isLevel5User ? "user-level-5-copy" : ""}`}>
           Explora nuestra coleccion de {games.length} juegos
         </p>
       </div>
@@ -75,12 +77,12 @@ export default function Games() {
 
       <div className="mb-8 space-y-4">
         <div className="relative">
-          <Search className={`absolute left-3 top-1/2 -translate-y-1/2 w-5 h-5 ${isLevel1User ? "user-level-1-games-search-icon" : "text-gray-400"} ${isLevel2User ? "user-level-2-games-search-icon" : ""} ${isLevel3User ? "user-level-3-games-search-icon" : ""}`} />
+          <Search className={`absolute left-3 top-1/2 -translate-y-1/2 w-5 h-5 ${isLevel1User ? "user-level-1-games-search-icon" : "text-gray-400"} ${isLevel2User ? "user-level-2-games-search-icon" : ""} ${isLevel3User ? "user-level-3-games-search-icon" : ""} ${isLevel4User ? "user-level-4-games-search-icon" : ""} ${isLevel5User ? "user-level-5-games-search-icon" : ""}`} />
           <Input
             value={searchQuery}
             onChange={(e) => setSearchQuery(e.target.value)}
             placeholder="Buscar juegos..."
-            className={`pl-10 bg-white/5 border-white/10 text-white placeholder:text-gray-500 ${isLevel1User ? "user-level-1-games-search" : ""} ${isLevel2User ? "user-level-2-games-search" : ""} ${isLevel3User ? "user-level-3-games-search" : ""}`}
+            className={`pl-10 bg-white/5 border-white/10 text-white placeholder:text-gray-500 ${isLevel1User ? "user-level-1-games-search" : ""} ${isLevel2User ? "user-level-2-games-search" : ""} ${isLevel3User ? "user-level-3-games-search" : ""} ${isLevel4User ? "user-level-4-games-search" : ""} ${isLevel5User ? "user-level-5-games-search" : ""}`}
           />
         </div>
 
@@ -98,14 +100,22 @@ export default function Games() {
                       ? "user-level-2-games-filter-active"
                       : isLevel3User
                         ? "user-level-3-games-filter-active"
-                        : "bg-gradient-to-r from-purple-600 to-cyan-500 border-0"
+                        : isLevel4User
+                          ? "user-level-4-games-filter-active"
+                          : isLevel5User
+                            ? "user-level-5-games-filter-active"
+                            : "bg-gradient-to-r from-purple-600 to-cyan-500 border-0"
                   : isLevel1User
                     ? "user-level-1-games-filter"
                     : isLevel2User
                       ? "user-level-2-games-filter"
                       : isLevel3User
                         ? "user-level-3-games-filter"
-                        : "border-white/20 text-gray-300 hover:text-white hover:bg-white/5"
+                        : isLevel4User
+                          ? "user-level-4-games-filter"
+                          : isLevel5User
+                            ? "user-level-5-games-filter"
+                            : "border-white/20 text-gray-300 hover:text-white hover:bg-white/5"
               }
             >
               {category.label}
@@ -116,17 +126,17 @@ export default function Games() {
 
       {filteredGames.length === 0 ? (
         <div className="text-center py-16">
-          <Gamepad2 className={`w-16 h-16 mx-auto mb-4 ${isLevel1User ? "user-level-1-games-empty-icon" : "text-gray-600"} ${isLevel2User ? "user-level-2-games-empty-tone" : ""}`} />
-          <h3 className={`text-xl font-medium text-gray-400 mb-2 ${isLevel1User ? "user-level-1-games-empty-title" : ""} ${isLevel2User ? "user-level-2-games-empty-tone" : ""}`}>
+          <Gamepad2 className={`w-16 h-16 mx-auto mb-4 ${isLevel1User ? "user-level-1-games-empty-icon" : "text-gray-600"} ${isLevel2User ? "user-level-2-games-empty-tone" : ""} ${isLevel3User ? "user-level-3-games-empty-tone" : ""} ${isLevel4User ? "user-level-4-games-empty-tone" : ""} ${isLevel5User ? "user-level-5-games-empty-tone" : ""}`} />
+          <h3 className={`text-xl font-medium text-gray-400 mb-2 ${isLevel1User ? "user-level-1-games-empty-title" : ""} ${isLevel2User ? "user-level-2-games-empty-tone" : ""} ${isLevel3User ? "user-level-3-games-empty-tone" : ""} ${isLevel4User ? "user-level-4-games-empty-tone" : ""} ${isLevel5User ? "user-level-5-games-empty-tone" : ""}`}>
             No se encontraron juegos
           </h3>
-          <p className={`text-gray-500 ${isLevel1User ? "user-level-1-games-empty-copy" : ""} ${isLevel2User ? "user-level-2-games-empty-tone" : ""}`}>
+          <p className={`text-gray-500 ${isLevel1User ? "user-level-1-games-empty-copy" : ""} ${isLevel2User ? "user-level-2-games-empty-tone" : ""} ${isLevel3User ? "user-level-3-games-empty-tone" : ""} ${isLevel4User ? "user-level-4-games-empty-tone" : ""} ${isLevel5User ? "user-level-5-games-empty-tone" : ""}`}>
             Intenta con otros filtros o terminos de busqueda
           </p>
         </div>
       ) : (
         <>
-          <div className={`mb-4 text-sm text-gray-400 ${isLevel1User ? "user-level-1-games-results" : ""} ${isLevel2User ? "user-level-2-games-results" : ""}`}>
+          <div className={`mb-4 text-sm text-gray-400 ${isLevel1User ? "user-level-1-games-results" : ""} ${isLevel2User ? "user-level-2-games-results" : ""} ${isLevel3User ? "user-level-3-games-results" : ""} ${isLevel4User ? "user-level-4-games-results" : ""} ${isLevel5User ? "user-level-5-games-results" : ""}`}>
             Mostrando {filteredGames.length} {filteredGames.length === 1 ? "juego" : "juegos"}
           </div>
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">

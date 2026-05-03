@@ -47,8 +47,13 @@ export default function Friends() {
   const searchTimeout = useRef(null);
   const prevUserEmail = useRef(user?.email);
   const isRegularUser = user && user.role !== "admin" && user.role !== "empresa";
-  const isLevel1User = isRegularUser && getLevelFromXP(user.xp ?? 0).level === 1;
-  const isLevel2User = isRegularUser && getLevelFromXP(user.xp ?? 0).level === 2;
+    const userLevel = isRegularUser ? getLevelFromXP(user.xp ?? 0).level : null;
+    const isLevel1User = userLevel === 1;
+    const isLevel2User = userLevel === 2;
+    const isLevel3User = userLevel === 3;
+    const isLevel4User = userLevel === 4;
+    const isLevel5User = userLevel === 5;
+  
 
   useEffect(() => {
     loadFriends();
@@ -274,26 +279,26 @@ export default function Friends() {
   if (!user) return null;
 
   return (
-    <div className={`max-w-2xl mx-auto px-4 py-10 ${isLevel1User ? "user-level-1-friends-page" : ""} ${isLevel2User ? "user-level-2-friends-page" : ""}`}>
+    <div className={`max-w-2xl mx-auto px-4 py-10 ${isLevel1User ? "user-level-1-friends-page" : ""} ${isLevel2User ? "user-level-2-friends-page" : ""} ${isLevel3User ? "user-level-3-friends-page" : ""} ${isLevel4User ? "user-level-4-friends-page" : ""} ${isLevel5User ? "user-level-5-friends-page" : ""}`}>
       <div className="flex items-center gap-3 mb-8">
-        <div className={`p-2 rounded-xl bg-gradient-to-br from-purple-600 to-cyan-500 ${isLevel1User ? "user-level-1-friends-icon-box" : ""} ${isLevel2User ? "user-level-2-friends-icon-box" : ""}`}>
+        <div className={`p-2 rounded-xl bg-gradient-to-br from-purple-600 to-cyan-500 ${isLevel1User ? "user-level-1-friends-icon-box" : ""} ${isLevel2User ? "user-level-2-friends-icon-box" : ""} ${isLevel3User ? "user-level-3-friends-icon-box" : ""} ${isLevel4User ? "user-level-4-friends-icon-box" : ""} ${isLevel5User ? "user-level-5-friends-icon-box" : ""}`}>
           <Users className="w-5 h-5 text-white" />
         </div>
-        <h1 className={`text-2xl font-bold ${isLevel1User ? "user-level-1-friends-title" : ""} ${isLevel2User ? "user-level-2-section-heading" : "bg-gradient-to-r from-purple-400 to-cyan-400 bg-clip-text text-transparent"} ${isLevel2User ? "user-level-2-friends-title" : ""}`}>
+        <h1 className={`text-2xl font-bold ${isLevel1User ? "user-level-1-friends-title" : ""} ${isLevel2User ? "user-level-2-section-heading" : "bg-gradient-to-r from-purple-400 to-cyan-400 bg-clip-text text-transparent"} ${isLevel2User ? "user-level-2-friends-title" : ""} ${isLevel3User ? "user-level-3-section-heading" : "bg-gradient-to-r from-purple-400 to-cyan-400 bg-clip-text text-transparent"} ${isLevel3User ? "user-level-3-friends-title" : ""} ${isLevel4User ? "user-level-4-section-heading" : "bg-gradient-to-r from-purple-400 to-cyan-400 bg-clip-text text-transparent"} ${isLevel4User ? "user-level-4-friends-title" : ""} ${isLevel5User ? "user-level-5-section-heading" : "bg-gradient-to-r from-purple-400 to-cyan-400 bg-clip-text text-transparent"} ${isLevel5User ? "user-level-5-friends-title" : ""}`}>
           Amigos
         </h1>
       </div>
 
       {/* Buscar usuarios */}
       <div className="mb-8">
-        <h2 className={`text-sm font-semibold text-gray-400 uppercase tracking-wider mb-3 ${isLevel1User ? "user-level-1-friends-section-title" : ""} ${isLevel2User ? "user-level-2-friends-section-title" : ""}`}>Buscar jugadores</h2>
+        <h2 className={`text-sm font-semibold text-gray-400 uppercase tracking-wider mb-3 ${isLevel1User ? "user-level-1-friends-section-title" : ""} ${isLevel2User ? "user-level-2-friends-section-title" : ""} ${isLevel3User ? "user-level-3-friends-section-title" : ""} ${isLevel4User ? "user-level-4-friends-section-title" : ""} ${isLevel5User ? "user-level-5-friends-section-title" : ""}`}>Buscar jugadores</h2>
         <div className="relative">
           <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-500" />
           <Input
             value={searchQuery}
             onChange={e => setSearchQuery(e.target.value)}
             placeholder="Buscar por nombre o email..."
-            className={`pl-9 bg-white/5 border-white/10 ${isLevel1User ? "user-level-1-friends-search" : ""} ${isLevel2User ? "user-level-2-friends-search" : ""}`}
+            className={`pl-9 bg-white/5 border-white/10 ${isLevel1User ? "user-level-1-friends-search" : ""} ${isLevel2User ? "user-level-2-friends-search" : ""} ${isLevel3User ? "user-level-3-friends-search" : ""} ${isLevel4User ? "user-level-4-friends-search" : ""} ${isLevel5User ? "user-level-5-friends-search" : ""}`}
           />
           {searchLoading && <Loader2 className="absolute right-3 top-1/2 -translate-y-1/2 w-4 h-4 animate-spin text-gray-400" />}
         </div>
@@ -310,11 +315,11 @@ export default function Friends() {
 
       {/* Lista de amigos */}
       <div>
-        <h2 className={`text-sm font-semibold text-gray-400 uppercase tracking-wider mb-3 ${isLevel1User ? "user-level-1-friends-section-title" : ""} ${isLevel2User ? "user-level-2-friends-section-title" : ""}`}>
+        <h2 className={`text-sm font-semibold text-gray-400 uppercase tracking-wider mb-3 ${isLevel1User ? "user-level-1-friends-section-title" : ""} ${isLevel2User ? "user-level-2-friends-section-title" : ""} ${isLevel3User ? "user-level-3-friends-section-title" : ""} ${isLevel4User ? "user-level-4-friends-section-title" : ""} ${isLevel5User ? "user-level-5-friends-section-title" : ""}`}>
           Mis amigos {!loadingFriends && `(${friends.length})`}
         </h2>
         {loadingFriends ? (
-          <div className="flex justify-center py-8"><Loader2 className={`w-6 h-6 animate-spin text-purple-400 ${isLevel1User ? "user-level-1-friends-loader" : ""}`} /></div>
+          <div className="flex justify-center py-8"><Loader2 className={`w-6 h-6 animate-spin text-purple-400 ${isLevel1User ? "user-level-1-friends-loader" : ""} ${isLevel3User ? "user-level-3-friends-loader" : ""} ${isLevel4User ? "user-level-4-friends-loader" : ""} ${isLevel5User ? "user-level-5-friends-loader" : ""}`} /></div>
         ) : friends.length === 0 ? (
           <div className="text-center py-10 text-gray-500">
             <Users className="w-10 h-10 mx-auto mb-3 opacity-30" />

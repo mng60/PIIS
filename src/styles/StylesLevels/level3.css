@@ -793,3 +793,546 @@
 .user-level-3-profile-page .text-purple-400 {
   color: #2d9fd3 !important;
 }
+
+/* ========================================================= */
+/* NIVEL 3 — COMPLETADO DE ETIQUETAS FALTANTES              */
+/* Se mantiene el estilo azul/glass original del nivel 3.    */
+/* ========================================================= */
+
+.user-level-3-shell .neon-glow {
+  box-shadow:
+    0 0 20px rgba(85, 201, 244, 0.22),
+    0 0 38px rgba(142, 221, 255, 0.14) !important;
+}
+
+.user-level-3-shell header {
+  border-color: rgba(120, 205, 255, 0.2) !important;
+  background:
+    linear-gradient(90deg, rgba(4, 14, 30, 0.94), rgba(10, 43, 75, 0.82), rgba(4, 14, 30, 0.94)) !important;
+  box-shadow:
+    0 1px 0 rgba(170, 230, 255, 0.08) inset,
+    0 12px 34px rgba(0, 24, 48, 0.34) !important;
+}
+
+.user-level-3-shell footer {
+  border-color: rgba(120, 205, 255, 0.16) !important;
+}
+
+.user-level-3-footer-text {
+  color: #b9d3df !important;
+}
+
+.user-level-3-home .text-white,
+.user-level-3-shell .text-white {
+  color: #e7f8ff !important;
+}
+
+.user-level-3-home .text-gray-300,
+.user-level-3-home .text-gray-400,
+.user-level-3-shell .text-gray-300,
+.user-level-3-shell .text-gray-400 {
+  color: #c7dfeb !important;
+}
+
+.user-level-3-shell .text-gray-500,
+.user-level-3-shell .text-gray-600 {
+  color: #9eb9c8 !important;
+}
+
+.user-level-3-highlight-section {
+  background:
+    linear-gradient(135deg, rgba(120, 200, 255, 0.14), rgba(10, 35, 60, 0.24)) !important;
+  border-color: rgba(150, 225, 255, 0.3) !important;
+  box-shadow:
+    0 14px 32px rgba(0, 24, 48, 0.16),
+    0 0 0 1px rgba(185, 235, 255, 0.06) inset !important;
+}
+
+.user-level-3-highlight-title,
+.user-level-3-news-heading,
+.user-level-3-news-icon,
+.user-level-3-games-title,
+.user-level-3-games-icon,
+.user-level-3-featured-heading,
+.user-level-3-featured-icon,
+.user-level-3-new-games-heading,
+.user-level-3-new-games-icon,
+.user-level-3-favorites-title {
+  color: #e6f8ff !important;
+  text-shadow: 0 0 14px rgba(115, 205, 255, 0.28);
+}
+
+.user-level-3-highlight-copy,
+.user-level-3-games-copy,
+.user-level-3-games-results,
+.user-level-3-games-empty-copy,
+.user-level-3-favorites-count,
+.user-level-3-favorites-empty-tone,
+.user-level-3-games-empty-tone,
+.user-level-3-games-empty-title,
+.user-level-3-games-empty-icon {
+  color: #c7dfeb !important;
+}
+
+.user-level-3-hero-button,
+.user-level-3-featured-button,
+.user-level-3-game-launch,
+.user-level-3-comment-button {
+  background: linear-gradient(135deg, #2b78a8 0%, #55c9f4 100%) !important;
+  border: 1px solid rgba(180, 235, 255, 0.42) !important;
+  color: #ffffff !important;
+  box-shadow:
+    0 12px 28px rgba(70, 175, 235, 0.24),
+    0 0 18px rgba(125, 215, 255, 0.16) !important;
+}
+
+.user-level-3-hero-button:hover,
+.user-level-3-featured-button:hover,
+.user-level-3-game-launch:hover,
+.user-level-3-comment-button:hover {
+  background: linear-gradient(135deg, #3b8fc4 0%, #78d7ff 100%) !important;
+  box-shadow:
+    0 14px 32px rgba(70, 175, 235, 0.3),
+    0 0 24px rgba(125, 215, 255, 0.22) !important;
+}
+
+.user-level-3-featured-badge {
+  background: linear-gradient(90deg, #2b78a8 0%, #55c9f4 100%) !important;
+  color: #ffffff !important;
+  box-shadow: 0 10px 22px rgba(70, 175, 235, 0.22) !important;
+}
+
+.user-level-3-shell .game-card:hover,
+.user-level-3-shell .news-card:hover,
+.user-level-3-shell .user-level-3-game-card:hover,
+.user-level-3-shell .user-level-3-news-card:hover,
+.user-level-3-shell .user-level-3-tournament-card:hover {
+  box-shadow:
+    0 18px 44px rgba(0, 24, 48, 0.32),
+    0 0 30px rgba(120, 215, 255, 0.18) !important;
+}
+
+.user-level-3-game-card h3,
+.user-level-3-news-card h3,
+.user-level-3-tournament-card-title {
+  color: #f2fbff !important;
+}
+
+.user-level-3-game-card p,
+.user-level-3-news-card p,
+.user-level-3-game-card .text-gray-400,
+.user-level-3-news-card .text-gray-400,
+.user-level-3-game-card .text-gray-500,
+.user-level-3-news-card .text-gray-500 {
+  color: #c7dfeb !important;
+}
+
+.user-level-3-news-link,
+.user-level-3-news-title {
+  color: #e6f8ff !important;
+}
+
+.user-level-3-news-link:hover {
+  color: #8fdcff !important;
+}
+
+.user-level-3-games-search::placeholder,
+.user-level-3-comment-textarea::placeholder,
+.user-level-3-friends-search::placeholder,
+.user-level-3-crafty-input-field::placeholder,
+.user-level-3-floating-chat-input::placeholder {
+  color: #9eb9c8 !important;
+}
+
+.user-level-3-game-detail-action-share {
+  border-color: rgba(85, 201, 244, 0.42) !important;
+  background: rgba(85, 201, 244, 0.14) !important;
+  color: #8fdcff !important;
+  box-shadow: 0 0 18px rgba(85, 201, 244, 0.14) !important;
+}
+
+.user-level-3-game-detail-action-share:hover {
+  background: rgba(85, 201, 244, 0.2) !important;
+  color: #e6f8ff !important;
+  box-shadow: 0 0 22px rgba(85, 201, 244, 0.22) !important;
+}
+
+.user-level-3-history,
+.user-level-3-game-detail-page .bg-white\/5,
+.user-level-3-game-detail-page .user-level-3-detail-panel.bg-white\/5,
+.user-level-3-game-detail-page .user-level-3-game-surface.bg-white\/5,
+.user-level-3-game-detail-page .user-level-3-history.bg-white\/5 {
+  background:
+    linear-gradient(180deg, rgba(95, 175, 230, 0.11), rgba(10, 35, 60, 0.2)),
+    rgba(6, 24, 42, 0.28) !important;
+  border-color: rgba(150, 225, 255, 0.28) !important;
+  box-shadow:
+    0 0 0 1px rgba(185, 235, 255, 0.06) inset,
+    0 18px 42px rgba(0, 20, 42, 0.18) !important;
+}
+
+.user-level-3-game-detail-page .border-white\/10,
+.user-level-3-game-detail-page .border-white\/5 {
+  border-color: rgba(150, 225, 255, 0.22) !important;
+}
+
+.user-level-3-comment-empty,
+.user-level-3-comment-empty-icon,
+.user-level-3-leaderboard-empty,
+.user-level-3-leaderboard-empty-icon {
+  color: #9eb9c8 !important;
+}
+
+.user-level-3-comment-card.bg-white\/5 {
+  background:
+    linear-gradient(180deg, rgba(95, 175, 230, 0.1), rgba(10, 35, 60, 0.18)),
+    rgba(6, 24, 42, 0.26) !important;
+  border-color: rgba(150, 225, 255, 0.24) !important;
+}
+
+.user-level-3-profile-premium-card {
+  background:
+    radial-gradient(circle at 85% 15%, rgba(142, 221, 255, 0.18) 0%, transparent 34%),
+    linear-gradient(135deg, rgba(10, 43, 75, 0.72) 0%, rgba(4, 14, 30, 0.88) 54%, rgba(19, 83, 125, 0.66) 100%) !important;
+  border-color: rgba(150, 225, 255, 0.28) !important;
+  box-shadow:
+    inset 0 1px 0 rgba(210, 245, 255, 0.08),
+    0 18px 34px rgba(0, 18, 36, 0.26) !important;
+}
+
+.user-level-3-profile-premium-card .text-white,
+.user-level-3-profile-premium-card .text-gray-300 {
+  color: #e7f8ff !important;
+}
+
+.user-level-3-profile-premium-card .text-gray-400,
+.user-level-3-profile-premium-card .text-gray-500 {
+  color: #b9d3df !important;
+}
+
+.user-level-3-profile-premium-button {
+  background: linear-gradient(135deg, #2b78a8 0%, #55c9f4 100%) !important;
+  color: #ffffff !important;
+  box-shadow: 0 10px 24px rgba(70, 175, 235, 0.24) !important;
+}
+
+.user-level-3-profile-premium-button:hover {
+  background: linear-gradient(135deg, #3b8fc4 0%, #78d7ff 100%) !important;
+}
+
+.user-level-3-profile-password-dialog {
+  max-width: 36rem !important;
+  border-radius: 12px !important;
+}
+
+.user-level-3-profile-dialog-icon {
+  color: #8fdcff !important;
+  filter: drop-shadow(0 0 8px rgba(142, 221, 255, 0.3));
+}
+
+.user-level-3-profile-password-input,
+.user-level-3-profile-dialog input,
+.user-level-3-profile-edit-input {
+  min-height: 48px;
+  background:
+    linear-gradient(180deg, rgba(5, 24, 43, 0.72), rgba(3, 17, 32, 0.82)) !important;
+  border: 1px solid rgba(150, 225, 255, 0.34) !important;
+  color: #f4fbff !important;
+  box-shadow:
+    inset 0 0 16px rgba(0, 12, 26, 0.22),
+    inset 0 1px 0 rgba(210, 245, 255, 0.05) !important;
+}
+
+.user-level-3-profile-dialog input::placeholder,
+.user-level-3-profile-edit-input::placeholder {
+  color: #9eb9c8 !important;
+}
+
+.user-level-3-profile-dialog input:focus,
+.user-level-3-profile-dialog input:focus-visible,
+.user-level-3-profile-edit-input:focus,
+.user-level-3-profile-edit-input:focus-visible {
+  border-color: rgba(120, 215, 255, 0.82) !important;
+  box-shadow:
+    0 0 0 1px rgba(120, 215, 255, 0.4),
+    0 0 18px rgba(85, 201, 244, 0.2) !important;
+  outline: none !important;
+}
+
+.user-level-3-profile-scores-title,
+.user-level-3-profile-scores-trophy,
+.user-level-3-profile-medal-icon {
+  color: #8fdcff !important;
+  fill: #8fdcff !important;
+}
+
+.user-level-3-profile-medal-row,
+.user-level-3-profile-score-row {
+  border: 1px solid rgba(150, 225, 255, 0.16) !important;
+  background: rgba(95, 175, 230, 0.1) !important;
+}
+
+.user-level-3-profile-score-date,
+.user-level-3-profile-panel-text,
+.user-level-3-profile-panel-copy {
+  color: #b9d3df !important;
+}
+
+.user-level-3-profile-score,
+.user-level-3-profile-panel-title {
+  color: #e7f8ff !important;
+}
+
+.user-level-3-profile-stat-icon-grass,
+.user-level-3-profile-stat-icon-heart {
+  color: #55c9f4 !important;
+}
+
+.user-level-3-friends-page .text-white,
+.user-level-3-friends-title,
+.user-level-3-friends-section-title {
+  color: #e7f8ff !important;
+}
+
+.user-level-3-friends-page .text-gray-400,
+.user-level-3-friends-page .text-gray-500,
+.user-level-3-friends-empty,
+.user-level-3-friends-empty-copy {
+  color: #b9d3df !important;
+}
+
+.user-level-3-friends-icon-box,
+.user-level-3-friends-empty-icon {
+  color: #8fdcff !important;
+  background: rgba(95, 175, 230, 0.12) !important;
+  border-color: rgba(150, 225, 255, 0.22) !important;
+}
+
+.user-level-3-friends-search {
+  border-color: rgba(150, 225, 255, 0.36) !important;
+  background: rgba(5, 24, 43, 0.46) !important;
+  color: #f4fbff !important;
+}
+
+.user-level-3-friends-search:focus,
+.user-level-3-friends-search:focus-visible {
+  border-color: rgba(120, 215, 255, 0.82) !important;
+  box-shadow:
+    0 0 0 1px rgba(120, 215, 255, 0.52),
+    0 0 18px rgba(85, 201, 244, 0.18) !important;
+  outline: none !important;
+}
+
+.user-level-3-friends-row {
+  border-color: rgba(150, 225, 255, 0.18) !important;
+  background: rgba(95, 175, 230, 0.08) !important;
+}
+
+.user-level-3-friends-row:hover {
+  background: rgba(95, 175, 230, 0.14) !important;
+}
+
+.user-level-3-friends-loader {
+  color: #55c9f4 !important;
+}
+
+.user-level-3-tournaments-page .text-white,
+.user-level-3-tournaments-title,
+.user-level-3-tournaments-bracket-icon,
+.user-level-3-tournaments-icon {
+  color: #e7f8ff !important;
+}
+
+.user-level-3-tournaments-copy,
+.user-level-3-tournaments-empty,
+.user-level-3-tournaments-empty-copy {
+  color: #c7dfeb !important;
+}
+
+.user-level-3-tournaments-empty-title,
+.user-level-3-tournaments-empty-icon {
+  color: #8fdcff !important;
+}
+
+.user-level-3-tournaments-tabs {
+  border-color: rgba(150, 225, 255, 0.22) !important;
+  background: rgba(5, 24, 43, 0.34) !important;
+}
+
+.user-level-3-tournaments-tab {
+  color: #b9d3df !important;
+  background: rgba(5, 24, 43, 0.28) !important;
+  border-color: rgba(150, 225, 255, 0.18) !important;
+}
+
+.user-level-3-tournaments-tab:hover {
+  color: #ffffff !important;
+  background: rgba(95, 175, 230, 0.16) !important;
+}
+
+.user-level-3-tournaments-tab-active {
+  color: #ffffff !important;
+  background: linear-gradient(135deg, #2b78a8 0%, #55c9f4 100%) !important;
+  border-color: rgba(180, 235, 255, 0.42) !important;
+  box-shadow: 0 10px 22px rgba(70, 175, 235, 0.22) !important;
+}
+
+.user-level-3-tournaments-bracket,
+.user-level-3-tournaments-empty {
+  border-color: rgba(150, 225, 255, 0.24) !important;
+  background:
+    linear-gradient(180deg, rgba(95, 175, 230, 0.1), rgba(10, 35, 60, 0.18)),
+    rgba(6, 24, 42, 0.26) !important;
+}
+
+.user-level-3-tournament-elo {
+  color: #8fdcff !important;
+}
+
+.user-level-3-tournaments-loader {
+  color: #55c9f4 !important;
+}
+
+.user-level-3-pong-shell {
+  color: #e7f8ff !important;
+}
+
+.user-level-3-pong-green,
+.user-level-3-pong-blue {
+  color: #8fdcff !important;
+}
+
+.user-level-3-pong-option:hover {
+  border-color: rgba(180, 235, 255, 0.58) !important;
+  background: rgba(28, 91, 132, 0.9) !important;
+  color: #ffffff !important;
+}
+
+.user-level-3-snake-value,
+.user-level-3-snake-value-highlight {
+  color: #e7f8ff !important;
+}
+
+.user-level-3-snake-points {
+  color: #8fdcff !important;
+}
+
+.user-level-3-snake-record {
+  color: #ffe08a !important;
+}
+
+.user-level-3-crafty,
+.user-level-3-crafty-panel,
+.user-level-3-floating-chat-panel {
+  border-color: rgba(150, 225, 255, 0.26) !important;
+  background:
+    linear-gradient(180deg, rgba(6, 24, 42, 0.96), rgba(10, 35, 60, 0.94)) !important;
+  color: #e7f8ff !important;
+  box-shadow:
+    0 18px 44px rgba(0, 18, 36, 0.34),
+    0 0 0 1px rgba(185, 235, 255, 0.06) inset !important;
+}
+
+.user-level-3-crafty-header,
+.user-level-3-floating-chat-header {
+  border-color: rgba(150, 225, 255, 0.18) !important;
+  background: rgba(95, 175, 230, 0.08) !important;
+  color: #e7f8ff !important;
+}
+
+.user-level-3-crafty-avatar,
+.user-level-3-crafty-avatar-img,
+.user-level-3-crafty-avatar-fallback-icon {
+  border-color: rgba(120, 215, 255, 0.56) !important;
+  color: #8fdcff !important;
+  box-shadow: 0 0 18px rgba(120, 215, 255, 0.2) !important;
+}
+
+.user-level-3-crafty-input,
+.user-level-3-crafty-input-wrap,
+.user-level-3-floating-chat-input-wrap {
+  border-color: rgba(150, 225, 255, 0.22) !important;
+  background: rgba(5, 24, 43, 0.5) !important;
+}
+
+.user-level-3-crafty-input-field,
+.user-level-3-floating-chat-input {
+  background: transparent !important;
+  color: #f4fbff !important;
+}
+
+.user-level-3-crafty-button,
+.user-level-3-crafty-send,
+.user-level-3-floating-chat-button,
+.user-level-3-floating-chat-send {
+  background: linear-gradient(135deg, #2b78a8 0%, #55c9f4 100%) !important;
+  color: #ffffff !important;
+  border-color: rgba(180, 235, 255, 0.36) !important;
+  box-shadow: 0 10px 22px rgba(70, 175, 235, 0.2) !important;
+}
+
+.user-level-3-crafty-assistant-message,
+.user-level-3-floating-chat-message {
+  background: rgba(95, 175, 230, 0.12) !important;
+  border-color: rgba(150, 225, 255, 0.18) !important;
+  color: #e7f8ff !important;
+}
+
+.user-level-3-crafty-user-message,
+.user-level-3-floating-chat-message-mine {
+  background: linear-gradient(135deg, rgba(43, 120, 168, 0.86), rgba(85, 201, 244, 0.72)) !important;
+  color: #ffffff !important;
+}
+
+.user-level-3-floating-chat,
+.user-level-3-floating-chat-friend-row,
+.user-level-3-floating-chat-empty {
+  color: #c7dfeb !important;
+}
+
+.user-level-3-floating-chat-friend-row:hover {
+  background: rgba(95, 175, 230, 0.14) !important;
+}
+
+.user-level-3-chess-board,
+.user-level-3-chess-tabs,
+.user-level-3-chess-pill {
+  border-color: rgba(150, 225, 255, 0.26) !important;
+  background: rgba(5, 24, 43, 0.42) !important;
+  color: #e7f8ff !important;
+}
+
+.user-level-3-chess-copy,
+.user-level-3-chess-code,
+.user-level-3-chess-room-code {
+  color: #c7dfeb !important;
+}
+
+.user-level-3-chess-primary-button,
+.user-level-3-chess-secondary-button,
+.user-level-3-chess-finish,
+.user-level-3-chess-cancel,
+.user-level-3-chess-outline-button {
+  border: 1px solid rgba(150, 225, 255, 0.34) !important;
+  color: #ffffff !important;
+  background: linear-gradient(135deg, #2b78a8 0%, #55c9f4 100%) !important;
+  box-shadow: 0 10px 22px rgba(70, 175, 235, 0.18) !important;
+}
+
+.user-level-3-chess-secondary-button,
+.user-level-3-chess-cancel,
+.user-level-3-chess-outline-button {
+  background: rgba(5, 24, 43, 0.52) !important;
+  color: #d6f2ff !important;
+}
+
+.user-level-3-chess-primary-button:hover,
+.user-level-3-chess-secondary-button:hover,
+.user-level-3-chess-finish:hover,
+.user-level-3-chess-cancel:hover,
+.user-level-3-chess-outline-button:hover {
+  border-color: rgba(180, 235, 255, 0.58) !important;
+  background: linear-gradient(135deg, #3b8fc4 0%, #78d7ff 100%) !important;
+  color: #ffffff !important;
+}
+
