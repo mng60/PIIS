@@ -250,7 +250,14 @@ const isLevel5User = useLevelTheme && userLevel === 5;
             <Button
   variant="ghost"
   size="icon"
-  onClick={() => setUseLevelTheme(!useLevelTheme)}
+  onClick={() => {
+  const newValue = !useLevelTheme;
+  setUseLevelTheme(newValue);
+
+  if (newValue) {
+    setIsDark(false);
+  }
+}}
   className={
     useLevelTheme
       ? "text-purple-400 hover:text-white hover:bg-purple-500/10"
@@ -339,7 +346,9 @@ const isLevel5User = useLevelTheme && userLevel === 5;
       </header>
 
       <main className="min-h-[calc(100vh-80px)]">
-        {children}
+        {React.isValidElement(children)
+    ? React.cloneElement(children, { useLevelTheme })
+    : children}
       </main>
 
       <CraftyAssistant />
