@@ -778,7 +778,7 @@
 }
 
 .user-level-5-profile-hero {
-  background: linear-gradient(135deg, rgba(146, 64, 14, 0.72) 0%, rgba(212, 160, 23, 0.48) 50%, rgba(120, 53, 15, 0.64) 100%) !important;
+  background: linear-gradient(135deg, rgba(146, 64, 14, 0.72) 0%, rgba(212, 158, 23, 0.658) 50%, rgba(120, 53, 15, 0.64) 100%) !important;
   border: 1px solid rgba(255, 249, 230, 0.28) !important;
   box-shadow:
     0 20px 40px rgba(91, 58, 20, 0.12),
@@ -1010,7 +1010,7 @@
 
 .user-level-5-profile-hero {
   background:
-    linear-gradient(135deg, rgba(146, 64, 14, 0.66) 0%, rgba(212, 160, 23, 0.46) 54%, rgba(91, 58, 20, 0.52) 100%) !important;
+    linear-gradient(135deg, rgba(146, 64, 14, 0.66) 0%, rgba(212, 158, 23, 0.685) 54%, rgba(91, 58, 20, 0.651) 100%) !important;
   border-color: rgba(255, 249, 230, 0.32) !important;
   box-shadow:
     0 20px 42px rgba(91, 58, 20, 0.2),
