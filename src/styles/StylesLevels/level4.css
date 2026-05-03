@@ -68,7 +68,7 @@
 }
 
 .user-level-4-footer-text {
-  color: #4c1d95 !important;
+  color: #d9c2fa !important;
 }
 
 .user-level-4-shell .game-card:hover {
@@ -146,37 +146,37 @@
 .user-level-4-news-card span.text-xs.font-medium,
 .user-level-4-news-card .user-level-4-widget-accent,
 .user-level-4-news-card .mt-auto {
-  color: #6d28d9 !important;
+  color: #a47ce4 !important;
 }
 
 .user-level-4-news-card p,
 .user-level-4-news-card .text-xs.text-gray-400 {
-  color: #6b21a8 !important;
+  color: #dfbffa !important;
 }
 
 .user-level-4-news-card .text-xs.text-gray-500,
 .user-level-4-news-card .text-xs.text-gray-500 svg {
-  color: #7e22ce !important;
+  color: #dcc0f5 !important;
 }
 
 .user-level-4-game-card .text-gray-400,
 .user-level-4-news-card .text-gray-400 {
-  color: #6b21a8 !important;
+  color: #e8d0fc !important;
 }
 
 .user-level-4-game-card .text-gray-500,
 .user-level-4-news-card .text-gray-500 {
-  color: #7e22ce !important;
+  color: #e5cdfa !important;
 }
 
 .user-level-4-game-card .text-white,
 .user-level-4-news-card .text-white {
-  color: #4c1d95 !important;
+  color: #e7d7ff !important;
 }
 
 .user-level-4-game-card [class*="text-purple"],
 .user-level-4-news-card [class*="text-purple"] {
-  color: #7e22ce !important;
+  color: #eedcff !important;
 }
 
 .user-level-4-game-card .group-hover\:text-purple-300:hover,
@@ -408,7 +408,7 @@
 .user-level-4-game-detail-page .text-center.py-8.text-gray-500.user-level-4-comment-empty p,
 .user-level-4-game-detail-page .text-center.py-8.text-gray-500.user-level-4-comment-empty .user-level-4-comment-empty-icon,
 .user-level-4-game-detail-page .text-center.py-8.text-gray-500.user-level-4-comment-empty .text-sm {
-  color: #6b21a8 !important;
+  color: #8b63ac !important;
 }
 
 .user-level-4-game-detail-page .user-level-4-detail-icon-blue,
