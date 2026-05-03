@@ -6,7 +6,7 @@ import { getLevelFromXP } from "@/lib/levels";
 
 const WIN_OPTIONS = [3, 5, 7, 9];
 
-export default function PongGame({ onScoreUpdate }) {
+export default function PongGame({ onScoreUpdate , useLevelTheme = true }) {
   const { user } = useAuth();
   const canvasRef = useRef(null);
   const [gameState, setGameState] = useState("idle");
@@ -17,9 +17,11 @@ export default function PongGame({ onScoreUpdate }) {
 
   const isRegularUser = user && user.role !== "admin" && user.role !== "empresa";
   const userLevel = isRegularUser ? getLevelFromXP(user.xp ?? 0).level : null;
-  const isLevel1User = userLevel === 1;
-  const isLevel2User = userLevel === 2;
-  const isLevel3User = userLevel === 3;
+ const isLevel1User = useLevelTheme && userLevel === 1;
+  const isLevel2User = useLevelTheme && userLevel === 2;
+  const isLevel3User = useLevelTheme && userLevel === 3;
+  const isLevel4User = useLevelTheme && userLevel === 4;
+  const isLevel5User = useLevelTheme && userLevel === 5;
 
   const isPlayingRef = useRef(false);
   const animFrameRef = useRef(null);
@@ -277,33 +279,33 @@ export default function PongGame({ onScoreUpdate }) {
     return (
       <div className="flex flex-col items-center justify-center gap-4 py-16 text-center px-6">
         <RotateCw
-          className={`w-14 h-14 animate-spin ${isLevel1User ? "user-level-1-pong-player-two" : isLevel2User ? "user-level-2-pong-green" : isLevel3User ? "user-level-3-section-icon" : "text-purple-400"}`}
+          className={`w-14 h-14 animate-spin ${isLevel1User ? "user-level-1-pong-player-two" : isLevel2User ? "user-level-2-pong-green" : isLevel3User ? "user-level-3-section-icon" : isLevel4User ? "user-level-4-section-icon" : isLevel5User ? "user-level-5-section-icon" : "text-purple-400"}`}
           style={{ animationDuration: "3s" }}
         />
-        <p className={`font-semibold text-lg ${isLevel1User ? "user-level-1-pong-title" : isLevel3User ? "user-level-3-pong-title" : "text-white"}`}>Gira la pantalla</p>
+        <p className={`font-semibold text-lg ${isLevel1User ? "user-level-1-pong-title" : isLevel3User ? "user-level-3-pong-title" : isLevel4User ? "user-level-4-pong-title" : isLevel5User ? "user-level-5-pong-title" :"text-white"}`}>Gira la pantalla</p>
         <p className={`text-sm ${isLevel1User ? "user-level-1-pong-copy" : isLevel3User ? "user-level-3-copy" : "text-gray-400"}`}>El Pong necesita modo horizontal para jugarse bien</p>
       </div>
     );
   }
 
   return (
-    <div className={`flex flex-col items-center gap-4 ${isLevel1User ? "user-level-1-pong-shell" : ""} ${isLevel2User ? "user-level-2-pong" : ""} ${isLevel3User ? "user-level-3-pong" : ""}`}>
+    <div className={`flex flex-col items-center gap-4 ${isLevel1User ? "user-level-1-pong-shell" : ""} ${isLevel2User ? "user-level-2-pong" : ""} ${isLevel3User ? "user-level-3-pong" : ""} ${isLevel4User ? "user-level-4-pong" : ""} ${isLevel5User ? "user-level-5-pong" : ""}`}>
       <div className="flex items-center justify-center gap-8 w-full">
         <div className="text-center">
-          <p className={`text-xs uppercase mb-1 ${isLevel1User ? "user-level-1-pong-player-one" : isLevel2User ? "user-level-2-pong-green" : isLevel3User ? "user-level-3-pong-player-one" : "text-purple-400"}`}>Jugador 1</p>
-          <p className={`text-4xl font-bold ${isLevel1User ? "user-level-1-pong-player-one" : isLevel2User ? "user-level-2-pong-green" : isLevel3User ? "user-level-3-pong-player-one" : "text-purple-400"}`}>{scores.player1}</p>
-          <p className={`text-xs mt-1 ${isLevel1User ? "user-level-1-pong-copy" : isLevel3User ? "user-level-3-pong-copy" : "text-gray-500"}`}>W / S</p>
+          <p className={`text-xs uppercase mb-1 ${isLevel1User ? "user-level-1-pong-player-one" : isLevel2User ? "user-level-2-pong-green" : isLevel3User ? "user-level-3-pong-player-one" : isLevel4User ? "user-level-4-pong-player-one" : isLevel5User ? "user-level-5-pong-player-one" : "text-purple-400"}`}>Jugador 1</p>
+          <p className={`text-4xl font-bold ${isLevel1User ? "user-level-1-pong-player-one" : isLevel2User ? "user-level-2-pong-green" : isLevel3User ? "user-level-3-pong-player-one" : isLevel4User ? "user-level-4-pong-player-one" : isLevel5User ? "user-level-5-pong-player-one" :"text-purple-400"}`}>{scores.player1}</p>
+          <p className={`text-xs mt-1 ${isLevel1User ? "user-level-1-pong-copy" : isLevel3User ? "user-level-3-pong-copy" : isLevel4User ? "user-level-4-pong-copy" : isLevel5User ? "user-level-5-pong-copy" : "text-gray-500"}`}>W / S</p>
         </div>
 
         <div className="flex flex-col items-center">
-          <span className={`text-2xl ${isLevel1User ? "user-level-1-pong-versus" : isLevel3User ? "user-level-3-pong-versus" : "text-gray-600"}`}>vs</span>
-          <span className={`text-xs mt-1 ${isLevel1User ? "user-level-1-pong-copy" : isLevel3User ? "user-level-3-pong-copy" : "text-gray-500"}`}>Primero a {winScoreRef.current || winScore}</span>
+          <span className={`text-2xl ${isLevel1User ? "user-level-1-pong-versus" : isLevel3User ? "user-level-3-pong-versus" : isLevel4User ? "user-level-4-pong-versus" : isLevel5User ? "user-level-5-pong-versus" :"text-gray-600"}`}>vs</span>
+          <span className={`text-xs mt-1 ${isLevel1User ? "user-level-1-pong-copy" : isLevel3User ? "user-level-3-pong-copy" : isLevel4User ? "user-level-4-pong-copy" : isLevel5User ? "user-level-5-pong-copy" : "text-gray-500"}`}>Primero a {winScoreRef.current || winScore}</span>
         </div>
 
         <div className="text-center">
-          <p className={`text-xs uppercase mb-1 ${isLevel1User ? "user-level-1-pong-player-two" : isLevel2User ? "user-level-2-pong-blue" : isLevel3User ? "user-level-3-pong-player-two" : "text-cyan-400"}`}>Jugador 2</p>
-          <p className={`text-4xl font-bold ${isLevel1User ? "user-level-1-pong-player-two" : isLevel2User ? "user-level-2-pong-blue" : isLevel3User ? "user-level-3-pong-player-two" : "text-cyan-400"}`}>{scores.player2}</p>
-          <p className={`text-xs mt-1 ${isLevel1User ? "user-level-1-pong-copy" : isLevel3User ? "user-level-3-pong-copy" : "text-gray-500"}`}>↑ / ↓</p>
+          <p className={`text-xs uppercase mb-1 ${isLevel1User ? "user-level-1-pong-player-two" : isLevel2User ? "user-level-2-pong-blue" : isLevel3User ? "user-level-3-pong-player-two" : isLevel4User ? "user-level-4-pong-player-two" : isLevel5User ? "user-level-5-pong-player-two" : "text-cyan-400"}`}>Jugador 2</p>
+          <p className={`text-4xl font-bold ${isLevel1User ? "user-level-1-pong-player-two" : isLevel2User ? "user-level-2-pong-blue" : isLevel3User ? "user-level-3-pong-player-two" : isLevel4User ? "user-level-4-pong-player-two" : isLevel5User ? "user-level-5-pong-player-two" : "text-cyan-400"}`}>{scores.player2}</p>
+          <p className={`text-xs mt-1 ${isLevel1User ? "user-level-1-pong-copy" : isLevel3User ? "user-level-3-pong-copy" : isLevel4User ? "user-level-4-pong-copy" : isLevel5User ? "user-level-5-pong-copy" : "text-gray-500"}`}>↑ / ↓</p>
         </div>
       </div>
 
@@ -315,21 +317,21 @@ export default function PongGame({ onScoreUpdate }) {
           ref={canvasRef}
           width={600}
           height={400}
-          className={`rounded-xl w-full ${isLevel1User ? "user-level-1-pong-canvas" : isLevel3User ? "user-level-3-pong-canvas" : "border border-white/10"}`}
+          className={`rounded-xl w-full ${isLevel1User ? "user-level-1-pong-canvas" : isLevel3User ? "user-level-3-pong-canvas" : isLevel4User ? "user-level-4-pong-canvas" : isLevel5User ? "user-level-5-pong-canvas" : "border border-white/10"}`}
           style={{ aspectRatio: "3/2" }}
         />
 
         {gameState !== "playing" && (
-          <div className={`absolute inset-0 flex flex-col items-center justify-center rounded-xl backdrop-blur-sm gap-5 ${isLevel1User ? "user-level-1-pong-overlay" : isLevel3User ? "user-level-3-pong-overlay" : "bg-black/80"}`}>
+          <div className={`absolute inset-0 flex flex-col items-center justify-center rounded-xl backdrop-blur-sm gap-5 ${isLevel1User ? "user-level-1-pong-overlay" : isLevel3User ? "user-level-3-pong-overlay" : isLevel4User ? "user-level-4-pong-overlay" : isLevel5User ? "user-level-5-pong-overlay" : "bg-black/80"}`}>
             {winner && (
               <div className="text-center">
                 <p className={`text-2xl font-bold mb-1 ${isLevel1User ? "user-level-1-pong-title" : "text-white"}`}>¡{winner} gana!</p>
-                <p className={isLevel1User ? "user-level-1-pong-copy" : isLevel3User ? "user-level-3-pong-copy" : "text-gray-400"}>{scores.player1} - {scores.player2}</p>
+                <p className={isLevel1User ? "user-level-1-pong-copy" : isLevel3User ? "user-level-3-pong-copy" :  isLevel4User ? "user-level-4-pong-copy" : isLevel5User ? "user-level-5-pong-copy" : "text-gray-400"}>{scores.player1} - {scores.player2}</p>
               </div>
             )}
 
             <div className="flex items-center gap-2">
-              <span className={`text-xs ${isLevel1User ? "user-level-1-pong-copy" : isLevel3User ? "user-level-3-pong-copy" : "text-gray-400"}`}>Primero a</span>
+              <span className={`text-xs ${isLevel1User ? "user-level-1-pong-copy" : isLevel3User ? "user-level-3-pong-copy" : isLevel3User ? "user-level-4-pong-copy" : isLevel5User ? "user-level-5-pong-copy" : "text-gray-400"}`}>Primero a</span>
               {WIN_OPTIONS.map((n) => (
                 <button
                   key={n}
@@ -341,7 +343,11 @@ export default function PongGame({ onScoreUpdate }) {
                         : isLevel2User
                           ? "user-level-2-pong-option-active"
                           : isLevel3User
-                            ? "user-level-3-pong-option-active"
+                          ? "user-level-3-pong-option-active"
+                          : isLevel4User
+                          ? "user-level-4-pong-option-active"
+                          : isLevel5User
+                            ? "user-level-5-pong-option-active"
                             : "bg-purple-600 text-white"
                       : isLevel1User
                         ? "user-level-1-pong-option"
@@ -349,18 +355,22 @@ export default function PongGame({ onScoreUpdate }) {
                           ? "user-level-2-pong-option"
                           : isLevel3User
                             ? "user-level-3-pong-option"
+                            : isLevel4User
+                            ? "user-level-4-pong-option"
+                            : isLevel5User
+                            ? "user-level-5-pong-option"
                             : "bg-white/10 text-gray-400 hover:bg-white/20"
                   }`}
                 >
                   {n}
                 </button>
               ))}
-              <span className={`text-xs ${isLevel1User ? "user-level-1-pong-copy" : isLevel3User ? "user-level-3-pong-copy" : "text-gray-400"}`}>puntos</span>
+              <span className={`text-xs ${isLevel1User ? "user-level-1-pong-copy" : isLevel3User ? "user-level-3-pong-copy" : isLevel4User ? "user-level-4-pong-copy" : isLevel5User ? "user-level-5-pong-copy" :"text-gray-400"}`}>puntos</span>
             </div>
 
             <Button
               onClick={initGame}
-              className={isLevel1User ? "user-level-1-pong-button px-8" : isLevel2User ? "user-level-2-pong-button px-8" : isLevel3User ? "user-level-3-pong-button px-8" : "bg-gradient-to-r from-purple-600 to-cyan-500 hover:opacity-90 px-8"}
+              className={isLevel1User ? "user-level-1-pong-button px-8" : isLevel2User ? "user-level-2-pong-button px-8" : isLevel3User ? "user-level-3-pong-button px-8" : isLevel4User ? "user-level-4-pong-button px-8" : isLevel5User ? "user-level-5-pong-button px-8" :"bg-gradient-to-r from-purple-600 to-cyan-500 hover:opacity-90 px-8"}
             >
               {gameState === "idle"
                 ? <><Play className="w-4 h-4 mr-2" /> Jugar</>
@@ -370,9 +380,9 @@ export default function PongGame({ onScoreUpdate }) {
         )}
       </div>
 
-      <p className={`text-xs text-center ${isLevel1User ? "user-level-1-pong-copy" : isLevel3User ? "user-level-3-pong-copy" : "text-gray-500"}`}>
-        <span className={isLevel1User ? "user-level-1-pong-player-one" : isLevel2User ? "user-level-2-pong-green" : isLevel3User ? "user-level-3-pong-player-one" : "text-purple-400"}>J1:</span> W/S &nbsp;|&nbsp;
-        <span className={isLevel1User ? "user-level-1-pong-player-two" : isLevel2User ? "user-level-2-pong-blue" : isLevel3User ? "user-level-3-pong-player-two" : "text-cyan-400"}>J2:</span> ↑/↓ &nbsp;|&nbsp;
+      <p className={`text-xs text-center ${isLevel1User ? "user-level-1-pong-copy" : isLevel3User ? "user-level-3-pong-copy" : isLevel4User ? "user-level-4-pong-copy" : isLevel5User ? "user-level-5-pong-copy" :"text-gray-500"}`}>
+        <span className={isLevel1User ? "user-level-1-pong-player-one" : isLevel2User ? "user-level-2-pong-green" : isLevel3User ? "user-level-3-pong-player-one" : isLevel4User ? "user-level-4-pong-player-one" : isLevel5User ? "user-level-5-pong-player-one" : "text-purple-400"}>J1:</span> W/S &nbsp;|&nbsp;
+        <span className={isLevel1User ? "user-level-1-pong-player-two" : isLevel2User ? "user-level-2-pong-blue" : isLevel3User ? "user-level-3-pong-player-two" : isLevel4User ? "user-level-4-pong-player-two" : isLevel5User ? "user-level-5-pong-player-two" :"text-cyan-400"}>J2:</span> ↑/↓ &nbsp;|&nbsp;
         Móvil: Toca cada lado de la pantalla
       </p>
     </div>

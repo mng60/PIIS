@@ -13,7 +13,7 @@ import {
   AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle,
 } from "@/components/ui/alert-dialog";
 
-export default function CommentSection({ gameId, comments, user, onCommentAdded }) {
+export default function CommentSection({ gameId, comments, user, onCommentAdded , useLevelTheme = true}) {
   const [content, setContent] = useState("");
   const [rating, setRating] = useState(0);
   const [hoveredRating, setHoveredRating] = useState(0);
@@ -25,9 +25,12 @@ export default function CommentSection({ gameId, comments, user, onCommentAdded 
   const isAdmin = user?.role === "admin";
   const isRegularUser = user && user.role !== "admin" && user.role !== "empresa";
   const userLevel = isRegularUser ? getLevelFromXP(user.xp ?? 0).level : null;
-  const isLevel1User = userLevel === 1;
-  const isLevel2User = userLevel === 2;
-  const isLevel3User = userLevel === 3;
+   const isLevel1User = useLevelTheme && userLevel === 1;
+  const isLevel2User = useLevelTheme && userLevel === 2;
+  const isLevel3User = useLevelTheme && userLevel === 3;
+  const isLevel4User = useLevelTheme && userLevel === 4;
+  const isLevel5User = useLevelTheme && userLevel === 5;
+
 
   const handleSubmit = async (e) => {
     e.preventDefault();
@@ -51,7 +54,7 @@ export default function CommentSection({ gameId, comments, user, onCommentAdded 
       {user ? (
         <form onSubmit={handleSubmit} className="space-y-4">
           <div>
-            <label className={`block text-sm text-gray-400 mb-2 ${isLevel1User ? "user-level-1-comment-label" : ""} ${isLevel2User ? "user-level-2-comment-label" : ""} ${isLevel3User ? "user-level-3-comment-label" : ""}`}>Tu valoracion</label>
+            <label className={`block text-sm text-gray-400 mb-2 ${isLevel1User ? "user-level-1-comment-label" : ""} ${isLevel2User ? "user-level-2-comment-label" : ""} ${isLevel3User ? "user-level-3-comment-label" : ""} ${isLevel4User ? "user-level-4-comment-label" : ""} ${isLevel5User ? "user-level-5-comment-label" : ""}`}>Tu valoracion</label>
             <div className="flex gap-1">
               {[1, 2, 3, 4, 5].map((star) => (
                 <button
@@ -73,13 +76,13 @@ export default function CommentSection({ gameId, comments, user, onCommentAdded 
             placeholder="Escribe tu comentario..."
             value={content}
             onChange={(e) => setContent(e.target.value)}
-            className={`bg-white/5 border-white/10 text-white placeholder:text-gray-500 min-h-24 ${isLevel1User ? "user-level-1-comment-textarea" : ""} ${isLevel2User ? "user-level-2-comment-textarea" : ""} ${isLevel3User ? "user-level-3-comment-textarea" : ""}`}
+            className={`bg-white/5 border-white/10 text-white placeholder:text-gray-500 min-h-24 ${isLevel1User ? "user-level-1-comment-textarea" : ""} ${isLevel2User ? "user-level-2-comment-textarea" : ""} ${isLevel3User ? "user-level-3-comment-textarea" : ""} ${isLevel4User ? "user-level-4-comment-textarea" : ""} ${isLevel5User ? "user-level-5-comment-textarea" : ""}`}
             maxLength={800}
           />
           <Button
             type="submit"
             disabled={!content.trim() || isSubmitting}
-            className={isLevel1User ? "user-level-1-comment-button" : isLevel2User ? "user-level-2-comment-button" : isLevel3User ? "user-level-3-button" : "bg-gradient-to-r from-purple-600 to-cyan-500 hover:opacity-90"}
+            className={isLevel1User ? "user-level-1-comment-button" : isLevel2User ? "user-level-2-comment-button" : isLevel3User ? "user-level-3-button" : isLevel4User ? "user-level-4-button" : isLevel5User ? "user-level-5-button" : "bg-gradient-to-r from-purple-600 to-cyan-500 hover:opacity-90"}
           >
             <Send className="w-4 h-4 mr-2" />
             Publicar
@@ -93,10 +96,10 @@ export default function CommentSection({ gameId, comments, user, onCommentAdded 
 
       <div className="space-y-4">
         {comments.length === 0 ? (
-          <div className={`text-center py-8 text-gray-500 ${isLevel1User ? "user-level-1-comment-empty" : ""} ${isLevel2User ? "user-level-2-comment-empty" : ""}`}>
-            <MessageSquare className={`w-12 h-12 mx-auto mb-3 opacity-30 ${isLevel1User ? "user-level-1-comment-empty-icon" : ""} ${isLevel2User ? "user-level-2-comment-empty-icon" : ""}`} />
-            <p className={`${isLevel1User ? "user-level-1-comment-empty" : ""} ${isLevel2User ? "user-level-2-comment-empty" : ""}`}>Sin comentarios aun</p>
-            <p className={`text-sm ${isLevel1User ? "user-level-1-comment-empty" : ""} ${isLevel2User ? "user-level-2-comment-empty" : ""}`}>Se el primero en opinar</p>
+          <div className={`text-center py-8 text-gray-500 ${isLevel1User ? "user-level-1-comment-empty" : ""} ${isLevel2User ? "user-level-2-comment-empty" : ""} ${isLevel3User ? "user-level-3-comment-empty" : ""} ${isLevel4User ? "user-level-4-comment-empty" : ""} ${isLevel5User ? "user-level-5-comment-empty" : ""}`}>
+            <MessageSquare className={`w-12 h-12 mx-auto mb-3 opacity-30 ${isLevel1User ? "user-level-1-comment-empty-icon" : ""} ${isLevel2User ? "user-level-2-comment-empty-icon" : ""} ${isLevel3User ? "user-level-3-comment-empty-icon" : ""} ${isLevel4User ? "user-level-4-comment-empty-icon" : ""} ${isLevel5User ? "user-level-5-comment-empty-icon" : ""}`} />
+            <p className={`${isLevel1User ? "user-level-1-comment-empty" : ""} ${isLevel2User ? "user-level-2-comment-empty" : ""} ${isLevel3User ? "user-level-3-comment-empty" : ""} ${isLevel4User ? "user-level-4-comment-empty" : ""} ${isLevel5User ? "user-level-5-comment-empty" : ""}`}>Sin comentarios aun</p>
+            <p className={`text-sm ${isLevel1User ? "user-level-1-comment-empty" : ""} ${isLevel2User ? "user-level-2-comment-empty" : ""} ${isLevel3User ? "user-level-3-comment-empty" : ""} ${isLevel4User ? "user-level-4-comment-empty" : ""} ${isLevel5User ? "user-level-5-comment-empty" : ""}`}>Se el primero en opinar</p>
           </div>
         ) : (
           comments.map((comment) => {

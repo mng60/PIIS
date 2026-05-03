@@ -7,7 +7,7 @@ import GameCard from "./GameCard";
 import { useAuth } from "@/lib/AuthContext";
 import { getLevelFromXP } from "@/lib/levels";
 
-export default function RecommendationSection({ userEmail, currentGameId = null }) {
+export default function RecommendationSection({ userEmail, currentGameId = null , useLevelTheme = true  }) {
   const { user } = useAuth();
   const { data: scores = [], isLoading: scoresLoading } = useQuery({
     queryKey: ["user-scores", userEmail],
@@ -86,9 +86,11 @@ export default function RecommendationSection({ userEmail, currentGameId = null 
   const [canRight, setCanRight] = useState(false);
   const isRegularUser = user && user.role !== "admin" && user.role !== "empresa";
   const userLevel = isRegularUser ? getLevelFromXP(user.xp ?? 0).level : null;
-  const isLevel1User = userLevel === 1;
-  const isLevel2User = userLevel === 2;
-  const isLevel3User = userLevel === 3;
+const isLevel1User = useLevelTheme && userLevel === 1;
+  const isLevel2User = useLevelTheme && userLevel === 2;
+  const isLevel3User = useLevelTheme && userLevel === 3;
+  const isLevel4User = useLevelTheme && userLevel === 4;
+  const isLevel5User = useLevelTheme && userLevel === 5;
 
   const updateArrows = useCallback(() => {
     const el = scrollRef.current;
@@ -117,8 +119,8 @@ export default function RecommendationSection({ userEmail, currentGameId = null 
   return (
     <div className="mb-12">
       <div className="flex items-center gap-2 mb-6">
-        <Sparkles className={`w-5 h-5 ${isLevel1User ? "user-level-1-games-icon" : "text-purple-400"} ${isLevel2User ? "user-level-2-section-icon" : ""} ${isLevel3User ? "user-level-3-section-icon" : ""}`} />
-        <h2 className={`text-2xl font-bold text-white ${isLevel1User ? "user-level-1-games-title" : ""} ${isLevel2User ? "user-level-2-section-heading" : ""} ${isLevel3User ? "user-level-3-section-heading" : ""}`}>Recomendado para ti</h2>
+        <Sparkles className={`w-5 h-5 ${isLevel1User ? "user-level-1-games-icon" : "text-purple-400"} ${isLevel2User ? "user-level-2-section-icon" : ""} ${isLevel3User ? "user-level-3-section-icon" : ""} ${isLevel4User ? "user-level-4-section-icon" : ""} ${isLevel5User ? "user-level-5-section-icon" : ""}`} />
+        <h2 className={`text-2xl font-bold text-white ${isLevel1User ? "user-level-1-games-title" : ""} ${isLevel2User ? "user-level-2-section-heading" : ""} ${isLevel3User ? "user-level-3-section-heading" : ""} ${isLevel4User ? "user-level-4-section-heading" : ""} ${isLevel5User ? "user-level-5-section-heading" : ""}`}>Recomendado para ti</h2>
       </div>
       <div className="relative">
         {recommendations.length > 3 && (

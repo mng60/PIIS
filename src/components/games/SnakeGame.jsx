@@ -111,16 +111,19 @@ function cellStyle(cell, isLevel1User, isLevel3User) {
   return { ...CELL_BASE, backgroundColor: isLevel3User ? "#07182a" : "#0f172a" };
 }
 
-export default function SnakeGame({ onScoreUpdate, onGameStart, user, serverBestScore }) {
+export default function SnakeGame({ onScoreUpdate, onGameStart, user, serverBestScore , useLevelTheme = true  }) {
   const { user: authUser } = useAuth();
   const { gameState, score, highScore, scoreRef, startGame, addPoints, endGame, resetGame } =
     useSinglePlayerGame({ onScoreUpdate, storageKey: "snake", userEmail: user?.email, serverBestScore });
 
   const levelUser = authUser ?? user;
   const isRegularUser = levelUser && levelUser.role !== "admin" && levelUser.role !== "empresa";
-  const isLevel1User = isRegularUser && getLevelFromXP(levelUser.xp ?? 0).level === 1;
-  const isLevel2User = isRegularUser && getLevelFromXP(levelUser.xp ?? 0).level === 2;
-  const isLevel3User = isRegularUser && getLevelFromXP(levelUser.xp ?? 0).level === 3;
+    const userLevel = isRegularUser ? getLevelFromXP(user.xp ?? 0).level : null;
+  const isLevel1User = useLevelTheme && userLevel === 1;
+  const isLevel2User = useLevelTheme && userLevel === 2;
+  const isLevel3User = useLevelTheme && userLevel === 3;
+  const isLevel4User = useLevelTheme && userLevel === 4;
+  const isLevel5User = useLevelTheme && userLevel === 5;
 
   const [difficulty, setDifficulty] = useState("normal");
   const [wallWrap, setWallWrap] = useState(false);
@@ -290,11 +293,11 @@ export default function SnakeGame({ onScoreUpdate, onGameStart, user, serverBest
   };
 
   return (
-    <div className={`flex flex-col gap-3 w-full select-none ${isLevel1User ? "user-level-1-snake-shell" : ""} ${isLevel2User ? "user-level-2-snake-shell" : ""} ${isLevel3User ? "user-level-3-snake-shell" : ""}`}>
+    <div className={`flex flex-col gap-3 w-full select-none ${isLevel1User ? "user-level-1-snake-shell" : ""} ${isLevel2User ? "user-level-2-snake-shell" : ""} ${isLevel3User ? "user-level-3-snake-shell" : ""} ${isLevel4User ? "user-level-4-snake-shell" : ""}  ${isLevel5User ? "user-level-5-snake-shell" : ""}`}>
       <div className="flex items-center justify-between px-2">
-        <Stat label="Puntos" value={score} color={isLevel1User ? "user-level-1-snake-points" : isLevel2User ? "user-level-2-snake-points" : isLevel3User ? "user-level-3-snake-points" : "text-white"} labelClass={isLevel1User ? "user-level-1-snake-title" : isLevel2User ? "user-level-2-snake-title" : isLevel3User ? "user-level-3-snake-title" : ""} />
-        <Stat label="Nivel" value={level} color={isLevel1User ? "user-level-1-snake-value-highlight" : isLevel2User ? "user-level-2-snake-level" : isLevel3User ? "user-level-3-snake-level" : "text-green-400"} labelClass={isLevel1User ? "user-level-1-snake-title" : isLevel2User ? "user-level-2-snake-title" : isLevel3User ? "user-level-3-snake-title" : ""} />
-        <Stat label="Record" value={highScore} color={isLevel1User ? "user-level-1-snake-record" : isLevel2User ? "user-level-2-snake-record" : isLevel3User ? "user-level-3-snake-record" : "text-amber-400"} labelClass={isLevel1User ? "user-level-1-snake-title" : isLevel2User ? "user-level-2-snake-title" : isLevel3User ? "user-level-3-snake-title" : ""} />
+        <Stat label="Puntos" value={score} color={isLevel1User ? "user-level-1-snake-points" : isLevel2User ? "user-level-2-snake-points" : isLevel3User ? "user-level-3-snake-points" : "text-white"} labelClass={isLevel1User ? "user-level-1-snake-title" : isLevel2User ? "user-level-2-snake-title" : isLevel3User ? "user-level-3-snake-title" : isLevel4User ? "user-level-4-snake-title" : isLevel5User ? "user-level-5-snake-title" : ""} />
+        <Stat label="Nivel" value={level} color={isLevel1User ? "user-level-1-snake-value-highlight" : isLevel2User ? "user-level-2-snake-level" : isLevel3User ? "user-level-3-snake-level" : "text-green-400"} labelClass={isLevel1User ? "user-level-1-snake-title" : isLevel2User ? "user-level-2-snake-title" : isLevel3User ? "user-level-3-snake-title" :  isLevel4User ? "user-level-4-snake-title" : isLevel5User ? "user-level-5-snake-title" : ""} />
+        <Stat label="Record" value={highScore} color={isLevel1User ? "user-level-1-snake-record" : isLevel2User ? "user-level-2-snake-record" : isLevel3User ? "user-level-3-snake-record" : "text-amber-400"} labelClass={isLevel1User ? "user-level-1-snake-title" : isLevel2User ? "user-level-2-snake-title" : isLevel3User ? "user-level-3-snake-title" :  isLevel4User ? "user-level-4-snake-title" : isLevel5User ? "user-level-5-snake-title" : ""} />
       </div>
 
       <div
@@ -321,13 +324,13 @@ export default function SnakeGame({ onScoreUpdate, onGameStart, user, serverBest
           {Array.from({ length: ROWS * COLS }, (_, i) => {
             const x = i % COLS;
             const y = Math.floor(i / COLS);
-            return <div key={i} style={cellStyle(cells[`${x},${y}`], isLevel1User, isLevel3User)} />;
+            return <div key={i} style={cellStyle(cells[`${x},${y}`], isLevel1User, isLevel3User, isLevel4User, isLevel5User)} />;
           })}
         </div>
 
         {gameState !== "playing" && (
           <div
-            className={`absolute inset-0 rounded-xl flex flex-col items-center justify-center gap-4 p-6 ${isLevel3User ? "user-level-3-snake-overlay" : ""}`}
+            className={`absolute inset-0 rounded-xl flex flex-col items-center justify-center gap-4 p-6 ${isLevel3User ? "user-level-3-snake-overlay" : ""} ${isLevel4User ? "user-level-4-snake-overlay" : ""}  ${isLevel5User ? "user-level-5-snake-overlay" : ""} `}
             style={isLevel3User ? undefined : { backgroundColor: "rgba(0,0,0,0.82)", backdropFilter: "blur(3px)" }}
           >
             {gameState === "gameover" && (
@@ -353,10 +356,10 @@ export default function SnakeGame({ onScoreUpdate, onGameStart, user, serverBest
                       className="px-3 py-1.5 rounded-lg text-xs font-medium border transition-all"
                       style={{
                         borderColor: difficulty === d.id
-                          ? (isLevel1User ? "rgba(156,112,47,0.5)" : isLevel3User ? "rgba(143,220,255,0.58)" : "rgba(74,222,128,0.5)")
+                          ? (isLevel1User ? "rgba(156,112,47,0.5)" : isLevel3User ? "rgba(143,220,255,0.58)" : isLevel4User ? "rgba(236, 143, 255, 0.63)" : isLevel5User ? "rgba(250, 221, 140, 0.58)" :"rgba(74,222,128,0.5)")
                           : (isLevel3User ? "rgba(120,205,255,0.28)" : "rgba(255,255,255,0.1)"),
                         backgroundColor: difficulty === d.id
-                          ? (isLevel1User ? "rgba(156,112,47,0.18)" : isLevel3User ? "rgba(55,135,180,0.28)" : "rgba(74,222,128,0.15)")
+                          ? (isLevel1User ? "rgba(156,112,47,0.18)" : isLevel3User ? "rgba(55,135,180,0.28)" : isLevel4User ? "rgba(236, 143, 255, 0.63)" : isLevel5User ? "rgba(250, 221, 140, 0.58)":"rgba(74,222,128,0.15)")
                           : (isLevel3User ? "rgba(4,18,32,0.42)" : "transparent"),
                         color: difficulty === d.id
                           ? (isLevel1User ? "#e3c496" : isLevel3User ? "#dff7ff" : "#86efac")
@@ -372,7 +375,7 @@ export default function SnakeGame({ onScoreUpdate, onGameStart, user, serverBest
                     type="checkbox"
                     checked={wallWrap}
                     onChange={(e) => setWallWrap(e.target.checked)}
-                    className={`w-4 h-4 rounded ${isLevel1User ? "user-level-1-snake-checkbox" : isLevel3User ? "user-level-3-snake-checkbox" : "accent-green-500"}`}
+                    className={`w-4 h-4 rounded ${isLevel1User ? "user-level-1-snake-checkbox" : isLevel3User ? "user-level-3-snake-checkbox" : isLevel4User ? "user-level-4-snake-checkbox" : isLevel5User ? "user-level-5-snake-checkbox" :"accent-green-500"}`}
                   />
                   Paredes teletransportadoras
                 </label>
@@ -391,8 +394,8 @@ export default function SnakeGame({ onScoreUpdate, onGameStart, user, serverBest
               )}
               <button
                 onClick={initGame}
-                className={`flex items-center gap-2 px-7 py-2 rounded-lg font-semibold text-sm transition-all hover:opacity-90 ${isLevel1User ? "user-level-1-snake-button text-white" : isLevel3User ? "user-level-3-snake-button" : "text-black"}`}
-                style={isLevel1User || isLevel3User ? undefined : { backgroundColor: "#4ade80" }}
+                className={`flex items-center gap-2 px-7 py-2 rounded-lg font-semibold text-sm transition-all hover:opacity-90 ${isLevel1User ? "user-level-1-snake-button text-white" : isLevel3User ? "user-level-3-snake-button" : isLevel4User ? "user-level-4-snake-button" : isLevel5User ? "user-level-5-snake-button" : "text-black"}`}
+                style={isLevel1User || isLevel3User || isLevel4User || isLevel5User ? undefined : { backgroundColor: "#4ade80" }}
               >
                 <Play className="w-4 h-4 fill-current" />
                 {gameState === "idle" ? "Jugar" : "Reintentar"}
@@ -400,7 +403,7 @@ export default function SnakeGame({ onScoreUpdate, onGameStart, user, serverBest
             </div>
 
             {gameState === "idle" && (
-              <p className={`text-xs text-gray-600 text-center mt-1 ${isLevel3User ? "user-level-3-snake-copy" : ""}`}>
+              <p className={`text-xs text-gray-600 text-center mt-1 ${isLevel3User ? "user-level-3-snake-copy" : ""}  ${isLevel4User ? "user-level-4-snake-copy" : ""}  ${isLevel5User ? "user-level-5-snake-copy" : ""}`}>
                 Comida dorada = 30 pts · Cada 50 pts sube de nivel
               </p>
             )}

@@ -8,19 +8,21 @@ const categoryLabels = {
   accion: 'Acción', puzzle: 'Puzzle', arcade: 'Arcade', estrategia: 'Estrategia',
 };
 
-export default function GameHeader({ game, user, isFavorite, onToggleFavorite, onShare }) {
+export default function GameHeader({ game, user, isFavorite, onToggleFavorite, onShare , useLevelTheme = true}) {
   const rating = game.rating_count > 0
     ? (game.rating_sum / game.rating_count).toFixed(1)
     : null;
   const isRegularUser = user && user.role !== "admin" && user.role !== "empresa";
   const userLevel = isRegularUser ? getLevelFromXP(user.xp ?? 0).level : null;
-  const isLevel1User = userLevel === 1;
-  const isLevel2User = userLevel === 2;
-  const isLevel3User = userLevel === 3;
+    const isLevel1User = useLevelTheme && userLevel === 1;
+  const isLevel2User = useLevelTheme && userLevel === 2;
+  const isLevel3User = useLevelTheme && userLevel === 3;
+  const isLevel4User = useLevelTheme && userLevel === 4;
+  const isLevel5User = useLevelTheme && userLevel === 5;
 
   return (
     <>
-      <Link to="/games" className={`inline-flex items-center gap-2 text-gray-400 hover:text-white mb-6 transition-colors text-sm ${isLevel1User ? "user-level-1-game-detail-link" : ""} ${isLevel2User ? "user-level-2-game-detail-link" : ""} ${isLevel3User ? "user-level-3-game-detail-link" : ""}`}>
+      <Link to="/games" className={`inline-flex items-center gap-2 text-gray-400 hover:text-white mb-6 transition-colors text-sm ${isLevel1User ? "user-level-1-game-detail-link" : ""} ${isLevel2User ? "user-level-2-game-detail-link" : ""} ${isLevel3User ? "user-level-3-game-detail-link" : ""} ${isLevel4User ? "user-level-4-game-detail-link" : ""} ${isLevel5User ? "user-level-5-game-detail-link" : ""}`}>
         <ArrowLeft className="w-4 h-4" /> Volver al catálogo
       </Link>
 

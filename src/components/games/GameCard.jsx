@@ -19,16 +19,18 @@ const categoryLabels = {
   estrategia: "Estrategia"
 };
 
-export default function GameCard({ game, isPremiumUser = false }) {
+export default function GameCard({ game, isPremiumUser = false , useLevelTheme = true}) {
   const { user } = useAuth();
   const rating = game.rating_count > 0
     ? (game.rating_sum / game.rating_count).toFixed(1)
     : "N/A";
   const isRegularUser = user && user.role !== "admin" && user.role !== "empresa";
   const userLevel = isRegularUser ? getLevelFromXP(user.xp ?? 0).level : null;
-  const isLevel1User = userLevel === 1;
-  const isLevel2User = userLevel === 2;
-  const isLevel3User = userLevel === 3;
+ const isLevel1User = useLevelTheme && userLevel === 1;
+  const isLevel2User = useLevelTheme && userLevel === 2;
+  const isLevel3User = useLevelTheme && userLevel === 3;
+  const isLevel4User = useLevelTheme && userLevel === 4;
+  const isLevel5User = useLevelTheme && userLevel === 5;
 
   const isEarlyAccess = game.early_access_until && new Date(game.early_access_until) > new Date();
   const isLocked = isEarlyAccess && !isPremiumUser;
@@ -38,7 +40,7 @@ export default function GameCard({ game, isPremiumUser = false }) {
       to={`/games/${game.id}`}
       className="group block"
     >
-      <div className={`game-card relative bg-gradient-to-b from-white/5 to-white/[0.02] border rounded-2xl overflow-hidden transition-all duration-300 ${isLocked ? "border-yellow-500/40 opacity-75 hover:opacity-90" : isLevel1User ? "user-level-1-game-card" : isLevel3User ? "user-level-3-widget user-level-3-game-card border-white/10" : "border-white/10 hover:border-purple-500/50"} ${isLevel2User ? "user-level-2-game-card" : ""}`}>
+      <div className={`game-card relative bg-gradient-to-b from-white/5 to-white/[0.02] border rounded-2xl overflow-hidden transition-all duration-300 ${isLocked ? "border-yellow-500/40 opacity-75 hover:opacity-90" : isLevel1User ? "user-level-1-game-card" : isLevel3User ? "user-level-3-widget user-level-3-game-card border-white/10" : "border-white/10 hover:border-purple-500/50"} ${isLevel2User ? "user-level-2-game-card" : ""} ${isLevel4User ? "user-level-4-game-card" : ""} ${isLevel5User ? "user-level-5-game-card" : ""}`}>
         {/* Thumbnail */}
         <div className="relative aspect-video overflow-hidden">
           {game.thumbnail ? (

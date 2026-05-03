@@ -34,6 +34,7 @@ export default function GameArea({
   onEloApplied,
   initialRoomCode,
   onLeave,
+  useLevelTheme = true
 }) {
   const iframeRef = useRef(null);
   const [iframeSrcDoc, setIframeSrcDoc] = useState(null);
@@ -44,9 +45,11 @@ export default function GameArea({
   const vsAiChatContainerRef = useRef(null);
   const isRegularUser = user && user.role !== "admin" && user.role !== "empresa";
   const userLevel = isRegularUser ? getLevelFromXP(user.xp ?? 0).level : null;
-  const isLevel1User = userLevel === 1;
-  const isLevel2User = userLevel === 2;
-  const isLevel3User = userLevel === 3;
+    const isLevel1User = useLevelTheme && userLevel === 1;
+  const isLevel2User = useLevelTheme && userLevel === 2;
+  const isLevel3User = useLevelTheme && userLevel === 3;
+  const isLevel4User = useLevelTheme && userLevel === 4;
+  const isLevel5User = useLevelTheme && userLevel === 5;
 
   useEffect(() => {
     if (vsAiChatContainerRef.current) {
@@ -119,7 +122,7 @@ export default function GameArea({
       return <PongGame onScoreUpdate={onScoreUpdate} onGameStart={onGameStart} />;
     }
     if (game.game_code === 'chess-online') {
-      if (!isPlaying) return <GameCover game={game} onPlay={onPlay} isLevel1User={isLevel1User} isLevel2User={isLevel2User} />;
+      if (!isPlaying) return <GameCover game={game} onPlay={onPlay} isLevel1User={isLevel1User} isLevel2User={isLevel2User} isLevel3User={isLevel3User} isLevel4User={isLevel4User} isLevel5User={isLevel5User}/>;
       return (
         <ChessOnlineGame
           user={user}
@@ -139,7 +142,7 @@ export default function GameArea({
       );
     }
     if (game.game_code === 'dados-online') {
-      if (!isPlaying) return <GameCover game={game} onPlay={onPlay} isLevel1User={isLevel1User} isLevel2User={isLevel2User} />;
+      if (!isPlaying) return <GameCover game={game} onPlay={onPlay} isLevel1User={isLevel1User} isLevel2User={isLevel2User} isLevel3User={isLevel3User} isLevel4User={isLevel4User} isLevel5User={isLevel5User}/>;
       return (
         <DiceRaceOnlineGame
           user={user}
@@ -154,7 +157,7 @@ export default function GameArea({
       );
     }
     if (game.game_type === 'html5') {
-      if (!isPlaying) return <GameCover game={game} onPlay={onPlay} isLevel1User={isLevel1User} isLevel2User={isLevel2User} />;
+      if (!isPlaying) return <GameCover game={game} onPlay={onPlay} isLevel1User={isLevel1User} isLevel2User={isLevel2User} isLevel3User={isLevel3User} isLevel4User={isLevel4User} isLevel5User={isLevel5User}/>;
       if (!iframeSrcDoc) return (
         <div className="aspect-video flex items-center justify-center">
           <Loader2 className="w-8 h-8 animate-spin text-purple-500" />
@@ -245,7 +248,7 @@ export default function GameArea({
   );
 }
 
-function GameCover({ game, onPlay, isLevel1User, isLevel2User }) {
+function GameCover({ game, onPlay, isLevel1User, isLevel2User , isLevel3User, isLevel4User, isLevel5User}) {
   return (
     <div className="relative aspect-video w-full">
       {game.thumbnail ? (
@@ -258,7 +261,7 @@ function GameCover({ game, onPlay, isLevel1User, isLevel2User }) {
       <div className="absolute inset-0 bg-black/50 flex items-center justify-center">
         <Button
           onClick={onPlay}
-          className={`${isLevel2User ? 'user-level-2-game-launch' : `bg-gradient-to-r ${isLevel1User ? 'from-amber-800 to-orange-900' : 'from-purple-600 to-cyan-500'}`} hover:opacity-90 text-lg px-8 py-6 rounded-xl`}
+          className={`${isLevel2User ? 'user-level-2-game-launch' : `bg-gradient-to-r ${isLevel1User ? 'from-amber-800 to-orange-900' : isLevel3User ? 'user-level-3-game-launch' : isLevel4User ? 'user-level-4-game-launch' : isLevel5User ? 'user-level-5-game-launch' :'from-purple-600 to-cyan-500'}`} hover:opacity-90 text-lg px-8 py-6 rounded-xl`}
         >
           <Play className="w-6 h-6 mr-2 fill-white" /> Jugar
         </Button>
