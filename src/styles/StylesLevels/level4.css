@@ -486,7 +486,7 @@
 .user-level-4-detail-panel .space-y-2 > div .text-white,
 .user-level-4-detail-panel .space-y-2 > div .text-gray-400,
 .user-level-4-detail-panel .space-y-2 > div .text-gray-600 {
-  color: #7c3aed !important;
+  color: #d1baf8 !important;
 }
 
 .user-level-4-game-detail-page [class*="bg-purple"],
@@ -699,7 +699,7 @@
 .user-level-4-games-empty-tone.text-gray-500,
 .user-level-4-games-empty-tone.text-gray-400,
 .user-level-4-games-empty-tone.text-gray-600 {
-  color: #6b21a8 !important;
+  color: #e3c2ff !important;
 }
 
 .user-level-4-favorites-empty-tone {
