@@ -50,24 +50,24 @@ export default function Layout({ children }) {
 
 
 
-  React.useEffect(() => {
-    if (isDark) {
-      document.documentElement.classList.add("dark");
-      document.documentElement.classList.remove("light");
-    } else {
-      document.documentElement.classList.remove("dark");
-      document.documentElement.classList.add("light");
-    }
-    localStorage.setItem("playcraft-theme", isDark ? "dark" : "light");
-  }, [isDark]);
+React.useEffect(() => {
+  if (useLevelTheme) {
+    document.documentElement.classList.remove("dark");
+    document.documentElement.classList.add("light");
+    localStorage.setItem("playcraft-theme", "light");
+    return;
+  }
 
-
-
-
-  React.useEffect(() => {
-  localStorage.setItem("playcraft-level-theme", String(useLevelTheme));
-}, [useLevelTheme]);
-
+  if (isDark) {
+    document.documentElement.classList.add("dark");
+    document.documentElement.classList.remove("light");
+    localStorage.setItem("playcraft-theme", "dark");
+  } else {
+    document.documentElement.classList.remove("dark");
+    document.documentElement.classList.add("light");
+    localStorage.setItem("playcraft-theme", "light");
+  }
+}, [isDark, useLevelTheme]);
 
 
 
@@ -270,14 +270,37 @@ const isLevel5User = useLevelTheme && userLevel === 5;
   <Trophy className="w-4 h-4" />
 </Button>
             <Button
-              variant="ghost"
-              size="icon"
-              onClick={() => setIsDark(!isDark)}
-              className={`${isLevel5User ? "user-level-5-topbar-idle" : isLevel4User ? "user-level-4-topbar-idle" : isLevel3User ? "user-level-3-topbar-idle" : isLevel2User ? "user-level-2-topbar-idle" : isDark ? "text-gray-400 hover:text-white hover:bg-white/5" : "text-gray-500 hover:text-gray-900 hover:bg-gray-100"}`}
-              title={isDark ? "Modo claro" : "Modo oscuro"}
-            >
-              {isDark ? <Sun className="w-4 h-4" /> : <Moon className="w-4 h-4" />}
-            </Button>
+  variant="ghost"
+  size="icon"
+  onClick={() => {
+    if (!useLevelTheme) {
+      setIsDark(!isDark);
+    }
+  }}
+  disabled={useLevelTheme}
+  className={`
+    ${useLevelTheme
+      ? "opacity-40 cursor-not-allowed"
+      : isLevel5User ? "user-level-5-topbar-idle"
+      : isLevel4User ? "user-level-4-topbar-idle"
+      : isLevel3User ? "user-level-3-topbar-idle"
+      : isLevel2User ? "user-level-2-topbar-idle"
+      : isLevel1User ? "user-level-1-topbar-idle"
+      : isDark
+        ? "text-gray-400 hover:text-white hover:bg-white/5"
+        : "text-gray-500 hover:text-gray-900 hover:bg-gray-100"
+    }
+  `}
+  title={
+    useLevelTheme
+      ? "Desactiva niveles para cambiar tema"
+      : isDark
+        ? "Modo claro"
+        : "Modo oscuro"
+  }
+>
+  {isDark ? <Sun className="w-4 h-4" /> : <Moon className="w-4 h-4" />}
+</Button>
             {user && <NotificationsPanel isDark={isDark} />}
 
             {user ? (
