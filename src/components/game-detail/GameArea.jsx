@@ -25,8 +25,12 @@ export default function GameArea({
 }) {
   const iframeRef = useRef(null);
   const [iframeSrcDoc, setIframeSrcDoc] = useState(null);
+  const [iframeMoveHistory, setIframeMoveHistory] = useState([]);
 
   useChessGame({ isPlaying, user, gameId, iframeRef, onRoomCodeChange: onChatSessionIdChange });
+
+  // Reset iframe move history when a new session starts
+  useEffect(() => { setIframeMoveHistory([]); }, [chatSessionId]);
 
   // For HTML5 games with inline content, use srcDoc; otherwise use src directly
   useEffect(() => {
@@ -35,13 +39,17 @@ export default function GameArea({
     setIframeSrcDoc(null);
   }, [game?.html_content, game?.game_type]);
 
-  // Forward score/game-over messages from the iframe to the parent handler
+  // Forward score/game-over/move messages from the iframe to the parent handler
   useEffect(() => {
     const handler = (event) => {
       const { data } = event;
       if (!data || typeof data !== 'object') return;
       if ((data.type === 'SCORE_UPDATE' || data.type === 'GAME_OVER') && typeof data.score === 'number') {
         onScoreUpdate(data.score);
+      }
+      // MOVE_UPDATE: { type: 'MOVE_UPDATE', move: { player, move, timestamp } }
+      if (data.type === 'MOVE_UPDATE' && data.move) {
+        setIframeMoveHistory(prev => [...prev, data.move]);
       }
     };
     window.addEventListener('message', handler);
@@ -132,7 +140,7 @@ export default function GameArea({
           {/* History: 35% */}
           <div className="min-h-0" style={{ flex: '7 0 0' }}>
             <OnlineGameMoveHistory
-              moves={chessMoveHistory}
+              moves={game.game_type === 'html5' ? iframeMoveHistory : chessMoveHistory}
               title="Historial de jugadas"
               emptyMessage="Aún no hay movimientos"
             />

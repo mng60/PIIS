@@ -8,10 +8,11 @@ export default function ExternalGameEmbed() {
   const [searchParams] = useSearchParams();
   const url = searchParams.get('url') || '';
   const title = searchParams.get('title') || 'Juego Externo';
+  const externalId = searchParams.get('id') || 'external-embed';
 
   const game = {
     title,
-    game_code: 'external-embed',
+    game_code: externalId,
     game_type: 'html5',
     game_url: url,
     is_multiplayer: true,
@@ -52,7 +53,7 @@ export default function ExternalGameEmbed() {
       <GameArea
         game={game}
         user={user}
-        gameId={'external-embed'}
+        gameId={externalId}
         isPlaying={isPlaying}
         onPlay={onPlay}
         onScoreUpdate={onScoreUpdate}
