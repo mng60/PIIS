@@ -5,14 +5,16 @@ import { Button } from "@/components/ui/button";
 import { useAuth } from "@/lib/AuthContext";
 import { getLevelFromXP } from "@/lib/levels";
 
-export default function NewGamesSlider({ games }) {
+export default function NewGamesSlider({ games , useLevelTheme = true }) {
   const { user } = useAuth();
   const scrollRef = useRef(null);
   const isRegularUser = user && user.role !== "admin" && user.role !== "empresa";
   const userLevel = isRegularUser ? getLevelFromXP(user.xp ?? 0).level : null;
-  const isLevel1User = userLevel === 1;
-  const isLevel2User = userLevel === 2;
-  const isLevel3User = userLevel === 3;
+  const isLevel1User = useLevelTheme && userLevel === 1;
+  const isLevel2User = useLevelTheme && userLevel === 2;
+  const isLevel3User = useLevelTheme && userLevel === 3;
+  const isLevel4User = useLevelTheme && userLevel === 4;
+  const isLevel5User = useLevelTheme && userLevel === 5;
 
   const scroll = (direction) => {
     if (scrollRef.current) {
@@ -38,8 +40,8 @@ export default function NewGamesSlider({ games }) {
   return (
     <div className="relative">
       <h2 className="text-2xl md:text-3xl font-bold mb-6 flex items-center gap-3">
-        <Sparkles className={`w-7 h-7 ${isLevel1User ? "user-level-1-new-games-icon" : "text-cyan-400"} ${isLevel2User ? "user-level-2-section-icon" : ""} ${isLevel3User ? "user-level-3-section-icon" : ""}`} />
-        <span className={`${isLevel1User ? "user-level-1-new-games-heading" : ""} ${isLevel2User ? "user-level-2-section-heading" : ""} ${isLevel3User ? "user-level-3-section-heading" : ""}`}>Novedades</span>
+        <Sparkles className={`w-7 h-7 ${isLevel1User ? "user-level-1-new-games-icon" : "text-cyan-400"} ${isLevel2User ? "user-level-2-section-icon" : ""} ${isLevel3User ? "user-level-3-section-icon" : ""} ${isLevel4User ? "user-level-4-section-icon" : ""} ${isLevel5User ? "user-level-5-section-icon" : ""}`} />
+        <span className={`${isLevel1User ? "user-level-1-new-games-heading" : ""} ${isLevel2User ? "user-level-2-section-heading" : ""} ${isLevel3User ? "user-level-3-section-heading" : ""} ${isLevel4User ? "user-level-4-section-heading" : ""} ${isLevel5User ? "user-level-5-section-heading" : ""}`}>Novedades</span>
       </h2>
       
       {games.length > 4 && (

@@ -50,7 +50,7 @@ function formatText(text) {
     .replace(/\n/g, '<br/>');
 }
 
-export default function CraftyAssistant() {
+export default function CraftyAssistant( { useLevelTheme = true } ) {
   const { isAuthenticated, user } = useAuth();
   const { isAssistantOpen: open, isChessAlertOpen, toggleAssistant, closeAssistant } = useFloatingPanels();
   const [input, setInput] = useState('');
@@ -62,8 +62,12 @@ export default function CraftyAssistant() {
 
   const role = user?.role || 'user';
   const isRegularUser = user && user.role !== 'admin' && user.role !== 'empresa';
-  const isLevel1User = isRegularUser && getLevelFromXP(user.xp ?? 0).level === 1;
-  const isLevel2User = isRegularUser && getLevelFromXP(user.xp ?? 0).level === 2;
+const userLevel = isRegularUser ? getLevelFromXP(user.xp ?? 0).level : null;
+  const isLevel1User = useLevelTheme && userLevel === 1;
+  const isLevel2User = useLevelTheme && userLevel === 2;
+  const isLevel3User = useLevelTheme && userLevel === 3;
+  const isLevel4User = useLevelTheme && userLevel === 4;
+  const isLevel5User = useLevelTheme && userLevel === 5;
   const craftyImage = isLevel1User ? LEVEL_1_CRAFTY_IMG : isLevel2User ? LEVEL_2_CRAFTY_IMG : CRAFTY_IMG;
 
   // Mensaje de bienvenida al abrir por primera vez
@@ -137,14 +141,14 @@ export default function CraftyAssistant() {
   }
 
   return (
-    <div ref={containerRef} className={`fixed bottom-6 left-6 z-50 flex flex-col items-start ${isLevel1User ? "user-level-1-crafty" : ""} ${isLevel2User ? "user-level-2-crafty" : ""}`}>
+    <div ref={containerRef} className={`fixed bottom-6 left-6 z-50 flex flex-col items-start ${isLevel1User ? "user-level-1-crafty" : ""} ${isLevel2User ? "user-level-2-crafty" : ""} ${isLevel3User ? "user-level-3-crafty" : ""} ${isLevel4User ? "user-level-4-crafty" : ""} ${isLevel5User ? "user-level-5-crafty" : ""}`}>
       {/* Panel de chat */}
       {open && (
-        <div className={`mb-3 w-80 rounded-2xl border border-white/10 bg-[#0f0f18] shadow-2xl shadow-purple-900/30 flex flex-col overflow-hidden ${isLevel1User ? "user-level-1-crafty-panel" : ""} ${isLevel2User ? "user-level-2-crafty-panel" : ""}`}
+        <div className={`mb-3 w-80 rounded-2xl border border-white/10 bg-[#0f0f18] shadow-2xl shadow-purple-900/30 flex flex-col overflow-hidden ${isLevel1User ? "user-level-1-crafty-panel" : ""} ${isLevel2User ? "user-level-2-crafty-panel" : ""} ${isLevel3User ? "user-level-3-crafty-panel" : ""} ${isLevel4User ? "user-level-4-crafty-panel" : ""} ${isLevel5User ? "user-level-5-crafty-panel" : ""}`}
           style={{ height: '420px' }}>
 
           {/* Header */}
-          <div className={`flex items-center justify-between px-4 py-3 bg-gradient-to-r from-purple-700 to-cyan-600 ${isLevel1User ? "user-level-1-crafty-header" : ""} ${isLevel2User ? "user-level-2-crafty-header" : ""}`}>
+          <div className={`flex items-center justify-between px-4 py-3 bg-gradient-to-r from-purple-700 to-cyan-600 ${isLevel1User ? "user-level-1-crafty-header" : ""} ${isLevel2User ? "user-level-2-crafty-header" : ""} ${isLevel3User ? "user-level-3-crafty-header" : ""} ${isLevel4User ? "user-level-4-crafty-header" : ""} ${isLevel5User ? "user-level-5-crafty-header" : ""}`}>
             <div className="flex items-center gap-2">
               <CraftyAvatar size="md" imageSrc={craftyImage} />
               <div>
@@ -170,8 +174,8 @@ export default function CraftyAssistant() {
                 <div
                   className={`max-w-[85%] rounded-2xl px-3 py-2 text-sm leading-relaxed ${
                     msg.role === 'user'
-                      ? `${isLevel1User ? 'user-level-1-crafty-user-message' : ''} ${isLevel2User ? 'user-level-2-crafty-user-message' : ''} bg-gradient-to-r from-purple-600 to-cyan-600 text-white rounded-br-sm`
-                      : `${isLevel1User ? 'user-level-1-crafty-assistant-message' : ''} ${isLevel2User ? 'user-level-2-crafty-assistant-message' : ''} bg-white/5 text-gray-200 rounded-bl-sm`
+                      ? `${isLevel1User ? 'user-level-1-crafty-user-message' : ''} ${isLevel2User ? 'user-level-2-crafty-user-message' : ''} ${isLevel3User ? 'user-level-3-crafty-user-message' : ''} ${isLevel4User ? 'user-level-4-crafty-user-message' : ''} ${isLevel5User ? 'user-level-5-crafty-user-message' : ''}bg-gradient-to-r from-purple-600 to-cyan-600 text-white rounded-br-sm`
+                      : `${isLevel1User ? 'user-level-1-crafty-assistant-message' : ''} ${isLevel2User ? 'user-level-2-crafty-assistant-message' : ''} ${isLevel3User ? 'user-level-3-crafty-assistant-message' : ''} ${isLevel4User ? 'user-level-4-crafty-assistant-message' : ''} ${isLevel5User ? 'user-level-5-crafty-assistant-message' : ''}bg-white/5 text-gray-200 rounded-bl-sm`
                   }`}
                   dangerouslySetInnerHTML={{ __html: formatText(msg.content) }}
                 />
@@ -182,7 +186,7 @@ export default function CraftyAssistant() {
                 <div className="mr-2 mt-0.5">
                   <CraftyAvatar size="sm" imageSrc={craftyImage} />
                 </div>
-                <div className={`${isLevel1User ? "user-level-1-crafty-assistant-message" : ""} ${isLevel2User ? "user-level-2-crafty-assistant-message" : ""} bg-white/5 rounded-2xl rounded-bl-sm px-3 py-2`}>
+                <div className={`${isLevel1User ? "user-level-1-crafty-assistant-message" : ""} ${isLevel2User ? "user-level-2-crafty-assistant-message" : ""} ${isLevel3User ? "user-level-3-crafty-assistant-message" : ""} ${isLevel4User ? "user-level-4-crafty-assistant-message" : ""} ${isLevel5User ? "user-level-5-crafty-assistant-message" : ""} bg-white/5 rounded-2xl rounded-bl-sm px-3 py-2`}>
                   <Loader2 className="w-4 h-4 text-purple-400 animate-spin" />
                 </div>
               </div>
@@ -191,8 +195,8 @@ export default function CraftyAssistant() {
           </div>
 
           {/* Input */}
-          <div className={`${isLevel1User ? "user-level-1-crafty-input-wrap" : ""} ${isLevel2User ? "user-level-2-crafty-input-wrap" : ""} px-3 pb-3 pt-2 border-t border-white/5`}>
-            <div className={`${isLevel1User ? "user-level-1-crafty-input" : ""} ${isLevel2User ? "user-level-2-crafty-input" : ""} flex items-center gap-2 bg-white/5 rounded-xl px-3 py-2`}>
+          <div className={`${isLevel1User ? "user-level-1-crafty-input-wrap" : ""} ${isLevel2User ? "user-level-2-crafty-input-wrap" : ""} ${isLevel3User ? "user-level-3-crafty-input-wrap" : ""} ${isLevel4User ? "user-level-4-crafty-input-wrap" : ""} ${isLevel5User ? "user-level-5-crafty-input-wrap" : ""}px-3 pb-3 pt-2 border-t border-white/5`}>
+            <div className={`${isLevel1User ? "user-level-1-crafty-input" : ""} ${isLevel2User ? "user-level-2-crafty-input" : ""} ${isLevel3User ? "user-level-3-crafty-input" : ""} ${isLevel4User ? "user-level-4-crafty-input" : ""} ${isLevel5User ? "user-level-5-crafty-input" : ""}flex items-center gap-2 bg-white/5 rounded-xl px-3 py-2`}>
               <input
                 ref={inputRef}
                 value={input}
@@ -201,12 +205,12 @@ export default function CraftyAssistant() {
                 placeholder="Escribe tu pregunta..."
                 maxLength={500}
                 disabled={loading}
-                className={`${isLevel1User ? "user-level-1-crafty-input-field" : ""} ${isLevel2User ? "user-level-2-crafty-input-field" : ""} flex-1 bg-transparent text-sm text-white placeholder-gray-500 outline-none disabled:opacity-50`}
+                className={`${isLevel1User ? "user-level-1-crafty-input-field" : ""} ${isLevel2User ? "user-level-2-crafty-input-field" : ""} ${isLevel3User ? "user-level-3-crafty-input-field" : ""} ${isLevel4User ? "user-level-4-crafty-input-field" : ""} ${isLevel5User ? "user-level-5-crafty-input-field" : ""}flex-1 bg-transparent text-sm text-white placeholder-gray-500 outline-none disabled:opacity-50`}
               />
               <button
                 onClick={handleSend}
                 disabled={!input.trim() || loading}
-                className={`${isLevel1User ? "user-level-1-crafty-send" : ""} ${isLevel2User ? "user-level-2-crafty-send" : ""} text-purple-400 hover:text-purple-300 disabled:opacity-30 transition-colors`}
+                className={`${isLevel1User ? "user-level-1-crafty-send" : ""} ${isLevel2User ? "user-level-2-crafty-send" : ""} ${isLevel3User ? "user-level-3-crafty-send" : ""} ${isLevel4User ? "user-level-4-crafty-send" : ""} ${isLevel5User ? "user-level-5-crafty-send" : ""} text-purple-400 hover:text-purple-300 disabled:opacity-30 transition-colors`}
               >
                 <Send className="w-4 h-4" />
               </button>
@@ -218,7 +222,7 @@ export default function CraftyAssistant() {
       {/* Botón flotante */}
       <button
         onClick={toggleAssistant}
-        className={`${isLevel1User ? "user-level-1-crafty-button" : ""} ${isLevel2User ? "user-level-2-crafty-button" : ""} w-12 h-12 rounded-full bg-gradient-to-br from-purple-600 to-cyan-500 flex items-center justify-center shadow-lg shadow-purple-900/50 hover:scale-105 transition-transform overflow-hidden`}
+        className={`${isLevel1User ? "user-level-1-crafty-button" : ""} ${isLevel2User ? "user-level-2-crafty-button" : ""} ${isLevel3User ? "user-level-3-crafty-button" : ""} ${isLevel4User ? "user-level-4-crafty-button" : ""} ${isLevel5User ? "user-level-5-crafty-button" : ""}w-12 h-12 rounded-full bg-gradient-to-br from-purple-600 to-cyan-500 flex items-center justify-center shadow-lg shadow-purple-900/50 hover:scale-105 transition-transform overflow-hidden`}
         title="Crafty - Asistente"
       >
         {open
