@@ -1396,6 +1396,7 @@
 .user-level-5-floating-chat-message-mine,
 .user-level-5-crafty-button,
 .user-level-5-floating-chat-button,
+.user-level-5-floating-chat-buttonrelative,
 .user-level-5-floating-chat-send {
   background: linear-gradient(135deg, #92400e 0%, #fbbf24 60%, #d97706 100%) !important;
   color: #fffbeb !important;

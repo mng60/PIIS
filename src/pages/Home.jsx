@@ -81,7 +81,7 @@ export default function Home( { useLevelTheme = true }) {
           Explora nuestro catalogo completo con {games.length} juegos disponibles
         </p>
         <Link to="/games">
-          <Button className={`${isLevel1User ? "user-level-1-hero-button" : isLevel2User ? "user-level-2-hero-button" : isLevel3User ? "user-level-3-button" : isLevel4User ? "user-level-4-button" : isLevel5User ? "user-level-5-button" : "bg-gradient-to-r from-purple-600 to-cyan-500 hover:opacity-90"} text-base sm:text-lg px-6 py-4 sm:px-8 sm:py-6`}>
+          <Button className={`${isLevel1User ? "user-level-1-hero-button" : isLevel2User ? "user-level-2-hero-button" : isLevel3User ? "user-level-3-hero-button" : isLevel4User ? "user-level-4-hero-button" : isLevel5User ? "user-level-5-hero-button" : "bg-gradient-to-r from-purple-600 to-cyan-500 hover:opacity-90"} text-base sm:text-lg px-6 py-4 sm:px-8 sm:py-6`}>
             Ver Catalogo Completo
             <ArrowRight className="w-4 h-4 sm:w-5 sm:h-5 ml-2" />
           </Button>
