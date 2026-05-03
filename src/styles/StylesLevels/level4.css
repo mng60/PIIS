@@ -1055,3 +1055,124 @@
 .user-level-4-profile-page .text-gray-600 {
   color: #b58ccf !important;
 }
+/* ========================= */
+/* 🔮 PULIDO FINAL NIVEL 4 🔮 */
+/* ========================= */
+
+/* ---------- IA / CRAFTY ---------- */
+
+.user-level-4-crafty-panel {
+  border: 1px solid rgba(216, 180, 254, 0.4) !important;
+  background: linear-gradient(180deg, rgba(30, 10, 54, 0.96), rgba(12, 6, 24, 0.96)) !important;
+  box-shadow:
+    0 20px 40px rgba(18, 5, 34, 0.5),
+    0 0 30px rgba(168, 85, 247, 0.2);
+}
+
+.user-level-4-crafty-header {
+  border-bottom: 1px solid rgba(216, 180, 254, 0.25);
+  color: #f0abfc;
+}
+
+.user-level-4-crafty-message {
+  background: rgba(168, 85, 247, 0.12);
+  color: #fff7ff;
+}
+
+.user-level-4-crafty-message-mine {
+  background: linear-gradient(135deg, #7e22ce, #c084fc);
+  color: white;
+}
+
+.user-level-4-crafty-input {
+  background: rgba(24, 10, 44, 0.6);
+  border: 1px solid rgba(216, 180, 254, 0.3);
+  color: #fff;
+}
+
+.user-level-4-crafty-send {
+  background: linear-gradient(135deg, #7e22ce, #e879f9);
+  color: white;
+}
+
+
+/* ---------- CHAT / MENSAJES ---------- */
+
+.user-level-4-floating-chat-panel {
+  background: linear-gradient(180deg, rgba(30, 10, 54, 0.96), rgba(12, 6, 24, 0.96)) !important;
+  border: 1px solid rgba(216, 180, 254, 0.3);
+}
+
+.user-level-4-floating-chat-header {
+  color: #e879f9;
+}
+
+.user-level-4-floating-chat-message {
+  background: rgba(168, 85, 247, 0.12);
+  color: #fff;
+}
+
+.user-level-4-floating-chat-message-mine {
+  background: linear-gradient(135deg, #7e22ce, #c084fc);
+  color: white;
+}
+
+.user-level-4-floating-chat-input {
+  background: rgba(24, 10, 44, 0.6);
+  border: 1px solid rgba(216, 180, 254, 0.3);
+  color: white;
+}
+
+.user-level-4-floating-chat-send {
+  background: linear-gradient(135deg, #7e22ce, #e879f9);
+  color: white;
+}
+
+
+/* ---------- BOTONES IA / ICONOS ---------- */
+
+.user-level-4-shell button svg {
+  filter: drop-shadow(0 0 6px rgba(232, 121, 249, 0.4));
+}
+
+
+/* ---------- FILTROS DE JUEGOS (FIX MORADO) ---------- */
+
+.user-level-4-games-filter {
+  border: 1px solid rgba(192, 132, 252, 0.5) !important;
+  background: linear-gradient(135deg, #3b0764, #6d28d9) !important;
+  color: #f5d0fe !important;
+}
+
+.user-level-4-games-filter:hover {
+  background: linear-gradient(135deg, #4c1d95, #a855f7) !important;
+  color: white !important;
+}
+
+
+/* ---------- BOTONES GENERALES EXTRA ---------- */
+
+.user-level-4-comment-button,
+.user-level-4-hero-button,
+.user-level-4-featured-button {
+  background: linear-gradient(135deg, #6d28d9, #e879f9) !important;
+  color: white !important;
+  box-shadow: 0 10px 24px rgba(168, 85, 247, 0.3);
+}
+
+.user-level-4-comment-button:hover,
+.user-level-4-hero-button:hover,
+.user-level-4-featured-button:hover {
+  background: linear-gradient(135deg, #7e22ce, #f0abfc) !important;
+}
+
+
+/* ---------- MICRO DETALLES ---------- */
+
+.user-level-4-shell a:hover {
+  color: #f0abfc !important;
+}
+
+.user-level-4-shell hr {
+  border-color: rgba(216, 180, 254, 0.2);
+}
