@@ -91,16 +91,16 @@ function TournamentCard({ tournament, isLevel1User = false, isLevel2User = false
   );
 }
 
-export default function Tournaments() {
+export default function Tournaments({ useLevelTheme = true }) {
   const { user } = useAuth();
   const [activeTab, setActiveTab] = useState("upcoming");
   const isRegularUser = user && user.role !== "admin" && user.role !== "empresa";
   const userLevel = isRegularUser ? getLevelFromXP(user.xp ?? 0).level : null;
-    const isLevel1User = userLevel === 1;
-    const isLevel2User = userLevel === 2;
-    const isLevel3User = userLevel === 3;
-    const isLevel4User = userLevel === 4;
-    const isLevel5User = userLevel === 5;
+ const isLevel1User = useLevelTheme && userLevel === 1;
+  const isLevel2User = useLevelTheme && userLevel === 2;
+  const isLevel3User = useLevelTheme && userLevel === 3;
+  const isLevel4User = useLevelTheme && userLevel === 4;
+  const isLevel5User = useLevelTheme && userLevel === 5;
   
 
   const { data: tournaments = [], isLoading } = useQuery({

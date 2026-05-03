@@ -33,7 +33,7 @@ function XpBadge({ xp, isLevel2User = false }) {
 const SEARCH_KEY = "friends_search_query";
 const RESULTS_KEY = "friends_search_results";
 
-export default function Friends() {
+export default function Friends( { useLevelTheme = true } ) {
   const { user } = useAuth();
   const navigate = useNavigate();
   const [friends, setFriends] = useState([]);
@@ -48,11 +48,11 @@ export default function Friends() {
   const prevUserEmail = useRef(user?.email);
   const isRegularUser = user && user.role !== "admin" && user.role !== "empresa";
     const userLevel = isRegularUser ? getLevelFromXP(user.xp ?? 0).level : null;
-    const isLevel1User = userLevel === 1;
-    const isLevel2User = userLevel === 2;
-    const isLevel3User = userLevel === 3;
-    const isLevel4User = userLevel === 4;
-    const isLevel5User = userLevel === 5;
+    const isLevel1User = useLevelTheme && userLevel === 1;
+  const isLevel2User = useLevelTheme && userLevel === 2;
+  const isLevel3User = useLevelTheme && userLevel === 3;
+  const isLevel4User = useLevelTheme && userLevel === 4;
+  const isLevel5User = useLevelTheme && userLevel === 5;
   
 
   useEffect(() => {

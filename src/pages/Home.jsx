@@ -12,7 +12,7 @@ import { useAuth } from "@/lib/AuthContext";
 import { getLevelFromXP } from "@/lib/levels";
 import "@/styles/StylesLevels/level1.css";
 
-export default function Home() {
+export default function Home( { useLevelTheme = true }) {
   const { user } = useAuth();
   const { data: { games = [] } = {}, isLoading } = useQuery({
     queryKey: ["games"],
@@ -23,12 +23,11 @@ export default function Home() {
   const newGames = useMemo(() => games.slice(0, 8), [games]);
   const isRegularUser = user && user.role !== "admin" && user.role !== "empresa";
   const userLevel = isRegularUser ? getLevelFromXP(user.xp ?? 0).level : null;
-  const isLevel1User = userLevel === 1;
-  const isLevel2User = userLevel === 2;
-  const isLevel3User = userLevel === 3;
-  const isLevel4User = userLevel === 4;
-  const isLevel5User = userLevel === 5;
-
+   const isLevel1User = useLevelTheme && userLevel === 1;
+  const isLevel2User = useLevelTheme && userLevel === 2;
+  const isLevel3User = useLevelTheme && userLevel === 3;
+  const isLevel4User = useLevelTheme && userLevel === 4;
+  const isLevel5User = useLevelTheme && userLevel === 5;
   if (isLoading) {
     return (
       <div className="flex items-center justify-center min-h-[60vh]">

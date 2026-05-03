@@ -30,7 +30,7 @@ import { getLevelFromXP, getNextLevel, getLevelProgress } from "@/lib/levels";
 import { evaluateMedals } from "@/lib/medals";
 import PremiumUsername from "@/components/ui/PremiumUsername";
 
-export default function Profile() {
+export default function Profile( { useLevelTheme = true }) {
   const { user, isLoadingAuth, updateUserData, refreshUser } = useAuth();
   const queryClient = useQueryClient();
 
@@ -198,11 +198,11 @@ export default function Profile() {
   const earnedMedals = evaluateMedals({ totalPlays, totalWins, bestScore, totalTimePlayed, gamesPlayed, level: currentLevel.level });
   const isRegularUser = user && user.role !== "admin" && user.role !== "empresa";
     const userLevel = isRegularUser ? getLevelFromXP(user.xp ?? 0).level : null;
-    const isLevel1User = userLevel === 1;
-    const isLevel2User = userLevel === 2;
-    const isLevel3User = userLevel === 3;
-    const isLevel4User = userLevel === 4;
-    const isLevel5User = userLevel === 5;
+   const isLevel1User = useLevelTheme && userLevel === 1;
+  const isLevel2User = useLevelTheme && userLevel === 2;
+  const isLevel3User = useLevelTheme && userLevel === 3;
+  const isLevel4User = useLevelTheme && userLevel === 4;
+  const isLevel5User = useLevelTheme && userLevel === 5;
 
   return (
     <div className={`max-w-4xl mx-auto px-4 py-8 ${isLevel1User ? "user-level-1-profile-page" : ""} ${isLevel2User ? "user-level-2-profile-page" : ""} ${isLevel3User ? "user-level-3-profile-page" : ""} ${isLevel4User ? "user-level-4-profile-page" : ""} ${isLevel5User ? "user-level-5-profile-page" : ""}`}>

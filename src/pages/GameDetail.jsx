@@ -54,7 +54,7 @@ function WaitingForfeitBanner({ forfeitAt, onExpire }) {
 
 // ─── Main page ────────────────────────────────────────────────────────────────
 
-export default function GameDetail() {
+export default function GameDetail( { useLevelTheme = true } ) {
   const { id: gameId } = useParams();
   const { user, updateUserData } = useAuth();
   const ageKey = user ? `playcraft_age_${user.email}_${gameId}` : null;
@@ -70,11 +70,11 @@ export default function GameDetail() {
     useGameDetail(gameId, user);
   const isRegularUser = user && user.role !== "admin" && user.role !== "empresa";
   const userLevel = isRegularUser ? getLevelFromXP(user.xp ?? 0).level : null;
-  const isLevel1User = userLevel === 1;
-  const isLevel2User = userLevel === 2;
-  const isLevel3User = userLevel === 3;
-  const isLevel4User = userLevel === 4;
-  const isLevel5User = userLevel === 5;
+ const isLevel1User = useLevelTheme && userLevel === 1;
+  const isLevel2User = useLevelTheme && userLevel === 2;
+  const isLevel3User = useLevelTheme && userLevel === 3;
+  const isLevel4User = useLevelTheme && userLevel === 4;
+  const isLevel5User = useLevelTheme && userLevel === 5;
 
   const { data: userGameStatsArr = [] } = useQuery({
     queryKey: ['userGameStats', user?.email, gameId],
