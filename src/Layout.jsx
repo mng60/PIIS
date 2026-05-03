@@ -7,7 +7,6 @@ import {
   User,
   Settings,
   Menu,
-  X,
   LogOut,
   Shield,
   Heart,
@@ -25,7 +24,8 @@ import "@/styles/userBackgrounds.css";
 import "@/styles/StylesLevels/level1.css";
 import "@/styles/StylesLevels/level2.css";
 import "@/styles/StylesLevels/level3.css";
-import "@/styles/StylesLevels/level.css";
+import "@/styles/StylesLevels/level4.css";
+
 import { getLevelFromXP } from "@/lib/levels";
 
 export default function Layout({ children }) {
@@ -49,21 +49,39 @@ export default function Layout({ children }) {
   }, [isDark]);
 
   const navItems = [
-    { name: "Inicio",   path: "/",            icon: Home },
-    { name: "Juegos",   path: "/games",        icon: Gamepad2 },
-    { name: "Torneos",  path: "/tournaments",  icon: Trophy },
+    { name: "Inicio", path: "/", icon: Home },
+    { name: "Juegos", path: "/games", icon: Gamepad2 },
+    { name: "Torneos", path: "/tournaments", icon: Trophy },
   ];
 
   const isRestrictedArea =
     location.pathname === "/admin" ||
     location.pathname === "/company-dashboard" ||
     location.pathname === "/upload-game";
+
   const isRegularUser = user && user.role !== "admin" && user.role !== "empresa";
   const userLevel = isRegularUser ? getLevelFromXP(user.xp ?? 0).level : null;
+
   const isLevel1User = userLevel === 1;
   const isLevel2User = userLevel === 2;
   const isLevel3User = userLevel === 3;
   const isLevel4User = userLevel === 4;
+
+  const levelClassPrefix = userLevel ? `user-level-${userLevel}` : "";
+
+  const routeLevelClass = (() => {
+    if (!levelClassPrefix || isRestrictedArea) return "";
+
+    if (location.pathname === "/") return `${levelClassPrefix}-home`;
+    if (location.pathname === "/games") return `${levelClassPrefix}-games-page`;
+    if (location.pathname.startsWith("/games/")) return `${levelClassPrefix}-game-detail-page`;
+    if (location.pathname === "/profile" || location.pathname.startsWith("/profile/")) return `${levelClassPrefix}-profile-page`;
+    if (location.pathname === "/favorites") return `${levelClassPrefix}-favorites-page`;
+    if (location.pathname === "/friends") return `${levelClassPrefix}-friends-page`;
+    if (location.pathname === "/tournaments") return `${levelClassPrefix}-tournaments-page`;
+
+    return "";
+  })();
 
   if (user) {
     if (user.role !== "admin" && user.role !== "empresa") {
@@ -78,33 +96,54 @@ export default function Layout({ children }) {
     }
   }
 
+  const getNavActiveClass = () => {
+    if (isLevel1User) return "user-level-1-nav-active";
+    if (isLevel2User) return "user-level-2-nav-active";
+    if (isLevel3User) return "user-level-3-nav-active";
+    if (isLevel4User) return "user-level-4-nav-active";
+    return "bg-gradient-to-r from-purple-600 to-cyan-500 text-white shadow-lg shadow-purple-500/25";
+  };
+
+  const getNavIdleClass = () => {
+    if (isLevel4User) return "user-level-4-nav-idle";
+    if (isLevel3User) return "user-level-3-nav-idle";
+    if (isLevel2User) return "user-level-2-nav-idle";
+    return isDark
+      ? "text-gray-400 hover:text-white hover:bg-white/5"
+      : "text-gray-600 hover:text-gray-900 hover:bg-gray-100";
+  };
+
+  const getTopbarIdleClass = () => {
+    if (isLevel4User) return "user-level-4-topbar-idle";
+    if (isLevel3User) return "user-level-3-topbar-idle";
+    if (isLevel2User) return "user-level-2-topbar-idle";
+    return isDark
+      ? "text-gray-400 hover:text-white hover:bg-white/5"
+      : "text-gray-500 hover:text-gray-900 hover:bg-gray-100";
+  };
+
+  const getTopbarTextClass = () => {
+    if (isLevel4User) return "user-level-4-topbar-text";
+    if (isLevel3User) return "user-level-3-topbar-text";
+    if (isLevel2User) return "user-level-2-topbar-text";
+    return isDark ? "text-gray-400" : "text-gray-600";
+  };
+
   const NavLinks = ({ mobile = false }) => (
     <div className={mobile ? "flex flex-col gap-2" : "hidden md:flex items-center gap-1"}>
       {navItems.map((item) => {
         const Icon = item.icon;
-        const isActive = location.pathname === item.path ||
-          (item.path === '/friends' && location.pathname.startsWith('/profile/'));
+        const isActive =
+          location.pathname === item.path ||
+          (item.path === "/friends" && location.pathname.startsWith("/profile/"));
+
         return (
           <Link
             key={item.path}
             to={item.path}
             onClick={() => mobile && setIsOpen(false)}
             className={`flex items-center gap-2 px-4 py-2.5 rounded-lg transition-all duration-300 ${
-              isActive
-                ? isLevel1User
-                  ? "user-level-1-nav-active"
-                  : isLevel2User
-                    ? "user-level-2-nav-active"
-                    : isLevel3User
-                      ? "user-level-3-nav-active"
-                      : "bg-gradient-to-r from-purple-600 to-cyan-500 text-white shadow-lg shadow-purple-500/25"
-                : isLevel3User
-                  ? "user-level-3-nav-idle"
-                  : isLevel2User
-                    ? "user-level-2-nav-idle"
-                    : isDark
-                  ? "text-gray-400 hover:text-white hover:bg-white/5"
-                  : "text-gray-600 hover:text-gray-900 hover:bg-gray-100"
+              isActive ? getNavActiveClass() : getNavIdleClass()
             }`}
           >
             <Icon className="w-4 h-4" />
@@ -116,7 +155,18 @@ export default function Layout({ children }) {
   );
 
   return (
-    <div className={`min-h-screen ${isDark ? "bg-[#0a0a0f] text-white" : "bg-[#f0f1f8] text-gray-900"} ${!isRestrictedArea && isLevel1User ? "user-screen-background" : ""} ${!isRestrictedArea && isLevel2User ? "user-screen-background user-screen-background-level-2" : ""} ${!isRestrictedArea && isLevel3User ? "user-screen-background user-screen-background-level-3" : ""} ${!isRestrictedArea && isLevel4User ? "user-screen-background user-screen-background-level-4" : ""} ${isLevel1User ? "user-level-1-shell" : ""} ${isLevel2User ? "user-level-2-shell" : ""} ${!isRestrictedArea && isLevel3User ? "user-level-3-shell" : ""}`}>
+    <div
+      className={`min-h-screen ${isDark ? "bg-[#0a0a0f] text-white" : "bg-[#f0f1f8] text-gray-900"}
+        ${!isRestrictedArea && isLevel1User ? "user-screen-background" : ""}
+        ${!isRestrictedArea && isLevel2User ? "user-screen-background user-screen-background-level-2" : ""}
+        ${!isRestrictedArea && isLevel3User ? "user-screen-background user-screen-background-level-3" : ""}
+        ${!isRestrictedArea && isLevel4User ? "user-screen-background user-screen-background-level-4" : ""}
+        ${isLevel1User ? "user-level-1-shell" : ""}
+        ${isLevel2User ? "user-level-2-shell" : ""}
+        ${!isRestrictedArea && isLevel3User ? "user-level-3-shell" : ""}
+        ${!isRestrictedArea && isLevel4User ? "user-level-4-shell" : ""}
+        ${routeLevelClass}`}
+    >
       <style>{`
         :root {
           --background: 0 0% 4%;
@@ -196,15 +246,36 @@ export default function Layout({ children }) {
         }
       `}</style>
 
-      {/* Header */}
-      <header className={`sticky top-0 z-50 border-b backdrop-blur-xl ${isLevel3User ? "user-level-3-header" : isDark ? "border-white/5 bg-[#0a0a0f]/80" : "border-gray-200 bg-white/90"}`}>
+      <header
+        className={`sticky top-0 z-50 border-b backdrop-blur-xl ${
+          isLevel4User
+            ? "user-level-4-header"
+            : isLevel3User
+              ? "user-level-3-header"
+              : isDark
+                ? "border-white/5 bg-[#0a0a0f]/80"
+                : "border-gray-200 bg-white/90"
+        }`}
+      >
         <div className="max-w-7xl mx-auto px-4 py-4 flex items-center justify-between">
           <div className="flex items-center gap-2">
             <Link to="/" className="flex items-center gap-3 group">
-              <div className={`p-2 rounded-xl bg-gradient-to-br from-purple-600 to-cyan-500 neon-glow group-hover:scale-105 transition-transform ${isLevel1User ? "user-level-1-logo-box" : ""} ${isLevel2User ? "user-level-2-logo-box" : ""} ${isLevel3User ? "user-level-3-logo-box" : ""}`}>
+              <div
+                className={`p-2 rounded-xl bg-gradient-to-br from-purple-600 to-cyan-500 neon-glow group-hover:scale-105 transition-transform
+                  ${isLevel1User ? "user-level-1-logo-box" : ""}
+                  ${isLevel2User ? "user-level-2-logo-box" : ""}
+                  ${isLevel3User ? "user-level-3-logo-box" : ""}
+                  ${isLevel4User ? "user-level-4-logo-box" : ""}`}
+              >
                 <Gamepad2 className="w-6 h-6 text-white" />
               </div>
-              <span className={`text-xl font-bold bg-gradient-to-r from-purple-400 to-cyan-400 bg-clip-text text-transparent neon-text ${isLevel1User ? "user-level-1-logo-text" : ""} ${isLevel2User ? "user-level-2-logo-text" : ""} ${isLevel3User ? "user-level-3-logo-text" : ""}`}>
+              <span
+                className={`text-xl font-bold bg-gradient-to-r from-purple-400 to-cyan-400 bg-clip-text text-transparent neon-text
+                  ${isLevel1User ? "user-level-1-logo-text" : ""}
+                  ${isLevel2User ? "user-level-2-logo-text" : ""}
+                  ${isLevel3User ? "user-level-3-logo-text" : ""}
+                  ${isLevel4User ? "user-level-4-logo-text" : ""}`}
+              >
                 PlayCraft
               </span>
             </Link>
@@ -217,7 +288,7 @@ export default function Layout({ children }) {
               variant="ghost"
               size="icon"
               onClick={() => setIsDark(!isDark)}
-              className={`${isLevel3User ? "user-level-3-topbar-idle" : isLevel2User ? "user-level-2-topbar-idle" : isDark ? "text-gray-400 hover:text-white hover:bg-white/5" : "text-gray-500 hover:text-gray-900 hover:bg-gray-100"}`}
+              className={getTopbarIdleClass()}
               title={isDark ? "Modo claro" : "Modo oscuro"}
             >
               {isDark ? <Sun className="w-4 h-4" /> : <Moon className="w-4 h-4" />}
@@ -226,14 +297,16 @@ export default function Layout({ children }) {
 
             {user ? (
               <div className="hidden md:flex items-center gap-3">
-                {user.premium_until && new Date(user.premium_until) > new Date()
-                  ? <PremiumUsername name={user.full_name || user.email} className={`text-sm ${isLevel3User ? "user-level-3-topbar-text" : isLevel2User ? "user-level-2-topbar-text" : ""}`} />
-                  : <span className={`text-sm ${isLevel3User ? "user-level-3-topbar-text" : isLevel2User ? "user-level-2-topbar-text" : isDark ? "text-gray-400" : "text-gray-600"}`}>{user.full_name || user.email}</span>}
+                {user.premium_until && new Date(user.premium_until) > new Date() ? (
+                  <PremiumUsername name={user.full_name || user.email} className={`text-sm ${getTopbarTextClass()}`} />
+                ) : (
+                  <span className={`text-sm ${getTopbarTextClass()}`}>{user.full_name || user.email}</span>
+                )}
                 <Button
                   variant="ghost"
                   size="icon"
                   onClick={logout}
-                  className={`${isLevel3User ? "user-level-3-topbar-idle" : isLevel2User ? "user-level-2-topbar-idle" : isDark ? "text-gray-400 hover:text-white hover:bg-white/5" : "text-gray-500 hover:text-gray-900 hover:bg-gray-100"}`}
+                  className={getTopbarIdleClass()}
                 >
                   <LogOut className="w-4 h-4" />
                 </Button>
@@ -246,10 +319,9 @@ export default function Layout({ children }) {
               </Link>
             )}
 
-            {/* Mobile Menu */}
             <Sheet open={isOpen} onOpenChange={setIsOpen}>
               <SheetTrigger asChild className="md:hidden">
-                <Button variant="ghost" size="icon" className="text-white">
+                <Button variant="ghost" size="icon" className={isLevel4User ? "user-level-4-topbar-idle" : "text-white"}>
                   <Menu className="w-5 h-5" />
                 </Button>
               </SheetTrigger>
@@ -261,9 +333,11 @@ export default function Layout({ children }) {
                       <div className="space-y-4">
                         <div className="px-4 py-3 bg-white/5 rounded-lg">
                           <p className="text-sm text-gray-400">Conectado como</p>
-                          {user.premium_until && new Date(user.premium_until) > new Date()
-                            ? <PremiumUsername name={user.full_name || user.email} className="font-medium" />
-                            : <p className="font-medium truncate">{user.full_name || user.email}</p>}
+                          {user.premium_until && new Date(user.premium_until) > new Date() ? (
+                            <PremiumUsername name={user.full_name || user.email} className="font-medium" />
+                          ) : (
+                            <p className="font-medium truncate">{user.full_name || user.email}</p>
+                          )}
                         </div>
                         <Button
                           variant="ghost"
@@ -289,18 +363,43 @@ export default function Layout({ children }) {
         </div>
       </header>
 
-      <main className="min-h-[calc(100vh-80px)]">
+      <main className={`min-h-[calc(100vh-80px)] ${routeLevelClass}`}>
         {children}
       </main>
 
-      <CraftyAssistant />
+      <div
+        className={
+          isLevel4User
+            ? "user-level-4-crafty user-level-4-floating-chat user-level-4-crafty-wrapper user-level-4-floating-chat-wrapper"
+            : ""
+        }
+      >
+        <CraftyAssistant />
+      </div>
 
-      <footer className={`border-t py-8 mt-12 ${isDark ? "border-white/5" : "border-gray-200"}`}>
-        <div className={`max-w-7xl mx-auto px-4 text-center text-sm ${isLevel2User ? "user-level-2-footer-text" : isDark ? "text-gray-500" : "text-gray-400"}`}>
+      <footer
+        className={`border-t py-8 mt-12 ${
+          isLevel4User
+            ? "user-level-4-footer"
+            : isDark
+              ? "border-white/5"
+              : "border-gray-200"
+        }`}
+      >
+        <div
+          className={`max-w-7xl mx-auto px-4 text-center text-sm ${
+            isLevel4User
+              ? "user-level-4-footer-text"
+              : isLevel2User
+                ? "user-level-2-footer-text"
+                : isDark
+                  ? "text-gray-500"
+                  : "text-gray-400"
+          }`}
+        >
           <p>© 2026 PlayCraft - Proyecto Universitario</p>
         </div>
       </footer>
-
     </div>
   );
 }
