@@ -1,0 +1,59 @@
+.user-screen-background {
+  background-image:
+    linear-gradient(rgba(10, 10, 15, 0.5), rgba(10, 10, 15, 0.62)),
+    url("/user-backgrounds/background-level1.jpeg");
+  background-position: center -80px;
+  background-repeat: no-repeat;
+  background-size: auto;
+  background-attachment: fixed;
+}
+
+.user-screen-background.user-screen-background-level-2 {
+  background-image:
+    linear-gradient(rgba(0, 0, 0, 0.04), rgba(0, 0, 0, 0.12)),
+    url("/user-backgrounds/background-level2.jpeg");
+  background-position: center top;
+  background-repeat: no-repeat;
+  background-size: cover;
+  background-attachment: fixed;
+  background-color: #000000;
+}
+
+.user-screen-background.user-screen-background-level-3 {
+  background-image:
+    linear-gradient(rgba(5, 6, 12, 0.3), rgba(5, 6, 12, 0.56)),
+    url("/user-backgrounds/background-level3.png");
+  background-position: center top;
+  background-repeat: no-repeat;
+  background-size: cover;
+  background-attachment: fixed;
+  background-color: #05060c;
+}
+
+.user-screen-background.user-screen-background-level-4 {
+  background-image:
+    linear-gradient(rgba(5, 6, 12, 0.28), rgba(5, 6, 12, 0.56)),
+    url("/user-backgrounds/background-level4.png");
+  background-position: center top;
+  background-repeat: no-repeat;
+  background-size: cover;
+  background-attachment: fixed;
+  background-color: #05060c;
+}
+
+.user-screen-login {
+  background-image:
+    linear-gradient(rgba(9, 10, 13, 0.42), rgba(9, 10, 13, 0.56)),
+    url("/user-backgrounds/background-level1.jpeg");
+  background-position: center -80px;
+  background-repeat: no-repeat;
+  background-size: auto;
+  background-attachment: fixed;
+}
+
+@media (max-width: 768px) {
+  .user-screen-background,
+  .user-screen-login {
+    background-attachment: fixed;
+  }
+}
