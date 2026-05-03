@@ -1,1421 +1,1883 @@
-/* Estilos del nivel 5 para la parte de usuario. */
-/* ★ NIVEL MÁXIMO — Tonalidades doradas / oro divino ★ */
-/* El nivel más espectacular: oro puro, brillos intensos, animaciones de luz y lujo extremo */
-
 .user-level-5-shell {
   --level5-primary: #d4a017;
+  --level5-primary-strong: #92400e;
   --level5-accent: #fde68a;
-  --level5-accent-hot: #f59e0b;
+  --level5-surface: rgba(36, 22, 10, 0.72);
+  --level5-surface-strong: rgba(54, 33, 15, 0.82);
+  --level5-border: rgba(253, 230, 138, 0.26);
   --level5-text: #fef3c7;
-  --level5-text-soft: #fde68a;
-  --level5-shadow: rgba(212, 160, 23, 0.5);
-  --level5-gold-deep: #92400e;
-  --level5-gold-bright: #fbbf24;
-  --level5-gold-pale: #fef9ee;
-  --level5-adult-red: #7f1d1d;
-  --level5-adult-dark: #450a0a;
+  --level5-text-soft: #c29a52;
+  --level5-shadow: rgba(212, 160, 23, 0.24);
 }
 
-/* ── Animaciones exclusivas del nivel 5 ── */
-@keyframes level5-shimmer {
-  0%   { background-position: -200% center; }
-  100% { background-position:  200% center; }
-}
-
-@keyframes level5-pulse-glow {
-  0%, 100% { box-shadow: 0 0 18px rgba(251, 191, 36, 0.45), 0 0 40px rgba(212, 160, 23, 0.28); }
-  50%       { box-shadow: 0 0 32px rgba(251, 191, 36, 0.7),  0 0 64px rgba(212, 160, 23, 0.44); }
-}
-
-@keyframes level5-border-glow {
-  0%, 100% { border-color: rgba(251, 191, 36, 0.85); }
-  50%       { border-color: rgba(253, 230, 138, 1);   }
-}
-
-@keyframes level5-title-shine {
-  0%   { filter: brightness(1)   drop-shadow(0 0 6px rgba(253, 230, 138, 0.4));  }
-  50%  { filter: brightness(1.18) drop-shadow(0 0 14px rgba(251, 191, 36, 0.7)); }
-  100% { filter: brightness(1)   drop-shadow(0 0 6px rgba(253, 230, 138, 0.4));  }
-}
-
-.user-level-5-shell svg.animate-spin {
-  color: #d97706 !important;
-}
-
-.user-level-5-home {
-  font-family: "Cinzel", "Garamond", "Times New Roman", serif;
-}
-
-.user-level-5-home .text-white {
-  color: #fef3c7 !important;
-}
-
-.user-level-5-home .user-level-5-category-arcade,
-.user-level-5-home .user-level-5-category-estrategia,
-.user-level-5-home .user-level-5-category-default,
-.user-level-5-home .user-level-5-adult-badge {
-  color: #ffffff !important;
-}
-
-.user-level-5-home .user-level-5-category-arcade *,
-.user-level-5-home .user-level-5-category-estrategia *,
-.user-level-5-home .user-level-5-category-default *,
-.user-level-5-home .user-level-5-adult-badge * {
-  color: #ffffff !important;
-}
-
-.user-level-5-home .text-gray-300,
-.user-level-5-home .text-gray-400 {
-  color: #fde68a !important;
-}
-
-/* Título hero: gradiente dorado animado de máximo impacto */
-.user-level-5-home-title {
-  background: linear-gradient(
-    90deg,
-    #fff9e6 0%,
-    #fde68a 20%,
-    #f59e0b 40%,
-    #d4a017 55%,
-    #f59e0b 70%,
-    #fde68a 85%,
-    #fff9e6 100%
-  );
-  background-size: 200% auto;
-  -webkit-background-clip: text;
-  background-clip: text;
-  color: transparent;
-  font-family: "Cinzel", "Garamond", "Times New Roman", serif;
-  letter-spacing: 0.05em;
-  font-weight: 900;
-  animation: level5-shimmer 3.5s linear infinite, level5-title-shine 2.8s ease-in-out infinite;
-  text-shadow: none;
-}
-
-.user-level-5-home-subtitle {
-  color: #ffffff !important;
-  font-family: "Cinzel", "Garamond", "Times New Roman", serif;
-  text-shadow:
-    0 0 8px rgba(212, 160, 23, 0.36),
-    0 0 20px rgba(253, 230, 138, 0.2);
+.user-level-5-shell .neon-glow {
+  box-shadow:
+    0 0 22px rgba(212, 160, 23, 0.28),
+    0 0 44px rgba(253, 230, 138, 0.18);
 }
 
 .user-level-5-nav-active {
-  background: linear-gradient(135deg, #b45309 0%, #d97706 50%, #f59e0b 100%) !important;
+  background: linear-gradient(135deg, rgba(212, 160, 23, 0.92), rgba(217, 119, 6, 0.92)) !important;
   color: #fffbeb !important;
-  box-shadow:
-    0 12px 28px var(--level5-shadow),
-    0 0 20px rgba(251, 191, 36, 0.3) !important;
-  animation: level5-pulse-glow 2.5s ease-in-out infinite;
+  box-shadow: 0 14px 32px var(--level5-shadow) !important;
+  border: 1px solid rgba(254, 243, 199, 0.18);
+}
+
+.user-level-5-nav-idle {
+  color: #ffffff !important;
+}
+
+.user-level-5-nav-idle:hover {
+  color: #ffffff !important;
+  background: rgba(255, 255, 255, 0.08) !important;
+}
+
+.user-level-5-topbar-idle,
+.user-level-5-topbar-text {
+  color: #ffffff !important;
+}
+
+.user-level-5-topbar-idle:hover {
+  color: #ffffff !important;
+  background: rgba(255, 255, 255, 0.08) !important;
 }
 
 .user-level-5-logo-box {
-  background: linear-gradient(135deg, #92400e 0%, #d97706 50%, #fbbf24 100%) !important;
+  background: linear-gradient(135deg, #b45309 0%, #fbbf24 100%) !important;
   box-shadow:
-    0 0 22px rgba(251, 191, 36, 0.5),
-    0 0 44px rgba(212, 160, 23, 0.3),
-    inset 0 1px 0 rgba(255, 251, 235, 0.2) !important;
-  animation: level5-pulse-glow 3s ease-in-out infinite;
+    0 0 18px rgba(251, 191, 36, 0.28),
+    0 0 34px rgba(180, 83, 9, 0.2) !important;
 }
 
 .user-level-5-logo-text {
-  background: linear-gradient(90deg, #fff9e6 0%, #fde68a 42%, #f59e0b 100%) !important;
+  background: linear-gradient(90deg, #fff9e6 0%, #fef3c7 42%, #fcd34d 100%) !important;
   -webkit-background-clip: text !important;
   background-clip: text !important;
   color: transparent !important;
-  text-shadow: 0 0 14px rgba(253, 230, 138, 0.3);
+  text-shadow: 0 0 14px rgba(255, 249, 230, 0.22);
 }
 
-.user-level-5-hero-button {
-  background: linear-gradient(135deg, #92400e 0%, #d97706 50%, #fbbf24 100%) !important;
-  border: 1px solid rgba(251, 191, 36, 0.7) !important;
-  color: #fffbeb !important;
-  box-shadow:
-    0 10px 24px rgba(212, 160, 23, 0.4),
-    0 0 22px rgba(251, 191, 36, 0.28),
-    inset 0 1px 0 rgba(255, 251, 235, 0.15);
-  animation: level5-border-glow 2.5s ease-in-out infinite;
+.user-level-5-shell header {
+  border-color: rgba(251, 191, 36, 0.08) !important;
+  background: rgba(120, 53, 15, 0.62) !important;
+  box-shadow: 0 12px 32px rgba(2, 12, 24, 0.22);
 }
 
-.user-level-5-hero-button:hover {
-  background: linear-gradient(135deg, #b45309 0%, #f59e0b 50%, #fde68a 100%) !important;
+.user-level-5-shell footer {
+  border-color: rgba(251, 191, 36, 0.08) !important;
+}
+
+.user-level-5-footer-text {
+  color: #7c5a23 !important;
+}
+
+.user-level-5-shell .game-card:hover {
   box-shadow:
-    0 14px 34px rgba(251, 191, 36, 0.52),
-    0 0 36px rgba(251, 191, 36, 0.38) !important;
+    0 16px 44px rgba(212, 160, 23, 0.2),
+    0 0 30px rgba(253, 230, 138, 0.12) !important;
+}
+
+.user-level-5-shell svg.animate-spin {
+  color: #fbbf24 !important;
+}
+
+.user-level-5-home-title {
+  background: linear-gradient(90deg, #78350f 0%, #d97706 48%, #92400e 100%);
+  -webkit-background-clip: text;
+  background-clip: text;
+  color: transparent;
+  font-weight: 900;
+  text-shadow:
+    0 0 12px rgba(217, 119, 6, 0.24),
+    0 0 24px rgba(146, 64, 14, 0.16);
+}
+
+.user-level-5-home-subtitle {
+  color: #78350f !important;
+}
+
+.user-level-5-section-heading,
+.user-level-5-section-icon {
+  color: #b45309 !important;
+}
+
+.user-level-5-game-card,
+.user-level-5-news-card {
+  background: linear-gradient(180deg, rgba(255, 255, 255, 0.96) 0%, rgba(254, 243, 199, 0.94) 100%) !important;
+  border: 1px solid rgba(212, 160, 23, 0.34) !important;
+  box-shadow:
+    0 14px 34px rgba(91, 58, 20, 0.16),
+    0 0 0 1px rgba(254, 243, 199, 0.32) inset !important;
+}
+
+.user-level-5-featured-card {
+  border: 1px solid rgba(212, 160, 23, 0.3) !important;
+  box-shadow:
+    0 18px 42px rgba(91, 58, 20, 0.24),
+    0 0 0 1px rgba(254, 243, 199, 0.18) inset !important;
+}
+
+.user-level-5-widget-media {
+  background-image: linear-gradient(135deg, rgba(212, 160, 23, 0.2), rgba(254, 243, 199, 0.12)) !important;
+}
+
+.user-level-5-widget-title {
+  color: #5b3a14 !important;
+}
+
+.user-level-5-widget-accent {
+  color: #b45309 !important;
+}
+
+.user-level-5-widget-accent-soft {
+  color: rgba(212, 160, 23, 0.44) !important;
+}
+
+.user-level-5-game-card h3,
+.user-level-5-news-card h3 {
+  color: #5b3a14 !important;
+}
+
+.user-level-5-news-card h3,
+.user-level-5-news-card .user-level-5-widget-title {
+  color: #5b3a14 !important;
+}
+
+.user-level-5-news-card span.text-xs.font-medium,
+.user-level-5-news-card .user-level-5-widget-accent,
+.user-level-5-news-card .mt-auto {
+  color: #6b4218 !important;
+}
+
+.user-level-5-news-card p,
+.user-level-5-news-card .text-xs.text-gray-400 {
+  color: #6b4218 !important;
+}
+
+.user-level-5-news-card .text-xs.text-gray-500,
+.user-level-5-news-card .text-xs.text-gray-500 svg {
+  color: #7c4a1d !important;
+}
+
+.user-level-5-game-card .text-gray-400,
+.user-level-5-news-card .text-gray-400 {
+  color: #6b4218 !important;
+}
+
+.user-level-5-game-card .text-gray-500,
+.user-level-5-news-card .text-gray-500 {
+  color: #7c4a1d !important;
+}
+
+.user-level-5-game-card .text-white,
+.user-level-5-news-card .text-white {
+  color: #4a2d12 !important;
+}
+
+.user-level-5-game-card [class*="text-purple"],
+.user-level-5-news-card [class*="text-purple"] {
+  color: #b45309 !important;
+}
+
+.user-level-5-game-card .group-hover\:text-purple-300:hover,
+.user-level-5-news-card .group-hover\:text-purple-300:hover,
+.user-level-5-news-card .group-hover\:text-purple-400:hover {
+  color: #d97706 !important;
 }
 
 .user-level-5-highlight-section {
-  background: linear-gradient(90deg, rgba(146, 64, 14, 0.38), rgba(212, 160, 23, 0.24)) !important;
-  border-color: rgba(251, 191, 36, 0.38) !important;
-  box-shadow: inset 0 0 40px rgba(212, 160, 23, 0.08) !important;
-}
-
-.user-level-5-highlight-title {
-  color: var(--level5-text) !important;
+  background: linear-gradient(135deg, rgba(255, 255, 255, 0.68) 0%, rgba(254, 243, 199, 0.72) 100%) !important;
+  border-color: rgba(180, 83, 9, 0.26) !important;
 }
 
 .user-level-5-highlight-copy {
+  color: #6b4218 !important;
+}
+
+.user-level-5-hero-button {
+  background: linear-gradient(135deg, #d4a017 0%, #5b3a14 100%) !important;
+  border: 1px solid rgba(251, 191, 36, 0.35) !important;
+  color: #fff8e1 !important;
+  box-shadow:
+    0 12px 28px rgba(91, 58, 20, 0.24),
+    0 0 18px rgba(251, 191, 36, 0.18) !important;
+}
+
+.user-level-5-hero-button:hover {
+  background: linear-gradient(135deg, #e6b325 0%, #6b3f16 100%) !important;
+  box-shadow:
+    0 14px 32px rgba(91, 58, 20, 0.28),
+    0 0 24px rgba(251, 191, 36, 0.22) !important;
+}
+
+.user-level-5-featured-badge {
+  background: linear-gradient(90deg, #c98912 0%, #f59e0b 100%) !important;
+  color: #fffbeb !important;
+  box-shadow: 0 10px 20px rgba(180, 83, 9, 0.18) !important;
+}
+
+.user-level-5-game-card .absolute.top-3.left-3,
+.user-level-5-game-card .absolute.top-3.right-3,
+.user-level-5-game-card .absolute.top-3.left-3 *,
+.user-level-5-game-card .absolute.top-3.right-3 * {
   color: #ffffff !important;
 }
 
-.user-level-5-news-heading,
-.user-level-5-news-icon {
-  color: var(--level5-text) !important;
+.user-level-5-featured-button {
+  background: linear-gradient(90deg, #c98912 0%, #d97706 100%) !important;
+  border: 1px solid rgba(245, 158, 11, 0.24) !important;
+  color: #fffbeb !important;
+  box-shadow:
+    0 12px 28px rgba(91, 58, 20, 0.24),
+    0 0 22px rgba(245, 158, 11, 0.16) !important;
 }
 
-.user-level-5-games-title,
-.user-level-5-games-icon {
-  color: var(--level5-text) !important;
+.user-level-5-featured-button:hover {
+  background: linear-gradient(90deg, #d69a1d 0%, #f59e0b 100%) !important;
+  box-shadow:
+    0 14px 32px rgba(91, 58, 20, 0.28),
+    0 0 26px rgba(245, 158, 11, 0.2) !important;
 }
 
-.user-level-5-games-title {
-  font-family: "Cinzel", "Garamond", "Times New Roman", serif;
-  letter-spacing: 0.05em;
-  font-weight: 900;
-  background: linear-gradient(90deg, #fef3c7 0%, #fbbf24 50%, #d97706 100%);
-  background-size: 200% auto;
-  -webkit-background-clip: text;
-  background-clip: text;
-  color: transparent !important;
-  animation: level5-shimmer 4s linear infinite;
-}
-
-.user-level-5-profile-page .from-purple-900\/30,
-.user-level-5-profile-page .to-cyan-900\/30 {
-  background-image: none !important;
-}
-
-.user-level-5-profile-page > .user-level-5-game-card:first-child {
-  background:
-    linear-gradient(135deg, rgba(120, 53, 15, 0.64) 0%, rgba(30, 18, 6, 0.72) 52%, rgba(100, 44, 12, 0.66) 100%) !important;
-}
-
-.user-level-5-profile-page .text-white {
+.user-level-5-game-detail-page .text-gray-300 {
   color: #fef3c7 !important;
 }
 
-.user-level-5-profile-page .text-gray-400 {
-  color: #fde68a !important;
+.user-level-5-game-detail-page .text-gray-400 {
+  color: #b99449 !important;
 }
 
-.user-level-5-profile-page .text-gray-500 {
-  color: #f59e0b !important;
+.user-level-5-game-detail-page .text-gray-500 {
+  color: #d6bc77 !important;
 }
 
-.user-level-5-profile-page .text-purple-400 {
+.user-level-5-game-detail-link {
+  color: #b7791f !important;
+}
+
+.user-level-5-game-detail-link:hover {
   color: #d97706 !important;
-}
-
-.user-level-5-profile-avatar {
-  border-color: rgba(251, 191, 36, 0.9) !important;
-  box-shadow:
-    0 0 0 2px rgba(146, 64, 14, 0.4),
-    0 0 28px rgba(251, 191, 36, 0.4),
-    0 0 56px rgba(212, 160, 23, 0.22) !important;
-  animation: level5-pulse-glow 2.8s ease-in-out infinite;
-}
-
-.user-level-5-profile-avatar-fallback {
-  background: linear-gradient(135deg, #fbbf24 0%, #d97706 38%, #92400e 100%) !important;
-  color: #fffbeb !important;
-}
-
-.user-level-5-profile-name {
-  color: #fde68a !important;
-  text-shadow: 0 0 12px rgba(251, 191, 36, 0.3);
-}
-
-.user-level-5-profile-action-button {
-  color: #fde68a !important;
-}
-
-.user-level-5-profile-action-button:hover {
-  color: #fff9e6 !important;
-  background: rgba(146, 64, 14, 0.2) !important;
-}
-
-.user-level-5-profile-menu-item {
-  cursor: pointer;
-  gap: 0.5rem;
-  color: #fef3c7 !important;
-  background: linear-gradient(90deg, rgba(146, 64, 14, 0.22) 0%, rgba(212, 160, 23, 0.2) 100%) !important;
-  border: 1px solid rgba(251, 191, 36, 0.36) !important;
-  box-shadow:
-    0 0 0 1px rgba(180, 83, 9, 0.2),
-    0 0 18px rgba(251, 191, 36, 0.16) !important;
-}
-
-.user-level-5-profile-menu-item:hover,
-.user-level-5-profile-menu-item:focus {
-  color: #fffbeb !important;
-  background: linear-gradient(90deg, rgba(180, 83, 9, 0.48) 0%, rgba(212, 160, 23, 0.36) 100%) !important;
-  box-shadow: 0 0 24px rgba(251, 191, 36, 0.28) !important;
-}
-
-.user-level-5-profile-meta,
-.user-level-5-profile-icon-soft,
-.user-level-5-profile-xp-label {
-  color: #fde68a !important;
-}
-
-.user-level-5-profile-meta-muted,
-.user-level-5-profile-icon-muted,
-.user-level-5-profile-next-level {
-  color: #f59e0b !important;
-}
-
-.user-level-5-profile-level-label {
-  color: #d97706 !important;
-  font-weight: 700;
-  text-shadow: 0 0 8px rgba(251, 191, 36, 0.3);
-}
-
-.user-level-5-profile-progress-track {
-  background: rgba(146, 64, 14, 0.36) !important;
-}
-
-/* Barra de progreso: brillo animado tipo destellos de oro */
-.user-level-5-profile-progress-fill {
-  background: linear-gradient(
-    90deg,
-    #92400e 0%,
-    #d97706 30%,
-    #fbbf24 50%,
-    #fde68a 60%,
-    #fbbf24 70%,
-    #d97706 85%,
-    #92400e 100%
-  ) !important;
-  background-size: 200% auto !important;
-  box-shadow:
-    0 0 14px rgba(251, 191, 36, 0.36),
-    0 0 28px rgba(212, 160, 23, 0.22) !important;
-  animation: level5-shimmer 2.2s linear infinite !important;
-}
-
-.user-level-5-profile-premium-card {
-  background:
-    radial-gradient(ellipse at 50% 0%, rgba(251, 191, 36, 0.22) 0%, transparent 50%),
-    radial-gradient(circle at 85% 15%, rgba(212, 160, 23, 0.28) 0%, transparent 38%),
-    linear-gradient(135deg, rgba(120, 53, 15, 0.76) 0%, rgba(22, 12, 4, 0.9) 54%, rgba(146, 64, 14, 0.7) 100%) !important;
-  border-color: rgba(251, 191, 36, 0.42) !important;
-  box-shadow:
-    inset 0 1px 0 rgba(254, 243, 199, 0.14),
-    inset 0 0 60px rgba(212, 160, 23, 0.1),
-    0 20px 40px rgba(0, 0, 0, 0.3),
-    0 0 30px rgba(251, 191, 36, 0.18) !important;
-}
-
-.user-level-5-profile-premium-card .text-white,
-.user-level-5-profile-premium-card .text-gray-300 {
-  color: #fef9ee !important;
-}
-
-.user-level-5-profile-premium-card .text-gray-400,
-.user-level-5-profile-premium-card .text-gray-500 {
-  color: #fde68a !important;
-}
-
-.user-level-5-profile-premium-card .text-yellow-400,
-.user-level-5-profile-premium-card .text-orange-400 {
-  color: #fbbf24 !important;
-}
-
-.user-level-5-profile-premium-button {
-  background: linear-gradient(90deg, #92400e 0%, #d97706 50%, #f59e0b 100%) !important;
-  color: #fffbeb !important;
-  box-shadow:
-    0 10px 22px rgba(146, 64, 14, 0.38),
-    0 0 18px rgba(251, 191, 36, 0.24) !important;
-}
-
-.user-level-5-profile-dialog {
-  background:
-    radial-gradient(ellipse at 18% 0%, rgba(212, 160, 23, 0.22) 0%, transparent 38%),
-    linear-gradient(180deg, rgba(20, 10, 3, 0.98) 0%, rgba(10, 5, 2, 0.99) 100%) !important;
-  border: 1px solid rgba(251, 191, 36, 0.34) !important;
-  color: #fef3c7 !important;
-  box-shadow:
-    0 0 0 1px rgba(180, 83, 9, 0.2),
-    0 20px 44px rgba(0, 0, 0, 0.48),
-    inset 0 1px 0 rgba(254, 243, 199, 0.1),
-    inset 0 -24px 50px rgba(146, 64, 14, 0.3) !important;
-}
-
-.user-level-5-profile-password-dialog {
-  max-width: 36rem !important;
-  border-radius: 10px !important;
-}
-
-.user-level-5-profile-dialog-title {
-  color: #fde68a !important;
-  text-shadow: 0 0 10px rgba(251, 191, 36, 0.28);
-}
-
-.user-level-5-profile-dialog-icon {
-  color: #fbbf24 !important;
-  filter: drop-shadow(0 0 10px rgba(251, 191, 36, 0.5));
-}
-
-.user-level-5-profile-dialog label {
-  color: #fde68a !important;
-}
-
-.user-level-5-profile-dialog input {
-  background: rgba(40, 20, 5, 0.72) !important;
-  border: 1px solid rgba(251, 191, 36, 0.36) !important;
-  color: #fef3c7 !important;
-}
-
-.user-level-5-profile-password-input {
-  min-height: 56px;
-  border-radius: 8px !important;
-  background:
-    linear-gradient(180deg, rgba(60, 28, 8, 0.84), rgba(36, 16, 4, 0.88)) !important;
-  box-shadow:
-    inset 0 0 20px rgba(0, 0, 0, 0.28),
-    inset 0 1px 0 rgba(254, 243, 199, 0.07) !important;
-}
-
-.user-level-5-profile-dialog input::placeholder {
-  color: #a37c3a !important;
-}
-
-.user-level-5-profile-dialog input:focus,
-.user-level-5-profile-dialog input:focus-visible {
-  border-color: rgba(251, 191, 36, 0.82) !important;
-  box-shadow:
-    0 0 0 1px rgba(251, 191, 36, 0.28),
-    0 0 22px rgba(212, 160, 23, 0.22) !important;
-}
-
-.user-level-5-profile-edit-input {
-  background: rgba(40, 20, 5, 0.72) !important;
-  border: 1px solid rgba(251, 191, 36, 0.36) !important;
-  color: #fef3c7 !important;
-}
-
-.user-level-5-profile-edit-input::placeholder {
-  color: #a37c3a !important;
-}
-
-.user-level-5-profile-edit-input:focus,
-.user-level-5-profile-edit-input:focus-visible {
-  border-color: rgba(251, 191, 36, 0.82) !important;
-  box-shadow:
-    0 0 0 1px rgba(251, 191, 36, 0.28),
-    0 0 22px rgba(212, 160, 23, 0.22) !important;
-}
-
-.user-level-5-profile-dialog-cancel {
-  border: 1px solid rgba(251, 191, 36, 0.28) !important;
-  background: rgba(30, 14, 4, 0.36) !important;
-  color: #fef3c7 !important;
-}
-
-.user-level-5-profile-dialog-cancel:hover {
-  background: rgba(146, 64, 14, 0.3) !important;
-  color: #fffbeb !important;
-}
-
-.user-level-5-profile-dialog-save {
-  background: linear-gradient(90deg, #92400e 0%, #d97706 50%, #fbbf24 100%) !important;
-  border: 0 !important;
-  color: #fffbeb !important;
-  box-shadow:
-    0 10px 24px rgba(212, 160, 23, 0.38),
-    0 0 20px rgba(251, 191, 36, 0.24) !important;
-}
-
-.user-level-5-profile-dialog-save:hover {
-  background: linear-gradient(90deg, #b45309 0%, #f59e0b 50%, #fde68a 100%) !important;
-  box-shadow:
-    0 12px 30px rgba(251, 191, 36, 0.48),
-    0 0 28px rgba(251, 191, 36, 0.3) !important;
-}
-
-.user-level-5-favorites-title,
-.user-level-5-favorites-icon {
-  color: var(--level5-text) !important;
-}
-
-.user-level-5-favorites-title {
-  font-family: "Cinzel", "Garamond", "Times New Roman", serif;
-  letter-spacing: 0.05em;
-  font-weight: 900;
-  background: linear-gradient(90deg, #fef9ee 0%, #fbbf24 50%, #d97706 100%);
-  background-size: 200% auto;
-  -webkit-background-clip: text;
-  background-clip: text;
-  color: transparent !important;
-  animation: level5-shimmer 4s linear infinite;
-}
-
-.user-level-5-games-copy,
-.user-level-5-games-results,
-.user-level-5-games-empty-copy {
-  color: #ffffff !important;
-}
-
-.user-level-5-games-search-icon,
-.user-level-5-games-empty-icon {
-  color: var(--level5-text-soft) !important;
-}
-
-.user-level-5-games-empty-title {
-  color: var(--level5-text) !important;
-}
-
-.user-level-5-favorites-count,
-.user-level-5-favorites-empty-tone {
-  color: #fde68a !important;
-}
-
-.user-level-5-games-search {
-  border-color: rgba(251, 191, 36, 0.4) !important;
-  color: var(--level5-text) !important;
-  background: rgba(30, 14, 4, 0.44) !important;
-}
-
-.user-level-5-games-search::placeholder {
-  color: #a37c3a !important;
-}
-
-.user-level-5-games-search:focus-visible,
-.user-level-5-games-search:focus {
-  border-color: rgba(251, 191, 36, 0.78) !important;
-  box-shadow: 0 0 0 1px rgba(251, 191, 36, 0.3), 0 0 20px rgba(251, 191, 36, 0.18) !important;
-}
-
-.user-level-5-games-filter {
-  border-color: rgba(251, 191, 36, 0.3) !important;
-  color: var(--level5-text-soft) !important;
-  background: rgba(30, 14, 4, 0.32) !important;
-}
-
-.user-level-5-games-filter:hover {
-  color: #ffffff !important;
-  background: rgba(120, 53, 15, 0.42) !important;
-  box-shadow: 0 0 20px rgba(251, 191, 36, 0.18) !important;
-}
-
-.user-level-5-games-filter-active {
-  background: linear-gradient(90deg, #92400e 0%, #d97706 50%, #fbbf24 100%) !important;
-  border: 0 !important;
-  color: #fffbeb !important;
-  box-shadow:
-    0 10px 24px rgba(212, 160, 23, 0.38),
-    0 0 22px rgba(251, 191, 36, 0.26) !important;
-}
-
-.user-level-5-game-detail-link,
-.user-level-5-game-detail-link:hover,
-.user-level-5-game-detail-meta,
-.user-level-5-game-detail-meta .text-gray-300,
-.user-level-5-game-detail-meta .text-white,
-.user-level-5-game-detail-panel-copy {
-  color: #fef3c7 !important;
 }
 
 .user-level-5-game-detail-title {
-  font-family: "Cinzel", "Garamond", "Times New Roman", serif;
-  font-weight: 900;
-  letter-spacing: 0.05em;
-  background: linear-gradient(
-    90deg,
-    #fff9e6 0%,
-    #fde68a 20%,
-    #f59e0b 40%,
-    #d4a017 55%,
-    #f59e0b 70%,
-    #fde68a 85%,
-    #fff9e6 100%
-  );
-  background-size: 200% auto;
-  -webkit-background-clip: text;
-  background-clip: text;
-  color: transparent !important;
-  animation: level5-shimmer 3s linear infinite;
-}
-
-.user-level-5-game-detail-panel-title,
-.user-level-5-game-detail-panel-icon {
-  color: var(--level5-text) !important;
-}
-
-.user-level-5-game-detail-chip {
-  background: linear-gradient(90deg, #92400e 0%, #d97706 100%) !important;
-  border-color: rgba(251, 191, 36, 0.36) !important;
-  color: #ffffff !important;
-}
-
-.user-level-5-game-detail-multi {
-  background: rgba(180, 83, 9, 0.22) !important;
-  border-color: rgba(180, 83, 9, 0.4) !important;
-  color: #fef3c7 !important;
-}
-
-.user-level-5-game-detail-adult {
-  background: linear-gradient(90deg, var(--level5-adult-dark) 0%, var(--level5-adult-red) 100%) !important;
-  border-color: rgba(185, 104, 78, 0.65) !important;
-  color: #ffffff !important;
-}
-
-.user-level-5-game-detail-action {
-  border-color: rgba(251, 191, 36, 0.26) !important;
-  color: #fef3c7 !important;
-  background: rgba(30, 14, 4, 0.24) !important;
-}
-
-.user-level-5-game-detail-action:hover {
-  color: #fffbeb !important;
-  border-color: rgba(251, 191, 36, 0.6) !important;
-  box-shadow: 0 0 16px rgba(251, 191, 36, 0.24) !important;
-}
-
-.user-level-5-game-detail-action-share {
-  background: rgba(245, 158, 11, 0.16) !important;
-  border-color: rgba(245, 158, 11, 0.4) !important;
-  color: #fbbf24 !important;
-  box-shadow: 0 0 20px rgba(245, 158, 11, 0.2) !important;
-}
-
-.user-level-5-game-detail-action-share:hover {
-  background: rgba(245, 158, 11, 0.24) !important;
-  color: #fde68a !important;
-  box-shadow: 0 0 28px rgba(245, 158, 11, 0.32) !important;
-}
-
-.user-level-5-game-detail-action-favorite {
-  background: rgba(127, 29, 29, 0.14) !important;
-  border-color: rgba(127, 29, 29, 0.32) !important;
-}
-
-.user-level-5-snake-shell {
-  --snake-level5-soft: #fef3c7;
-  --snake-level5-gold: #d97706;
-}
-
-.user-level-5-snake-shell .text-white,
-.user-level-5-snake-shell .text-gray-300,
-.user-level-5-snake-shell .text-gray-400,
-.user-level-5-snake-shell .text-gray-500,
-.user-level-5-snake-shell .text-gray-600 {
-  color: #fef3c7 !important;
-}
-
-.user-level-5-snake-title,
-.user-level-5-snake-value {
-  color: #fef3c7 !important;
-}
-
-.user-level-5-snake-points {
-  color: #f59e0b !important;
-  text-shadow: 0 0 8px rgba(245, 158, 11, 0.4);
-}
-
-.user-level-5-snake-record {
-  color: #fde68a !important;
-  text-shadow: 0 0 10px rgba(253, 230, 138, 0.5);
-}
-
-.user-level-5-snake-value-highlight {
   color: #d97706 !important;
 }
 
-.user-level-5-snake-checkbox {
-  accent-color: #d97706;
+.user-level-5-game-detail-meta {
+  color: #c28b2c !important;
 }
 
-.user-level-5-snake-button {
-  background: linear-gradient(90deg, #92400e 0%, #d97706 50%, #fbbf24 100%) !important;
+.user-level-5-game-detail-publisher {
+  color: #6b4218 !important;
+}
+
+.user-level-5-detail-rating {
+  color: #c4a93e !important;
+}
+
+.user-level-5-game-detail-chip {
+  background: linear-gradient(90deg, #d4a017 0%, #f59e0b 100%) !important;
+  border-color: rgba(245, 158, 11, 0.24) !important;
+  color: #fffbeb !important;
+}
+
+.user-level-5-game-detail-multi {
+  background: rgba(245, 158, 11, 0.16) !important;
+  border-color: rgba(245, 158, 11, 0.3) !important;
+  color: #b7791f !important;
+}
+
+.user-level-5-game-detail-adult {
+  background: linear-gradient(90deg, #d3b84f 0%, #d4a017 100%) !important;
+  border-color: rgba(195, 169, 62, 0.36) !important;
+  color: #5b3a14 !important;
+}
+
+.user-level-5-game-detail-action {
+  background: rgba(255, 249, 230, 0.72) !important;
+  border-color: rgba(180, 83, 9, 0.28) !important;
+  color: #6b4218 !important;
+}
+
+.user-level-5-game-detail-action:hover {
+  background: rgba(254, 243, 199, 0.92) !important;
+  color: #78350f !important;
+}
+
+.user-level-5-game-detail-action-favorite {
+  background: rgba(255, 223, 92, 0.24) !important;
+  border-color: rgba(196, 169, 62, 0.3) !important;
+  color: #a58f2a !important;
+}
+
+.user-level-5-game-detail-action-share {
+  background: rgba(245, 158, 11, 0.14) !important;
+  border-color: rgba(245, 158, 11, 0.3) !important;
+  color: #d97706 !important;
+}
+
+.user-level-5-detail-panel,
+.user-level-5-game-surface,
+.user-level-5-history {
+  background: linear-gradient(180deg, rgba(255, 249, 230, 0.82) 0%, rgba(254, 243, 199, 0.68) 100%) !important;
+  background-color: rgba(254, 243, 199, 0.28) !important;
+  border-color: rgba(251, 191, 36, 0.16) !important;
+  box-shadow:
+    0 14px 30px rgba(91, 58, 20, 0.16),
+    0 0 0 1px rgba(255, 251, 235, 0.12) inset !important;
+}
+
+.user-level-5-detail-panel-title {
+  color: #6b4218 !important;
+}
+
+.user-level-5-detail-icon-blue {
+  color: #6b4218 !important;
+}
+
+.user-level-5-detail-icon-yellow {
+  color: #c4a93e !important;
+}
+
+.user-level-5-game-launch,
+.user-level-5-comment-button {
+  background: linear-gradient(90deg, rgba(146, 64, 14, 0.92) 0%, rgba(251, 191, 36, 0.86) 58%, rgba(220, 180, 70, 0.84) 100%) !important;
+  border: 1px solid rgba(255, 249, 230, 0.16) !important;
   color: #fffbeb !important;
   box-shadow:
-    0 10px 24px rgba(212, 160, 23, 0.38),
-    0 0 20px rgba(251, 191, 36, 0.24) !important;
-}
-
-.user-level-5-game-detail-page .bg-white\/5 {
-  background: rgba(30, 14, 4, 0.36) !important;
-}
-
-.user-level-5-game-detail-page .border-white\/10,
-.user-level-5-game-detail-page .border-white\/5 {
-  border-color: rgba(251, 191, 36, 0.24) !important;
-}
-
-.user-level-5-game-detail-page .text-purple-300,
-.user-level-5-game-detail-page .text-purple-400 {
-  color: var(--level5-text) !important;
-}
-
-.user-level-5-game-detail-page .space-y-6 > .bg-white\/5 > h2,
-.user-level-5-game-detail-page .grid .bg-white\/5 > h2 {
-  color: var(--level5-text) !important;
-}
-
-.user-level-5-game-detail-page .space-y-6 > .bg-white\/5 > h2 svg,
-.user-level-5-game-detail-page .grid .bg-white\/5 > h2 svg {
-  color: var(--level5-text) !important;
+    0 12px 26px rgba(91, 58, 20, 0.12),
+    0 0 18px rgba(245, 158, 11, 0.08) !important;
 }
 
 .user-level-5-comment-label {
   color: #fef3c7 !important;
 }
 
-.user-level-5-comment-empty,
-.user-level-5-comment-empty-icon {
-  color: #fde68a !important;
-}
-
-.user-level-5-comment-textarea {
-  border-color: rgba(251, 191, 36, 0.68) !important;
-  background: rgba(30, 14, 4, 0.36) !important;
+.user-level-5-game-detail-page .user-level-5-comment-label {
   color: #fef3c7 !important;
 }
 
+.user-level-5-comment-textarea {
+  background: linear-gradient(180deg, rgba(255, 249, 230, 0.9) 0%, rgba(254, 243, 199, 0.8) 100%) !important;
+  border: 1px solid rgba(212, 160, 23, 0.82) !important;
+  color: #4a2d12 !important;
+  caret-color: #92400e !important;
+  box-shadow:
+    0 0 0 1px rgba(255, 251, 235, 0.16) inset,
+    0 10px 22px rgba(91, 58, 20, 0.06) !important;
+  border-radius: 18px !important;
+}
+
+.user-level-5-game-detail-page textarea.user-level-5-comment-textarea,
+.user-level-5-game-detail-page textarea.user-level-5-comment-textarea:focus,
+.user-level-5-game-detail-page textarea.user-level-5-comment-textarea:focus-visible {
+  color: #4a2d12 !important;
+  -webkit-text-fill-color: #4a2d12 !important;
+  caret-color: #92400e !important;
+  border: 1px solid rgba(212, 160, 23, 0.98) !important;
+  outline: none !important;
+  --tw-ring-color: rgba(212, 160, 23, 0.98) !important;
+  --tw-ring-shadow: 0 0 #0000 !important;
+}
+
 .user-level-5-comment-textarea::placeholder {
-  color: #a37c3a !important;
+  color: #8b6a2a !important;
 }
 
-.user-level-5-comment-textarea:focus-visible,
-.user-level-5-comment-textarea:focus {
-  border-color: rgba(251, 191, 36, 0.92) !important;
-  box-shadow: 0 0 0 1px rgba(251, 191, 36, 0.3), 0 0 22px rgba(212, 160, 23, 0.24) !important;
-}
-
-.user-level-5-comment-button {
-  background: linear-gradient(90deg, #92400e 0%, #78350f 100%) !important;
-  color: #fffbeb !important;
-  box-shadow: 0 10px 24px rgba(146, 64, 14, 0.32), 0 0 18px rgba(251, 191, 36, 0.2) !important;
-}
-
-.user-level-5-comment-button:hover {
-  opacity: 0.92 !important;
-  box-shadow: 0 12px 28px rgba(146, 64, 14, 0.38), 0 0 24px rgba(251, 191, 36, 0.26) !important;
-}
-
-.user-level-5-featured-heading,
-.user-level-5-featured-icon {
-  color: var(--level5-text) !important;
-}
-
-.user-level-5-new-games-heading,
-.user-level-5-new-games-icon {
-  color: var(--level5-text) !important;
-}
-
-/* Hover de cards: aura de oro máxima */
-.user-level-5-shell .game-card:hover {
+.user-level-5-comment-textarea:focus,
+.user-level-5-comment-textarea:focus-visible {
+  border-color: rgba(212, 160, 23, 0.98) !important;
   box-shadow:
-    0 10px 40px rgba(251, 191, 36, 0.36),
-    0 0 60px rgba(212, 160, 23, 0.22) !important;
+    0 0 0 1px rgba(212, 160, 23, 0.24),
+    0 0 18px rgba(212, 160, 23, 0.12),
+    0 10px 24px rgba(91, 58, 20, 0.08) !important;
 }
 
-/* ── Cards destacadas: borde dorado animado ── */
-.user-level-5-featured-card {
-  position: relative;
-  overflow: hidden;
-  border: 4px solid rgba(251, 191, 36, 0.99) !important;
-  clip-path: polygon(
-    1.2% 3.6%, 5.5% 2.2%, 12.8% 2.9%, 21.4% 2.1%, 30.8% 2.8%, 41.2% 2.2%, 52.6% 2.7%, 63.7% 2.3%, 74.9% 2.9%, 85.7% 2.2%, 94.2% 3.1%, 98.6% 5.8%,
-    98.2% 16.2%, 98.8% 28.9%, 98.1% 42.7%, 98.8% 57.6%, 98.2% 72.1%, 98.7% 85.4%, 97.4% 95.8%,
-    93.6% 98.4%, 83.8% 97.6%, 72.4% 98.5%, 60.1% 97.5%, 48.7% 98.4%, 37.6% 97.4%, 26.2% 98.3%, 15.1% 97.6%, 5.3% 98.2%, 1.4% 95.2%,
-    1.9% 84.8%, 1.1% 71.6%, 2% 57.9%, 1.2% 43.3%, 2.1% 29.2%, 1.3% 16.1%, 1.2% 3.6%
-  );
-  box-shadow:
-    inset 0 0 0 2px rgba(254, 243, 199, 0.28),
-    0 0 0 1px rgba(180, 83, 9, 0.3),
-    0 0 28px rgba(251, 191, 36, 0.3),
-    0 0 56px rgba(212, 160, 23, 0.16) !important;
-  animation: level5-border-glow 2.5s ease-in-out infinite;
+.user-level-5-comment-empty,
+.user-level-5-comment-empty-icon {
+  color: #7c5a23 !important;
 }
 
-.user-level-5-featured-card::before {
-  content: "";
-  position: absolute;
-  inset: 0;
-  border-radius: inherit;
-  pointer-events: none;
-  border: 2px solid rgba(251, 191, 36, 0.98);
-  clip-path: inherit;
-  box-shadow:
-    inset 0 0 0 1px rgba(254, 243, 199, 0.22),
-    0 0 0 1px rgba(180, 83, 9, 0.22),
-    0 0 22px rgba(251, 191, 36, 0.18);
-  opacity: 1;
+.user-level-5-game-detail-page .user-level-5-comment-empty,
+.user-level-5-game-detail-page .user-level-5-comment-empty p,
+.user-level-5-game-detail-page .user-level-5-comment-empty-icon {
+  color: #7c5a23 !important;
 }
 
-.user-level-5-featured-card:hover {
-  box-shadow:
-    inset 0 0 0 2px rgba(254, 249, 230, 0.36),
-    0 0 0 1px rgba(180, 83, 9, 0.36),
-    0 0 44px rgba(251, 191, 36, 0.6),
-    0 0 88px rgba(212, 160, 23, 0.28),
-    0 14px 48px rgba(251, 191, 36, 0.44) !important;
+.user-level-5-game-detail-page .text-center.py-8.text-gray-500.user-level-5-comment-empty,
+.user-level-5-game-detail-page .text-center.py-8.text-gray-500.user-level-5-comment-empty p,
+.user-level-5-game-detail-page .text-center.py-8.text-gray-500.user-level-5-comment-empty .user-level-5-comment-empty-icon,
+.user-level-5-game-detail-page .text-center.py-8.text-gray-500.user-level-5-comment-empty .text-sm {
+  color: #7c5a23 !important;
 }
 
-/* ── Game cards: oro puro, esquinas irregulares, brillo en hover ── */
-.user-level-5-game-card,
-.user-level-5-news-card {
-  position: relative;
-  overflow: hidden;
-  border: 4px solid rgba(251, 191, 36, 0.99) !important;
-  clip-path: polygon(
-    1.2% 3.6%, 5.5% 2.2%, 12.8% 2.9%, 21.4% 2.1%, 30.8% 2.8%, 41.2% 2.2%, 52.6% 2.7%, 63.7% 2.3%, 74.9% 2.9%, 85.7% 2.2%, 94.2% 3.1%, 98.6% 5.8%,
-    98.2% 16.2%, 98.8% 28.9%, 98.1% 42.7%, 98.8% 57.6%, 98.2% 72.1%, 98.7% 85.4%, 97.4% 95.8%,
-    93.6% 98.4%, 83.8% 97.6%, 72.4% 98.5%, 60.1% 97.5%, 48.7% 98.4%, 37.6% 97.4%, 26.2% 98.3%, 15.1% 97.6%, 5.3% 98.2%, 1.4% 95.2%,
-    1.9% 84.8%, 1.1% 71.6%, 2% 57.9%, 1.2% 43.3%, 2.1% 29.2%, 1.3% 16.1%, 1.2% 3.6%
-  );
-  box-shadow:
-    inset 0 0 0 2px rgba(254, 243, 199, 0.24),
-    0 0 0 1px rgba(180, 83, 9, 0.26),
-    0 0 20px rgba(251, 191, 36, 0.22),
-    0 0 40px rgba(212, 160, 23, 0.12) !important;
-  animation: level5-border-glow 3s ease-in-out infinite;
+.user-level-5-game-detail-page .user-level-5-detail-icon-blue,
+.user-level-5-game-detail-page .user-level-5-comment-empty,
+.user-level-5-game-detail-page .user-level-5-comment-empty-icon,
+.user-level-5-game-detail-page .user-level-5-comment-empty *,
+.user-level-5-game-detail-page .user-level-5-comment-empty .text-sm {
+  color: #7c5a23 !important;
 }
 
-.user-level-5-game-card::before,
-.user-level-5-news-card::before {
-  content: "";
-  position: absolute;
-  inset: 0;
-  border-radius: inherit;
-  pointer-events: none;
-  border: 3px solid rgba(253, 230, 138, 0.92);
-  clip-path: inherit;
-  box-shadow:
-    inset 0 0 0 1px rgba(254, 243, 199, 0.2),
-    0 0 0 1px rgba(180, 83, 9, 0.2),
-    0 0 18px rgba(251, 191, 36, 0.14);
-  opacity: 1;
+.user-level-5-game-detail-page .bg-white\/5 {
+  background: rgba(120, 53, 15, 0.22) !important;
 }
 
-.user-level-5-game-card::after,
-.user-level-5-news-card::after {
-  content: "";
-  position: absolute;
-  inset: 0;
-  border-radius: inherit;
-  pointer-events: none;
-  background:
-    radial-gradient(circle at 2% 3%, rgba(20, 10, 3, 0.28) 0 8px, transparent 14px),
-    radial-gradient(circle at 96% 4%, rgba(24, 12, 4, 0.24) 0 9px, transparent 15px),
-    radial-gradient(circle at 4% 96%, rgba(24, 12, 4, 0.2) 0 8px, transparent 14px),
-    radial-gradient(circle at 97% 97%, rgba(20, 10, 3, 0.26) 0 10px, transparent 16px),
-    linear-gradient(112deg, transparent 0 6%, rgba(251, 191, 36, 0.1) 6.5%, transparent 7.5%),
-    linear-gradient(78deg, transparent 0 82%, rgba(251, 191, 36, 0.08) 82.5%, transparent 83.5%);
-  opacity: 0.5;
+.user-level-5-game-detail-page .user-level-5-detail-panel,
+.user-level-5-game-detail-page .user-level-5-game-surface,
+.user-level-5-game-detail-page .user-level-5-history {
+  background: linear-gradient(180deg, rgba(120, 53, 15, 0.28) 0%, rgba(254, 243, 199, 0.2) 100%) !important;
+  background-color: rgba(146, 64, 14, 0.22) !important;
 }
 
-.user-level-5-game-card h3 {
-  color: var(--level5-text) !important;
+.user-level-5-game-detail-page .user-level-5-detail-panel.bg-white\/5,
+.user-level-5-game-detail-page .user-level-5-game-surface.bg-white\/5,
+.user-level-5-game-detail-page .user-level-5-history.bg-white\/5 {
+  background: linear-gradient(180deg, rgba(120, 53, 15, 0.28) 0%, rgba(254, 243, 199, 0.2) 100%) !important;
+  background-color: rgba(146, 64, 14, 0.22) !important;
 }
 
-.user-level-5-game-card .text-sm.text-gray-400 {
+.user-level-5-game-detail-page .border-white\/10,
+.user-level-5-game-detail-page .border-white\/5 {
+  border-color: rgba(180, 83, 9, 0.2) !important;
+}
+
+.user-level-5-game-detail-page .text-yellow-500,
+.user-level-5-game-detail-page .fill-yellow-500 {
+  color: #d4a017 !important;
+  fill: #d4a017 !important;
+}
+
+.user-level-5-game-detail-page p.text-gray-300.text-sm.leading-relaxed {
   color: #ffffff !important;
 }
 
-.user-level-5-game-card:hover {
-  border-color: rgba(253, 230, 138, 0.8) !important;
-  box-shadow:
-    inset 0 0 0 2px rgba(254, 249, 230, 0.32),
-    0 0 0 1px rgba(180, 83, 9, 0.3),
-    0 0 32px rgba(251, 191, 36, 0.44),
-    0 0 64px rgba(251, 191, 36, 0.28),
-    0 14px 44px rgba(251, 191, 36, 0.38) !important;
+.user-level-5-snake-shell .user-level-5-snake-title {
+  color: #78350f !important;
 }
 
-.user-level-5-game-card:hover h3 {
-  color: var(--level5-accent) !important;
-  text-shadow: 0 0 10px rgba(253, 230, 138, 0.4);
-}
-
-.user-level-5-category-arcade {
-  background: linear-gradient(90deg, #78350f 0%, #b45309 100%) !important;
-  color: #ffffff !important;
-  text-shadow: none !important;
-}
-
-.user-level-5-category-estrategia {
-  background: linear-gradient(90deg, #92400e 0%, #d97706 100%) !important;
-  color: #ffffff !important;
-  text-shadow: none !important;
-}
-
-.user-level-5-category-default {
-  background: linear-gradient(90deg, #b45309 0%, #f59e0b 100%) !important;
-  color: #ffffff !important;
-  text-shadow: none !important;
-}
-
-.user-level-5-adult-badge {
-  background: linear-gradient(90deg, var(--level5-adult-dark) 0%, var(--level5-adult-red) 100%) !important;
-  border-color: rgba(185, 104, 78, 0.65) !important;
-  color: #ffffff !important;
-  text-shadow: none !important;
-}
-
-.user-level-5-category-arcade *,
-.user-level-5-category-estrategia *,
-.user-level-5-category-default *,
-.user-level-5-adult-badge * {
-  color: #ffffff !important;
-}
-
-.user-level-5-news-card .text-purple-400,
-.user-level-5-news-card .text-gray-500 {
-  color: #fde68a !important;
-}
-
-.user-level-5-news-title {
-  color: var(--level5-text) !important;
-}
-
-.user-level-5-news-card .text-gray-400 {
-  color: #ffffff !important;
-}
-
-.user-level-5-news-link {
-  color: #fde68a !important;
-}
-
-.user-level-5-news-card:hover {
-  border-color: rgba(253, 230, 138, 0.7) !important;
-  box-shadow:
-    inset 0 0 0 2px rgba(254, 249, 230, 0.32),
-    0 0 0 1px rgba(180, 83, 9, 0.3),
-    0 0 32px rgba(251, 191, 36, 0.44),
-    0 0 64px rgba(251, 191, 36, 0.28),
-    0 14px 44px rgba(251, 191, 36, 0.38) !important;
-}
-
-.user-level-5-news-card:hover .user-level-5-news-title,
-.user-level-5-news-card:hover .user-level-5-news-link {
-  color: var(--level5-accent) !important;
-}
-
-.user-level-5-pong-shell {
-  width: 100%;
-  padding: 1rem 0 0.35rem;
-  color: #fef3c7;
-}
-
-.user-level-5-pong-title {
-  color: #fff9e6 !important;
-  font-family: "Cinzel", "Garamond", "Times New Roman", serif;
-  text-shadow: 0 0 18px rgba(251, 191, 36, 0.32);
-  animation: level5-title-shine 2.8s ease-in-out infinite;
-}
-
-.user-level-5-pong-copy {
-  color: #fde68a !important;
-}
-
-.user-level-5-pong-player-one {
+.user-level-5-snake-points {
   color: #d97706 !important;
 }
 
-.user-level-5-pong-player-two {
-  color: #fef9ee !important;
+.user-level-5-snake-level {
+  color: #fbbf24 !important;
 }
 
-.user-level-5-pong-versus {
-  color: #8a7040 !important;
+.user-level-5-snake-record {
+  color: #f59e0b !important;
 }
 
-.user-level-5-pong-canvas {
-  border: 1px solid rgba(251, 191, 36, 0.28) !important;
+.user-level-5-detail-panel .text-yellow-500,
+.user-level-5-detail-panel .fill-yellow-500,
+.user-level-5-detail-panel .text-amber-400,
+.user-level-5-detail-panel .text-amber-500,
+.user-level-5-detail-panel .text-amber-600,
+.user-level-5-detail-panel .user-level-5-detail-icon-yellow {
+  color: #d4a017 !important;
+  fill: #d4a017 !important;
+}
+
+.user-level-5-detail-panel .space-y-2 > div {
+  background: linear-gradient(90deg, rgba(180, 83, 9, 0.18) 0%, rgba(180, 83, 9, 0.08) 100%) !important;
+  border-color: rgba(180, 83, 9, 0.28) !important;
+}
+
+.user-level-5-detail-panel .space-y-2 > div .text-white,
+.user-level-5-detail-panel .space-y-2 > div .text-gray-400,
+.user-level-5-detail-panel .space-y-2 > div .text-gray-600 {
+  color: #d4a017 !important;
+}
+
+.user-level-5-game-detail-page [class*="bg-purple"],
+.user-level-5-game-detail-page [class*="border-purple"],
+.user-level-5-game-detail-page [class*="text-purple"] {
+  color: #f59e0b !important;
+  border-color: rgba(245, 158, 11, 0.28) !important;
+}
+
+.user-level-5-game-detail-page .text-gray-300,
+.user-level-5-game-detail-page p.text-gray-300.text-sm.leading-relaxed {
+  color: #4a2d12 !important;
+}
+
+.user-level-5-game-detail-page .text-gray-400,
+.user-level-5-game-detail-meta {
+  color: #8b6a2a !important;
+}
+
+.user-level-5-game-detail-page .text-gray-500 {
+  color: #9a742f !important;
+}
+
+.user-level-5-game-detail-link {
+  color: #a16207 !important;
+}
+
+.user-level-5-game-detail-link:hover,
+.user-level-5-game-detail-title,
+.user-level-5-game-detail-publisher,
+.user-level-5-detail-panel-title,
+.user-level-5-detail-icon-blue {
+  color: #92400e !important;
+}
+
+.user-level-5-detail-rating,
+.user-level-5-detail-icon-yellow,
+.user-level-5-detail-panel .text-yellow-500,
+.user-level-5-detail-panel .fill-yellow-500,
+.user-level-5-detail-panel .text-amber-400,
+.user-level-5-detail-panel .text-amber-500,
+.user-level-5-detail-panel .text-amber-600,
+.user-level-5-detail-panel .user-level-5-detail-icon-yellow {
+  color: #d99a12 !important;
+  fill: #d99a12 !important;
+}
+
+.user-level-5-game-detail-chip {
+  background: linear-gradient(135deg, #d97706 0%, #7c4a1d 100%) !important;
+  border-color: rgba(251, 191, 36, 0.32) !important;
+  color: #fffbeb !important;
+}
+
+.user-level-5-game-detail-multi {
+  background: rgba(251, 191, 36, 0.16) !important;
+  border-color: rgba(180, 83, 9, 0.34) !important;
+  color: #7c4a1d !important;
+}
+
+.user-level-5-game-detail-adult {
+  background: linear-gradient(135deg, #f2c94c 0%, #d4a017 100%) !important;
+  border-color: rgba(146, 99, 10, 0.28) !important;
+  color: #5b3a14 !important;
+}
+
+.user-level-5-game-detail-action {
+  background: rgba(255, 249, 230, 0.82) !important;
+  border-color: rgba(180, 83, 9, 0.34) !important;
+  color: #6b4218 !important;
+}
+
+.user-level-5-game-detail-action:hover {
+  background: rgba(254, 243, 199, 0.96) !important;
+  color: #78350f !important;
+}
+
+.user-level-5-game-detail-action-favorite {
+  background: rgba(255, 223, 92, 0.24) !important;
+  border-color: rgba(217, 119, 6, 0.38) !important;
+  color: #a16207 !important;
+}
+
+.user-level-5-game-detail-action-share {
+  background: rgba(254, 243, 199, 0.28) !important;
+  border-color: rgba(217, 119, 6, 0.28) !important;
+  color: #d97706 !important;
+}
+
+.user-level-5-game-detail-page .bg-white\/5,
+.user-level-5-game-detail-page .user-level-5-detail-panel,
+.user-level-5-game-detail-page .user-level-5-game-surface,
+.user-level-5-game-detail-page .user-level-5-history,
+.user-level-5-game-detail-page .user-level-5-detail-panel.bg-white\/5,
+.user-level-5-game-detail-page .user-level-5-game-surface.bg-white\/5,
+.user-level-5-game-detail-page .user-level-5-history.bg-white\/5 {
   background:
-    radial-gradient(circle at 50% 58%, rgba(251, 191, 36, 0.12), transparent 38%),
-    linear-gradient(180deg, rgba(20, 10, 3, 0.96) 0%, rgba(8, 4, 2, 0.98) 100%) !important;
+    linear-gradient(180deg, rgba(255, 249, 230, 0.9) 0%, rgba(254, 243, 199, 0.78) 100%) !important;
+  border-color: rgba(255, 249, 230, 0.5) !important;
   box-shadow:
-    inset 0 1px 0 rgba(254, 243, 199, 0.1),
-    inset 0 0 80px rgba(0, 0, 0, 0.4),
-    0 18px 48px rgba(0, 0, 0, 0.38),
-    0 0 30px rgba(146, 64, 14, 0.2) !important;
+    0 16px 34px rgba(91, 58, 20, 0.14),
+    0 0 0 1px rgba(255, 251, 235, 0.3) inset !important;
 }
 
-.user-level-5-pong-overlay {
-  background:
-    radial-gradient(circle at 50% 42%, rgba(120, 53, 15, 0.24), transparent 44%),
-    linear-gradient(180deg, rgba(6, 3, 1, 0.9) 0%, rgba(14, 7, 2, 0.92) 100%) !important;
+.user-level-5-comment-label,
+.user-level-5-game-detail-page .user-level-5-comment-label {
+  color: #7c4a1d !important;
+}
+
+.user-level-5-game-detail-page .user-level-5-detail-panel p,
+.user-level-5-game-detail-page .user-level-5-comment-card p {
+  color: #4a2d12 !important;
+}
+
+.user-level-5-game-detail-page .user-level-5-comment-card,
+.user-level-5-game-detail-page .user-level-5-comment-card.bg-white\/5 {
+  background: rgba(254, 243, 199, 0.44) !important;
+  border-color: rgba(255, 249, 230, 0.42) !important;
+}
+
+.user-level-5-comment-textarea,
+.user-level-5-game-detail-page textarea.user-level-5-comment-textarea,
+.user-level-5-game-detail-page textarea.user-level-5-comment-textarea:focus,
+.user-level-5-game-detail-page textarea.user-level-5-comment-textarea:focus-visible {
+  background: rgba(255, 249, 230, 0.9) !important;
+  border-color: rgba(180, 83, 9, 0.78) !important;
+  color: #4a2d12 !important;
+  -webkit-text-fill-color: #4a2d12 !important;
+  caret-color: #92400e !important;
+}
+
+.user-level-5-comment-textarea::placeholder {
+  color: #8b6a2a !important;
+}
+
+.user-level-5-comment-textarea:focus,
+.user-level-5-comment-textarea:focus-visible {
+  border-color: rgba(146, 64, 14, 0.95) !important;
+  box-shadow:
+    0 0 0 1px rgba(146, 64, 14, 0.28),
+    0 0 20px rgba(251, 191, 36, 0.16) !important;
+}
+
+.user-level-5-comment-button,
+.user-level-5-game-launch,
+.user-level-5-pong-button {
+  background: linear-gradient(135deg, #92400e 0%, #fbbf24 58%, #f2c94c 100%) !important;
+  border-color: rgba(255, 249, 230, 0.22) !important;
+  color: #fffbeb !important;
+  box-shadow: 0 12px 26px rgba(146, 64, 14, 0.2) !important;
+}
+
+.user-level-5-pong-green {
+  color: #d97706 !important;
+}
+
+.user-level-5-pong-blue {
+  color: #d97706 !important;
 }
 
 .user-level-5-pong-option {
-  background: rgba(254, 243, 199, 0.06) !important;
-  border: 1px solid rgba(251, 191, 36, 0.16) !important;
-  color: #fde68a !important;
-}
-
-.user-level-5-pong-option:hover {
-  background: rgba(180, 83, 9, 0.34) !important;
-  color: #fff9e6 !important;
+  background: rgba(74, 45, 18, 0.72) !important;
+  color: #fef3c7 !important;
 }
 
 .user-level-5-pong-option-active {
-  background: linear-gradient(90deg, #92400e 0%, #d97706 50%, #fbbf24 100%) !important;
+  background: linear-gradient(135deg, #d4a017 0%, #fbbf24 100%) !important;
   color: #fffbeb !important;
+}
+
+.user-level-5-games-page .text-purple-400,
+.user-level-5-games-page .text-purple-300,
+.user-level-5-games-page [class*="text-purple"] {
+  color: #c98912 !important;
+}
+
+.user-level-5-games-search {
+  background: linear-gradient(135deg, rgba(255, 249, 230, 0.88) 0%, rgba(254, 243, 199, 0.82) 100%) !important;
+  border-color: rgba(180, 83, 9, 0.38) !important;
+  color: #6b4218 !important;
   box-shadow:
-    0 8px 20px rgba(146, 64, 14, 0.38),
-    0 0 20px rgba(251, 191, 36, 0.24) !important;
+    0 10px 24px rgba(91, 58, 20, 0.12),
+    0 0 0 1px rgba(251, 191, 36, 0.14) inset !important;
+}
+
+.user-level-5-games-search::placeholder {
+  color: #b99449 !important;
+}
+
+.user-level-5-games-search:focus,
+.user-level-5-games-search:focus-visible {
+  border-color: rgba(180, 83, 9, 0.62) !important;
+  box-shadow:
+    0 0 0 1px rgba(180, 83, 9, 0.22),
+    0 0 20px rgba(251, 191, 36, 0.12) !important;
+}
+
+.user-level-5-games-search-icon {
+  color: #c98912 !important;
+}
+
+.user-level-5-games-copy {
+  color: #8b6a2a !important;
+}
+
+.user-level-5-games-results {
+  color: #a16207 !important;
+}
+
+.user-level-5-games-empty-tone,
+.user-level-5-games-empty-tone.text-gray-500,
+.user-level-5-games-empty-tone.text-gray-400,
+.user-level-5-games-empty-tone.text-gray-600 {
+  color: #7c5a23 !important;
+}
+
+.user-level-5-favorites-empty-tone {
+  color: #9a7b43 !important;
+}
+
+.user-level-5-favorites-count {
+  color: #78350f !important;
+}
+
+.user-level-5-games-filter {
+  border-color: rgba(180, 83, 9, 0.34) !important;
+  color: #8b5a21 !important;
+  background: linear-gradient(135deg, rgba(255, 249, 230, 0.72) 0%, rgba(254, 243, 199, 0.62) 100%) !important;
+  box-shadow: 0 8px 18px rgba(91, 58, 20, 0.08) !important;
+}
+
+.user-level-5-games-filter:hover {
+  color: #6b4218 !important;
+  background: linear-gradient(135deg, rgba(255, 251, 235, 0.9) 0%, rgba(253, 230, 138, 0.72) 100%) !important;
+  border-color: rgba(180, 83, 9, 0.48) !important;
+}
+
+.user-level-5-games-filter-active {
+  background: linear-gradient(135deg, #c98912 0%, #fbbf24 100%) !important;
+  border: 0 !important;
+  color: #fffef5 !important;
+  box-shadow:
+    0 12px 24px rgba(91, 58, 20, 0.2),
+    0 0 20px rgba(251, 191, 36, 0.14) !important;
+}
+
+.user-level-5-pong-green {
+  color: #d97706 !important;
+}
+
+.user-level-5-pong-blue {
+  color: #d97706 !important;
+}
+
+.user-level-5-pong-option {
+  background: rgba(74, 45, 18, 0.72) !important;
+  color: #fef3c7 !important;
+}
+
+.user-level-5-pong-option:hover {
+  background: rgba(107, 66, 24, 0.9) !important;
+  color: #fff8e1 !important;
+}
+
+.user-level-5-pong-option-active {
+  background: linear-gradient(135deg, #d4a017 0%, #fbbf24 100%) !important;
+  color: #fffbeb !important;
 }
 
 .user-level-5-pong-button {
-  background: linear-gradient(90deg, #78350f 0%, #d97706 50%, #fbbf24 100%) !important;
+  background: linear-gradient(135deg, #92400e 0%, #fbbf24 58%, #f2c94c 100%) !important;
   color: #fffbeb !important;
-  border: 1px solid rgba(251, 191, 36, 0.28) !important;
-  box-shadow:
-    0 12px 26px rgba(146, 64, 14, 0.38),
-    0 0 24px rgba(251, 191, 36, 0.22) !important;
+  border: 1px solid rgba(255, 249, 230, 0.22) !important;
 }
 
 .user-level-5-pong-button:hover {
-  background: linear-gradient(90deg, #92400e 0%, #f59e0b 50%, #fde68a 100%) !important;
-  box-shadow:
-    0 14px 32px rgba(146, 64, 14, 0.44),
-    0 0 32px rgba(251, 191, 36, 0.3) !important;
+  opacity: 0.94 !important;
 }
 
-.user-level-5-game-surface {
-  background:
-    radial-gradient(circle at 50% 22%, rgba(251, 191, 36, 0.12), transparent 28%),
-    linear-gradient(180deg, rgba(12, 6, 2, 0.98) 0%, rgba(6, 3, 1, 0.99) 100%) !important;
-  border-color: rgba(251, 191, 36, 0.2) !important;
-  box-shadow:
-    inset 0 1px 0 rgba(254, 243, 199, 0.06),
-    0 18px 44px rgba(0, 0, 0, 0.38),
-    0 0 30px rgba(146, 64, 14, 0.18) !important;
+.user-level-5-profile-page .text-white {
+  color: #fffbeb !important;
 }
 
-.user-level-5-game-launch {
-  background: linear-gradient(90deg, #78350f 0%, #d97706 50%, #fbbf24 100%) !important;
-  border: 1px solid rgba(251, 191, 36, 0.28) !important;
+.user-level-5-profile-page .text-gray-400 {
+  color: #c28b2c !important;
+}
+
+.user-level-5-profile-page .text-gray-500 {
+  color: #b99449 !important;
+}
+
+.user-level-5-profile-hero {
+  background: linear-gradient(135deg, rgba(146, 64, 14, 0.72) 0%, rgba(212, 160, 23, 0.48) 50%, rgba(120, 53, 15, 0.64) 100%) !important;
+  border: 1px solid rgba(255, 249, 230, 0.28) !important;
+  box-shadow:
+    0 20px 40px rgba(91, 58, 20, 0.12),
+    0 0 0 1px rgba(255, 251, 235, 0.12) inset !important;
+}
+
+.user-level-5-profile-avatar {
+  border-color: rgba(253, 230, 138, 0.72) !important;
+  box-shadow:
+    0 0 0 3px rgba(146, 64, 14, 0.16),
+    0 0 26px rgba(253, 230, 138, 0.24) !important;
+}
+
+.user-level-5-profile-avatar-fallback {
+  background: linear-gradient(135deg, #d4a017 0%, #f59e0b 100%) !important;
+  color: #fffbeb !important;
+}
+
+.user-level-5-profile-name {
+  color: #fff8e1 !important;
+}
+
+.user-level-5-profile-action-button {
+  color: #fff3c4 !important;
+}
+
+.user-level-5-profile-action-button:hover {
+  color: #ffffff !important;
+  background: rgba(255, 255, 255, 0.08) !important;
+}
+
+.user-level-5-profile-menu {
+  background: linear-gradient(180deg, rgba(91, 58, 20, 0.96) 0%, rgba(107, 66, 24, 0.96) 100%) !important;
+  border: 1px solid rgba(255, 249, 230, 0.22) !important;
+  color: #fffbeb !important;
+}
+
+.user-level-5-profile-menu-item {
+  cursor: pointer;
+  gap: 0.5rem;
+  color: #fffbeb !important;
+}
+
+.user-level-5-profile-menu-item:hover,
+.user-level-5-profile-menu-item:focus {
+  background: rgba(255, 255, 255, 0.12) !important;
+  color: #ffffff !important;
+}
+
+.user-level-5-profile-icon-soft,
+.user-level-5-profile-meta {
+  color: #fef3c7 !important;
+}
+
+.user-level-5-profile-icon-muted,
+.user-level-5-profile-meta-muted,
+.user-level-5-profile-xp-label,
+.user-level-5-profile-next-level {
+  color: #fde68a !important;
+}
+
+.user-level-5-profile-level-label {
+  color: #7c5a23 !important;
+}
+
+.user-level-5-profile-progress-track {
+  background: rgba(255, 249, 230, 0.18) !important;
+}
+
+.user-level-5-profile-progress-fill {
+  background: linear-gradient(90deg, #d4a017 0%, #f59e0b 100%) !important;
+  box-shadow: 0 0 16px rgba(251, 191, 36, 0.22) !important;
+}
+
+.user-level-5-profile-stat-card {
+  background: linear-gradient(180deg, rgba(255, 251, 235, 0.94) 0%, rgba(254, 243, 199, 0.94) 100%) !important;
+  border: 1px solid rgba(212, 160, 23, 0.26) !important;
+  box-shadow:
+    0 14px 32px rgba(91, 58, 20, 0.1),
+    0 0 0 1px rgba(255, 251, 235, 0.34) inset !important;
+}
+
+.user-level-5-profile-stat-value {
+  color: #d97706 !important;
+}
+
+.user-level-5-profile-stat-copy {
+  color: #c8a96a !important;
+}
+
+.user-level-5-profile-stat-icon-sky {
+  color: #d97706 !important;
+}
+
+.user-level-5-profile-stat-icon-grass {
+  color: #d4a017 !important;
+}
+
+.user-level-5-profile-dialog {
+  background: linear-gradient(180deg, rgba(91, 58, 20, 0.98) 0%, rgba(74, 45, 18, 0.98) 52%, rgba(54, 33, 15, 0.98) 100%) !important;
+  border: 1px solid rgba(253, 230, 138, 0.24) !important;
   color: #fffbeb !important;
   box-shadow:
-    0 12px 26px rgba(146, 64, 14, 0.38),
-    0 0 22px rgba(251, 191, 36, 0.22) !important;
+    0 22px 48px rgba(91, 58, 20, 0.38),
+    0 0 0 1px rgba(255, 249, 230, 0.08) inset,
+    0 0 28px rgba(251, 191, 36, 0.1) !important;
 }
 
-.user-level-5-game-launch:hover {
-  background: linear-gradient(90deg, #92400e 0%, #f59e0b 50%, #fde68a 100%) !important;
+.user-level-5-profile-dialog-title {
+  color: #fffbeb !important;
+}
+
+.user-level-5-profile-dialog-input {
+  background: linear-gradient(180deg, rgba(107, 66, 24, 0.88) 0%, rgba(91, 58, 20, 0.88) 100%) !important;
+  border: 1px solid rgba(253, 230, 138, 0.32) !important;
+  color: #fffbeb !important;
+  box-shadow: inset 0 1px 0 rgba(255, 249, 230, 0.04) !important;
+}
+
+.user-level-5-profile-dialog-input::placeholder {
+  color: #c8a96a !important;
+}
+
+.user-level-5-profile-dialog-input:focus,
+.user-level-5-profile-dialog-input:focus-visible {
+  outline: none !important;
+  border-color: rgba(253, 230, 138, 0.72) !important;
   box-shadow:
-    0 14px 32px rgba(146, 64, 14, 0.44),
-    0 0 32px rgba(251, 191, 36, 0.3) !important;
+    0 0 0 1px rgba(253, 230, 138, 0.22),
+    0 0 20px rgba(251, 191, 36, 0.14) !important;
+}
+
+.user-level-5-profile-edit-input {
+  background: linear-gradient(180deg, rgba(107, 66, 24, 0.88) 0%, rgba(91, 58, 20, 0.88) 100%) !important;
+  border: 1px solid rgba(253, 230, 138, 0.32) !important;
+  color: #fffbeb !important;
+  box-shadow: inset 0 1px 0 rgba(255, 249, 230, 0.04) !important;
+}
+
+.user-level-5-profile-edit-input::placeholder {
+  color: #c8a96a !important;
+}
+
+.user-level-5-profile-edit-input:focus,
+.user-level-5-profile-edit-input:focus-visible {
+  outline: none !important;
+  border-color: rgba(253, 230, 138, 0.72) !important;
+  box-shadow:
+    0 0 0 1px rgba(253, 230, 138, 0.22),
+    0 0 20px rgba(251, 191, 36, 0.14) !important;
+}
+
+.user-level-5-profile-dialog-cancel {
+  border: 1px solid rgba(253, 230, 138, 0.2) !important;
+  background: linear-gradient(180deg, rgba(74, 45, 18, 0.94) 0%, rgba(54, 33, 15, 0.94) 100%) !important;
+  color: #fff4d6 !important;
+}
+
+.user-level-5-profile-dialog-cancel:hover {
+  background: linear-gradient(180deg, rgba(91, 58, 20, 0.96) 0%, rgba(74, 45, 18, 0.96) 100%) !important;
+  color: #ffffff !important;
+  border-color: rgba(253, 230, 138, 0.34) !important;
+}
+
+.user-level-5-profile-dialog-save {
+  background: linear-gradient(90deg, #d4a017 0%, #f59e0b 100%) !important;
+  border: 0 !important;
+  color: #fffbeb !important;
+  box-shadow:
+    0 12px 26px rgba(120, 53, 15, 0.24),
+    0 0 18px rgba(251, 191, 36, 0.16) !important;
+}
+
+.user-level-5-profile-dialog-save:hover {
+  background: linear-gradient(90deg, #e6b325 0%, #fbbf24 100%) !important;
+  box-shadow:
+    0 14px 28px rgba(120, 53, 15, 0.28),
+    0 0 22px rgba(251, 191, 36, 0.2) !important;
+}
+
+.user-level-5-profile-panel {
+  background: linear-gradient(180deg, rgba(255, 249, 230, 0.46) 0%, rgba(254, 243, 199, 0.34) 100%) !important;
+  border: 1px solid rgba(212, 160, 23, 0.18) !important;
+}
+
+.user-level-5-profile-panel-title,
+.user-level-5-profile-panel-text {
+  color: #7c5a23 !important;
+}
+
+.user-level-5-profile-score {
+  color: #d97706 !important;
+}
+
+.user-level-5-profile-page .user-level-5-profile-panel-title,
+.user-level-5-profile-page .user-level-5-profile-panel-title *,
+.user-level-5-profile-page .user-level-5-profile-panel-text,
+.user-level-5-profile-page .user-level-5-profile-panel-text * {
+  color: #7c5a23 !important;
+}
+
+.user-level-5-profile-page .user-level-5-profile-score,
+.user-level-5-profile-page .user-level-5-profile-score * {
+  color: #d97706 !important;
+}
+
+.user-level-5-profile-score-row {
+  background: linear-gradient(180deg, rgba(255, 249, 230, 0.64) 0%, rgba(254, 243, 199, 0.52) 100%) !important;
+  border: 1px solid rgba(212, 160, 23, 0.16) !important;
+}
+
+.user-level-5-profile-page .text-white,
+.user-level-5-profile-name {
+  color: #fff8e1 !important;
+  text-shadow: 0 1px 12px rgba(91, 58, 20, 0.2);
+}
+
+.user-level-5-profile-page .text-gray-400,
+.user-level-5-profile-meta {
+  color: #7c4a1d !important;
+}
+
+.user-level-5-profile-page .text-gray-500,
+.user-level-5-profile-meta-muted,
+.user-level-5-profile-xp-label,
+.user-level-5-profile-next-level {
+  color: #8b6a2a !important;
+}
+
+.user-level-5-profile-hero {
+  background:
+    linear-gradient(135deg, rgba(146, 64, 14, 0.66) 0%, rgba(212, 160, 23, 0.46) 54%, rgba(91, 58, 20, 0.52) 100%) !important;
+  border-color: rgba(255, 249, 230, 0.32) !important;
+  box-shadow:
+    0 20px 42px rgba(91, 58, 20, 0.2),
+    0 0 0 1px rgba(255, 251, 235, 0.12) inset !important;
+}
+
+.user-level-5-profile-avatar {
+  border-color: rgba(253, 230, 138, 0.75) !important;
+  box-shadow:
+    0 0 0 4px rgba(146, 64, 14, 0.16),
+    0 0 26px rgba(255, 249, 230, 0.24) !important;
+}
+
+.user-level-5-profile-avatar-fallback {
+  background: linear-gradient(135deg, #92400e 0%, #fbbf24 100%) !important;
+  color: #fffbeb !important;
+}
+
+.user-level-5-profile-icon-soft,
+.user-level-5-profile-icon-muted {
+  color: #fde68a !important;
+}
+
+.user-level-5-profile-level-label {
+  color: #78350f !important;
+}
+
+.user-level-5-profile-progress-track {
+  background: rgba(255, 249, 230, 0.46) !important;
+}
+
+.user-level-5-profile-progress-fill {
+  background: linear-gradient(90deg, #92400e 0%, #fbbf24 72%, #eab308 100%) !important;
+  box-shadow: 0 0 16px rgba(251, 191, 36, 0.26) !important;
+}
+
+.user-level-5-profile-stat-card {
+  background: linear-gradient(180deg, rgba(255, 249, 230, 0.92) 0%, rgba(254, 243, 199, 0.88) 100%) !important;
+  border-color: rgba(212, 160, 23, 0.34) !important;
+  box-shadow:
+    0 14px 30px rgba(91, 58, 20, 0.12),
+    0 0 0 1px rgba(255, 251, 235, 0.26) inset !important;
+}
+
+.user-level-5-profile-stat-value {
+  color: #92400e !important;
+}
+
+.user-level-5-profile-stat-copy {
+  color: #7c4a1d !important;
+}
+
+.user-level-5-profile-stat-icon-sky,
+.user-level-5-profile-stat-icon-grass {
+  color: #d4a017 !important;
+}
+
+.user-level-5-profile-panel {
+  background: linear-gradient(180deg, rgba(255, 249, 230, 0.78) 0%, rgba(254, 243, 199, 0.64) 100%) !important;
+  border-color: rgba(212, 160, 23, 0.3) !important;
+  box-shadow:
+    0 16px 34px rgba(91, 58, 20, 0.12),
+    0 0 0 1px rgba(255, 251, 235, 0.18) inset !important;
+}
+
+.user-level-5-profile-panel-title,
+.user-level-5-profile-panel-title *,
+.user-level-5-profile-panel-text,
+.user-level-5-profile-panel-text * {
+  color: #92400e !important;
+}
+
+.user-level-5-profile-score-row {
+  background: linear-gradient(180deg, rgba(255, 249, 230, 0.64) 0%, rgba(254, 243, 199, 0.52) 100%) !important;
+  border-color: rgba(212, 160, 23, 0.24) !important;
+}
+
+.user-level-5-profile-score,
+.user-level-5-profile-page .user-level-5-profile-score,
+.user-level-5-profile-page .user-level-5-profile-score * {
+  color: #d97706 !important;
+}
+
+.user-level-5-profile-scores-title,
+.user-level-5-profile-scores-title * {
+  color: #78350f !important;
+}
+
+.user-level-5-profile-scores-trophy {
+  color: #eab308 !important;
+}
+
+.user-level-5-profile-score-date {
+  color: #8b6a2a !important;
+}
+
+.user-level-5-profile-page .user-level-5-profile-panel .user-level-5-profile-panel-title,
+.user-level-5-profile-page .user-level-5-profile-panel .user-level-5-profile-panel-title *,
+.user-level-5-profile-page .user-level-5-profile-panel .user-level-5-profile-panel-text,
+.user-level-5-profile-page .user-level-5-profile-panel .user-level-5-profile-panel-text *,
+.user-level-5-profile-page .user-level-5-profile-panel p {
+  color: #78350f !important;
+  text-shadow: none !important;
+}
+
+.user-level-5-profile-medal-row {
+  background:
+    linear-gradient(135deg, rgba(255, 249, 230, 0.42) 0%, rgba(254, 243, 199, 0.34) 100%) !important;
+  border-color: rgba(180, 83, 9, 0.34) !important;
+  box-shadow:
+    0 8px 18px rgba(91, 58, 20, 0.1),
+    0 0 0 1px rgba(255, 251, 235, 0.18) inset !important;
+}
+
+.user-level-5-profile-medal-row:nth-child(even) {
+  background:
+    linear-gradient(135deg, rgba(255, 251, 235, 0.48) 0%, rgba(253, 230, 138, 0.34) 100%) !important;
+}
+
+.user-level-5-profile-medal-icon {
+  background: rgba(254, 243, 199, 0.72) !important;
+  box-shadow: 0 0 0 1px rgba(180, 83, 9, 0.12) inset;
+}
+
+.user-level-5-profile-dialog {
+  background: linear-gradient(180deg, rgba(120, 53, 15, 0.98) 0%, rgba(91, 58, 20, 0.98) 100%) !important;
+  border-color: rgba(255, 249, 230, 0.3) !important;
+  color: #fffbeb !important;
+  box-shadow:
+    0 22px 48px rgba(91, 58, 20, 0.32),
+    0 0 0 1px rgba(255, 249, 230, 0.16) inset !important;
+}
+
+.user-level-5-profile-dialog-title,
+.user-level-5-profile-dialog-title *,
+.user-level-5-profile-dialog label {
+  color: #fffbeb !important;
+}
+
+.user-level-5-profile-dialog-input,
+.user-level-5-profile-edit-input {
+  background: rgba(255, 249, 230, 0.18) !important;
+  border-color: rgba(253, 230, 138, 0.36) !important;
+  color: #fffbeb !important;
+}
+
+.user-level-5-profile-dialog-input::placeholder,
+.user-level-5-profile-edit-input::placeholder {
+  color: rgba(255, 243, 196, 0.72) !important;
+}
+
+.user-level-5-profile-dialog-input:focus,
+.user-level-5-profile-dialog-input:focus-visible,
+.user-level-5-profile-edit-input:focus,
+.user-level-5-profile-edit-input:focus-visible {
+  border-color: rgba(253, 230, 138, 0.88) !important;
+  box-shadow:
+    0 0 0 1px rgba(253, 230, 138, 0.32),
+    0 0 20px rgba(251, 191, 36, 0.18) !important;
+}
+
+.user-level-5-profile-dialog-save {
+  background: linear-gradient(135deg, #fbbf24 0%, #fbbf24 100%) !important;
+  color: #fffbeb !important;
+  box-shadow: 0 12px 24px rgba(120, 53, 15, 0.24) !important;
+}
+
+.user-level-5-profile-dialog-cancel {
+  background: rgba(74, 45, 18, 0.58) !important;
+  border-color: rgba(253, 230, 138, 0.28) !important;
+  color: #fffbeb !important;
 }
 
 .user-level-5-game-surface .online-game-lobby__title {
-  background: linear-gradient(
-    90deg,
-    #fff9e6 0%,
-    #fde68a 22%,
-    #f59e0b 44%,
-    #d4a017 56%,
-    #f59e0b 72%,
-    #fde68a 88%,
-    #fff9e6 100%
-  ) !important;
-  background-size: 200% auto !important;
+  background: linear-gradient(90deg, #92400e 0%, #d4a017 52%, #d97706 100%) !important;
   -webkit-background-clip: text !important;
   background-clip: text !important;
   color: transparent !important;
-  animation: level5-shimmer 3s linear infinite !important;
 }
 
 .user-level-5-game-surface .online-game-lobby__description,
 .user-level-5-game-surface .online-game-lobby__section-title,
 .user-level-5-game-surface .online-game-lobby__separator {
-  color: #fde68a !important;
+  color: #d6bc77 !important;
 }
 
 .user-level-5-game-surface .online-game-lobby__card {
-  background: linear-gradient(180deg, rgba(40, 18, 4, 0.72) 0%, rgba(18, 8, 2, 0.84) 100%) !important;
-  border-color: rgba(251, 191, 36, 0.24) !important;
+  background: linear-gradient(180deg, rgba(255, 249, 230, 0.24) 0%, rgba(254, 243, 199, 0.2) 100%) !important;
+  border-color: rgba(253, 230, 138, 0.16) !important;
   box-shadow:
-    0 14px 28px rgba(0, 0, 0, 0.22),
-    0 0 0 1px rgba(251, 191, 36, 0.07) inset !important;
+    0 14px 28px rgba(91, 58, 20, 0.12),
+    0 0 0 1px rgba(255, 251, 235, 0.08) inset !important;
 }
 
 .user-level-5-game-surface .online-game-lobby__time-option {
-  background: rgba(254, 243, 199, 0.06) !important;
-  border-color: rgba(251, 191, 36, 0.2) !important;
-  color: #fef3c7 !important;
-}
-
-.user-level-5-game-surface .online-game-lobby__time-option:hover {
-  background: rgba(146, 64, 14, 0.38) !important;
+  background: rgba(255, 249, 230, 0.14) !important;
+  border-color: rgba(253, 230, 138, 0.14) !important;
   color: #fffbeb !important;
 }
 
 .user-level-5-game-surface .online-game-lobby__time-option--active {
-  background: linear-gradient(90deg, #92400e 0%, #d97706 50%, #fbbf24 100%) !important;
-  border-color: rgba(253, 230, 138, 0.48) !important;
-  color: #fffbeb !important;
-  box-shadow:
-    0 8px 20px rgba(146, 64, 14, 0.36),
-    0 0 18px rgba(251, 191, 36, 0.22) !important;
+  background: linear-gradient(90deg, rgba(146, 64, 14, 0.9) 0%, rgba(251, 191, 36, 0.9) 100%) !important;
+  border-color: rgba(253, 230, 138, 0.4) !important;
 }
 
 .user-level-5-game-surface .online-game-lobby__create-button {
-  background: linear-gradient(90deg, #78350f 0%, #d97706 50%, #fbbf24 100%) !important;
+  background: linear-gradient(90deg, #d4a017 0%, #f59e0b 100%) !important;
   color: #fffbeb !important;
-  border: 1px solid rgba(251, 191, 36, 0.24) !important;
-  box-shadow:
-    0 12px 26px rgba(146, 64, 14, 0.34),
-    0 0 22px rgba(251, 191, 36, 0.2) !important;
 }
 
 .user-level-5-game-surface .online-game-lobby__input {
-  background: rgba(20, 9, 2, 0.78) !important;
-  border-color: rgba(251, 191, 36, 0.22) !important;
-  color: #fef9ee !important;
+  background: rgba(255, 249, 230, 0.92) !important;
+  border-color: rgba(253, 230, 138, 0.22) !important;
+  color: #4a2d12 !important;
+  -webkit-text-fill-color: #4a2d12 !important;
 }
 
 .user-level-5-game-surface .online-game-lobby__input::placeholder {
-  color: rgba(253, 230, 138, 0.72) !important;
+  color: #a07a37 !important;
+  -webkit-text-fill-color: #a07a37 !important;
 }
 
 .user-level-5-game-surface .online-game-lobby__join-button {
-  background: linear-gradient(180deg, rgba(100, 40, 8, 0.94) 0%, rgba(60, 22, 4, 0.96) 100%) !important;
-  color: #fef3c7 !important;
-  border: 1px solid rgba(251, 191, 36, 0.2) !important;
+  background: linear-gradient(180deg, rgba(91, 58, 20, 0.9) 0%, rgba(107, 66, 24, 0.9) 100%) !important;
+  color: #fffbeb !important;
 }
 
-.user-level-5-tournaments-page,
-.user-level-5-friends-page,
-.user-level-5-profile-page {
-  font-family: "Cinzel", "Garamond", "Times New Roman", serif;
+.user-level-5-detail-panel .online-game-chat__empty,
+.user-level-5-detail-panel .online-game-chat__empty p,
+.user-level-5-history .online-game-history__empty,
+.user-level-5-history .online-game-history__empty p {
+  color: #ffffff !important;
 }
 
-/* Título amigos: shimmer dorado */
-.user-level-5-friends-title {
-  background: linear-gradient(
-    90deg,
-    #fff9e6 0%,
-    #fde68a 20%,
-    #f59e0b 44%,
-    #d4a017 56%,
-    #f59e0b 72%,
-    #fde68a 88%,
-    #fff9e6 100%
-  ) !important;
-  background-size: 200% auto !important;
+.user-level-5-detail-panel .user-level-5-leaderboard-empty,
+.user-level-5-detail-panel .user-level-5-leaderboard-empty p {
+  color: #8b6a2a !important;
+}
+
+.user-level-5-detail-panel .user-level-5-leaderboard-empty-icon {
+  color: #d4a017 !important;
+}
+
+.user-level-5-game-surface .online-game-lobby__title {
+  background: linear-gradient(90deg, #92400e 0%, #d4a017 48%, #7c4a1d 100%) !important;
   -webkit-background-clip: text !important;
   background-clip: text !important;
   color: transparent !important;
-  letter-spacing: 0.04em;
-  font-weight: 900;
-  animation: level5-shimmer 3s linear infinite !important;
+  text-shadow: 0 0 16px rgba(251, 191, 36, 0.16);
 }
 
-.user-level-5-tournaments-title,
-.user-level-5-tournaments-icon {
-  color: var(--level5-text) !important;
+.user-level-5-game-surface .online-game-lobby__description {
+  color: #8b6a2a !important;
 }
 
-.user-level-5-tournaments-icon,
-.user-level-5-tournaments-bracket-icon,
-.user-level-5-friends-empty-icon,
-.user-level-5-friends-loader,
-.user-level-5-tournaments-loader {
-  color: #fbbf24 !important;
-  filter: drop-shadow(0 0 10px rgba(251, 191, 36, 0.46));
+.user-level-5-game-surface .online-game-lobby__section-title,
+.user-level-5-game-surface .online-game-lobby__separator {
+  color: #6b4218 !important;
 }
 
-.user-level-5-tournaments-icon {
-  color: var(--level5-text) !important;
-}
-
-.user-level-5-tournaments-copy,
-.user-level-5-tournaments-bracket,
-.user-level-5-friends-section-title,
-.user-level-5-friends-page .text-gray-400,
-.user-level-5-friends-page .text-gray-500 {
-  color: #fde68a !important;
-}
-
-.user-level-5-tournaments-page .text-purple-300,
-.user-level-5-tournaments-page .text-purple-400,
-.user-level-5-tournaments-page .text-cyan-400,
-.user-level-5-friends-page .text-purple-400,
-.user-level-5-friends-page .text-cyan-400 {
-  color: #fbbf24 !important;
-}
-
-.user-level-5-tournaments-tabs {
-  background: transparent !important;
-  border: 0 !important;
-  box-shadow: none !important;
-  gap: 0.75rem !important;
-  padding: 0 !important;
-}
-
-/* Icono de amigos: gradiente dorado con brillo pulsante */
-.user-level-5-friends-icon-box,
-.user-level-5-friends-page .bg-gradient-to-r.from-purple-600.to-cyan-500,
-.user-level-5-friends-page .bg-gradient-to-br.from-purple-600.to-cyan-500 {
-  background: linear-gradient(135deg, #78350f 0%, #d97706 48%, #fbbf24 72%, #fef3c7 100%) !important;
-  color: #fffbeb !important;
-  border: 1px solid rgba(253, 230, 138, 0.52) !important;
-  box-shadow:
-    0 10px 26px rgba(146, 64, 14, 0.44),
-    0 0 22px rgba(251, 191, 36, 0.3) !important;
-  animation: level5-pulse-glow 2.5s ease-in-out infinite;
-}
-
-.user-level-5-tournaments-tab,
-.user-level-5-tournaments-tab-active {
-  min-width: 112px;
-  border-radius: 8px !important;
-  padding: 0.875rem 1.5rem !important;
-  font-size: 1rem !important;
-}
-
-.user-level-5-tournaments-empty,
-.user-level-5-friends-empty,
-.user-level-5-floating-chat-empty,
-.user-level-5-friends-page .text-center.py-10 {
-  color: #fde68a !important;
-}
-
-.user-level-5-tournaments-empty-icon {
-  color: rgba(251, 191, 36, 0.65) !important;
-}
-
-.user-level-5-tournaments-empty-title,
-.user-level-5-friends-empty-copy,
-.user-level-5-friends-page .text-center.py-10 p {
-  color: #fef3c7 !important;
-  font-size: 1.15rem;
-}
-
-.user-level-5-tournaments-empty-copy,
-.user-level-5-tournaments-empty p:last-child {
-  color: #fde68a !important;
-}
-
-.user-level-5-tournament-card,
-.user-level-5-friends-page .bg-white\/5,
-.user-level-5-profile-page .bg-white\/5 {
+.user-level-5-game-surface .online-game-lobby__card {
   background:
-    linear-gradient(135deg, rgba(80, 32, 8, 0.64) 0%, rgba(22, 10, 4, 0.78) 55%, rgba(100, 40, 10, 0.54) 100%) !important;
-  border-color: rgba(251, 191, 36, 0.28) !important;
+    linear-gradient(180deg, rgba(255, 249, 230, 0.8) 0%, rgba(254, 243, 199, 0.62) 100%) !important;
+  border-color: rgba(255, 249, 230, 0.44) !important;
   box-shadow:
-    inset 0 0 0 1px rgba(254, 243, 199, 0.05),
-    0 14px 32px rgba(0, 0, 0, 0.26) !important;
+    0 14px 28px rgba(91, 58, 20, 0.12),
+    0 0 0 1px rgba(255, 251, 235, 0.18) inset !important;
 }
 
-.user-level-5-tournament-card:hover,
-.user-level-5-friends-page .bg-white\/5:hover {
-  border-color: rgba(253, 230, 138, 0.54) !important;
-  box-shadow:
-    0 16px 36px rgba(0, 0, 0, 0.3),
-    0 0 24px rgba(251, 191, 36, 0.22) !important;
+.user-level-5-game-surface .online-game-lobby__time-option {
+  background: rgba(255, 249, 230, 0.56) !important;
+  border-color: rgba(180, 83, 9, 0.34) !important;
+  color: #6b4218 !important;
 }
 
-.user-level-5-tournament-card-title,
-.user-level-5-tournament-card:hover .user-level-5-tournament-card-title,
-.user-level-5-profile-page h2,
-.user-level-5-profile-page h3,
-.user-level-5-profile-page .font-bold,
-.user-level-5-profile-page .font-semibold {
+.user-level-5-game-surface .online-game-lobby__time-option:hover {
+  background: rgba(254, 243, 199, 0.82) !important;
+  color: #78350f !important;
+}
+
+.user-level-5-game-surface .online-game-lobby__time-option--active {
+  background: linear-gradient(135deg, #d4a017 0%, #fbbf24 100%) !important;
+  border-color: rgba(244, 255, 180, 0.5) !important;
+  color: #fffbeb !important;
+  box-shadow: 0 8px 18px rgba(146, 64, 14, 0.18) !important;
+}
+
+.user-level-5-game-surface .online-game-lobby__create-button {
+  background: linear-gradient(135deg, #92400e 0%, #fbbf24 62%, #eab308 100%) !important;
+  color: #fffbeb !important;
+  border: 1px solid rgba(255, 249, 230, 0.2) !important;
+  box-shadow: 0 12px 24px rgba(146, 64, 14, 0.18) !important;
+}
+
+.user-level-5-game-surface .online-game-lobby__input {
+  background: rgba(255, 249, 230, 0.7) !important;
+  border-color: rgba(180, 83, 9, 0.46) !important;
+  color: #4a2d12 !important;
+  -webkit-text-fill-color: #4a2d12 !important;
+}
+
+.user-level-5-game-surface .online-game-lobby__input::placeholder {
+  color: #a07a37 !important;
+  -webkit-text-fill-color: #a07a37 !important;
+}
+
+.user-level-5-game-surface .online-game-lobby__join-button {
+  background: linear-gradient(135deg, rgba(107, 66, 24, 0.92) 0%, rgba(124, 74, 29, 0.92) 100%) !important;
   color: #fef3c7 !important;
 }
 
-.user-level-5-tournament-elo,
-.user-level-5-tournament-elo svg {
-  color: #fbbf24 !important;
+.user-level-5-game-surface .online-game-lobby__join-button:not(:disabled) {
+  background: linear-gradient(135deg, #92400e 0%, #d4a017 100%) !important;
+  color: #fffbeb !important;
 }
 
-.user-level-5-tournaments-page .bg-blue-500\/20,
-.user-level-5-tournaments-page .bg-green-500\/20,
-.user-level-5-tournaments-page .bg-gray-500\/20 {
-  background: rgba(146, 64, 14, 0.42) !important;
-  color: #fde68a !important;
-  border-color: rgba(251, 191, 36, 0.4) !important;
+.user-level-5-detail-panel .online-game-chat__empty,
+.user-level-5-detail-panel .online-game-chat__empty p,
+.user-level-5-history .online-game-history__empty,
+.user-level-5-history .online-game-history__empty p {
+  color: #8b6a2a !important;
 }
 
-.user-level-5-friends-search,
-.user-level-5-friends-search:focus,
-.user-level-5-friends-search:focus-visible,
-.user-level-5-profile-page input,
-.user-level-5-profile-page textarea {
-  background: rgba(18, 8, 2, 0.74) !important;
-  border-color: rgba(251, 191, 36, 0.38) !important;
-  color: #fef3c7 !important;
-  box-shadow: none !important;
+.user-level-5-game-detail-page .user-level-5-history,
+.user-level-5-game-detail-page .user-level-5-detail-panel {
+  color: #4a2d12 !important;
 }
 
-.user-level-5-friends-search::placeholder,
-.user-level-5-profile-page input::placeholder,
-.user-level-5-profile-page textarea::placeholder {
-  color: #a37c3a !important;
+/* Overrides finales nivel 5: paleta dorada legible */
+.user-level-5-crafty .rounded-full.bg-gradient-to-br.from-purple-600.to-cyan-500,
+.user-level-5-floating-chat .rounded-full.bg-purple-600,
+.user-level-5-floating-chat .rounded-full.bg-purple-700 {
+  background: linear-gradient(135deg, #92400e 0%, #fbbf24 62%, #eab308 100%) !important;
+  color: #fffbeb !important;
 }
 
-/* Panel del chat / Crafty: marrón oscuro con borde dorado animado */
-.user-level-5-crafty .user-level-5-crafty-panel,
-.user-level-5-floating-chat .user-level-5-floating-chat-panel {
-  background: rgba(8, 4, 1, 0.98) !important;
-  border-color: rgba(251, 191, 36, 0.34) !important;
-  box-shadow:
-    0 24px 48px rgba(0, 0, 0, 0.5),
-    0 0 36px rgba(180, 83, 9, 0.24) !important;
-}
-
-.user-level-5-crafty .user-level-5-crafty-header,
-.user-level-5-floating-chat .user-level-5-floating-chat-header {
-  background: linear-gradient(135deg, rgba(120, 53, 15, 0.98), rgba(212, 160, 23, 0.94)) !important;
-  border-color: rgba(253, 230, 138, 0.36) !important;
-}
-
-.user-level-5-crafty .rounded-full.bg-gradient-to-br,
-.user-level-5-crafty .user-level-5-crafty-button,
-.user-level-5-floating-chat .user-level-5-floating-chat-button,
-.user-level-5-floating-chat .user-level-5-floating-chat-send,
-.user-level-5-floating-chat .bg-purple-600,
-.user-level-5-floating-chat .bg-purple-700 {
-  background: linear-gradient(135deg, #78350f 0%, #d97706 50%, #fbbf24 80%, #fef3c7 100%) !important;
-  box-shadow: 0 0 26px rgba(251, 191, 36, 0.52) !important;
-  animation: level5-pulse-glow 3s ease-in-out infinite;
-}
-
-.user-level-5-crafty .user-level-5-crafty-avatar {
+.user-level-5-crafty-avatar {
+  width: 3.1rem !important;
+  height: 3.1rem !important;
+  border-radius: 0 !important;
+  overflow: visible !important;
   background: transparent !important;
   background-image: none !important;
   box-shadow: none !important;
-  border-radius: 0 !important;
-  overflow: visible !important;
-  padding: 0;
+  padding: 0 !important;
 }
 
-.user-level-5-crafty .user-level-5-crafty-avatar-fallback-icon {
-  background: transparent !important;
-  filter: none;
-}
-
-.user-level-5-crafty .user-level-5-crafty-avatar-img {
-  transform: scale(1.72);
-  object-fit: contain;
+.user-level-5-crafty-avatar-img {
+  transform: scale(1.06);
+  transform-origin: center center;
+  object-fit: contain !important;
   mix-blend-mode: normal;
   filter: none;
 }
 
-.user-level-5-crafty .user-level-5-crafty-assistant-message,
-.user-level-5-crafty .bg-white\/5,
-.user-level-5-floating-chat .bg-white\/5,
-.user-level-5-floating-chat .user-level-5-floating-chat-message {
-  background: rgba(50, 22, 6, 0.78) !important;
-  color: #fef3c7 !important;
-  border: 1px solid rgba(251, 191, 36, 0.14);
+.user-level-5-crafty-avatar-fallback-icon {
+  background: transparent !important;
+  filter: none;
+  width: 1.15rem !important;
+  height: 1.15rem !important;
 }
 
-.user-level-5-crafty .user-level-5-crafty-user-message,
-.user-level-5-floating-chat .user-level-5-floating-chat-message-mine {
-  background: linear-gradient(135deg, #78350f, #d97706 60%, #f59e0b 100%) !important;
+.user-level-5-crafty-panel {
+  background: linear-gradient(180deg, rgba(74, 45, 18, 0.98) 0%, rgba(107, 66, 24, 0.98) 100%) !important;
+  border-color: rgba(255, 249, 230, 0.3) !important;
+  box-shadow: 0 22px 44px rgba(91, 58, 20, 0.28) !important;
+}
+
+.user-level-5-crafty-header,
+.user-level-5-floating-chat-header {
+  background: linear-gradient(135deg, rgba(146, 64, 14, 0.96) 0%, rgba(212, 160, 23, 0.9) 54%, rgba(217, 119, 6, 0.88) 100%) !important;
+  border-color: rgba(255, 249, 230, 0.14) !important;
+}
+
+.user-level-5-crafty-assistant-message,
+.user-level-5-floating-chat-message:not(.user-level-5-floating-chat-message-mine) {
+  background: rgba(255, 249, 230, 0.92) !important;
+  color: #5b3a14 !important;
+  border: 1px solid rgba(212, 160, 23, 0.32) !important;
+}
+
+.user-level-5-crafty-user-message,
+.user-level-5-floating-chat-message-mine,
+.user-level-5-crafty-button,
+.user-level-5-floating-chat-button,
+.user-level-5-floating-chat-send {
+  background: linear-gradient(135deg, #92400e 0%, #fbbf24 60%, #d97706 100%) !important;
+  color: #fffbeb !important;
+  box-shadow: 0 14px 28px rgba(120, 53, 15, 0.22) !important;
+}
+
+.user-level-5-crafty-input-wrap,
+.user-level-5-floating-chat-input-wrap {
+  border-color: rgba(255, 249, 230, 0.16) !important;
+}
+
+.user-level-5-crafty-input,
+.user-level-5-floating-chat-input {
+  background: rgba(255, 249, 230, 0.9) !important;
+  border-color: rgba(180, 83, 9, 0.34) !important;
+  color: #4a2d12 !important;
+}
+
+.user-level-5-crafty-input-field,
+.user-level-5-floating-chat-input {
+  color: #4a2d12 !important;
+}
+
+.user-level-5-crafty-input-field::placeholder,
+.user-level-5-floating-chat-input::placeholder {
+  color: #a07a37 !important;
+}
+
+.user-level-5-crafty-send {
+  color: #92400e !important;
+}
+
+.user-level-5-floating-chat-panel {
+  background: linear-gradient(180deg, rgba(74, 45, 18, 0.98) 0%, rgba(107, 66, 24, 0.96) 100%) !important;
+  border-color: rgba(255, 249, 230, 0.24) !important;
+}
+
+.user-level-5-floating-chat-friend-row:hover {
+  background: rgba(255, 249, 230, 0.08) !important;
+}
+
+.user-level-5-floating-chat .text-white\/30,
+.user-level-5-floating-chat .text-white\/40,
+.user-level-5-floating-chat .text-white\/50,
+.user-level-5-floating-chat .text-white\/60,
+.user-level-5-floating-chat .text-white\/90 {
+  color: #fff3c4 !important;
+}
+
+.user-level-5-floating-chat [style*="#a78bfa"] {
+  color: #eab308 !important;
+}
+
+.user-level-5-friends-page,
+.user-level-5-tournaments-page {
+  color: #4a2d12;
+}
+
+.user-level-5-friends-title,
+.user-level-5-tournaments-title {
+  background: none !important;
+  -webkit-background-clip: initial !important;
+  background-clip: initial !important;
+  color: #b45309 !important;
+  text-shadow: 0 0 12px rgba(251, 191, 36, 0.16);
+}
+
+.user-level-5-friends-icon-box {
+  background: linear-gradient(135deg, #92400e 0%, #fbbf24 64%, #d97706 100%) !important;
+  box-shadow: 0 14px 30px rgba(146, 64, 14, 0.18) !important;
+}
+
+.user-level-5-friends-section-title,
+.user-level-5-tournaments-copy,
+.user-level-5-tournaments-bracket,
+.user-level-5-tournaments-bracket-icon,
+.user-level-5-friends-page .text-gray-400,
+.user-level-5-friends-page .text-gray-500,
+.user-level-5-tournaments-page .text-gray-400,
+.user-level-5-tournaments-page .text-gray-500 {
+  color: #7c5a23 !important;
+}
+
+.user-level-5-friends-search {
+  background: rgba(255, 249, 230, 0.88) !important;
+  border-color: rgba(212, 160, 23, 0.34) !important;
+  color: #4a2d12 !important;
+}
+
+.user-level-5-friends-search::placeholder {
+  color: #a07a37 !important;
+}
+
+.user-level-5-friends-row,
+.user-level-5-tournament-card {
+  background: linear-gradient(180deg, rgba(255, 251, 235, 0.94) 0%, rgba(254, 243, 199, 0.9) 100%) !important;
+  border: 1px solid rgba(201, 137, 18, 0.32) !important;
+  box-shadow:
+    0 14px 28px rgba(91, 58, 20, 0.12),
+    0 0 0 1px rgba(255, 251, 235, 0.22) inset !important;
+}
+
+.user-level-5-tournament-card:hover,
+.user-level-5-friends-row:hover {
+  background: linear-gradient(180deg, rgba(255, 251, 235, 0.98) 0%, rgba(255, 249, 230, 0.94) 100%) !important;
+  border-color: rgba(180, 83, 9, 0.42) !important;
+}
+
+.user-level-5-tournament-card-title,
+.user-level-5-friends-page .font-medium,
+.user-level-5-friends-page .text-purple-400 {
+  color: #78350f !important;
+}
+
+.user-level-5-tournament-elo,
+.user-level-5-tournaments-icon {
+  color: #d97706 !important;
+}
+
+.user-level-5-tournaments-tabs {
+  background: rgba(255, 249, 230, 0.72) !important;
+  border: 1px solid rgba(201, 137, 18, 0.22) !important;
+}
+
+.user-level-5-tournaments-tab {
+  color: #8b6a2a !important;
+}
+
+.user-level-5-tournaments-tab:hover {
+  color: #78350f !important;
+}
+
+.user-level-5-tournaments-tab-active {
+  background: linear-gradient(135deg, #92400e 0%, #fbbf24 62%, #eab308 100%) !important;
   color: #fffbeb !important;
 }
 
-.user-level-5-crafty .user-level-5-crafty-input-wrap,
-.user-level-5-floating-chat .user-level-5-floating-chat-input-wrap {
-  border-color: rgba(251, 191, 36, 0.22) !important;
+.user-level-5-tournaments-empty,
+.user-level-5-tournaments-empty-title,
+.user-level-5-tournaments-empty-icon {
+  color: #7c5a23 !important;
 }
 
-.user-level-5-crafty .user-level-5-crafty-input,
-.user-level-5-floating-chat .user-level-5-floating-chat-input {
-  background: rgba(18, 8, 2, 0.88) !important;
-  border-color: rgba(251, 191, 36, 0.3) !important;
+.user-level-5-game-detail-page h1.text-white,
+.user-level-5-game-detail-page .text-white.font-medium {
+  color: #78350f !important;
 }
 
-.user-level-5-floating-chat .user-level-5-floating-chat-input:focus,
-.user-level-5-floating-chat .user-level-5-floating-chat-input:focus-visible {
-  border-color: rgba(253, 230, 138, 0.62) !important;
-  box-shadow: 0 0 0 1px rgba(253, 230, 138, 0.22), 0 0 16px rgba(251, 191, 36, 0.2) !important;
+.user-level-5-game-detail-page .bg-white\/10.text-white.border-white\/20 {
+  background: rgba(255, 249, 230, 0.56) !important;
+  border-color: rgba(212, 160, 23, 0.34) !important;
+  color: #6b4218 !important;
 }
 
-.user-level-5-crafty .user-level-5-crafty-input-field,
-.user-level-5-floating-chat .user-level-5-floating-chat-input {
+.user-level-5-game-detail-page .bg-purple-500\/20.text-purple-300.border-purple-500\/30 {
+  background: rgba(254, 243, 199, 0.28) !important;
+  border-color: rgba(217, 119, 6, 0.28) !important;
+  color: #d97706 !important;
+}
+
+.user-level-5-game-detail-action {
+  background: rgba(255, 249, 230, 0.92) !important;
+  color: #78350f !important;
+}
+
+.user-level-5-game-detail-action-favorite {
+  background: rgba(250, 224, 120, 0.26) !important;
+  color: #b7791f !important;
+}
+
+.user-level-5-game-detail-action-share {
+  background: rgba(254, 243, 199, 0.34) !important;
+  color: #d97706 !important;
+}
+
+.user-level-5-game-launch {
+  background: linear-gradient(135deg, #78350f 0%, #fbbf24 62%, #92400e 100%) !important;
+  border: 1px solid rgba(255, 249, 230, 0.24) !important;
+  color: #fffbeb !important;
+  box-shadow: 0 16px 34px rgba(120, 53, 15, 0.24) !important;
+}
+
+.user-level-5-profile-premium-card {
+  background: linear-gradient(135deg, rgba(255, 244, 179, 0.9) 0%, rgba(254, 243, 199, 0.88) 52%, rgba(253, 230, 138, 0.9) 100%) !important;
+  border-color: rgba(229, 193, 74, 0.42) !important;
+  box-shadow:
+    0 18px 36px rgba(105, 92, 19, 0.12),
+    0 0 0 1px rgba(255, 250, 205, 0.28) inset !important;
+}
+
+.user-level-5-profile-premium-card .text-white,
+.user-level-5-profile-premium-card .text-gray-300,
+.user-level-5-profile-premium-card .text-gray-400,
+.user-level-5-profile-premium-card .text-gray-500 {
+  color: #5b3a14 !important;
+}
+
+.user-level-5-profile-premium-card .text-yellow-400,
+.user-level-5-profile-premium-card .text-orange-400 {
+  color: #c58b10 !important;
+}
+
+.user-level-5-profile-premium-card button.bg-gradient-to-r {
+  background: linear-gradient(135deg, #eab308 0%, #facc15 100%) !important;
+  color: #5b3a14 !important;
+}
+
+.user-level-5-game-surface {
+  background:
+    linear-gradient(180deg, rgba(74, 45, 18, 0.94) 0%, rgba(91, 58, 20, 0.96) 100%) !important;
+  border-color: rgba(253, 230, 138, 0.24) !important;
+  box-shadow:
+    0 18px 40px rgba(91, 58, 20, 0.18),
+    0 0 0 1px rgba(255, 249, 230, 0.08) inset !important;
+}
+
+.user-level-5-chess .bg-purple-500\/10,
+.user-level-5-chess .border-purple-500\/30 {
+  background: rgba(254, 243, 199, 0.18) !important;
+  border-color: rgba(217, 119, 6, 0.28) !important;
+}
+
+.user-level-5-chess .text-cyan-400,
+.user-level-5-chess .text-purple-400 {
+  color: #fcd34d !important;
+}
+
+.user-level-5-chess .text-gray-300,
+.user-level-5-chess-copy {
   color: #fef3c7 !important;
 }
 
-.user-level-5-crafty .user-level-5-crafty-input-field::placeholder,
-.user-level-5-floating-chat .user-level-5-floating-chat-input::placeholder {
-  color: #a37c3a !important;
+.user-level-5-chess .text-gray-400,
+.user-level-5-chess .text-gray-200 {
+  color: #d6bc77 !important;
 }
 
-.user-level-5-crafty .user-level-5-crafty-send,
-.user-level-5-floating-chat .user-level-5-floating-chat-send svg,
-.user-level-5-floating-chat .user-level-5-floating-chat-friend-row [style*="#a78bfa"] {
-  color: #fbbf24 !important;
+.user-level-5-chess .text-white,
+.user-level-5-chess .font-semibold {
+  color: #fffbeb !important;
 }
 
-.user-level-5-floating-chat .user-level-5-floating-chat-friend-row:hover {
-  background: rgba(180, 83, 9, 0.24) !important;
+.user-level-5-chess .bg-black\/70 {
+  background: rgba(91, 58, 20, 0.78) !important;
 }
 
-.user-level-5-profile-page .from-yellow-900\/20,
-.user-level-5-profile-page .to-purple-900\/20,
-.user-level-5-profile-page .from-yellow-500,
-.user-level-5-profile-page .to-orange-500,
-.user-level-5-profile-page .from-purple-600,
-.user-level-5-profile-page .to-cyan-500,
-.user-level-5-profile-page .bg-cyan-500\/80 {
-  background-image: linear-gradient(135deg, #92400e 0%, #d97706 50%, #fbbf24 100%) !important;
-  background-color: transparent !important;
+.user-level-5-chess-pill {
+  background: rgba(255, 249, 230, 0.14) !important;
+  border-color: rgba(253, 230, 138, 0.26) !important;
+  color: #fef3c7 !important;
 }
 
-.user-level-5-profile-page .text-yellow-400,
-.user-level-5-profile-page .text-cyan-400,
-.user-level-5-profile-page .text-purple-400,
-.user-level-5-profile-page .text-orange-400,
-.user-level-5-profile-page .text-red-400 {
-  color: #fbbf24 !important;
+.user-level-5-chess-finish {
+  background: linear-gradient(135deg, rgba(146, 64, 14, 0.42) 0%, rgba(217, 119, 6, 0.34) 100%) !important;
+  border: 1px solid rgba(253, 230, 138, 0.22) !important;
 }
 
-.user-level-5-profile-page .border-yellow-500\/20,
-.user-level-5-profile-page .border-white\/10,
-.user-level-5-profile-page .border-white\/20 {
-  border-color: rgba(251, 191, 36, 0.28) !important;
-}
-
-.user-level-5-profile-page button:not(.user-level-5-profile-action-button):not(.user-level-5-profile-dialog-cancel) {
-  color: #fef3c7;
-}
-
-.user-level-5-profile-page .user-level-5-profile-premium-card {
-  background:
-    radial-gradient(ellipse at 52% 42%, rgba(251, 191, 36, 0.36) 0%, rgba(212, 160, 23, 0.2) 30%, transparent 60%),
-    radial-gradient(circle at 85% 12%, rgba(245, 158, 11, 0.22) 0%, transparent 38%),
-    linear-gradient(135deg, rgba(120, 53, 15, 0.86) 0%, rgba(24, 12, 4, 0.92) 55%, rgba(146, 64, 14, 0.78) 100%) !important;
-  border-color: rgba(251, 191, 36, 0.38) !important;
+.user-level-5-chess-board {
+  border-color: rgba(253, 230, 138, 0.28) !important;
   box-shadow:
-    inset 0 1px 0 rgba(254, 243, 199, 0.14),
-    inset 0 0 60px rgba(212, 160, 23, 0.12),
-    0 20px 40px rgba(0, 0, 0, 0.3),
-    0 0 36px rgba(251, 191, 36, 0.22) !important;
+    0 20px 40px rgba(8, 22, 12, 0.34),
+    0 0 0 1px rgba(255, 249, 230, 0.08) inset !important;
 }
 
-.user-level-5-profile-page .user-level-5-profile-premium-card h3,
-.user-level-5-profile-page .user-level-5-profile-premium-card .text-white {
-  color: #fff9e6 !important;
-  text-shadow: 0 0 8px rgba(253, 230, 138, 0.24);
+.user-level-5-chess-outline-button {
+  background: rgba(255, 249, 230, 0.1) !important;
+  border-color: rgba(253, 230, 138, 0.3) !important;
+  color: #fef3c7 !important;
 }
 
-.user-level-5-profile-page .user-level-5-profile-premium-card .text-gray-300,
-.user-level-5-profile-page .user-level-5-profile-premium-card .text-gray-400,
-.user-level-5-profile-page .user-level-5-profile-premium-card .text-gray-500 {
+.user-level-5-chess-outline-button:hover {
+  background: rgba(255, 249, 230, 0.18) !important;
+}
+
+.user-level-5-chess-secondary-button {
+  background: linear-gradient(135deg, rgba(91, 58, 20, 0.96) 0%, rgba(74, 45, 18, 0.96) 100%) !important;
+  color: #fef3c7 !important;
+  border: 1px solid rgba(253, 230, 138, 0.18) !important;
+}
+
+.user-level-5-chess-primary-button {
+  background: linear-gradient(135deg, #92400e 0%, #fbbf24 56%, #d97706 100%) !important;
+  color: #fffbeb !important;
+  border: 0 !important;
+  box-shadow: 0 12px 24px rgba(120, 53, 15, 0.22) !important;
+}
+
+.user-level-5-chess-dialog {
+  background: linear-gradient(180deg, rgba(91, 58, 20, 0.98) 0%, rgba(74, 45, 18, 0.98) 100%) !important;
+  border-color: rgba(253, 230, 138, 0.24) !important;
+  color: #fffbeb !important;
+}
+
+.user-level-5-chess-cancel {
+  background: rgba(255, 249, 230, 0.08) !important;
+  border-color: rgba(253, 230, 138, 0.22) !important;
+  color: #fef3c7 !important;
+}
+
+.user-level-5-chess-tabs {
+  background: rgba(255, 249, 230, 0.08) !important;
+  border: 1px solid rgba(253, 230, 138, 0.18) !important;
+}
+
+.user-level-5-chess .data-\[state\=active\]\:bg-background[data-state="active"],
+.user-level-5-chess [data-state="active"] {
+  color: #78350f !important;
+}
+
+.user-level-5-game-surface .online-game-lobby__card {
+  background:
+    linear-gradient(180deg, rgba(255, 249, 230, 0.72) 0%, rgba(254, 243, 199, 0.56) 100%) !important;
+  border-color: rgba(253, 230, 138, 0.4) !important;
+}
+
+.user-level-5-game-surface .online-game-lobby__description,
+.user-level-5-game-surface .online-game-lobby__section-title,
+.user-level-5-game-surface .online-game-lobby__separator,
+.user-level-5-game-surface .online-game-lobby__card p,
+.user-level-5-game-surface .online-game-lobby__card span {
+  color: #7c4a1d !important;
+}
+
+.user-level-5-game-surface .online-game-lobby__card h3,
+.user-level-5-game-surface .online-game-lobby__card h3.text-sm.font-semibold {
+  color: #92400e !important;
+}
+
+.user-level-5-game-surface .online-game-lobby__card .lucide-bot {
+  color: #92400e !important;
+}
+
+.user-level-5-chess .online-game-lobby__card h3,
+.user-level-5-chess .online-game-lobby__card h3.text-sm.font-semibold,
+.user-level-5-chess .online-game-lobby__card .lucide-bot {
+  color: #92400e !important;
+}
+
+.user-level-5-game-surface .online-game-lobby__time-option {
+  background: rgba(255, 249, 230, 0.74) !important;
+  border-color: rgba(212, 160, 23, 0.3) !important;
+  color: #8b5a21 !important;
+}
+
+.user-level-5-game-surface .online-game-lobby__time-option:hover {
+  color: #6b4218 !important;
+  border-color: rgba(146, 64, 14, 0.4) !important;
+}
+
+.user-level-5-game-surface .online-game-lobby__time-option--active {
+  background: linear-gradient(135deg, #92400e 0%, #fbbf24 58%, #d97706 100%) !important;
+  color: #fffbeb !important;
+  border-color: rgba(217, 119, 6, 0.38) !important;
+  box-shadow:
+    0 8px 18px rgba(146, 64, 14, 0.18),
+    0 0 0 1px rgba(251, 191, 36, 0.16) inset !important;
+}
+
+.user-level-5-game-surface .online-game-lobby__create-button,
+.user-level-5-game-surface .online-game-lobby__join-button:not(:disabled) {
+  background: linear-gradient(135deg, #92400e 0%, #fbbf24 58%, #d97706 100%) !important;
+  color: #fffbeb !important;
+}
+
+.user-level-5-game-surface .online-game-lobby__join-button {
+  background: linear-gradient(135deg, rgba(107, 66, 24, 0.96) 0%, rgba(91, 58, 20, 0.96) 100%) !important;
+  color: #fef3c7 !important;
+}
+
+.user-level-5-game-surface .online-game-lobby__card .text-purple-400,
+.user-level-5-game-surface .online-game-lobby__card .text-purple-300,
+.user-level-5-game-surface .online-game-lobby__card .text-cyan-400,
+.user-level-5-game-surface .online-game-lobby__card .text-cyan-300,
+.user-level-5-game-surface .online-game-lobby__card [class*="text-purple"],
+.user-level-5-game-surface .online-game-lobby__card [class*="text-cyan"] {
+  color: #6b4218 !important;
+}
+
+.user-level-5-game-surface .online-game-lobby__card [class*="border-purple"],
+.user-level-5-game-surface .online-game-lobby__card [class*="border-cyan"] {
+  border-color: rgba(146, 64, 14, 0.34) !important;
+}
+
+.user-level-5-game-surface .online-game-lobby__card [class*="ring-purple"],
+.user-level-5-game-surface .online-game-lobby__card [class*="ring-cyan"] {
+  --tw-ring-color: rgba(146, 64, 14, 0.26) !important;
+}
+
+.user-level-5-chess .text-purple-500,
+.user-level-5-chess .text-purple-400,
+.user-level-5-chess .text-purple-300,
+.user-level-5-chess .text-cyan-500,
+.user-level-5-chess .text-cyan-400,
+.user-level-5-chess .text-cyan-300 {
+  color: #6b4218 !important;
+}
+
+.user-level-5-chess [class*="border-purple"],
+.user-level-5-chess [class*="border-cyan"] {
+  border-color: rgba(146, 64, 14, 0.36) !important;
+}
+
+.user-level-5-chess [class*="bg-purple"],
+.user-level-5-chess [class*="bg-cyan"] {
+  background: rgba(254, 243, 199, 0.44) !important;
+}
+
+.user-level-5-game-surface .online-game-lobby__card button {
+  color: #6b4218 !important;
+}
+
+.user-level-5-game-surface .online-game-lobby__card .text-sm.font-bold,
+.user-level-5-game-surface .online-game-lobby__card .text-\[11px\],
+.user-level-5-game-surface .online-game-lobby__card .relative.flex.flex-col.items-center span,
+.user-level-5-game-surface .online-game-lobby__card button span {
+  color: #6b4218 !important;
+}
+
+.user-level-5-game-surface .online-game-lobby__card .relative.flex.flex-col.items-center .text-\[11px\] {
+  color: #7c4a1d !important;
+}
+
+.user-level-5-game-surface .online-game-lobby__card .grid.grid-cols-2.gap-2 button:not([style*="color: rgb(255, 255, 255)"]):not([style*="color:#fff"]):not([style*="color: #fff"]) {
+  color: #6b4218 !important;
+}
+
+.user-level-5-game-surface .online-game-lobby__card .relative.flex.flex-col.items-center[style*="color: rgb(255, 255, 255)"] span,
+.user-level-5-game-surface .online-game-lobby__card .relative.flex.flex-col.items-center[style*="color:#fff"] span,
+.user-level-5-game-surface .online-game-lobby__card .relative.flex.flex-col.items-center[style*="color: #fff"] span {
+  color: #ffffff !important;
+}
+
+.user-level-5-game-surface .online-game-lobby__card button[class*="time-option--active"],
+.user-level-5-game-surface .online-game-lobby__card .online-game-lobby__time-option--active,
+.user-level-5-game-surface .online-game-lobby__card .online-game-lobby__create-button,
+.user-level-5-game-surface .online-game-lobby__card .online-game-lobby__join-button:not(:disabled) {
+  color: #fffbeb !important;
+}
+
+.user-level-5-chess .text-white\/80,
+.user-level-5-chess .text-white\/70,
+.user-level-5-chess .text-white\/60 {
   color: #fde68a !important;
 }
 
-.user-level-5-profile-page .user-level-5-profile-premium-card .text-yellow-400,
-.user-level-5-profile-page .user-level-5-profile-premium-card .text-orange-400 {
-  color: #fbbf24 !important;
-  text-shadow: 0 0 10px rgba(251, 191, 36, 0.36);
+.user-level-5-chess .ring-yellow-400,
+.user-level-5-chess .ring-red-500 {
+  --tw-ring-color: rgba(217, 119, 6, 0.58) !important;
 }
 
-.user-level-5-profile-page .user-level-5-profile-premium-button {
-  background: linear-gradient(90deg, #92400e 0%, #d97706 50%, #fbbf24 100%) !important;
+.user-level-5-chess .border-green-500\/60,
+.user-level-5-chess .ring-green-500\/30 {
+  border-color: rgba(146, 64, 14, 0.42) !important;
+  --tw-ring-color: rgba(146, 64, 14, 0.24) !important;
+}
+
+.user-level-5-chess button[class*="border-green"],
+.user-level-5-chess [class*="border-green-500"] {
+  border-color: rgba(146, 64, 14, 0.42) !important;
+}
+
+.user-level-5-chess [style*="#7c3aed"],
+.user-level-5-chess [style*="#8b5cf6"],
+.user-level-5-chess [style*="#06b6d4"],
+.user-level-5-chess [style*="#3b82f6"],
+.user-level-5-chess [style*="#4f46e5"] {
+  color: #6b4218 !important;
+}
+
+.user-level-5-game-surface .online-game-lobby__card svg,
+.user-level-5-game-surface .online-game-lobby__card .lucide-swords,
+.user-level-5-game-surface .online-game-lobby__card .lucide-trophy,
+.user-level-5-game-surface .online-game-lobby__card .lucide-bot,
+.user-level-5-game-surface .online-game-lobby__card .lucide-briefcase {
+  color: #8b6a2a !important;
+}
+
+.user-level-5-game-surface .online-game-lobby__card .online-game-lobby__create-button svg,
+.user-level-5-game-surface .online-game-lobby__card .online-game-lobby__join-button svg {
   color: #fffbeb !important;
-  box-shadow:
-    0 10px 22px rgba(146, 64, 14, 0.4),
-    0 0 18px rgba(251, 191, 36, 0.28) !important;
+}
+
+.user-level-5-chess .online-game-lobby__card .border-white\/10 {
+  border-color: rgba(212, 160, 23, 0.28) !important;
 }

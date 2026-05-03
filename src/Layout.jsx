@@ -39,6 +39,17 @@ export default function Layout({ children }) {
     return saved ? saved === "dark" : true;
   });
 
+
+
+
+  const [useLevelTheme, setUseLevelTheme] = useState(() => {
+  const saved = localStorage.getItem("playcraft-level-theme");
+  return saved ? saved === "true" : true;
+});
+
+
+
+
   React.useEffect(() => {
     if (isDark) {
       document.documentElement.classList.add("dark");
@@ -49,6 +60,17 @@ export default function Layout({ children }) {
     }
     localStorage.setItem("playcraft-theme", isDark ? "dark" : "light");
   }, [isDark]);
+
+
+
+
+  React.useEffect(() => {
+  localStorage.setItem("playcraft-level-theme", String(useLevelTheme));
+}, [useLevelTheme]);
+
+
+
+
 
   const navItems = [
     { name: "Inicio",   path: "/",            icon: Home },
@@ -62,11 +84,11 @@ export default function Layout({ children }) {
     location.pathname === "/upload-game";
   const isRegularUser = user && user.role !== "admin" && user.role !== "empresa";
   const userLevel = isRegularUser ? getLevelFromXP(user.xp ?? 0).level : null;
-  const isLevel1User = userLevel === 1;
-  const isLevel2User = userLevel === 2;
-  const isLevel3User = userLevel === 3;
-  const isLevel4User = userLevel === 4;
-  const isLevel5User = userLevel === 5;
+ const isLevel1User = useLevelTheme && userLevel === 1;
+const isLevel2User = useLevelTheme && userLevel === 2;
+const isLevel3User = useLevelTheme && userLevel === 3;
+const isLevel4User = useLevelTheme && userLevel === 4;
+const isLevel5User = useLevelTheme && userLevel === 5;
 
   if (user) {
     if (user.role !== "admin" && user.role !== "empresa") {
@@ -128,7 +150,7 @@ export default function Layout({ children }) {
   );
 
   return (
-    <div className={`min-h-screen ${isDark ? "bg-[#0a0a0f] text-white" : "bg-[#f0f1f8] text-gray-900"} ${!isRestrictedArea && isLevel1User ? "user-screen-background" : ""} ${!isRestrictedArea && isLevel2User ? "user-screen-background user-screen-background-level-2" : ""} ${!isRestrictedArea && isLevel3User ? "user-screen-background user-screen-background-level-3" : ""} ${!isRestrictedArea && isLevel4User ? "user-screen-background user-screen-background-level-4" : ""} ${!isRestrictedArea && isLevel5User ? "user-screen-background user-screen-background-level-5" : ""} ${isLevel1User ? "user-level-1-shell" : ""} ${isLevel2User ? "user-level-2-shell" : ""} ${!isRestrictedArea && isLevel3User ? "user-level-3-shell" : ""}`}>
+    <div className={`min-h-screen ${isDark ? "bg-[#0a0a0f] text-white" : "bg-[#f0f1f8] text-gray-900"} ${!isRestrictedArea && isLevel1User ? "user-screen-background" : ""} ${!isRestrictedArea && isLevel2User ? "user-screen-background user-screen-background-level-2" : ""} ${!isRestrictedArea && isLevel3User ? "user-screen-background user-screen-background-level-3" : ""} ${!isRestrictedArea && isLevel4User ? "user-screen-background user-screen-background-level-4" : ""} ${!isRestrictedArea && isLevel5User ? "user-screen-background user-screen-background-level-5" : ""} ${isLevel1User ? "user-level-1-shell" : ""} ${isLevel2User ? "user-level-2-shell" : ""} ${!isRestrictedArea && isLevel3User ? "user-level-3-shell" : ""} ${!isRestrictedArea && isLevel4User ? "user-level-4-shell" : ""} ${!isRestrictedArea && isLevel5User ? "user-level-5-shell" : ""}`}>
       <style>{`
         :root {
           --background: 0 0% 4%;
@@ -225,6 +247,21 @@ export default function Layout({ children }) {
           <NavLinks />
 
           <div className="flex items-center gap-3">
+            <Button
+  variant="ghost"
+  size="icon"
+  onClick={() => setUseLevelTheme(!useLevelTheme)}
+  className={
+    useLevelTheme
+      ? "text-purple-400 hover:text-white hover:bg-purple-500/10"
+      : isDark
+        ? "text-gray-400 hover:text-white hover:bg-white/5"
+        : "text-gray-500 hover:text-gray-900 hover:bg-gray-100"
+  }
+  title={useLevelTheme ? "Desactivar estilos de nivel" : "Activar estilos de nivel"}
+>
+  <Trophy className="w-4 h-4" />
+</Button>
             <Button
               variant="ghost"
               size="icon"
