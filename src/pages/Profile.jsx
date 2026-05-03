@@ -544,12 +544,12 @@ export default function Profile() {
               {earnedMedals.map((medal) => {
                 const isUrl = /^https?:\/\/|^\/|^data:/.test(medal.icon) || /\.(png|svg|jpg|webp|gif)$/i.test(medal.icon);
                 return (
-                  <div key={medal.id} className={`flex items-center gap-3 p-3 rounded-lg ${isLevel2User ? "user-level-2-profile-medal-row" : ""}`} style={{ backgroundColor: medal.color + '11', border: `1px solid ${medal.color}33` }}>
-                    <div className={`w-10 h-10 rounded-full flex items-center justify-center flex-shrink-0 text-xl ${isLevel2User ? "user-level-2-profile-medal-icon" : ""}`} style={{ backgroundColor: medal.color + '22' }}>
+                  <div key={medal.id} className={`flex items-center gap-3 p-3 rounded-lg ${isLevel2User ? "user-level-2-profile-medal-row" : ""} ${isLevel3User ? "user-level-3-profile-medal-row" : ""} ${isLevel4User ? "user-level-4-profile-medal-row" : ""} ${isLevel5User ? "user-level-5-profile-medal-row" : ""}`} style={{ backgroundColor: medal.color + '11', border: `1px solid ${medal.color}33` }}>
+                    <div className={`w-10 h-10 rounded-full flex items-center justify-center flex-shrink-0 text-xl ${isLevel2User ? "user-level-2-profile-medal-icon" : ""} ${isLevel3User ? "user-level-3-profile-medal-icon" : ""} ${isLevel4User ? "user-level-4-profile-medal-icon" : ""} ${isLevel5User ? "user-level-5-profile-medal-icon" : ""} `}  style={{ backgroundColor: medal.color + '22' }}>
                       {isUrl ? <img src={medal.icon} alt="" className="w-7 h-7 object-contain" /> : medal.icon}
                     </div>
                     <div className="min-w-0">
-                      <p className={`font-semibold text-sm text-white ${isLevel2User ? "user-level-2-profile-panel-text" : ""} ${isLevel3User ? "user-level-3-profile-panel-text" : ""}`}>{medal.name}</p>
+                      <p className={`font-semibold text-sm text-white ${isLevel2User ? "user-level-2-profile-panel-text" : ""} ${isLevel3User ? "user-level-3-profile-panel-text" : ""} ${isLevel4User ? "user-level-4-profile-panel-text" : ""} ${isLevel5User ? "user-level-5-profile-panel-text" : ""}`}>{medal.name}</p>
                       <p className={`text-xs text-gray-400 truncate ${isLevel3User ? "user-level-3-profile-panel-copy" : ""}`}>{medal.description}</p>
                     </div>
                   </div>

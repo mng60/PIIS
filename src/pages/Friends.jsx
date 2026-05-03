@@ -261,7 +261,7 @@ export default function Friends() {
 
   function UserRow({ u, inSearch = false }) {
     return (
-      <div className={`flex items-center gap-3 p-3 rounded-xl bg-white/5 hover:bg-white/8 transition-colors ${isLevel2User ? "user-level-2-friends-row" : ""}`}>
+      <div className={`flex items-center gap-3 p-3 rounded-xl bg-white/5 hover:bg-white/8 transition-colors ${isLevel2User ? "user-level-2-friends-row" : ""}  ${isLevel3User ? "user-level-3-friends-row" : ""}  ${isLevel4User ? "user-level-4-friends-row" : ""}  ${isLevel5User ? "user-level-5-friends-row" : ""}`}>
         <button className="flex-shrink-0" onClick={() => navigate(`/profile/${encodeURIComponent(u.email)}`)}>
           <Avatar url={u.avatar_url} name={u.full_name} />
         </button>
@@ -284,7 +284,7 @@ export default function Friends() {
         <div className={`p-2 rounded-xl bg-gradient-to-br from-purple-600 to-cyan-500 ${isLevel1User ? "user-level-1-friends-icon-box" : ""} ${isLevel2User ? "user-level-2-friends-icon-box" : ""} ${isLevel3User ? "user-level-3-friends-icon-box" : ""} ${isLevel4User ? "user-level-4-friends-icon-box" : ""} ${isLevel5User ? "user-level-5-friends-icon-box" : ""}`}>
           <Users className="w-5 h-5 text-white" />
         </div>
-        <h1 className={`text-2xl font-bold ${isLevel1User ? "user-level-1-friends-title" : ""} ${isLevel2User ? "user-level-2-section-heading" : "bg-gradient-to-r from-purple-400 to-cyan-400 bg-clip-text text-transparent"} ${isLevel2User ? "user-level-2-friends-title" : ""} ${isLevel3User ? "user-level-3-section-heading" : "bg-gradient-to-r from-purple-400 to-cyan-400 bg-clip-text text-transparent"} ${isLevel3User ? "user-level-3-friends-title" : ""} ${isLevel4User ? "user-level-4-section-heading" : "bg-gradient-to-r from-purple-400 to-cyan-400 bg-clip-text text-transparent"} ${isLevel4User ? "user-level-4-friends-title" : ""} ${isLevel5User ? "user-level-5-section-heading" : "bg-gradient-to-r from-purple-400 to-cyan-400 bg-clip-text text-transparent"} ${isLevel5User ? "user-level-5-friends-title" : ""}`}>
+        <h1 className={`text-2xl font-bold ${isLevel1User ? "user-level-1-friends-title" : ""} ${isLevel2User ? "user-level-2-section-heading" : "bg-gradient-to-r from-purple-400 to-cyan-400 bg-clip-text text-transparent"} ${isLevel2User ? "user-level-2-friends-title" : ""} ${isLevel3User ? "user-level-3-section-heading user-level-3-friends-title" : "bg-gradient-to-r from-purple-400 to-cyan-400 bg-clip-text text-transparent"} ${isLevel4User ? "user-level-4-section-heading user-level-4-friends-title" : "bg-gradient-to-r from-purple-400 to-cyan-400 bg-clip-text text-transparent"} ${isLevel5User ? "user-level-5-section-heading user-level-5-friends-title" : "bg-gradient-to-r from-purple-400 to-cyan-400 bg-clip-text text-transparent"}`}>
           Amigos
         </h1>
       </div>
