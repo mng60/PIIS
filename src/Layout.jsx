@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useMemo, useState } from "react";
 import { Link, useLocation } from "react-router-dom";
 import { useAuth } from "@/lib/AuthContext";
 import {
@@ -48,19 +48,13 @@ export default function Layout({ children }) {
     localStorage.setItem("playcraft-theme", isDark ? "dark" : "light");
   }, [isDark]);
 
-  const navItems = [
-    { name: "Inicio", path: "/", icon: Home },
-    { name: "Juegos", path: "/games", icon: Gamepad2 },
-    { name: "Torneos", path: "/tournaments", icon: Trophy },
-  ];
-
   const isRestrictedArea =
     location.pathname === "/admin" ||
     location.pathname === "/company-dashboard" ||
     location.pathname === "/upload-game";
 
   const isRegularUser =
-    user && user.role !== "admin" && user.role !== "empresa";
+    Boolean(user) && user.role !== "admin" && user.role !== "empresa";
 
   const userLevel = isRegularUser ? getLevelFromXP(user.xp ?? 0).level : null;
 
@@ -68,25 +62,37 @@ export default function Layout({ children }) {
   const isLevel2User = userLevel === 2;
   const isLevel3User = userLevel === 3;
   const isLevel4User = userLevel === 4;
+  const isLevelThemedUser = isLevel1User || isLevel2User || isLevel3User || isLevel4User;
+  const levelClassPrefix = isLevelThemedUser ? `user-level-${userLevel}` : "";
 
-  if (user) {
-    if (user.role !== "admin" && user.role !== "empresa") {
-      navItems.push({ name: "Favoritos", path: "/favorites", icon: Heart });
-      navItems.push({ name: "Amigos", path: "/friends", icon: Users });
+  const navItems = useMemo(() => {
+    const items = [
+      { name: "Inicio", path: "/", icon: Home },
+      { name: "Juegos", path: "/games", icon: Gamepad2 },
+      { name: "Torneos", path: "/tournaments", icon: Trophy },
+    ];
+
+    if (user) {
+      if (user.role !== "admin" && user.role !== "empresa") {
+        items.push({ name: "Favoritos", path: "/favorites", icon: Heart });
+        items.push({ name: "Amigos", path: "/friends", icon: Users });
+      }
+
+      items.push({ name: "Perfil", path: "/profile", icon: User });
+
+      if (user.role === "admin") {
+        items.push({ name: "Admin", path: "/admin", icon: Shield });
+      } else if (user.role === "empresa") {
+        items.push({
+          name: "Mi Empresa",
+          path: "/company-dashboard",
+          icon: Settings,
+        });
+      }
     }
 
-    navItems.push({ name: "Perfil", path: "/profile", icon: User });
-
-    if (user.role === "admin") {
-      navItems.push({ name: "Admin", path: "/admin", icon: Shield });
-    } else if (user.role === "empresa") {
-      navItems.push({
-        name: "Mi Empresa",
-        path: "/company-dashboard",
-        icon: Settings,
-      });
-    }
-  }
+    return items;
+  }, [user]);
 
   const getNavActiveClass = () => {
     if (isLevel1User) return "user-level-1-nav-active";
@@ -125,6 +131,30 @@ export default function Layout({ children }) {
     return isDark ? "text-gray-400" : "text-gray-600";
   };
 
+  const getRootThemeClasses = () => {
+    if (isRestrictedArea) return "";
+
+    if (isLevel1User) return "user-screen-background user-level-1-shell";
+    if (isLevel2User) return "user-screen-background user-screen-background-level-2 user-level-2-shell";
+    if (isLevel3User) return "user-screen-background user-screen-background-level-3 user-level-3-shell";
+    if (isLevel4User) return "user-screen-background user-screen-background-level-4 user-level-4-shell";
+
+    return "";
+  };
+
+  const getPageThemeClass = () => {
+    if (!levelClassPrefix || isRestrictedArea) return "";
+
+    if (location.pathname === "/") return `${levelClassPrefix}-home`;
+    if (location.pathname.startsWith("/games")) return `${levelClassPrefix}-games-page`;
+    if (location.pathname.startsWith("/profile")) return `${levelClassPrefix}-profile-page`;
+    if (location.pathname.startsWith("/favorites")) return `${levelClassPrefix}-favorites-page`;
+    if (location.pathname.startsWith("/friends")) return `${levelClassPrefix}-friends-page`;
+    if (location.pathname.startsWith("/tournaments")) return `${levelClassPrefix}-tournaments-page`;
+
+    return "";
+  };
+
   const NavLinks = ({ mobile = false }) => (
     <div className={mobile ? "flex flex-col gap-2" : "hidden md:flex items-center gap-1"}>
       {navItems.map((item) => {
@@ -154,14 +184,7 @@ export default function Layout({ children }) {
     <div
       className={`min-h-screen ${
         isDark ? "bg-[#0a0a0f] text-white" : "bg-[#f0f1f8] text-gray-900"
-      } ${!isRestrictedArea && isLevel1User ? "user-screen-background" : ""}
-        ${!isRestrictedArea && isLevel2User ? "user-screen-background user-screen-background-level-2" : ""}
-        ${!isRestrictedArea && isLevel3User ? "user-screen-background user-screen-background-level-3" : ""}
-        ${!isRestrictedArea && isLevel4User ? "user-screen-background user-screen-background-level-4" : ""}
-        ${isLevel1User ? "user-level-1-shell" : ""}
-        ${isLevel2User ? "user-level-2-shell" : ""}
-        ${!isRestrictedArea && isLevel3User ? "user-level-3-shell" : ""}
-        ${!isRestrictedArea && isLevel4User ? "user-level-4-shell" : ""}`}
+      } ${getRootThemeClasses()}`}
     >
       <style>{`
         :root {
@@ -248,9 +271,9 @@ export default function Layout({ children }) {
 
       <header
         className={`sticky top-0 z-50 border-b backdrop-blur-xl ${
-          isLevel4User
+          isLevel4User && !isRestrictedArea
             ? "user-level-4-header"
-            : isLevel3User
+            : isLevel3User && !isRestrictedArea
               ? "user-level-3-header"
               : isDark
                 ? "border-white/5 bg-[#0a0a0f]/80"
@@ -295,7 +318,7 @@ export default function Layout({ children }) {
               {isDark ? <Sun className="w-4 h-4" /> : <Moon className="w-4 h-4" />}
             </Button>
 
-            {user && <NotificationsPanel isDark={isDark} />}
+            {user && <NotificationsPanel isDark={isDark} userLevel={userLevel} levelClassPrefix={levelClassPrefix} />}
 
             {user ? (
               <div className="hidden md:flex items-center gap-3">
@@ -321,7 +344,7 @@ export default function Layout({ children }) {
               </div>
             ) : (
               <Link to="/login" className="hidden md:flex">
-                <Button className="bg-gradient-to-r from-purple-600 to-cyan-500 hover:opacity-90 border-0">
+                <Button className={`${isLevel4User ? "user-level-4-button" : "bg-gradient-to-r from-purple-600 to-cyan-500 hover:opacity-90 border-0"}`}>
                   Iniciar Sesión / Registrarse
                 </Button>
               </Link>
@@ -329,7 +352,7 @@ export default function Layout({ children }) {
 
             <Sheet open={isOpen} onOpenChange={setIsOpen}>
               <SheetTrigger asChild className="md:hidden">
-                <Button variant="ghost" size="icon" className="text-white">
+                <Button variant="ghost" size="icon" className={getTopbarClass()}>
                   <Menu className="w-5 h-5" />
                 </Button>
               </SheetTrigger>
@@ -337,7 +360,11 @@ export default function Layout({ children }) {
               <SheetContent
                 side="right"
                 className={`w-72 ${
-                  isDark ? "bg-[#0f0f18] border-white/5" : "bg-white border-gray-200"
+                  isLevel4User
+                    ? "user-level-4-profile-menu"
+                    : isDark
+                      ? "bg-[#0f0f18] border-white/5"
+                      : "bg-white border-gray-200"
                 }`}
               >
                 <div className="flex flex-col h-full pt-8">
@@ -371,7 +398,7 @@ export default function Layout({ children }) {
                       </div>
                     ) : (
                       <Link to="/login" onClick={() => setIsOpen(false)}>
-                        <Button className="w-full bg-gradient-to-r from-purple-600 to-cyan-500">
+                        <Button className={`w-full ${isLevel4User ? "user-level-4-button" : "bg-gradient-to-r from-purple-600 to-cyan-500"}`}>
                           Iniciar Sesión / Registrarse
                         </Button>
                       </Link>
@@ -384,13 +411,15 @@ export default function Layout({ children }) {
         </div>
       </header>
 
-      <main className="min-h-[calc(100vh-80px)]">{children}</main>
+      <main className={`min-h-[calc(100vh-80px)] ${getPageThemeClass()}`}>{children}</main>
 
-      <CraftyAssistant />
+      <div className={isLevel4User ? "user-level-4-crafty-wrapper user-level-4-floating-chat-wrapper" : ""}>
+        <CraftyAssistant userLevel={userLevel} levelClassPrefix={levelClassPrefix} />
+      </div>
 
       <footer
         className={`border-t py-8 mt-12 ${
-          isLevel4User
+          isLevel4User && !isRestrictedArea
             ? "user-level-4-footer"
             : isDark
               ? "border-white/5"
@@ -399,7 +428,7 @@ export default function Layout({ children }) {
       >
         <div
           className={`max-w-7xl mx-auto px-4 text-center text-sm ${
-            isLevel4User
+            isLevel4User && !isRestrictedArea
               ? "user-level-4-footer-text"
               : isLevel2User
                 ? "user-level-2-footer-text"
