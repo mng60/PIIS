@@ -97,8 +97,8 @@ export default function GameArea({
           ref={iframeRef}
           {...(iframeSrcDoc ? { srcDoc: iframeSrcDoc } : { src: game.game_url })}
           className="w-full aspect-video"
-          sandbox="allow-scripts allow-forms allow-modals allow-pointer-lock"
-          allow="pointer-lock"
+          sandbox="allow-scripts allow-forms allow-modals allow-pointer-lock allow-same-origin allow-popups"
+          allow="pointer-lock *"
           title={game.title}
           onLoad={handleIframeLoad}
         />
