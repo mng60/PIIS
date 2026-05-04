@@ -219,6 +219,27 @@ export default function Profile() {
   const earnedMedals = evaluateMedals({ totalPlays, totalWins, bestScore, totalTimePlayed, gamesPlayed, level: currentLevel.level });
   const selectedPaletteLevel = visualLevelData?.level ?? currentLevel.level;
   const currentThemeColor = getLevelThemeColor(currentLevel.level);
+  const colorDialogThemeClass =
+    isLevel1User ? "user-level-1-profile-dialog" :
+      isLevel2User ? "user-level-2-profile-dialog" :
+        isLevel3User ? "user-level-3-profile-dialog" :
+          isLevel4User ? "user-level-4-profile-dialog" :
+            isLevel5User ? "user-level-5-profile-dialog" :
+              "";
+  const colorDialogTitleClass =
+    isLevel1User ? "user-level-1-profile-dialog-title" :
+      isLevel2User ? "user-level-2-profile-dialog-title" :
+        isLevel3User ? "user-level-3-profile-dialog-title" :
+          isLevel4User ? "user-level-4-profile-dialog-title" :
+            isLevel5User ? "user-level-5-profile-dialog-title" :
+              "";
+  const colorDialogCancelClass =
+    isLevel1User ? "user-level-1-profile-dialog-cancel" :
+      isLevel2User ? "user-level-2-profile-dialog-cancel" :
+        isLevel3User ? "user-level-3-profile-dialog-cancel" :
+          isLevel4User ? "user-level-4-profile-dialog-cancel" :
+            isLevel5User ? "user-level-5-profile-dialog-cancel" :
+              "border-white/10";
 
   return (
     <div className={`max-w-4xl mx-auto px-4 py-8 ${isLevel1User ? "user-level-1-profile-page" : ""} ${isLevel2User ? "user-level-2-profile-page" : ""} ${isLevel3User ? "user-level-3-profile-page" : ""} ${isLevel4User ? "user-level-4-profile-page" : ""} ${isLevel5User ? "user-level-5-profile-page" : ""}`}>
@@ -481,10 +502,10 @@ export default function Profile() {
 
       {showColorDialog && (
         <Dialog open onOpenChange={(open) => { if (!open) setShowColorDialog(false); }}>
-          <DialogContent className="bg-[#0b2034] border-cyan-100/20 text-white max-w-md shadow-2xl shadow-black/40">
+          <DialogContent className={`max-w-md shadow-2xl shadow-black/40 ${colorDialogThemeClass || "bg-[#0b2034] border-cyan-100/20 text-white"}`}>
             <DialogHeader>
-              <DialogTitle className="flex items-center gap-2 text-white">
-                <Palette className="w-4 h-4 text-cyan-300" />
+              <DialogTitle className={`flex items-center gap-2 text-white ${colorDialogTitleClass}`}>
+                <Palette className="w-4 h-4" style={{ color: currentThemeColor }} />
                 Cambiar colores
               </DialogTitle>
             </DialogHeader>
@@ -550,7 +571,7 @@ export default function Profile() {
               </div>
             </div>
             <DialogFooter>
-              <Button variant="outline" onClick={() => setShowColorDialog(false)} className="border-cyan-100/20 bg-white/5 text-white hover:bg-white/10 hover:text-white">
+              <Button variant="outline" onClick={() => setShowColorDialog(false)} className={colorDialogCancelClass}>
                 Cerrar
               </Button>
             </DialogFooter>
