@@ -53,6 +53,7 @@ export default function Layout({ children }) {
   const isLevel3User = !isDark && userLevel === 3;
   const isLevel4User = !isDark && userLevel === 4;
   const isLevel5User = !isDark && userLevel === 5;
+  const useDarkLevel1Surface = isDark || isLevel1User;
 
   if (user) {
     if (user.role !== "admin" && user.role !== "empresa") {
@@ -99,7 +100,7 @@ export default function Layout({ children }) {
                       ? "user-level-3-nav-idle"
                       : isLevel2User
                         ? "user-level-2-nav-idle"
-                        : isDark
+                        : useDarkLevel1Surface
                       ? "text-gray-400 hover:text-white hover:bg-white/5"
                       : "text-gray-600 hover:text-gray-900 hover:bg-gray-100"
             }`}
@@ -113,7 +114,7 @@ export default function Layout({ children }) {
   );
 
   return (
-    <div className={`min-h-screen ${isDark ? "bg-[#0a0a0f] text-white" : "bg-[#f0f1f8] text-gray-900"} ${!isRestrictedArea && isLevel1User ? "user-screen-background" : ""} ${!isRestrictedArea && isLevel2User ? "user-screen-background user-screen-background-level-2" : ""} ${!isRestrictedArea && isLevel3User ? "user-screen-background user-screen-background-level-3" : ""} ${!isRestrictedArea && isLevel4User ? "user-screen-background user-screen-background-level-4" : ""} ${!isRestrictedArea && isLevel5User ? "user-screen-background user-screen-background-level-5" : ""} ${isLevel1User ? "user-level-1-shell" : ""} ${isLevel2User ? "user-level-2-shell" : ""} ${!isRestrictedArea && isLevel3User ? "user-level-3-shell" : ""} ${!isRestrictedArea && isLevel4User ? "user-level-4-shell" : ""} ${!isRestrictedArea && isLevel5User ? "user-level-5-shell" : ""}`}>
+    <div className={`min-h-screen ${useDarkLevel1Surface ? "bg-[#0a0a0f] text-white" : "bg-[#f0f1f8] text-gray-900"} ${!isRestrictedArea && isLevel1User ? "user-screen-background" : ""} ${!isRestrictedArea && isLevel2User ? "user-screen-background user-screen-background-level-2" : ""} ${!isRestrictedArea && isLevel3User ? "user-screen-background user-screen-background-level-3" : ""} ${!isRestrictedArea && isLevel4User ? "user-screen-background user-screen-background-level-4" : ""} ${!isRestrictedArea && isLevel5User ? "user-screen-background user-screen-background-level-5" : ""} ${isLevel1User ? "user-level-1-shell" : ""} ${isLevel2User ? "user-level-2-shell" : ""} ${!isRestrictedArea && isLevel3User ? "user-level-3-shell" : ""} ${!isRestrictedArea && isLevel4User ? "user-level-4-shell" : ""} ${!isRestrictedArea && isLevel5User ? "user-level-5-shell" : ""}`}>
       <style>{`
         :root {
           --background: 0 0% 4%;
@@ -181,7 +182,7 @@ export default function Layout({ children }) {
       `}</style>
 
       {/* Header */}
-      <header className={`sticky top-0 z-50 border-b backdrop-blur-xl ${isLevel5User ? "user-level-5-header" : isLevel4User ? "user-level-4-header" : isLevel3User ? "user-level-3-header" : isDark ? "border-white/5 bg-[#0a0a0f]/80" : "border-gray-200 bg-white/90"}`}>
+      <header className={`sticky top-0 z-50 border-b backdrop-blur-xl ${isLevel5User ? "user-level-5-header" : isLevel4User ? "user-level-4-header" : isLevel3User ? "user-level-3-header" : useDarkLevel1Surface ? "border-white/5 bg-[#0a0a0f]/80" : "border-gray-200 bg-white/90"}`}>
         <div className="max-w-7xl mx-auto px-4 py-4 flex items-center justify-between">
           <div className="flex items-center gap-2">
             <Link to="/" className="flex items-center gap-3 group">
@@ -201,23 +202,23 @@ export default function Layout({ children }) {
               variant="ghost"
               size="icon"
               onClick={toggleTheme}
-              className={`${isLevel5User ? "user-level-5-topbar-idle" : isLevel4User ? "user-level-4-topbar-idle" : isLevel3User ? "user-level-3-topbar-idle" : isLevel2User ? "user-level-2-topbar-idle" : isDark ? "text-gray-400 hover:text-white hover:bg-white/5" : "text-gray-500 hover:text-gray-900 hover:bg-gray-100"}`}
+              className={`${isLevel5User ? "user-level-5-topbar-idle" : isLevel4User ? "user-level-4-topbar-idle" : isLevel3User ? "user-level-3-topbar-idle" : isLevel2User ? "user-level-2-topbar-idle" : useDarkLevel1Surface ? "text-gray-400 hover:text-white hover:bg-white/5" : "text-gray-500 hover:text-gray-900 hover:bg-gray-100"}`}
               title={isDark ? "Modo claro" : "Modo oscuro"}
             >
               {isDark ? <Sun className="w-4 h-4" /> : <Moon className="w-4 h-4" />}
             </Button>
-            {user && <NotificationsPanel isDark={isDark} />}
+            {user && <NotificationsPanel isDark={useDarkLevel1Surface} />}
 
             {user ? (
               <div className="hidden md:flex items-center gap-3">
                 {user.premium_until && new Date(user.premium_until) > new Date()
                   ? <PremiumUsername name={user.full_name || user.email} className={`text-sm ${isLevel5User ? "user-level-5-topbar-text" : isLevel4User ? "user-level-4-topbar-text" : isLevel3User ? "user-level-3-topbar-text" : isLevel2User ? "user-level-2-topbar-text" : ""}`} />
-                  : <span className={`text-sm ${isLevel5User ? "user-level-5-topbar-text" : isLevel4User ? "user-level-4-topbar-text" : isLevel3User ? "user-level-3-topbar-text" : isLevel2User ? "user-level-2-topbar-text" : isDark ? "text-gray-400" : "text-gray-600"}`}>{user.full_name || user.email}</span>}
+                  : <span className={`text-sm ${isLevel5User ? "user-level-5-topbar-text" : isLevel4User ? "user-level-4-topbar-text" : isLevel3User ? "user-level-3-topbar-text" : isLevel2User ? "user-level-2-topbar-text" : useDarkLevel1Surface ? "text-gray-400" : "text-gray-600"}`}>{user.full_name || user.email}</span>}
                 <Button
                   variant="ghost"
                   size="icon"
                   onClick={logout}
-                  className={`${isLevel5User ? "user-level-5-topbar-idle" : isLevel4User ? "user-level-4-topbar-idle" : isLevel3User ? "user-level-3-topbar-idle" : isLevel2User ? "user-level-2-topbar-idle" : isDark ? "text-gray-400 hover:text-white hover:bg-white/5" : "text-gray-500 hover:text-gray-900 hover:bg-gray-100"}`}
+                  className={`${isLevel5User ? "user-level-5-topbar-idle" : isLevel4User ? "user-level-4-topbar-idle" : isLevel3User ? "user-level-3-topbar-idle" : isLevel2User ? "user-level-2-topbar-idle" : useDarkLevel1Surface ? "text-gray-400 hover:text-white hover:bg-white/5" : "text-gray-500 hover:text-gray-900 hover:bg-gray-100"}`}
                 >
                   <LogOut className="w-4 h-4" />
                 </Button>
@@ -237,7 +238,7 @@ export default function Layout({ children }) {
                   <Menu className="w-5 h-5" />
                 </Button>
               </SheetTrigger>
-              <SheetContent side="right" className={`w-72 ${isDark ? "bg-[#0f0f18] border-white/5" : "bg-white border-gray-200"}`}>
+              <SheetContent side="right" className={`w-72 ${useDarkLevel1Surface ? "bg-[#0f0f18] border-white/5" : "bg-white border-gray-200"}`}>
                 <div className="flex flex-col h-full pt-8">
                   <NavLinks mobile />
                   <div className="mt-auto pb-8">
@@ -280,7 +281,7 @@ export default function Layout({ children }) {
       <CraftyAssistant />
 
       <footer className={`border-t py-8 mt-12 ${isLevel5User ? "user-level-5-footer" : isLevel4User ? "user-level-4-footer" : isLevel3User ? "user-level-3-footer" : isLevel1User ? "user-level-1-footer" : isDark ? "border-white/5" : "border-gray-200"}`}>
-        <div className={`max-w-7xl mx-auto px-4 text-center text-sm ${isLevel5User ? "user-level-5-footer-text" : isLevel4User ? "user-level-4-footer-text" : isLevel3User ? "user-level-3-copy" : isLevel2User ? "user-level-2-footer-text" : isDark ? "text-gray-500" : "text-gray-400"}`}>
+        <div className={`max-w-7xl mx-auto px-4 text-center text-sm ${isLevel5User ? "user-level-5-footer-text" : isLevel4User ? "user-level-4-footer-text" : isLevel3User ? "user-level-3-copy" : isLevel2User ? "user-level-2-footer-text" : useDarkLevel1Surface ? "text-gray-500" : "text-gray-400"}`}>
           <p>© 2026 PlayCraft - Proyecto Universitario</p>
         </div>
       </footer>
