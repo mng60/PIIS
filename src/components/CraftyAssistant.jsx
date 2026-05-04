@@ -4,6 +4,7 @@ import { useAuth } from '@/lib/AuthContext';
 import { chatWithCrafty } from '@/api/assistant';
 import { useFloatingPanels } from '@/lib/FloatingPanelsContext';
 import { getLevelFromXP } from '@/lib/levels';
+import { useTheme } from '@/lib/ThemeContext';
 
 // Imagen de Crafty — pon cualquier imagen en public/crafty.png para cambiarla
 const CRAFTY_IMG = '/crafty.png';
@@ -64,11 +65,12 @@ export default function CraftyAssistant() {
   const inputRef = useRef(null);
   const containerRef = useRef(null);
 
+  const { isDark } = useTheme();
   const role = user?.role || 'user';
   const isRegularUser = user && user.role !== 'admin' && user.role !== 'empresa';
-  const isLevel1User = isRegularUser && getLevelFromXP(user.xp ?? 0).level === 1;
-  const isLevel2User = isRegularUser && getLevelFromXP(user.xp ?? 0).level === 2;
-  const isLevel3User = isRegularUser && getLevelFromXP(user.xp ?? 0).level === 3;
+  const isLevel1User = !isDark && isRegularUser && getLevelFromXP(user.xp ?? 0).level === 1;
+  const isLevel2User = !isDark && isRegularUser && getLevelFromXP(user.xp ?? 0).level === 2;
+  const isLevel3User = !isDark && isRegularUser && getLevelFromXP(user.xp ?? 0).level === 3;
   const craftyImage = isLevel1User ? LEVEL_1_CRAFTY_IMG : isLevel2User ? LEVEL_2_CRAFTY_IMG : isLevel3User ? LEVEL_3_CRAFTY_IMG : CRAFTY_IMG;
 
   // Mensaje de bienvenida al abrir por primera vez

@@ -5,6 +5,7 @@ import NavigationTracker from '@/lib/NavigationTracker'
 import { BrowserRouter as Router, Route, Routes } from 'react-router-dom';
 import PageNotFound from './lib/PageNotFound';
 import { AuthProvider, useAuth } from '@/lib/AuthContext';
+import { ThemeProvider } from '@/lib/ThemeContext';
 import { Loader2 } from 'lucide-react';
 import Layout from './Layout';
 import Login from './pages/Login';
@@ -69,6 +70,7 @@ const AppRoutes = () => {
 
 function App() {
   return (
+    <ThemeProvider>
     <AuthProvider>
       <QueryClientProvider client={queryClientInstance}>
         <CurrentRoomProvider>
@@ -84,6 +86,7 @@ function App() {
         </CurrentRoomProvider>
       </QueryClientProvider>
     </AuthProvider>
+    </ThemeProvider>
   )
 }
 

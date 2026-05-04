@@ -3,6 +3,7 @@ import { ArrowLeft, Star, Play, Heart, Share2, Users } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { getLevelFromXP } from '@/lib/levels';
+import { useTheme } from '@/lib/ThemeContext';
 
 const categoryLabels = {
   accion: 'Acción', puzzle: 'Puzzle', arcade: 'Arcade', estrategia: 'Estrategia',
@@ -12,11 +13,12 @@ export default function GameHeader({ game, user, isFavorite, onToggleFavorite, o
   const rating = game.rating_count > 0
     ? (game.rating_sum / game.rating_count).toFixed(1)
     : null;
+  const { isDark } = useTheme();
   const isRegularUser = user && user.role !== "admin" && user.role !== "empresa";
   const userLevel = isRegularUser ? getLevelFromXP(user.xp ?? 0).level : null;
-  const isLevel1User = userLevel === 1;
-  const isLevel2User = userLevel === 2;
-  const isLevel3User = userLevel === 3;
+  const isLevel1User = !isDark && userLevel === 1;
+  const isLevel2User = !isDark && userLevel === 2;
+  const isLevel3User = !isDark && userLevel === 3;
 
   return (
     <>

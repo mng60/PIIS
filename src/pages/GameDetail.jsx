@@ -17,6 +17,7 @@ import { recordPlay } from '@/api/games';
 import { submitScore, recordGamePlay, getUserGameScores, getUserScores } from '@/api/scores';
 import { getEloLeaderboard } from '@/api/elo';
 import { getLevelFromXP } from '@/lib/levels';
+import { useTheme } from '@/lib/ThemeContext';
 import { evaluateMedals } from '@/lib/medals';
 import { checkinMatch } from '@/api/tournaments';
 
@@ -68,11 +69,12 @@ export default function GameDetail() {
 
   const { game, gameLoading, scores, comments, refetchComments, isFavorite, toggleFavorite, invalidateGame } =
     useGameDetail(gameId, user);
+  const { isDark } = useTheme();
   const isRegularUser = user && user.role !== "admin" && user.role !== "empresa";
   const userLevel = isRegularUser ? getLevelFromXP(user.xp ?? 0).level : null;
-  const isLevel1User = userLevel === 1;
-  const isLevel2User = userLevel === 2;
-  const isLevel3User = userLevel === 3;
+  const isLevel1User = !isDark && userLevel === 1;
+  const isLevel2User = !isDark && userLevel === 2;
+  const isLevel3User = !isDark && userLevel === 3;
 
   const { data: userGameStatsArr = [] } = useQuery({
     queryKey: ['userGameStats', user?.email, gameId],

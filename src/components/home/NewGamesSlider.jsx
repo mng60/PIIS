@@ -4,15 +4,17 @@ import GameCard from "@/components/games/GameCard";
 import { Button } from "@/components/ui/button";
 import { useAuth } from "@/lib/AuthContext";
 import { getLevelFromXP } from "@/lib/levels";
+import { useTheme } from "@/lib/ThemeContext";
 
 export default function NewGamesSlider({ games }) {
   const scrollRef = useRef(null);
   const { user } = useAuth();
+  const { isDark } = useTheme();
   const isRegularUser = user && user.role !== "admin" && user.role !== "empresa";
   const userLevel = isRegularUser ? getLevelFromXP(user.xp ?? 0).level : null;
-  const isLevel1User = userLevel === 1;
-  const isLevel2User = userLevel === 2;
-  const isLevel3User = userLevel === 3;
+  const isLevel1User = !isDark && userLevel === 1;
+  const isLevel2User = !isDark && userLevel === 2;
+  const isLevel3User = !isDark && userLevel === 3;
 
   const scroll = (direction) => {
     if (scrollRef.current) {

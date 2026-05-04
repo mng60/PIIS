@@ -7,6 +7,7 @@ import { format } from "date-fns";
 import { es } from "date-fns/locale";
 import { toast } from "sonner";
 import { getLevelFromXP } from "@/lib/levels";
+import { useTheme } from "@/lib/ThemeContext";
 import ReportDialog from "@/components/moderation/ReportDialog";
 import {
   AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent,
@@ -23,11 +24,12 @@ export default function CommentSection({ gameId, comments, user, onCommentAdded 
   const [deleteTarget, setDeleteTarget] = useState(null);
 
   const isAdmin = user?.role === "admin";
+  const { isDark } = useTheme();
   const isRegularUser = user && user.role !== "admin" && user.role !== "empresa";
   const userLevel = isRegularUser ? getLevelFromXP(user.xp ?? 0).level : null;
-  const isLevel1User = userLevel === 1;
-  const isLevel2User = userLevel === 2;
-  const isLevel3User = userLevel === 3;
+  const isLevel1User = !isDark && userLevel === 1;
+  const isLevel2User = !isDark && userLevel === 2;
+  const isLevel3User = !isDark && userLevel === 3;
 
   const handleSubmit = async (e) => {
     e.preventDefault();

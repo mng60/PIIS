@@ -28,6 +28,7 @@ import { es } from "date-fns/locale";
 import UserAchievementsSection from "@/components/games/UserAchievementsSection";
 import { toast } from "sonner";
 import { getLevelFromXP, getNextLevel, getLevelProgress, PREMIUM_XP_FACTOR } from "@/lib/levels";
+import { useTheme } from "@/lib/ThemeContext";
 import { evaluateMedals } from "@/lib/medals";
 import PremiumUsername from "@/components/ui/PremiumUsername";
 
@@ -199,10 +200,11 @@ export default function Profile() {
   const levelPct     = Math.round(getLevelProgress(xp, isPremium) * 100);
   const earnedMedals = evaluateMedals({ totalPlays, totalWins, bestScore, totalTimePlayed, gamesPlayed, level: currentLevel.level });
 
+  const { isDark } = useTheme();
   const isRegularUser = user && user.role !== "admin" && user.role !== "empresa";
-  const isLevel1User = isRegularUser && currentLevel.level === 1;
-  const isLevel2User = isRegularUser && currentLevel.level === 2;
-  const isLevel3User = isRegularUser && currentLevel.level === 3;
+  const isLevel1User = !isDark && isRegularUser && currentLevel.level === 1;
+  const isLevel2User = !isDark && isRegularUser && currentLevel.level === 2;
+  const isLevel3User = !isDark && isRegularUser && currentLevel.level === 3;
 
   return (
     <div className={`max-w-4xl mx-auto px-4 py-8 ${isLevel1User ? "user-level-1-profile-page" : ""} ${isLevel2User ? "user-level-2-profile-page" : ""} ${isLevel3User ? "user-level-3-profile-page" : ""}`}>

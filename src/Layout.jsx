@@ -26,26 +26,13 @@ import "@/styles/StylesLevels/level1.css";
 import "@/styles/StylesLevels/level2.css";
 import "@/styles/StylesLevels/level3.css";
 import { getLevelFromXP } from "@/lib/levels";
+import { useTheme } from "@/lib/ThemeContext";
 
 export default function Layout({ children }) {
   const { user, logout } = useAuth();
+  const { isDark, toggleTheme } = useTheme();
   const location = useLocation();
   const [isOpen, setIsOpen] = useState(false);
-  const [isDark, setIsDark] = useState(() => {
-    const saved = localStorage.getItem("playcraft-theme");
-    return saved ? saved === "dark" : true;
-  });
-
-  React.useEffect(() => {
-    if (isDark) {
-      document.documentElement.classList.add("dark");
-      document.documentElement.classList.remove("light");
-    } else {
-      document.documentElement.classList.remove("dark");
-      document.documentElement.classList.add("light");
-    }
-    localStorage.setItem("playcraft-theme", isDark ? "dark" : "light");
-  }, [isDark]);
 
   const navItems = [
     { name: "Inicio",   path: "/",            icon: Home },
@@ -59,10 +46,10 @@ export default function Layout({ children }) {
     location.pathname === "/upload-game";
   const isRegularUser = user && user.role !== "admin" && user.role !== "empresa";
   const userLevel = isRegularUser ? getLevelFromXP(user.xp ?? 0).level : null;
-  const isLevel1User = userLevel === 1;
-  const isLevel2User = userLevel === 2;
-  const isLevel3User = userLevel === 3;
-  const isLevel4User = userLevel === 4;
+  const isLevel1User = !isDark && userLevel === 1;
+  const isLevel2User = !isDark && userLevel === 2;
+  const isLevel3User = !isDark && userLevel === 3;
+  const isLevel4User = !isDark && userLevel === 4;
 
   if (user) {
     if (user.role !== "admin" && user.role !== "empresa") {
@@ -161,19 +148,6 @@ export default function Layout({ children }) {
           --ring: 270 80% 55%;
         }
 
-        html.light body { background: #f0f1f8; color: #111827; }
-        html.light .text-white { color: #111827 !important; }
-        html.light .text-gray-300 { color: #374151 !important; }
-        html.light .text-gray-400 { color: #4b5563 !important; }
-        html.light .text-gray-500 { color: #6b7280 !important; }
-        html.light .text-gray-600 { color: #9ca3af !important; }
-        html.light [class*="bg-white/"] { background-color: rgba(0,0,0,0.05) !important; }
-        html.light [class*="border-white/"] { border-color: rgba(0,0,0,0.1) !important; }
-        html.light [class*="from-white/"] { --tw-gradient-from: rgba(0,0,0,0.04) !important; }
-        html.light [class*="hover:text-white"]:hover { color: #111827 !important; }
-        html.light .bg-gradient-to-r .text-white,
-        html.light button.bg-gradient-to-r { color: #fff !important; }
-
         body { background: #0a0a0f; }
 
         .neon-glow {
@@ -215,7 +189,7 @@ export default function Layout({ children }) {
             <Button
               variant="ghost"
               size="icon"
-              onClick={() => setIsDark(!isDark)}
+              onClick={toggleTheme}
               className={`${isLevel3User ? "user-level-3-topbar-idle" : isLevel2User ? "user-level-2-topbar-idle" : isDark ? "text-gray-400 hover:text-white hover:bg-white/5" : "text-gray-500 hover:text-gray-900 hover:bg-gray-100"}`}
               title={isDark ? "Modo claro" : "Modo oscuro"}
             >

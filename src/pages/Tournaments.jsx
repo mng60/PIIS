@@ -11,6 +11,7 @@ import {
 import { Badge } from "@/components/ui/badge";
 import { Card, CardContent } from "@/components/ui/card";
 import { getLevelFromXP } from "@/lib/levels";
+import { useTheme } from "@/lib/ThemeContext";
 
 const STATUS_CONFIG = {
   upcoming: { label: "Inscripción abierta", color: "bg-blue-500/20 text-blue-400 border-blue-500/30" },
@@ -94,9 +95,10 @@ function TournamentCard({ tournament, isLevel1User = false, isLevel2User = false
 export default function Tournaments() {
   const { user } = useAuth();
   const [activeTab, setActiveTab] = useState("upcoming");
+  const { isDark } = useTheme();
   const isRegularUser = user && user.role !== "admin" && user.role !== "empresa";
-  const isLevel1User = isRegularUser && getLevelFromXP(user.xp ?? 0).level === 1;
-  const isLevel2User = isRegularUser && getLevelFromXP(user.xp ?? 0).level === 2;
+  const isLevel1User = !isDark && isRegularUser && getLevelFromXP(user.xp ?? 0).level === 1;
+  const isLevel2User = !isDark && isRegularUser && getLevelFromXP(user.xp ?? 0).level === 2;
 
   const { data: tournaments = [], isLoading } = useQuery({
     queryKey: ["tournaments", activeTab],

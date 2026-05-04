@@ -4,6 +4,7 @@ import { Star, Play, Gamepad, Crown, Lock } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
 import { useAuth } from "@/lib/AuthContext";
 import { getLevelFromXP } from "@/lib/levels";
+import { useTheme } from "@/lib/ThemeContext";
 
 const categoryColors = {
   accion: "from-red-500 to-orange-500",
@@ -24,11 +25,12 @@ export default function GameCard({ game, isPremiumUser = false }) {
   const rating = game.rating_count > 0
     ? (game.rating_sum / game.rating_count).toFixed(1)
     : "N/A";
+  const { isDark } = useTheme();
   const isRegularUser = user && user.role !== "admin" && user.role !== "empresa";
   const userLevel = isRegularUser ? getLevelFromXP(user.xp ?? 0).level : null;
-  const isLevel1User = userLevel === 1;
-  const isLevel2User = userLevel === 2;
-  const isLevel3User = userLevel === 3;
+  const isLevel1User = !isDark && userLevel === 1;
+  const isLevel2User = !isDark && userLevel === 2;
+  const isLevel3User = !isDark && userLevel === 3;
 
   const isEarlyAccess = game.early_access_until && new Date(game.early_access_until) > new Date();
   const isLocked = isEarlyAccess && !isPremiumUser;
