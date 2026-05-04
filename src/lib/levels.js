@@ -10,6 +10,14 @@ export const LEVELS = [
   { level: 5, name: "Leyenda",  xpRequired: 12000,  color: "#f43f5e" },
 ];
 
+export const LEVEL_THEME_COLORS = {
+  1: "#c08a48",
+  2: "#22c55e",
+  3: "#55c9f4",
+  4: "#f59e0b",
+  5: "#f43f5e",
+};
+
 // Usuarios premium necesitan solo el 70% del XP para subir de nivel
 export const PREMIUM_XP_FACTOR = 0.7;
 
@@ -48,4 +56,8 @@ export function getLevelProgress(xp, isPremium = false) {
   const next    = getNextLevel(xp, isPremium);
   if (!next) return 1;
   return (xp - current.xpRequired) / (next.xpRequired - current.xpRequired);
+}
+
+export function getLevelThemeColor(level) {
+  return LEVEL_THEME_COLORS[level] ?? LEVELS.find((item) => item.level === level)?.color ?? "#22d3ee";
 }

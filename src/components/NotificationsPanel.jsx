@@ -16,7 +16,7 @@ import {
 import { formatDistanceToNow } from "date-fns";
 import { es } from "date-fns/locale";
 import { useTheme } from "@/lib/ThemeContext";
-import { getLevelFromXP } from "@/lib/levels";
+import { useLevelTheme } from "@/lib/useLevelTheme";
 
 const POLL_INTERVAL = 8_000;
 
@@ -50,13 +50,7 @@ export default function NotificationsPanel({ isDark: isDarkProp }) {
   const { isDark: isDarkCtx } = useTheme();
   const isDark = isDarkProp ?? isDarkCtx;
   const navigate = useNavigate();
-  const isRegularUser = user && user.role !== "admin" && user.role !== "empresa";
-  const userLevel = isRegularUser ? getLevelFromXP(user.xp ?? 0).level : null;
-  const isLevel2User = !isDark && userLevel === 2;
-  const isLevel3User = !isDark && userLevel === 3;
-  const isLevel4User = !isDark && userLevel === 4;
-  const isLevel5User = !isDark && userLevel === 5;
-  const isLevelUser = !isDark && userLevel >= 1 && userLevel <= 5;
+  const { isLevel2User, isLevel3User, isLevel4User, isLevel5User, isLevelUser } = useLevelTheme();
   const [open, setOpen] = useState(false);
   const [notifications, setNotifications] = useState([]);
   const [unreadCount, setUnreadCount] = useState(0);

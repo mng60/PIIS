@@ -2,21 +2,11 @@ import React, { useRef } from "react";
 import { ChevronLeft, ChevronRight, Sparkles } from "lucide-react";
 import GameCard from "@/components/games/GameCard";
 import { Button } from "@/components/ui/button";
-import { useAuth } from "@/lib/AuthContext";
-import { getLevelFromXP } from "@/lib/levels";
-import { useTheme } from "@/lib/ThemeContext";
+import { useLevelTheme } from "@/lib/useLevelTheme";
 
 export default function NewGamesSlider({ games }) {
   const scrollRef = useRef(null);
-  const { user } = useAuth();
-  const { isDark } = useTheme();
-  const isRegularUser = user && user.role !== "admin" && user.role !== "empresa";
-  const userLevel = isRegularUser ? getLevelFromXP(user.xp ?? 0).level : null;
-  const isLevel1User = !isDark && userLevel === 1;
-  const isLevel2User = !isDark && userLevel === 2;
-  const isLevel3User = !isDark && userLevel === 3;
-  const isLevel4User = !isDark && userLevel === 4;
-  const isLevel5User = !isDark && userLevel === 5;
+  const { isLevel1User, isLevel2User, isLevel3User, isLevel4User, isLevel5User } = useLevelTheme();
 
   const scroll = (direction) => {
     if (scrollRef.current) {

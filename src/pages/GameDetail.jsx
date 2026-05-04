@@ -17,9 +17,9 @@ import { recordPlay } from '@/api/games';
 import { submitScore, recordGamePlay, getUserGameScores, getUserScores } from '@/api/scores';
 import { getEloLeaderboard } from '@/api/elo';
 import { getLevelFromXP } from '@/lib/levels';
-import { useTheme } from '@/lib/ThemeContext';
 import { evaluateMedals } from '@/lib/medals';
 import { checkinMatch } from '@/api/tournaments';
+import { useLevelTheme } from '@/lib/useLevelTheme';
 
 // ─── Banner de espera de oponente con countdown ───────────────────────────────
 
@@ -66,17 +66,10 @@ export default function GameDetail() {
   const roomCode = searchParams.get('room') || null;
   const tournamentId = searchParams.get('tournament') || null;
   const tournamentRedirectRef = useRef(false);
+  const { isLevel1User, isLevel2User, isLevel3User, isLevel4User, isLevel5User } = useLevelTheme();
 
   const { game, gameLoading, scores, comments, refetchComments, isFavorite, toggleFavorite, invalidateGame } =
     useGameDetail(gameId, user);
-  const { isDark } = useTheme();
-  const isRegularUser = user && user.role !== "admin" && user.role !== "empresa";
-  const userLevel = isRegularUser ? getLevelFromXP(user.xp ?? 0).level : null;
-  const isLevel1User = !isDark && userLevel === 1;
-  const isLevel2User = !isDark && userLevel === 2;
-  const isLevel3User = !isDark && userLevel === 3;
-  const isLevel4User = !isDark && userLevel === 4;
-  const isLevel5User = !isDark && userLevel === 5;
 
   const { data: userGameStatsArr = [] } = useQuery({
     queryKey: ['userGameStats', user?.email, gameId],

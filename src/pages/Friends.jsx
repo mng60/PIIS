@@ -13,8 +13,7 @@ import {
   Users, Search, UserPlus, UserMinus, ShieldOff,
   UserX, Clock, X, Loader2,
 } from "lucide-react";
-import { getLevelFromXP } from "@/lib/levels";
-import { useTheme } from "@/lib/ThemeContext";
+import { useLevelTheme } from "@/lib/useLevelTheme";
 
 function Avatar({ url, name, size = "md", isLevel2User = false }) {
   const sz = size === "lg" ? "w-14 h-14 text-xl" : "w-10 h-10 text-base";
@@ -47,13 +46,7 @@ export default function Friends() {
   const [pendingActions, setPendingActions] = useState({});
   const searchTimeout = useRef(null);
   const prevUserEmail = useRef(user?.email);
-  const { isDark } = useTheme();
-  const isRegularUser = user && user.role !== "admin" && user.role !== "empresa";
-  const isLevel1User = !isDark && isRegularUser && getLevelFromXP(user.xp ?? 0).level === 1;
-  const isLevel2User = !isDark && isRegularUser && getLevelFromXP(user.xp ?? 0).level === 2;
-  const isLevel3User = !isDark && isRegularUser && getLevelFromXP(user.xp ?? 0).level === 3;
-  const isLevel4User = !isDark && isRegularUser && getLevelFromXP(user.xp ?? 0).level === 4;
-  const isLevel5User = !isDark && isRegularUser && getLevelFromXP(user.xp ?? 0).level === 5;
+  const { isLevel1User, isLevel2User, isLevel3User, isLevel4User, isLevel5User } = useLevelTheme();
 
   useEffect(() => {
     loadFriends();

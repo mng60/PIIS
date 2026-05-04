@@ -7,8 +7,7 @@ import { sendGameInvite } from '@/api/notifications';
 import { useCurrentRoom } from '@/lib/CurrentRoomContext';
 import { toast } from 'sonner';
 import PremiumUsername from '@/components/ui/PremiumUsername';
-import { getLevelFromXP } from '@/lib/levels';
-import { useTheme } from '@/lib/ThemeContext';
+import { useLevelTheme } from '@/lib/useLevelTheme';
 
 const ONLINE_THRESHOLD_MS = 40 * 1000; // 40s — heartbeat cada 15s, 2 misses = offline
 
@@ -25,13 +24,7 @@ function formatTime(dateStr) {
 export default function FloatingChat() {
   const { isAuthenticated, user } = useAuth();
   const { currentRoom } = useCurrentRoom();
-  const { isDark } = useTheme();
-  const isRegularUser = user && user.role !== 'admin' && user.role !== 'empresa';
-  const isLevel1User = !isDark && isRegularUser && getLevelFromXP(user.xp ?? 0).level === 1;
-  const isLevel2User = !isDark && isRegularUser && getLevelFromXP(user.xp ?? 0).level === 2;
-  const isLevel3User = !isDark && isRegularUser && getLevelFromXP(user.xp ?? 0).level === 3;
-  const isLevel4User = !isDark && isRegularUser && getLevelFromXP(user.xp ?? 0).level === 4;
-  const isLevel5User = !isDark && isRegularUser && getLevelFromXP(user.xp ?? 0).level === 5;
+  const { isLevel1User, isLevel2User, isLevel3User, isLevel4User, isLevel5User } = useLevelTheme();
 
   const [open, setOpen] = useState(false);
   const [activeFriend, setActiveFriend] = useState(null);

@@ -8,7 +8,7 @@ import { useAuth } from "@/lib/AuthContext";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
 import {
   Loader2, User, Mail, Calendar, Gamepad2, Edit2, Save, Camera, Lock, MoreVertical,
-  Crown, Sparkles,
+  Crown, Sparkles, Palette, Check,
 } from "lucide-react";
 import { getEloRank } from "@/lib/eloRanks";
 import {
@@ -27,10 +27,10 @@ import { format } from "date-fns";
 import { es } from "date-fns/locale";
 import UserAchievementsSection from "@/components/games/UserAchievementsSection";
 import { toast } from "sonner";
-import { getLevelFromXP, getNextLevel, getLevelProgress, PREMIUM_XP_FACTOR } from "@/lib/levels";
-import { useTheme } from "@/lib/ThemeContext";
+import { getLevelFromXP, getNextLevel, getLevelProgress, getLevelThemeColor } from "@/lib/levels";
 import { evaluateMedals } from "@/lib/medals";
 import PremiumUsername from "@/components/ui/PremiumUsername";
+import { useLevelTheme } from "@/lib/useLevelTheme";
 
 export default function Profile() {
   const { user, isLoadingAuth, updateUserData, refreshUser } = useAuth();
@@ -44,6 +44,7 @@ export default function Profile() {
   const avatarInputRef = useRef(null);
 
   const [showPwDialog, setShowPwDialog] = useState(false);
+  const [showColorDialog, setShowColorDialog] = useState(false);
   const [pwForm, setPwForm] = useState({ current: "", next: "", confirm: "" });
   const [pwErrors, setPwErrors] = useState({});
   const [isChangingPw, setIsChangingPw] = useState(false);
@@ -71,6 +72,23 @@ export default function Profile() {
     queryKey: ["userEloStats", user?.email],
     queryFn: () => getUserEloStats(user.email),
     enabled: !!user,
+  });
+  const currentProfileLevel = user ? getLevelFromXP(user.xp ?? 0, !!premiumStatus?.is_premium) : null;
+  const {
+    isRegularUser,
+    availableLevels,
+    selectedLevelTheme,
+    setSelectedLevelTheme,
+    visualLevelData,
+    isLevel1User,
+    isLevel2User,
+    isLevel3User,
+    isLevel4User,
+    isLevel5User,
+  } = useLevelTheme({
+    user,
+    actualLevelData: currentProfileLevel,
+    isPremium: !!premiumStatus?.is_premium,
   });
 
   const handleAvatarChange = async (e) => {
@@ -195,18 +213,12 @@ export default function Profile() {
     .filter(s => categoryFilter === "all" || s.game_category === categoryFilter)
     .filter(s => modeFilter === "all" || (modeFilter === "multi" ? s.game_is_multiplayer : !s.game_is_multiplayer))
     .sort((a, b) => (a.game_title || "").localeCompare(b.game_title || ""));
-  const currentLevel = getLevelFromXP(xp, isPremium);
+  const currentLevel = currentProfileLevel ?? getLevelFromXP(xp, isPremium);
   const nextLevel    = getNextLevel(xp, isPremium);
   const levelPct     = Math.round(getLevelProgress(xp, isPremium) * 100);
   const earnedMedals = evaluateMedals({ totalPlays, totalWins, bestScore, totalTimePlayed, gamesPlayed, level: currentLevel.level });
-
-  const { isDark } = useTheme();
-  const isRegularUser = user && user.role !== "admin" && user.role !== "empresa";
-  const isLevel1User = !isDark && isRegularUser && currentLevel.level === 1;
-  const isLevel2User = !isDark && isRegularUser && currentLevel.level === 2;
-  const isLevel3User = !isDark && isRegularUser && currentLevel.level === 3;
-  const isLevel4User = !isDark && isRegularUser && currentLevel.level === 4;
-  const isLevel5User = !isDark && isRegularUser && currentLevel.level === 5;
+  const selectedPaletteLevel = visualLevelData?.level ?? currentLevel.level;
+  const currentThemeColor = getLevelThemeColor(currentLevel.level);
 
   return (
     <div className={`max-w-4xl mx-auto px-4 py-8 ${isLevel1User ? "user-level-1-profile-page" : ""} ${isLevel2User ? "user-level-2-profile-page" : ""} ${isLevel3User ? "user-level-3-profile-page" : ""} ${isLevel4User ? "user-level-4-profile-page" : ""} ${isLevel5User ? "user-level-5-profile-page" : ""}`}>
@@ -274,6 +286,15 @@ export default function Profile() {
                         </Button>
                       </DropdownMenuTrigger>
                       <DropdownMenuContent align="start" className={isLevel2User ? "user-level-2-profile-menu" : isLevel3User ? "user-level-3-profile-menu" : isLevel4User ? "user-level-4-profile-menu" : isLevel5User ? "user-level-5-profile-menu" : "bg-[#0f0f18] border-white/10 text-white"}>
+                        {isRegularUser && (
+                          <DropdownMenuItem
+                            onClick={() => setShowColorDialog(true)}
+                            className={isLevel1User ? "user-level-1-profile-menu-item" : isLevel2User ? "user-level-2-profile-menu-item" : isLevel3User ? "user-level-3-profile-menu-item" : isLevel4User ? "user-level-4-profile-menu-item" : isLevel5User ? "user-level-5-profile-menu-item" : "cursor-pointer hover:bg-white/5 gap-2"}
+                          >
+                            <Palette className={`w-4 h-4 ${isLevel1User ? "user-level-1-profile-icon-soft" : isLevel2User ? "user-level-2-profile-icon-soft" : isLevel3User ? "user-level-3-profile-icon-soft" : isLevel4User ? "user-level-4-profile-icon-soft" : isLevel5User ? "user-level-5-profile-icon-soft" : "text-cyan-400"}`} />
+                            Cambiar colores
+                          </DropdownMenuItem>
+                        )}
                         <DropdownMenuItem
                           onClick={() => { setPwForm({ current: "", next: "", confirm: "" }); setPwErrors({}); setShowPwDialog(true); }}
                           className={isLevel1User ? "user-level-1-profile-menu-item" : isLevel2User ? "user-level-2-profile-menu-item" : isLevel3User ? "user-level-3-profile-menu-item" : isLevel4User ? "user-level-4-profile-menu-item" : isLevel5User ? "user-level-5-profile-menu-item" : "cursor-pointer hover:bg-white/5 gap-2"}
@@ -457,6 +478,85 @@ export default function Profile() {
           )}
         </CardContent>
       </Card>
+
+      {showColorDialog && (
+        <Dialog open onOpenChange={(open) => { if (!open) setShowColorDialog(false); }}>
+          <DialogContent className="bg-[#0b2034] border-cyan-100/20 text-white max-w-md shadow-2xl shadow-black/40">
+            <DialogHeader>
+              <DialogTitle className="flex items-center gap-2 text-white">
+                <Palette className="w-4 h-4 text-cyan-300" />
+                Cambiar colores
+              </DialogTitle>
+            </DialogHeader>
+            <div className="space-y-3">
+              <p className="text-sm text-slate-300">
+                Elige la paleta visual que quieres usar en toda la app. Tu nivel real y tu XP siguen igual.
+              </p>
+
+              <button
+                type="button"
+                onClick={() => setSelectedLevelTheme("auto")}
+                className="w-full rounded-xl border px-4 py-3 text-left transition-colors hover:bg-white/5"
+                style={{
+                  borderColor: `${currentThemeColor}55`,
+                  backgroundColor: selectedLevelTheme === "auto" ? `${currentThemeColor}22` : `${currentThemeColor}10`,
+                }}
+              >
+                <div className="flex items-center justify-between gap-3">
+                  <div className="min-w-0">
+                    <p className="font-semibold" style={{ color: currentThemeColor }}>
+                      Seguir mi nivel actual
+                    </p>
+                    <p className="text-xs text-slate-300">
+                      Usa automáticamente la paleta de tu nivel real: Nv.{currentLevel.level} {currentLevel.name}
+                    </p>
+                  </div>
+                  {selectedLevelTheme === "auto" && <Check className="w-4 h-4 flex-shrink-0" style={{ color: currentThemeColor }} />}
+                </div>
+              </button>
+
+              <div className="space-y-2">
+                {availableLevels.map((level) => {
+                  const themeColor = getLevelThemeColor(level.level);
+                  const isSelected = selectedLevelTheme !== "auto" && selectedPaletteLevel === level.level;
+                  return (
+                    <button
+                      key={level.level}
+                      type="button"
+                      onClick={() => setSelectedLevelTheme(level.level)}
+                      className="w-full rounded-xl border px-4 py-3 text-left transition-colors hover:bg-white/5"
+                      style={{
+                        borderColor: `${themeColor}55`,
+                        backgroundColor: isSelected ? `${themeColor}22` : `${themeColor}10`,
+                      }}
+                    >
+                      <div className="flex items-center justify-between gap-3">
+                        <div className="flex items-center gap-3 min-w-0">
+                          <span className="h-3 w-3 rounded-full flex-shrink-0" style={{ backgroundColor: themeColor }} />
+                          <div className="min-w-0">
+                            <p className="font-semibold truncate" style={{ color: themeColor }}>
+                              Nivel {level.level} · {level.name}
+                            </p>
+                            <p className="text-xs text-slate-300">
+                              Recupera la gama visual característica de este nivel
+                            </p>
+                          </div>
+                        </div>
+                        {isSelected && <Check className="w-4 h-4 flex-shrink-0" style={{ color: themeColor }} />}
+                      </div>
+                    </button>
+                  );
+                })}
+              </div>
+            </div>
+            <DialogFooter>
+              <Button variant="outline" onClick={() => setShowColorDialog(false)} className="border-cyan-100/20 bg-white/5 text-white hover:bg-white/10 hover:text-white">
+                Cerrar
+              </Button>
+            </DialogFooter>
+          </DialogContent>
+        </Dialog>
+      )}
 
       {/* Change password dialog */}
       {showPwDialog && (

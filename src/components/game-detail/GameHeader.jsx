@@ -2,8 +2,7 @@ import { Link } from 'react-router-dom';
 import { ArrowLeft, Star, Play, Heart, Share2, Users } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
-import { getLevelFromXP } from '@/lib/levels';
-import { useTheme } from '@/lib/ThemeContext';
+import { useLevelTheme } from '@/lib/useLevelTheme';
 
 const categoryLabels = {
   accion: 'Acción', puzzle: 'Puzzle', arcade: 'Arcade', estrategia: 'Estrategia',
@@ -13,14 +12,7 @@ export default function GameHeader({ game, user, isFavorite, onToggleFavorite, o
   const rating = game.rating_count > 0
     ? (game.rating_sum / game.rating_count).toFixed(1)
     : null;
-  const { isDark } = useTheme();
-  const isRegularUser = user && user.role !== "admin" && user.role !== "empresa";
-  const userLevel = isRegularUser ? getLevelFromXP(user.xp ?? 0).level : null;
-  const isLevel1User = !isDark && userLevel === 1;
-  const isLevel2User = !isDark && userLevel === 2;
-  const isLevel3User = !isDark && userLevel === 3;
-  const isLevel4User = !isDark && userLevel === 4;
-  const isLevel5User = !isDark && userLevel === 5;
+  const { isLevel1User, isLevel2User, isLevel3User, isLevel4User, isLevel5User } = useLevelTheme({ user });
 
   return (
     <>

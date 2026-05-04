@@ -8,8 +8,7 @@ import DiceRaceOnlineGame from '@/components/games/DiceRaceOnlineGame';
 import ChatSection from '@/components/games/ChatSection';
 import OnlineGameMoveHistory from '@/components/games/OnlineGameMoveHistory';
 import { useChessGame } from '@/hooks/useChessGame';
-import { getLevelFromXP } from '@/lib/levels';
-import { useTheme } from '@/lib/ThemeContext';
+import { useLevelTheme } from '@/lib/useLevelTheme';
 
 const DIFFICULTY_LABELS = { 1: "Principiante", 2: "Intermedio", 3: "Avanzado", 4: "Maestro" };
 
@@ -44,14 +43,7 @@ export default function GameArea({
   const [vsAiAnalysisLoading, setVsAiAnalysisLoading] = useState(false);
   const vsAiChatContainerRef = useRef(null);
   const [iframeMoveHistory, setIframeMoveHistory] = useState([]);
-  const { isDark } = useTheme();
-  const isRegularUser = user && user.role !== "admin" && user.role !== "empresa";
-  const userLevel = isRegularUser ? getLevelFromXP(user.xp ?? 0).level : null;
-  const isLevel1User = !isDark && userLevel === 1;
-  const isLevel2User = !isDark && userLevel === 2;
-  const isLevel3User = !isDark && userLevel === 3;
-  const isLevel4User = !isDark && userLevel === 4;
-  const isLevel5User = !isDark && userLevel === 5;
+  const { isLevel1User, isLevel2User, isLevel3User, isLevel4User, isLevel5User } = useLevelTheme({ user });
 
   useEffect(() => {
     if (vsAiChatContainerRef.current) {

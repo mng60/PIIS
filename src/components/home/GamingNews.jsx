@@ -2,11 +2,9 @@ import React from "react";
 import { useQuery } from "@tanstack/react-query";
 import { getNews } from "@/api/news";
 import { Newspaper, ExternalLink, Calendar } from "lucide-react";
-import { format, parseISO, isValid } from "date-fns";
+import { format, isValid } from "date-fns";
 import { es } from "date-fns/locale";
-import { useAuth } from "@/lib/AuthContext";
-import { getLevelFromXP } from "@/lib/levels";
-import { useTheme } from "@/lib/ThemeContext";
+import { useLevelTheme } from "@/lib/useLevelTheme";
 
 function formatDate(raw) {
   if (!raw) return null;
@@ -20,15 +18,7 @@ function formatDate(raw) {
 
 function NewsCard({ item }) {
   const date = formatDate(item.date);
-  const { user } = useAuth();
-  const { isDark } = useTheme();
-  const isRegularUser = user && user.role !== "admin" && user.role !== "empresa";
-  const userLevel = isRegularUser ? getLevelFromXP(user.xp ?? 0).level : null;
-  const isLevel1User = !isDark && userLevel === 1;
-  const isLevel2User = !isDark && userLevel === 2;
-  const isLevel3User = !isDark && userLevel === 3;
-  const isLevel4User = !isDark && userLevel === 4;
-  const isLevel5User = !isDark && userLevel === 5;
+  const { isLevel1User, isLevel2User, isLevel3User, isLevel4User, isLevel5User } = useLevelTheme();
 
   return (
     <a
@@ -100,21 +90,13 @@ function SkeletonCard() {
 }
 
 export default function GamingNews() {
-  const { user } = useAuth();
-  const { isDark } = useTheme();
   const { data: news = [], isLoading, isError } = useQuery({
     queryKey: ["gamingNews"],
     queryFn: getNews,
     staleTime: 15 * 60 * 1000,
     retry: 1,
   });
-  const isRegularUser = user && user.role !== "admin" && user.role !== "empresa";
-  const userLevel = isRegularUser ? getLevelFromXP(user.xp ?? 0).level : null;
-  const isLevel1User = !isDark && userLevel === 1;
-  const isLevel2User = !isDark && userLevel === 2;
-  const isLevel3User = !isDark && userLevel === 3;
-  const isLevel4User = !isDark && userLevel === 4;
-  const isLevel5User = !isDark && userLevel === 5;
+  const { isLevel1User, isLevel2User, isLevel3User, isLevel4User, isLevel5User } = useLevelTheme();
 
   return (
     <div className="relative">
