@@ -101,6 +101,21 @@
   color: #b45309 !important;
 }
 
+.user-level-5-widget {
+  border-color: rgba(212, 160, 23, 0.28) !important;
+  background:
+    linear-gradient(145deg, rgba(255, 249, 230, 0.12) 0%, rgba(254, 243, 199, 0.08) 100%),
+    rgba(120, 53, 15, 0.06) !important;
+  box-shadow: 0 16px 38px rgba(91, 58, 20, 0.12) !important;
+}
+
+.user-level-5-widget:hover {
+  border-color: rgba(212, 160, 23, 0.44) !important;
+  background:
+    linear-gradient(145deg, rgba(255, 249, 230, 0.18) 0%, rgba(254, 243, 199, 0.12) 100%),
+    rgba(120, 53, 15, 0.08) !important;
+}
+
 .user-level-5-game-card,
 .user-level-5-news-card {
   background: linear-gradient(180deg, rgba(255, 255, 255, 0.96) 0%, rgba(254, 243, 199, 0.94) 100%) !important;
@@ -1396,7 +1411,6 @@
 .user-level-5-floating-chat-message-mine,
 .user-level-5-crafty-button,
 .user-level-5-floating-chat-button,
-.user-level-5-floating-chat-buttonrelative,
 .user-level-5-floating-chat-send {
   background: linear-gradient(135deg, #92400e 0%, #fbbf24 60%, #d97706 100%) !important;
   color: #fffbeb !important;
@@ -1881,4 +1895,53 @@
 
 .user-level-5-chess .online-game-lobby__card .border-white\/10 {
   border-color: rgba(212, 160, 23, 0.28) !important;
+}
+
+/* =================== CLASES FALTANTES =================== */
+
+.user-level-5-copy {
+  color: #8b6a2a !important;
+}
+
+.user-level-5-button {
+  background: linear-gradient(135deg, #92400e 0%, #fbbf24 56%, #d97706 100%) !important;
+  border: 1px solid rgba(255, 249, 230, 0.22) !important;
+  color: #fffbeb !important;
+  box-shadow:
+    0 12px 26px rgba(120, 53, 15, 0.2),
+    0 0 18px rgba(251, 191, 36, 0.14) !important;
+}
+
+.user-level-5-button:hover {
+  background: linear-gradient(135deg, #a05212 0%, #fcd34d 56%, #f59e0b 100%) !important;
+  box-shadow:
+    0 14px 30px rgba(120, 53, 15, 0.24),
+    0 0 22px rgba(251, 191, 36, 0.18) !important;
+}
+
+.user-level-5-favorites-icon {
+  color: #d97706 !important;
+  fill: #d97706 !important;
+  filter: drop-shadow(0 0 8px rgba(217, 119, 6, 0.36));
+}
+
+.user-level-5-friends-loader,
+.user-level-5-tournaments-loader {
+  color: #fbbf24 !important;
+}
+
+.user-level-5-profile-premium-button {
+  background: linear-gradient(135deg, #eab308 0%, #facc15 56%, #fbbf24 100%) !important;
+  color: #5b3a14 !important;
+  border: 0 !important;
+  box-shadow:
+    0 12px 26px rgba(146, 64, 14, 0.22),
+    0 0 18px rgba(234, 179, 8, 0.16) !important;
+}
+
+.user-level-5-profile-premium-button:hover {
+  background: linear-gradient(135deg, #f59e0b 0%, #fbbf24 56%, #fcd34d 100%) !important;
+  box-shadow:
+    0 14px 30px rgba(146, 64, 14, 0.28),
+    0 0 22px rgba(251, 191, 36, 0.2) !important;
 }

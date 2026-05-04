@@ -229,7 +229,7 @@ export default function FloatingChat() {
                   const mine = msg.sender_email === user?.email;
                   return (
                     <div key={msg.id} className={`flex ${mine ? 'justify-end' : 'justify-start'}`}>
-                      <div className={`${isLevel1User ? 'user-level-1-floating-chat-message' : ''} ${isLevel2User ? 'user-level-2-floating-chat-message' : ''} ${isLevel3User ? 'user-level-3-floating-chat-message' : ''} ${isLevel4User ? 'user-level-4-floating-chat-message' : ''} ${isLevel5User ? 'user-level-5-floating-chat-message' : ''}max-w-[75%] px-3 py-2 rounded-2xl text-sm break-words ${
+                      <div className={`${isLevel1User ? 'user-level-1-floating-chat-message' : ''} ${isLevel2User ? 'user-level-2-floating-chat-message' : ''} ${isLevel3User ? 'user-level-3-floating-chat-message' : ''} ${isLevel4User ? 'user-level-4-floating-chat-message' : ''} ${isLevel5User ? 'user-level-5-floating-chat-message' : ''} max-w-[75%] px-3 py-2 rounded-2xl text-sm break-words ${
                         mine
                           ? `${isLevel1User ? 'user-level-1-floating-chat-message-mine' : ''} ${isLevel2User ? 'user-level-2-floating-chat-message-mine' : ''} ${isLevel3User ? 'user-level-3-floating-chat-message-mine' : ''} ${isLevel4User ? 'user-level-4-floating-chat-message-mine' : ''} ${isLevel5User ? 'user-level-5-floating-chat-message-mine' : ''} text-white rounded-br-sm`
                           : 'text-white/90 rounded-bl-sm'
@@ -250,19 +250,19 @@ export default function FloatingChat() {
               </div>
 
               {/* Input */}
-              <div className={`${isLevel1User ? "user-level-1-floating-chat-input-wrap" : ""} ${isLevel2User ? "user-level-2-floating-chat-input-wrap" : ""} ${isLevel3User ? "user-level-3-floating-chat-input-wrap" : ""} ${isLevel4User ? "user-level-4-floating-chat-input-wrap" : ""} ${isLevel5User ? "user-level-5-floating-chat-input-wrap" : ""}px-3 py-3 border-t border-white/10 flex gap-2`}>
+              <div className={`${isLevel1User ? "user-level-1-floating-chat-input-wrap" : ""} ${isLevel2User ? "user-level-2-floating-chat-input-wrap" : ""} ${isLevel3User ? "user-level-3-floating-chat-input-wrap" : ""} ${isLevel4User ? "user-level-4-floating-chat-input-wrap" : ""} ${isLevel5User ? "user-level-5-floating-chat-input-wrap" : ""} px-3 py-3 border-t border-white/10 flex gap-2`}>
                 <input
                   value={input}
                   onChange={e => setInput(e.target.value)}
                   onKeyDown={handleKey}
                   placeholder="Escribe un mensaje..."
                   maxLength={1000}
-                  className={`${isLevel1User ? "user-level-1-floating-chat-input" : ""} ${isLevel2User ? "user-level-2-floating-chat-input" : ""}  ${isLevel3User ? "user-level-3-floating-chat-input" : ""} ${isLevel4User ? "user-level-4-floating-chat-input" : ""} ${isLevel5User ? "user-level-5-floating-chat-input" : ""}flex-1 bg-white/5 border border-white/10 rounded-xl px-3 py-2 text-sm text-white placeholder-white/30 outline-none focus:border-purple-500 transition-colors`}
+                  className={`${isLevel1User ? "user-level-1-floating-chat-input" : ""} ${isLevel2User ? "user-level-2-floating-chat-input" : ""} ${isLevel3User ? "user-level-3-floating-chat-input" : ""} ${isLevel4User ? "user-level-4-floating-chat-input" : ""} ${isLevel5User ? "user-level-5-floating-chat-input" : ""} flex-1 bg-white/5 border border-white/10 rounded-xl px-3 py-2 text-sm text-white placeholder-white/30 outline-none focus:border-purple-500 transition-colors`}
                 />
                 <button
                   onClick={handleSend}
                   disabled={!input.trim() || sending}
-                  className={`${isLevel1User ? "user-level-1-floating-chat-send" : ""} ${isLevel2User ? "user-level-2-floating-chat-send" : ""} ${isLevel3User ? "user-level-3-floating-chat-send" : ""} ${isLevel4User ? "user-level-4-floating-chat-send" : ""} ${isLevel5User ? "user-level-5-floating-chat-send" : ""}p-2 rounded-xl transition-all disabled:opacity-40`}
+                  className={`${isLevel1User ? "user-level-1-floating-chat-send" : ""} ${isLevel2User ? "user-level-2-floating-chat-send" : ""} ${isLevel3User ? "user-level-3-floating-chat-send" : ""} ${isLevel4User ? "user-level-4-floating-chat-send" : ""} ${isLevel5User ? "user-level-5-floating-chat-send" : ""} p-2 rounded-xl transition-all disabled:opacity-40`}
                   style={{ background: 'linear-gradient(135deg, #7c3aed, #06b6d4)' }}>
                   <Send className="w-4 h-4 text-white" />
                 </button>
@@ -275,7 +275,7 @@ export default function FloatingChat() {
       {/* Botón flotante */}
       <button
         onClick={() => { setOpen(o => !o); if (!open) { loadFriends(); setActiveFriend(null); } }}
-        className={`${isLevel1User ? "user-level-1-floating-chat-button" : ""} ${isLevel2User ? "user-level-2-floating-chat-button" : ""} ${isLevel3User ? "user-level-3-floating-chat-button" : ""} ${isLevel4User ? "user-level-4-floating-chat-button" : ""} ${isLevel5User ? "user-level-5-floating-chat-button" : ""}relative w-14 h-14 rounded-full flex items-center justify-center shadow-lg transition-all hover:scale-110 active:scale-95`}
+        className={`${isLevel1User ? "user-level-1-floating-chat-button" : ""} ${isLevel2User ? "user-level-2-floating-chat-button" : ""} ${isLevel3User ? "user-level-3-floating-chat-button" : ""} ${isLevel4User ? "user-level-4-floating-chat-button" : ""} ${isLevel5User ? "user-level-5-floating-chat-button" : ""} relative w-14 h-14 rounded-full flex items-center justify-center shadow-lg transition-all hover:scale-110 active:scale-95`}
         style={{ background: 'linear-gradient(135deg, #7c3aed, #06b6d4)', boxShadow: '0 0 20px rgba(139,92,246,0.5)' }}>
         <MessageCircle className="w-6 h-6 text-white" />
         {totalUnread > 0 && (
