@@ -2,7 +2,7 @@ import { useState, useEffect, useRef } from 'react';
 import { Link, useParams, useSearchParams, useNavigate } from 'react-router-dom';
 import { useAuth } from '@/lib/AuthContext';
 import { useQueryClient, useQuery } from '@tanstack/react-query';
-import { Loader2, Gamepad, Trophy, MessageSquare, TrendingUp, Clock } from 'lucide-react';
+import { Loader2, Gamepad, Trophy, MessageSquare, TrendingUp, Clock, Youtube } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { toast } from 'sonner';
 import { useGameDetail } from '@/hooks/useGameDetail';
@@ -376,6 +376,37 @@ export default function GameDetail() {
             </p>
           </div>
         )}
+
+        {game.video_url && (() => {
+          const embedUrl = game.video_url.replace(
+            /(?:https?:\/\/)?(?:www\.)?(?:youtube\.com\/watch\?v=|youtu\.be\/)([^?&]+)/,
+            'https://www.youtube.com/embed/$1'
+          );
+          return (
+            <div className={`bg-white/5 rounded-xl border border-white/10 p-5 ${isLevel2User ? "user-level-2-detail-panel" : ""} ${isLevel3User ? "user-level-3-detail-panel" : ""}`}>
+              <h2 className={`text-base font-semibold text-white mb-3 flex items-center gap-2 ${isLevel2User ? "user-level-2-detail-panel-title" : ""} ${isLevel3User ? "user-level-3-detail-panel-title" : ""}`}>
+                <Youtube className="w-4 h-4 text-red-500" /> Video tutorial
+              </h2>
+              <div className="relative w-full aspect-video rounded-lg overflow-hidden">
+                <iframe
+                  src={embedUrl}
+                  title="Video tutorial"
+                  className="absolute inset-0 w-full h-full"
+                  allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
+                  allowFullScreen
+                />
+              </div>
+              <a
+                href={game.video_url}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="inline-flex items-center gap-1.5 mt-3 text-xs text-gray-400 hover:text-red-400 transition-colors"
+              >
+                <Youtube className="w-3.5 h-3.5" /> Ver en YouTube
+              </a>
+            </div>
+          );
+        })()}
 
         {(game.show_leaderboard !== false || game.show_achievements !== false) && (
           <div className="grid sm:grid-cols-2 gap-4">

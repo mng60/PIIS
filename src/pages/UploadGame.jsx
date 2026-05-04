@@ -39,6 +39,7 @@ export default function UploadGame() {
     game_type: "html5",
     thumbnail: "",
     game_url: "",
+    video_url: "",
     is_adult: false,
     is_multiplayer: false,
   });
@@ -57,6 +58,7 @@ export default function UploadGame() {
           game_type: game.game_type || "html5",
           thumbnail: game.thumbnail || "",
           game_url: game.game_url || "",
+          video_url: game.video_url || "",
           is_adult: game.is_adult || false,
           is_multiplayer: game.is_multiplayer || false,
         });
@@ -212,6 +214,20 @@ export default function UploadGame() {
                   placeholder="https://ejemplo.com/imagen.jpg"
                   className="bg-white/5 border-white/10 text-white"
                 />
+              </div>
+
+              {/* Video URL */}
+              <div className="space-y-2">
+                <Label className="text-white">Video explicación (YouTube)</Label>
+                <Input
+                  value={formData.video_url}
+                  onChange={(e) => setFormData({ ...formData, video_url: e.target.value })}
+                  placeholder="https://www.youtube.com/watch?v=..."
+                  className="bg-white/5 border-white/10 text-white"
+                />
+                <p className="text-xs text-gray-500">
+                  Opcional. Enlace de YouTube (modo sin listar recomendado).
+                </p>
               </div>
 
               {/* Game URL */}
