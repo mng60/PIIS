@@ -261,23 +261,24 @@
 }
 
 .user-level-3-game-detail-link {
-  color: #e6f8ff !important;
-  text-shadow: 0 0 10px rgba(143, 220, 255, 0.24);
+  color: #ffffff !important;
+  text-shadow: 0 0 12px rgba(143, 220, 255, 0.5), 0 0 24px rgba(120, 200, 255, 0.3);
 }
 
 .user-level-3-game-detail-page .user-level-3-game-detail-link,
 .user-level-3-game-detail-page .user-level-3-game-detail-link svg {
-  color: #e6f8ff !important;
-  filter: drop-shadow(0 0 8px rgba(143, 220, 255, 0.18)) !important;
+  color: #ffffff !important;
+  filter: drop-shadow(0 0 10px rgba(143, 220, 255, 0.5)) !important;
 }
 
 .user-level-3-game-detail-link:hover {
-  color: #e6f8ff !important;
+  color: #ffffff !important;
 }
 
 .user-level-3-game-detail-page .user-level-3-game-detail-link:hover,
 .user-level-3-game-detail-page .user-level-3-game-detail-link:hover svg {
-  color: #e6f8ff !important;
+  color: #ffffff !important;
+  filter: drop-shadow(0 0 14px rgba(143, 220, 255, 0.7)) !important;
 }
 
 .user-level-3-game-detail-title {
