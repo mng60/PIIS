@@ -268,8 +268,8 @@ export default function Layout({ children }) {
 
       <CraftyAssistant />
 
-      <footer className={`border-t py-8 mt-12 ${isDark ? "border-white/5" : "border-gray-200"}`}>
-        <div className={`max-w-7xl mx-auto px-4 text-center text-sm ${isLevel2User ? "user-level-2-footer-text" : isDark ? "text-gray-500" : "text-gray-400"}`}>
+      <footer className={`border-t py-8 mt-12 ${isLevel3User ? "user-level-3-footer" : isLevel1User ? "user-level-1-footer" : isDark ? "border-white/5" : "border-gray-200"}`}>
+        <div className={`max-w-7xl mx-auto px-4 text-center text-sm ${isLevel3User ? "user-level-3-copy" : isLevel2User ? "user-level-2-footer-text" : isDark ? "text-gray-500" : "text-gray-400"}`}>
           <p>© 2026 PlayCraft - Proyecto Universitario</p>
         </div>
       </footer>

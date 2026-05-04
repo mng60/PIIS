@@ -1281,3 +1281,7 @@
   background: linear-gradient(90deg, rgba(92, 60, 30, 0.98), rgba(166, 117, 48, 0.95)) !important;
   color: #f4dca9 !important;
 }
+
+.user-level-1-footer {
+  border-color: rgba(180, 130, 60, 0.22) !important;
+}

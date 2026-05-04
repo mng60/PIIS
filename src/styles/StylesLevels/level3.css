@@ -901,3 +901,19 @@
 .user-level-3-floating-chat [style*="#a78bfa"] {
   color: #55c9f4 !important;
 }
+
+.user-level-3-footer {
+  border-color: rgba(120, 205, 255, 0.18) !important;
+}
+
+.user-level-3-game-detail-action-share {
+  background: rgba(45, 168, 214, 0.16) !important;
+  border-color: rgba(85, 201, 244, 0.38) !important;
+  color: #55c9f4 !important;
+  box-shadow: 0 0 16px rgba(85, 201, 244, 0.12) !important;
+}
+
+.user-level-3-game-detail-action-share:hover {
+  background: rgba(55, 185, 235, 0.26) !important;
+  color: #8fdcff !important;
+}

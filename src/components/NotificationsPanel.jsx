@@ -15,6 +15,8 @@ import {
 } from "lucide-react";
 import { formatDistanceToNow } from "date-fns";
 import { es } from "date-fns/locale";
+import { useTheme } from "@/lib/ThemeContext";
+import { getLevelFromXP } from "@/lib/levels";
 
 const POLL_INTERVAL = 8_000;
 
@@ -43,9 +45,16 @@ function NotificationText({ n }) {
   return n.from_name;
 }
 
-export default function NotificationsPanel({ isDark }) {
+export default function NotificationsPanel({ isDark: isDarkProp }) {
   const { user } = useAuth();
+  const { isDark: isDarkCtx } = useTheme();
+  const isDark = isDarkProp ?? isDarkCtx;
   const navigate = useNavigate();
+  const isRegularUser = user && user.role !== "admin" && user.role !== "empresa";
+  const userLevel = isRegularUser ? getLevelFromXP(user.xp ?? 0).level : null;
+  const isLevel2User = !isDark && userLevel === 2;
+  const isLevel3User = !isDark && userLevel === 3;
+  const isLevelUser = !isDark && (userLevel === 1 || userLevel === 2 || userLevel === 3);
   const [open, setOpen] = useState(false);
   const [notifications, setNotifications] = useState([]);
   const [unreadCount, setUnreadCount] = useState(0);
@@ -165,7 +174,7 @@ export default function NotificationsPanel({ isDark }) {
         <Button
           variant="ghost"
           size="icon"
-          className={`relative ${isDark ? "text-gray-400 hover:text-white hover:bg-white/5" : "text-gray-500 hover:text-gray-900 hover:bg-gray-100"}`}
+          className={`relative ${isLevel3User ? "user-level-3-topbar-idle" : isLevel2User ? "user-level-2-topbar-idle" : isDark ? "text-gray-400 hover:text-white hover:bg-white/5" : "text-gray-500 hover:text-gray-900 hover:bg-gray-100"}`}
           title="Notificaciones"
         >
           <Bell className="w-4 h-4" />
@@ -178,7 +187,7 @@ export default function NotificationsPanel({ isDark }) {
       </PopoverTrigger>
       <PopoverContent
         align="end"
-        className={`w-80 p-0 ${isDark ? "bg-[#0f0f18] border-white/10" : "bg-white border-gray-200"}`}
+        className={`w-80 p-0 ${isLevelUser || isDark ? "bg-[#0f0f18] border-white/10" : "bg-white border-gray-200"}`}
       >
         <div className="flex items-center justify-between px-4 py-3 border-b border-white/10">
           <h3 className="font-semibold text-sm">Notificaciones</h3>
@@ -208,7 +217,7 @@ export default function NotificationsPanel({ isDark }) {
                 <div
                   key={n.id}
                   className={`px-4 py-3 border-b border-white/5 transition-colors ${
-                    !n.is_read ? (isDark ? "bg-purple-500/5" : "bg-purple-50") : ""
+                    !n.is_read ? (isLevelUser || isDark ? "bg-purple-500/5" : "bg-purple-50") : ""
                   }`}
                 >
                   <div className="flex items-start gap-3">
