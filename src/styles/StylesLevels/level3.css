@@ -793,3 +793,111 @@
 .user-level-3-profile-page .text-purple-400 {
   color: #2d9fd3 !important;
 }
+
+/* ── Crafty & FloatingChat – Nivel 3 (piloto, cielo azul eléctrico) ─── */
+
+.user-level-3-crafty .rounded-full.bg-gradient-to-br.from-purple-600.to-cyan-500,
+.user-level-3-floating-chat .rounded-full.bg-purple-600,
+.user-level-3-floating-chat .rounded-full.bg-purple-700 {
+  background: linear-gradient(135deg, #10466f 0%, #2da8d6 62%, #55c9f4 100%) !important;
+  color: #f4fbff !important;
+}
+
+.user-level-3-crafty-avatar {
+  background: radial-gradient(ellipse at 60% 30%, rgba(85, 201, 244, 0.35), rgba(10, 58, 92, 0.78)) !important;
+  border-radius: 50% !important;
+  overflow: visible !important;
+  box-shadow: 0 0 14px rgba(85, 201, 244, 0.32) !important;
+  padding: 0 !important;
+}
+
+.user-level-3-crafty-avatar-img {
+  transform: scale(1.9);
+  transform-origin: center center;
+  object-fit: contain !important;
+  mix-blend-mode: normal;
+  filter: none;
+}
+
+.user-level-3-crafty-avatar-fallback-icon {
+  background: transparent !important;
+  filter: none;
+  width: 1.15rem !important;
+  height: 1.15rem !important;
+}
+
+.user-level-3-crafty-panel {
+  background: linear-gradient(180deg, rgba(4, 18, 32, 0.98) 0%, rgba(8, 34, 58, 0.98) 100%) !important;
+  border-color: rgba(150, 225, 255, 0.34) !important;
+  box-shadow: 0 22px 44px rgba(0, 24, 48, 0.34), 0 0 28px rgba(85, 201, 244, 0.1) !important;
+}
+
+.user-level-3-crafty-header,
+.user-level-3-floating-chat-header {
+  background: linear-gradient(135deg, #10466f 0%, #2da8d6 54%, #55c9f4 100%) !important;
+  border-color: rgba(180, 235, 255, 0.18) !important;
+}
+
+.user-level-3-crafty-assistant-message,
+.user-level-3-floating-chat-message:not(.user-level-3-floating-chat-message-mine) {
+  background: rgba(10, 42, 68, 0.85) !important;
+  color: #d6f2ff !important;
+  border: 1px solid rgba(120, 205, 255, 0.24) !important;
+}
+
+.user-level-3-crafty-user-message,
+.user-level-3-floating-chat-message-mine,
+.user-level-3-crafty-button,
+.user-level-3-floating-chat-button,
+.user-level-3-floating-chat-send {
+  background: linear-gradient(135deg, #10466f 0%, #2da8d6 60%, #55c9f4 100%) !important;
+  color: #f4fbff !important;
+  box-shadow: 0 14px 28px rgba(45, 168, 214, 0.22) !important;
+}
+
+.user-level-3-crafty-input-wrap,
+.user-level-3-floating-chat-input-wrap {
+  border-color: rgba(150, 225, 255, 0.16) !important;
+}
+
+.user-level-3-crafty-input,
+.user-level-3-floating-chat-input {
+  background: rgba(5, 24, 43, 0.72) !important;
+  border-color: rgba(150, 225, 255, 0.32) !important;
+  color: #f4fbff !important;
+}
+
+.user-level-3-crafty-input-field,
+.user-level-3-floating-chat-input {
+  color: #f4fbff !important;
+}
+
+.user-level-3-crafty-input-field::placeholder,
+.user-level-3-floating-chat-input::placeholder {
+  color: #9eb9c8 !important;
+}
+
+.user-level-3-crafty-send {
+  color: #55c9f4 !important;
+}
+
+.user-level-3-floating-chat-panel {
+  background: linear-gradient(180deg, rgba(4, 18, 32, 0.98) 0%, rgba(8, 37, 64, 0.96) 100%) !important;
+  border-color: rgba(150, 225, 255, 0.28) !important;
+}
+
+.user-level-3-floating-chat-friend-row:hover {
+  background: rgba(120, 205, 255, 0.08) !important;
+}
+
+.user-level-3-floating-chat .text-white\/30,
+.user-level-3-floating-chat .text-white\/40,
+.user-level-3-floating-chat .text-white\/50,
+.user-level-3-floating-chat .text-white\/60,
+.user-level-3-floating-chat .text-white\/90 {
+  color: #d6f2ff !important;
+}
+
+.user-level-3-floating-chat [style*="#a78bfa"] {
+  color: #55c9f4 !important;
+}
