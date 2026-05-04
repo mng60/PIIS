@@ -82,38 +82,24 @@
 }
 
 .user-level-5-home-title {
-  background: linear-gradient(90deg, #78350f 0%, #d97706 48%, #92400e 100%);
+  background: linear-gradient(90deg, #fef3c7 0%, #fbbf24 42%, #f0c75e 100%);
   -webkit-background-clip: text;
   background-clip: text;
   color: transparent;
   font-weight: 900;
   text-shadow:
-    0 0 12px rgba(217, 119, 6, 0.24),
-    0 0 24px rgba(146, 64, 14, 0.16);
+    0 0 16px rgba(251, 191, 36, 0.24),
+    0 0 28px rgba(245, 158, 11, 0.18);
 }
 
 .user-level-5-home-subtitle {
-  color: #78350f !important;
+  color: #f6e7b0 !important;
 }
 
 .user-level-5-section-heading,
 .user-level-5-section-icon {
-  color: #b45309 !important;
-}
-
-.user-level-5-widget {
-  border-color: rgba(212, 160, 23, 0.28) !important;
-  background:
-    linear-gradient(145deg, rgba(255, 249, 230, 0.12) 0%, rgba(254, 243, 199, 0.08) 100%),
-    rgba(120, 53, 15, 0.06) !important;
-  box-shadow: 0 16px 38px rgba(91, 58, 20, 0.12) !important;
-}
-
-.user-level-5-widget:hover {
-  border-color: rgba(212, 160, 23, 0.44) !important;
-  background:
-    linear-gradient(145deg, rgba(255, 249, 230, 0.18) 0%, rgba(254, 243, 199, 0.12) 100%),
-    rgba(120, 53, 15, 0.08) !important;
+  color: #f0c75e !important;
+  text-shadow: 0 0 16px rgba(251, 191, 36, 0.14) !important;
 }
 
 .user-level-5-game-card,
@@ -598,7 +584,7 @@
 .user-level-5-game-detail-page .user-level-5-game-surface.bg-white\/5,
 .user-level-5-game-detail-page .user-level-5-history.bg-white\/5 {
   background:
-    linear-gradient(180deg, rgba(255, 249, 230, 0.9) 0%, rgba(254, 243, 199, 0.78) 100%) !important;
+    linear-gradient(180deg, #f3c53cd3, #e8bd56e0) !important;
   border-color: rgba(255, 249, 230, 0.5) !important;
   box-shadow:
     0 16px 34px rgba(91, 58, 20, 0.14),
@@ -727,19 +713,19 @@
 
 .user-level-5-games-filter {
   border-color: rgba(180, 83, 9, 0.34) !important;
-  color: #8b5a21 !important;
-  background: linear-gradient(135deg, rgba(255, 249, 230, 0.72) 0%, rgba(254, 243, 199, 0.62) 100%) !important;
+  color: #7c4a1d !important;
+  background: linear-gradient(135deg, rgba(248, 228, 170, 0.78) 0%, rgba(236, 196, 96, 0.56) 100%) !important;
   box-shadow: 0 8px 18px rgba(91, 58, 20, 0.08) !important;
 }
 
 .user-level-5-games-filter:hover {
-  color: #6b4218 !important;
-  background: linear-gradient(135deg, rgba(255, 251, 235, 0.9) 0%, rgba(253, 230, 138, 0.72) 100%) !important;
+  color: #5b3a14 !important;
+  background: linear-gradient(135deg, rgba(252, 236, 189, 0.92) 0%, rgba(240, 202, 111, 0.66) 100%) !important;
   border-color: rgba(180, 83, 9, 0.48) !important;
 }
 
 .user-level-5-games-filter-active {
-  background: linear-gradient(135deg, #c98912 0%, #fbbf24 100%) !important;
+  background: linear-gradient(135deg, #8a4b12 0%, #e7b42b 60%, #d99a12 100%) !important;
   border: 0 !important;
   color: #fffef5 !important;
   box-shadow:
@@ -793,7 +779,8 @@
 }
 
 .user-level-5-profile-hero {
-  background: linear-gradient(135deg, rgba(146, 64, 14, 0.72) 0%, rgba(212, 158, 23, 0.658) 50%, rgba(120, 53, 15, 0.64) 100%) !important;
+    background: linear-gradient(135deg, #d49e17e7 0%, #966209e7 100%) !important;
+
   border: 1px solid rgba(255, 249, 230, 0.28) !important;
   box-shadow:
     0 20px 40px rgba(91, 58, 20, 0.12),
@@ -1023,15 +1010,6 @@
   color: #8b6a2a !important;
 }
 
-.user-level-5-profile-hero {
-  background:
-    linear-gradient(135deg, rgba(146, 64, 14, 0.66) 0%, rgba(212, 158, 23, 0.685) 54%, rgba(91, 58, 20, 0.651) 100%) !important;
-  border-color: rgba(255, 249, 230, 0.32) !important;
-  box-shadow:
-    0 20px 42px rgba(91, 58, 20, 0.2),
-    0 0 0 1px rgba(255, 251, 235, 0.12) inset !important;
-}
-
 .user-level-5-profile-avatar {
   border-color: rgba(253, 230, 138, 0.75) !important;
   box-shadow:
@@ -1084,23 +1062,26 @@
 }
 
 .user-level-5-profile-panel {
-  background: linear-gradient(180deg, rgba(255, 249, 230, 0.78) 0%, rgba(254, 243, 199, 0.64) 100%) !important;
-  border-color: rgba(212, 160, 23, 0.3) !important;
+  background: linear-gradient(180deg, rgba(248, 228, 170, 0.84) 0%, rgba(232, 189, 86, 0.52) 100%) !important;
+  border-color: rgba(180, 83, 9, 0.34) !important;
   box-shadow:
-    0 16px 34px rgba(91, 58, 20, 0.12),
-    0 0 0 1px rgba(255, 251, 235, 0.18) inset !important;
+    0 16px 34px rgba(91, 58, 20, 0.16),
+    0 0 0 1px rgba(255, 244, 179, 0.24) inset !important;
 }
 
 .user-level-5-profile-panel-title,
 .user-level-5-profile-panel-title *,
 .user-level-5-profile-panel-text,
 .user-level-5-profile-panel-text * {
-  color: #92400e !important;
+  color: #6b3f12 !important;
 }
 
 .user-level-5-profile-score-row {
-  background: linear-gradient(180deg, rgba(255, 249, 230, 0.64) 0%, rgba(254, 243, 199, 0.52) 100%) !important;
-  border-color: rgba(212, 160, 23, 0.24) !important;
+  background: linear-gradient(180deg, rgba(248, 228, 170, 0.86) 0%, rgba(230, 184, 78, 0.44) 100%) !important;
+  border-color: rgba(180, 83, 9, 0.26) !important;
+  box-shadow:
+    0 10px 20px rgba(91, 58, 20, 0.08),
+    0 0 0 1px rgba(255, 244, 179, 0.14) inset !important;
 }
 
 .user-level-5-profile-score,
@@ -1131,18 +1112,51 @@
   text-shadow: none !important;
 }
 
+.user-level-5-profile-page .user-level-5-profile-score-row,
+.user-level-5-profile-page .user-level-5-profile-score-row.bg-white\/5 {
+  background: linear-gradient(180deg, rgba(248, 228, 170, 0.88) 0%, rgba(232, 189, 86, 0.5) 100%) !important;
+  border: 1px solid rgba(180, 83, 9, 0.22) !important;
+}
+
+.user-level-5-profile-page .user-level-5-profile-score-row:hover,
+.user-level-5-profile-page .user-level-5-profile-score-row.hover\:bg-white\/10:hover {
+  background: linear-gradient(180deg, rgba(252, 236, 189, 0.96) 0%, rgba(236, 196, 96, 0.58) 100%) !important;
+  border-color: rgba(146, 64, 14, 0.34) !important;
+}
+
+.user-level-5-profile-page .user-level-5-profile-score-row .text-white,
+.user-level-5-profile-page .user-level-5-profile-score-row p.font-medium,
+.user-level-5-profile-page .user-level-5-profile-score-row .truncate {
+  color: #6b3f12 !important;
+}
+
+.user-level-5-profile-page .user-level-5-profile-score-row .text-gray-500,
+.user-level-5-profile-page .user-level-5-profile-score-row .text-xs,
+.user-level-5-profile-page .user-level-5-profile-score-row .text-gray-400 {
+  color: #8b5a18 !important;
+}
+
+.user-level-5-profile-page .user-level-5-profile-score-row [class*="from-purple-600/30"],
+.user-level-5-profile-page .user-level-5-profile-score-row [class*="to-cyan-500/30"] {
+  background: linear-gradient(135deg, rgba(146, 64, 14, 0.86) 0%, rgba(251, 191, 36, 0.72) 100%) !important;
+}
+
+.user-level-5-profile-page .user-level-5-profile-score-row .text-purple-400 {
+  color: #fffbeb !important;
+}
+
 .user-level-5-profile-medal-row {
   background:
-    linear-gradient(135deg, rgba(255, 249, 230, 0.42) 0%, rgba(254, 243, 199, 0.34) 100%) !important;
-  border-color: rgba(180, 83, 9, 0.34) !important;
+    linear-gradient(135deg, rgba(250, 233, 183, 0.66) 0%, rgba(230, 188, 88, 0.3) 100%) !important;
+  border-color: rgba(180, 83, 9, 0.36) !important;
   box-shadow:
     0 8px 18px rgba(91, 58, 20, 0.1),
-    0 0 0 1px rgba(255, 251, 235, 0.18) inset !important;
+    0 0 0 1px rgba(255, 244, 179, 0.2) inset !important;
 }
 
 .user-level-5-profile-medal-row:nth-child(even) {
   background:
-    linear-gradient(135deg, rgba(255, 251, 235, 0.48) 0%, rgba(253, 230, 138, 0.34) 100%) !important;
+    linear-gradient(135deg, rgba(252, 239, 199, 0.72) 0%, rgba(234, 200, 104, 0.36) 100%) !important;
 }
 
 .user-level-5-profile-medal-icon {
@@ -1411,10 +1425,28 @@
 .user-level-5-floating-chat-message-mine,
 .user-level-5-crafty-button,
 .user-level-5-floating-chat-button,
+.user-level-5-floating-chat-buttonrelative,
 .user-level-5-floating-chat-send {
   background: linear-gradient(135deg, #92400e 0%, #fbbf24 60%, #d97706 100%) !important;
   color: #fffbeb !important;
   box-shadow: 0 14px 28px rgba(120, 53, 15, 0.22) !important;
+}
+
+.user-level-5-crafty-button {
+  width: 3rem !important;
+  height: 3rem !important;
+  min-width: 3rem !important;
+  min-height: 3rem !important;
+  max-width: 3rem !important;
+  max-height: 3rem !important;
+  border-radius: 9999px !important;
+  padding: 0 !important;
+}
+
+.user-level-5-crafty-button > svg {
+  width: 1.25rem !important;
+  height: 1.25rem !important;
+  flex: 0 0 auto !important;
 }
 
 .user-level-5-crafty-input-wrap,
@@ -1491,12 +1523,19 @@
 .user-level-5-friends-page .text-gray-500,
 .user-level-5-tournaments-page .text-gray-400,
 .user-level-5-tournaments-page .text-gray-500 {
-  color: #7c5a23 !important;
+  color: #a16207 !important;
+}
+
+.user-level-5-friends-page .text-gray-600,
+.user-level-5-tournaments-page .text-gray-600,
+.user-level-5-friends-page [class*="text-purple"],
+.user-level-5-tournaments-page [class*="text-purple"] {
+  color: #c58b10 !important;
 }
 
 .user-level-5-friends-search {
-  background: rgba(255, 249, 230, 0.88) !important;
-  border-color: rgba(212, 160, 23, 0.34) !important;
+  background: rgba(252, 241, 208, 0.92) !important;
+  border-color: rgba(180, 83, 9, 0.34) !important;
   color: #4a2d12 !important;
 }
 
@@ -1506,23 +1545,31 @@
 
 .user-level-5-friends-row,
 .user-level-5-tournament-card {
-  background: linear-gradient(180deg, rgba(255, 251, 235, 0.94) 0%, rgba(254, 243, 199, 0.9) 100%) !important;
-  border: 1px solid rgba(201, 137, 18, 0.32) !important;
+  background: linear-gradient(180deg, rgba(248, 229, 177, 0.92) 0%, rgba(233, 190, 93, 0.42) 100%) !important;
+  border: 1px solid rgba(180, 83, 9, 0.28) !important;
   box-shadow:
-    0 14px 28px rgba(91, 58, 20, 0.12),
-    0 0 0 1px rgba(255, 251, 235, 0.22) inset !important;
+    0 14px 28px rgba(91, 58, 20, 0.14),
+    0 0 0 1px rgba(255, 244, 179, 0.22) inset !important;
 }
 
 .user-level-5-tournament-card:hover,
 .user-level-5-friends-row:hover {
-  background: linear-gradient(180deg, rgba(255, 251, 235, 0.98) 0%, rgba(255, 249, 230, 0.94) 100%) !important;
-  border-color: rgba(180, 83, 9, 0.42) !important;
+  background: linear-gradient(180deg, rgba(251, 236, 191, 0.96) 0%, rgba(240, 202, 111, 0.5) 100%) !important;
+  border-color: rgba(146, 64, 14, 0.42) !important;
 }
 
 .user-level-5-tournament-card-title,
 .user-level-5-friends-page .font-medium,
 .user-level-5-friends-page .text-purple-400 {
   color: #78350f !important;
+}
+
+.user-level-5-tournament-card .text-gray-400,
+.user-level-5-tournament-card .text-gray-500,
+.user-level-5-tournament-card p,
+.user-level-5-friends-row .text-gray-500,
+.user-level-5-friends-row .text-xs {
+  color: #8b5a18 !important;
 }
 
 .user-level-5-tournament-elo,
@@ -1552,6 +1599,13 @@
 .user-level-5-tournaments-empty-title,
 .user-level-5-tournaments-empty-icon {
   color: #7c5a23 !important;
+}
+
+.user-level-5-tournaments-page .text-center.py-20 .text-gray-600,
+.user-level-5-tournaments-page .text-center.py-20 p.text-gray-600,
+.user-level-5-friends-page .text-center .text-gray-600,
+.user-level-5-friends-page .text-center p.text-gray-600 {
+  color: #c58b10 !important;
 }
 
 .user-level-5-game-detail-page h1.text-white,
@@ -1594,18 +1648,18 @@
 }
 
 .user-level-5-profile-premium-card {
-  background: linear-gradient(135deg, rgba(255, 244, 179, 0.9) 0%, rgba(254, 243, 199, 0.88) 52%, rgba(253, 230, 138, 0.9) 100%) !important;
-  border-color: rgba(229, 193, 74, 0.42) !important;
+  background: linear-gradient(135deg, rgba(241, 200, 83, 0.92) 0%, rgba(219, 167, 43, 0.78) 52%, rgba(168, 103, 20, 0.72) 100%) !important;
+  border-color: rgba(255, 223, 92, 0.34) !important;
   box-shadow:
-    0 18px 36px rgba(105, 92, 19, 0.12),
-    0 0 0 1px rgba(255, 250, 205, 0.28) inset !important;
+    0 18px 36px rgba(105, 92, 19, 0.16),
+    0 0 0 1px rgba(255, 239, 160, 0.22) inset !important;
 }
 
 .user-level-5-profile-premium-card .text-white,
 .user-level-5-profile-premium-card .text-gray-300,
 .user-level-5-profile-premium-card .text-gray-400,
 .user-level-5-profile-premium-card .text-gray-500 {
-  color: #5b3a14 !important;
+  color: #4a2d12 !important;
 }
 
 .user-level-5-profile-premium-card .text-yellow-400,
@@ -1616,6 +1670,24 @@
 .user-level-5-profile-premium-card button.bg-gradient-to-r {
   background: linear-gradient(135deg, #eab308 0%, #facc15 100%) !important;
   color: #5b3a14 !important;
+}
+
+.user-level-5-profile-page .user-level-5-profile-premium-card p,
+.user-level-5-profile-page .user-level-5-profile-premium-card li,
+.user-level-5-profile-page .user-level-5-profile-premium-card span:not(.text-yellow-400):not(.text-orange-400) {
+  color: #5b3a14 !important;
+}
+
+.user-level-5-profile-page .text-white\/80,
+.user-level-5-profile-page .text-white\/70,
+.user-level-5-profile-page .text-white\/60,
+.user-level-5-profile-page .text-purple-400,
+.user-level-5-profile-page .text-purple-300 {
+  color: #d4a017 !important;
+}
+
+.user-level-5-profile-page .text-gray-600 {
+  color: #a16207 !important;
 }
 
 .user-level-5-game-surface {
@@ -1897,51 +1969,592 @@
   border-color: rgba(212, 160, 23, 0.28) !important;
 }
 
-/* =================== CLASES FALTANTES =================== */
-
-.user-level-5-copy {
-  color: #8b6a2a !important;
+/* Ajuste final ajedrez nivel 5: quitar verde residual y reforzar legibilidad */
+.user-level-5-game-surface .online-game-lobby__description,
+.user-level-5-game-surface .online-game-lobby__section-title,
+.user-level-5-game-surface .online-game-lobby__separator {
+  color: #7c4a1d !important;
 }
 
-.user-level-5-button {
-  background: linear-gradient(135deg, #92400e 0%, #fbbf24 56%, #d97706 100%) !important;
-  border: 1px solid rgba(255, 249, 230, 0.22) !important;
-  color: #fffbeb !important;
-  box-shadow:
-    0 12px 26px rgba(120, 53, 15, 0.2),
-    0 0 18px rgba(251, 191, 36, 0.14) !important;
+.user-level-5-game-surface .online-game-lobby__ai-card,
+.user-level-5-game-surface .online-game-lobby__mode-card {
+  background: rgba(255, 249, 230, 0.9) !important;
+  border-color: rgba(217, 119, 6, 0.18) !important;
 }
 
-.user-level-5-button:hover {
-  background: linear-gradient(135deg, #a05212 0%, #fcd34d 56%, #f59e0b 100%) !important;
-  box-shadow:
-    0 14px 30px rgba(120, 53, 15, 0.24),
-    0 0 22px rgba(251, 191, 36, 0.18) !important;
+.user-level-5-game-surface .online-game-lobby__ai-icon,
+.user-level-5-game-surface .online-game-lobby__ai-title,
+.user-level-5-game-surface .online-game-lobby__mode-icon,
+.user-level-5-game-surface .online-game-lobby__mode-title {
+  color: #b45309 !important;
 }
 
-.user-level-5-favorites-icon {
-  color: #d97706 !important;
-  fill: #d97706 !important;
-  filter: drop-shadow(0 0 8px rgba(217, 119, 6, 0.36));
+.user-level-5-game-surface .online-game-lobby__mode-dot,
+.user-level-5-game-surface .online-game-lobby__ai-dot {
+  background: #b45309 !important;
 }
 
-.user-level-5-friends-loader,
-.user-level-5-tournaments-loader {
-  color: #fbbf24 !important;
-}
-
-.user-level-5-profile-premium-button {
-  background: linear-gradient(135deg, #eab308 0%, #facc15 56%, #fbbf24 100%) !important;
+.user-level-5-game-surface .online-game-lobby__ai-copy,
+.user-level-5-game-surface .online-game-lobby__mode-copy,
+.user-level-5-game-surface .online-game-lobby__card p,
+.user-level-5-game-surface .online-game-lobby__card span {
   color: #5b3a14 !important;
-  border: 0 !important;
-  box-shadow:
-    0 12px 26px rgba(146, 64, 14, 0.22),
-    0 0 18px rgba(234, 179, 8, 0.16) !important;
 }
 
-.user-level-5-profile-premium-button:hover {
-  background: linear-gradient(135deg, #f59e0b 0%, #fbbf24 56%, #fcd34d 100%) !important;
+.user-level-5-game-surface .online-game-lobby__ai-difficulty,
+.user-level-5-game-surface .online-game-lobby__mode-card {
+  border-color: rgba(180, 83, 9, 0.18) !important;
+  color: #6b4218 !important;
+  box-shadow: none !important;
+}
+
+.user-level-5-game-surface .online-game-lobby__ai-difficulty[data-selected="true"],
+.user-level-5-game-surface .online-game-lobby__mode-card[data-selected="true"] {
+  background: linear-gradient(135deg, rgba(180, 83, 9, 0.14) 0%, rgba(251, 191, 36, 0.24) 100%) !important;
+  border-color: rgba(180, 83, 9, 0.38) !important;
+  box-shadow: 0 0 16px rgba(180, 83, 9, 0.14) !important;
+}
+
+.user-level-5-game-surface .online-game-lobby__mode-card[data-selected="true"] .online-game-lobby__mode-title,
+.user-level-5-game-surface .online-game-lobby__mode-card[data-selected="true"] .online-game-lobby__mode-copy,
+.user-level-5-game-surface .online-game-lobby__ai-difficulty[data-selected="true"] {
+  color: #5b3a14 !important;
+}
+
+.user-level-5-game-surface .online-game-lobby__mode-card[data-selected="true"] .online-game-lobby__mode-icon {
+  color: #92400e !important;
+}
+
+.user-level-5-game-surface .online-game-lobby__mode-card[data-selected="true"] .online-game-lobby__mode-dot,
+.user-level-5-game-surface .online-game-lobby__ai-difficulty[data-selected="true"] .online-game-lobby__ai-dot {
+  background: #92400e !important;
+}
+
+.user-level-5-game-surface .online-game-lobby__ai-launch {
+  background: linear-gradient(90deg, #92400e 0%, #fbbf24 100%) !important;
+  color: #fffbeb !important;
+  border: 1px solid rgba(251, 191, 36, 0.22) !important;
+}
+
+.user-level-5-detail-panel,
+.user-level-5-history {
+  background: linear-gradient(180deg, rgba(52, 32, 14, 0.92) 0%, rgba(34, 21, 10, 0.9) 100%) !important;
+  border-color: rgba(217, 119, 6, 0.22) !important;
+}
+
+.user-level-5-detail-panel-title,
+.user-level-5-detail-icon-blue,
+.user-level-5-detail-panel .text-white,
+.user-level-5-detail-panel .text-gray-300,
+.user-level-5-detail-panel .text-gray-400,
+.user-level-5-detail-panel .text-gray-500,
+.user-level-5-history .text-white,
+.user-level-5-history .text-gray-300,
+.user-level-5-history .text-gray-400,
+.user-level-5-history .text-gray-500 {
+  color: #f6e2b4 !important;
+}
+
+/* Contraste final nivel 5: priorizar legibilidad */
+.user-level-5-profile-page,
+.user-level-5-friends-page,
+.user-level-5-tournaments-page,
+.user-level-5-games-page,
+.user-level-5-game-detail-page {
+  color: #4a2d12 !important;
+}
+
+.user-level-5-profile-page .text-white,
+.user-level-5-friends-page .text-white,
+.user-level-5-tournaments-page .text-white,
+.user-level-5-games-page .text-white,
+.user-level-5-game-detail-page .text-white,
+.user-level-5-profile-page .font-medium,
+.user-level-5-friends-page .font-medium,
+.user-level-5-tournaments-page .font-medium,
+.user-level-5-games-page .font-medium {
+  color: #5b3a14 !important;
+}
+
+.user-level-5-profile-page .text-gray-300,
+.user-level-5-profile-page .text-gray-400,
+.user-level-5-profile-page .text-gray-500,
+.user-level-5-profile-page .text-gray-600,
+.user-level-5-friends-page .text-gray-300,
+.user-level-5-friends-page .text-gray-400,
+.user-level-5-friends-page .text-gray-500,
+.user-level-5-friends-page .text-gray-600,
+.user-level-5-tournaments-page .text-gray-300,
+.user-level-5-tournaments-page .text-gray-400,
+.user-level-5-tournaments-page .text-gray-500,
+.user-level-5-tournaments-page .text-gray-600,
+.user-level-5-games-page .text-gray-300,
+.user-level-5-games-page .text-gray-400,
+.user-level-5-games-page .text-gray-500,
+.user-level-5-games-page .text-gray-600,
+.user-level-5-game-detail-page .text-gray-300,
+.user-level-5-game-detail-page .text-gray-400,
+.user-level-5-game-detail-page .text-gray-500,
+.user-level-5-game-detail-page .text-gray-600 {
+  color: #7c4a1d !important;
+}
+
+.user-level-5-profile-page [class*="text-purple"],
+.user-level-5-profile-page [class*="text-cyan"],
+.user-level-5-friends-page [class*="text-purple"],
+.user-level-5-friends-page [class*="text-cyan"],
+.user-level-5-tournaments-page [class*="text-purple"],
+.user-level-5-tournaments-page [class*="text-cyan"],
+.user-level-5-games-page [class*="text-purple"],
+.user-level-5-games-page [class*="text-cyan"],
+.user-level-5-game-detail-page [class*="text-purple"],
+.user-level-5-game-detail-page [class*="text-cyan"] {
+  color: #a16207 !important;
+}
+
+.user-level-5-profile-page .user-level-5-profile-name,
+.user-level-5-profile-page .user-level-5-profile-panel-title,
+.user-level-5-profile-page .user-level-5-profile-panel-title *,
+.user-level-5-profile-page .user-level-5-profile-panel-text,
+.user-level-5-profile-page .user-level-5-profile-panel-text *,
+.user-level-5-profile-page .user-level-5-profile-score-row p,
+.user-level-5-profile-page .user-level-5-profile-score-row span,
+.user-level-5-profile-page .user-level-5-profile-stat-copy,
+.user-level-5-profile-page .user-level-5-profile-meta,
+.user-level-5-profile-page .user-level-5-profile-meta-muted,
+.user-level-5-profile-page .user-level-5-profile-next-level,
+.user-level-5-profile-page .user-level-5-profile-score-date {
+  color: #6b3f12 !important;
+}
+
+.user-level-5-profile-page .user-level-5-profile-score,
+.user-level-5-profile-page .user-level-5-profile-score *,
+.user-level-5-profile-page .user-level-5-profile-stat-value,
+.user-level-5-profile-page .user-level-5-profile-level-label {
+  color: #8a4b12 !important;
+}
+
+.user-level-5-profile-page .user-level-5-profile-premium-card,
+.user-level-5-profile-page .user-level-5-profile-premium-card p,
+.user-level-5-profile-page .user-level-5-profile-premium-card li,
+.user-level-5-profile-page .user-level-5-profile-premium-card span,
+.user-level-5-profile-page .user-level-5-profile-premium-card .text-white,
+.user-level-5-profile-page .user-level-5-profile-premium-card .text-gray-300,
+.user-level-5-profile-page .user-level-5-profile-premium-card .text-gray-400,
+.user-level-5-profile-page .user-level-5-profile-premium-card .text-gray-500 {
+  color: #4a2d12 !important;
+}
+
+.user-level-5-game-detail-page .user-level-5-detail-panel,
+.user-level-5-game-detail-page .user-level-5-detail-panel p,
+.user-level-5-game-detail-page .user-level-5-detail-panel span,
+.user-level-5-game-detail-page .user-level-5-comment-card,
+.user-level-5-game-detail-page .user-level-5-comment-card p,
+.user-level-5-game-detail-page .user-level-5-comment-label,
+.user-level-5-game-detail-page .user-level-5-detail-panel-title {
+  color: #5b3a14 !important;
+}
+
+.user-level-5-game-detail-page .user-level-5-detail-rating,
+.user-level-5-game-detail-page .text-yellow-500,
+.user-level-5-game-detail-page .fill-yellow-500 {
+  color: #a16207 !important;
+  fill: #a16207 !important;
+}
+
+.user-level-5-friends-page .user-level-5-friends-section-title,
+.user-level-5-friends-page .user-level-5-friends-title,
+.user-level-5-tournaments-page .user-level-5-tournaments-title,
+.user-level-5-tournaments-page .user-level-5-tournaments-copy,
+.user-level-5-tournaments-page .user-level-5-tournaments-bracket,
+.user-level-5-tournaments-page .user-level-5-tournaments-empty-title,
+.user-level-5-games-page .user-level-5-games-copy,
+.user-level-5-games-page .user-level-5-games-results {
+  color: #8a4b12 !important;
+}
+
+.user-level-5-topbar-text,
+.user-level-5-logo-text,
+.user-level-5-game-surface .text-white,
+.user-level-5-chess .text-white,
+.user-level-5-chess .text-white\/80,
+.user-level-5-chess .text-white\/70,
+.user-level-5-chess .text-white\/60 {
+  color: #fff8e1 !important;
+}
+
+.user-level-5-games-page .user-level-5-section-heading,
+.user-level-5-games-page .user-level-5-section-icon,
+.user-level-5-games-page .user-level-5-games-copy,
+.user-level-5-games-page .user-level-5-games-results,
+.user-level-5-games-page .text-gray-400,
+.user-level-5-games-page .text-gray-500,
+.user-level-5-games-page .text-gray-600,
+.user-level-5-tournaments-page .user-level-5-section-heading,
+.user-level-5-tournaments-page .user-level-5-section-icon,
+.user-level-5-tournaments-page .user-level-5-tournaments-copy,
+.user-level-5-tournaments-page .user-level-5-tournaments-bracket,
+.user-level-5-tournaments-page .user-level-5-tournaments-bracket-icon,
+.user-level-5-tournaments-page .user-level-5-tournaments-empty,
+.user-level-5-tournaments-page .user-level-5-tournaments-empty-title,
+.user-level-5-tournaments-page .user-level-5-tournaments-empty-icon,
+.user-level-5-tournaments-page .text-gray-400,
+.user-level-5-tournaments-page .text-gray-500,
+.user-level-5-tournaments-page .text-gray-600,
+.user-level-5-friends-page .user-level-5-friends-title,
+.user-level-5-friends-page .user-level-5-friends-section-title,
+.user-level-5-friends-page .text-gray-400,
+.user-level-5-friends-page .text-gray-500,
+.user-level-5-friends-page .text-gray-600,
+.user-level-5-game-detail-page .user-level-5-game-detail-link,
+.user-level-5-game-detail-page .user-level-5-game-detail-meta,
+.user-level-5-game-detail-page .user-level-5-game-detail-publisher,
+.user-level-5-game-detail-page .user-level-5-detail-rating {
+  color: #f0c75e !important;
+}
+
+.user-level-5-games-page .user-level-5-section-heading,
+.user-level-5-tournaments-page .user-level-5-tournaments-title,
+.user-level-5-friends-page .user-level-5-friends-title,
+.user-level-5-game-detail-page .user-level-5-game-detail-title {
+  color: #e7b42b !important;
+  text-shadow: 0 0 18px rgba(251, 191, 36, 0.16) !important;
+}
+
+.user-level-5-games-page .user-level-5-games-empty-tone,
+.user-level-5-tournaments-page .text-center.py-20 p,
+.user-level-5-friends-page .text-center p,
+.user-level-5-friends-page .text-center svg,
+.user-level-5-tournaments-page .text-center svg {
+  color: #f6e7b0 !important;
+}
+
+.user-level-5-games-page .user-level-5-game-card h3,
+.user-level-5-games-page .user-level-5-game-card .text-white,
+.user-level-5-games-page .user-level-5-game-card .font-bold,
+.user-level-5-games-page .user-level-5-game-card .font-medium {
+  color: #6b3f12 !important;
+}
+
+.user-level-5-games-page .user-level-5-game-card p,
+.user-level-5-games-page .user-level-5-game-card .text-gray-400,
+.user-level-5-games-page .user-level-5-game-card .text-gray-500,
+.user-level-5-games-page .user-level-5-game-card .text-sm,
+.user-level-5-games-page .user-level-5-game-card .text-xs {
+  color: #8b5a18 !important;
+}
+
+.user-level-5-games-page .user-level-5-game-card .border-white\/5 {
+  border-color: rgba(180, 83, 9, 0.16) !important;
+}
+
+.user-level-5-tournaments-page .user-level-5-tournaments-tab {
+  color: #7c4a1d !important;
+}
+
+.user-level-5-tournaments-page .user-level-5-tournaments-tab:hover {
+  color: #5b3a14 !important;
+}
+
+.user-level-5-tournaments-page .user-level-5-tournaments-tab-active,
+.user-level-5-tournaments-page .user-level-5-tournaments-tab-active.text-white,
+.user-level-5-tournaments-page .user-level-5-tournaments-tab-active:hover {
+  color: #fff8e1 !important;
+}
+
+/* Ajustes finales nivel 5: contraste alto en juegos y paneles */
+.user-level-5-game-cover-overlay {
+  background: rgba(24, 15, 6, 0.34) !important;
+}
+
+.user-level-5-game-detail-page .user-level-5-game-detail-title,
+.user-level-5-game-detail-page h1.user-level-5-game-detail-title,
+.user-level-5-game-detail-page .user-level-5-game-detail-meta,
+.user-level-5-game-detail-page .user-level-5-game-detail-meta span,
+.user-level-5-game-detail-page .user-level-5-game-detail-publisher,
+.user-level-5-game-detail-page .user-level-5-game-detail-link {
+  color: #fff8e1 !important;
+  text-shadow:
+    0 2px 8px rgba(29, 18, 8, 0.78),
+    0 0 14px rgba(251, 191, 36, 0.2) !important;
+}
+
+.user-level-5-game-detail-page .user-level-5-game-detail-title {
+  color: #ffffff !important;
+}
+
+.user-level-5-game-detail-page .user-level-5-detail-panel,
+.user-level-5-game-detail-page .user-level-5-detail-panel.bg-white\/5,
+.user-level-5-game-detail-page .user-level-5-comment-card,
+.user-level-5-game-detail-page .user-level-5-comment-card.bg-white\/5 {
+  
+  background: linear-gradient(180deg, #f8e4aa, #e8bd5685) !important;
+  border-color: rgba(180, 83, 9, 0.3) !important;
+  color: #3a240f !important;
+}
+
+.user-level-5-game-detail-page .user-level-5-detail-panel-title,
+.user-level-5-game-detail-page .user-level-5-detail-panel p,
+.user-level-5-game-detail-page .user-level-5-detail-panel span,
+.user-level-5-game-detail-page .user-level-5-comment-label,
+.user-level-5-game-detail-page .user-level-5-comment-empty,
+.user-level-5-game-detail-page .user-level-5-comment-empty *,
+.user-level-5-game-detail-page .user-level-5-leaderboard-empty,
+.user-level-5-game-detail-page .user-level-5-leaderboard-empty * {
+  color: #3a240f !important;
+  text-shadow: none !important;
+}
+
+.user-level-5-game-surface .online-game-lobby__title,
+.user-level-5-game-surface .online-game-lobby__description,
+.user-level-5-game-surface .online-game-lobby__section-title,
+.user-level-5-game-surface .online-game-lobby__separator,
+.user-level-5-game-surface .online-game-lobby__ai-copy,
+.user-level-5-game-surface .online-game-lobby__mode-copy {
+  color: #3a240f !important;
+  -webkit-text-fill-color: #3a240f !important;
+  text-shadow: none !important;
+}
+
+.user-level-5-game-surface .online-game-lobby__title {
+  background: none !important;
+  -webkit-background-clip: initial !important;
+  background-clip: initial !important;
+  color: #5b3a14 !important;
+  -webkit-text-fill-color: #5b3a14 !important;
+}
+
+.user-level-5-crafty-close {
+  border: 1px solid rgba(255, 251, 235, 0.42) !important;
+  background: rgba(255, 251, 235, 0.18) !important;
+  border-radius: 9999px !important;
+}
+
+.user-level-5-crafty-assistant-message.user-crafty-message-bubble,
+.user-level-5-crafty-user-message.user-crafty-message-bubble {
+  position: relative;
+  border-radius: 16px !important;
+  border: 1px solid rgba(253, 230, 138, 0.24) !important;
+}
+
+.user-level-5-crafty-assistant-message.user-crafty-message-bubble::before {
+  content: "";
+  position: absolute;
+  left: -6px;
+  bottom: 8px;
+  border-top: 6px solid transparent;
+  border-bottom: 6px solid transparent;
+  border-right: 6px solid rgba(255, 249, 230, 0.92);
+}
+
+.user-level-5-crafty-user-message.user-crafty-message-bubble::after {
+  content: "";
+  position: absolute;
+  right: -6px;
+  bottom: 8px;
+  border-top: 6px solid transparent;
+  border-bottom: 6px solid transparent;
+  border-left: 6px solid #92400e;
+}
+
+.user-level-5-games-page .user-level-5-section-heading,
+.user-level-5-games-page .user-level-5-section-icon,
+.user-level-5-games-page .user-level-5-copy,
+.user-level-5-games-page .user-level-5-games-results {
+  color: #fff8e1 !important;
+  text-shadow: 0 2px 8px rgba(29, 18, 8, 0.78) !important;
+}
+
+.user-level-5-games-page .user-level-5-games-search,
+.user-level-5-games-page .user-level-5-games-filter {
+  background: rgba(255, 251, 235, 0.92) !important;
+  border-color: rgba(180, 83, 9, 0.34) !important;
+  color: #3a240f !important;
+}
+
+.user-level-5-games-page .user-level-5-games-search::placeholder {
+  color: #7c4a1d !important;
+}
+
+/* Nivel 5: cabecera de perfil con contraste alto sobre dorado */
+.user-level-5-profile-page .user-level-5-profile-hero {
+  background:
+    linear-gradient(135deg, rgba(255, 246, 214, 0.94) 0%, rgba(232, 178, 45, 0.9) 54%, rgba(180, 83, 9, 0.82) 100%) !important;
+  border-color: rgba(120, 53, 15, 0.36) !important;
   box-shadow:
-    0 14px 30px rgba(146, 64, 14, 0.28),
-    0 0 22px rgba(251, 191, 36, 0.2) !important;
+    0 20px 42px rgba(58, 36, 15, 0.2),
+    0 0 0 1px rgba(255, 251, 235, 0.36) inset !important;
+}
+
+.user-level-5-profile-page .user-level-5-profile-hero .premium-rainbow {
+  animation: none !important;
+  color: #3a240f !important;
+  text-shadow: 0 1px 0 rgba(255, 251, 235, 0.42) !important;
+}
+
+.user-level-5-profile-page .user-level-5-profile-hero .text-white,
+.user-level-5-profile-page .user-level-5-profile-hero .user-level-5-profile-name,
+.user-level-5-profile-page .user-level-5-profile-hero .user-level-5-profile-name * {
+  color: #3a240f !important;
+  text-shadow: 0 1px 0 rgba(255, 251, 235, 0.38) !important;
+}
+
+.user-level-5-profile-page .user-level-5-profile-hero .user-level-5-profile-meta,
+.user-level-5-profile-page .user-level-5-profile-hero .user-level-5-profile-meta span,
+.user-level-5-profile-page .user-level-5-profile-hero .user-level-5-profile-meta-muted,
+.user-level-5-profile-page .user-level-5-profile-hero .user-level-5-profile-meta-muted span,
+.user-level-5-profile-page .user-level-5-profile-hero .user-level-5-profile-xp-label,
+.user-level-5-profile-page .user-level-5-profile-hero .user-level-5-profile-next-level {
+  color: #4a2d12 !important;
+  text-shadow: none !important;
+}
+
+.user-level-5-profile-page .user-level-5-profile-hero .user-level-5-profile-icon-soft,
+.user-level-5-profile-page .user-level-5-profile-hero .user-level-5-profile-icon-muted,
+.user-level-5-profile-page .user-level-5-profile-hero .user-level-5-profile-action-button,
+.user-level-5-profile-page .user-level-5-profile-hero .user-level-5-profile-action-button svg {
+  color: #5b3a14 !important;
+}
+
+.user-level-5-profile-page .user-level-5-profile-hero .user-level-5-profile-action-button:hover {
+  background: rgba(255, 251, 235, 0.34) !important;
+  color: #3a240f !important;
+}
+
+.user-level-5-profile-page .user-level-5-profile-hero .user-level-5-profile-level-label {
+  color: #5b3a14 !important;
+  text-shadow: none !important;
+}
+
+.user-level-5-profile-page .user-level-5-profile-hero .user-level-5-profile-progress-track {
+  background: rgba(91, 58, 20, 0.2) !important;
+}
+
+.user-level-5-profile-page .user-level-5-profile-hero .user-level-5-profile-progress-fill {
+  background: linear-gradient(90deg, #92400e 0%, #d97706 58%, #facc15 100%) !important;
+  box-shadow: 0 0 12px rgba(58, 36, 15, 0.18) !important;
+}
+
+/* Nivel 5: valoración y estado vacío de comentarios más legibles */
+.user-level-5-game-detail-page .user-level-5-comment-card .user-level-5-comment-label {
+  color: #2b1a0a !important;
+  font-weight: 600 !important;
+}
+
+.user-level-5-game-detail-page .user-level-5-comment-card button svg.text-amber-300 {
+  color: #7c2d12 !important;
+  stroke-width: 2.25 !important;
+  filter: drop-shadow(0 1px 0 rgba(255, 251, 235, 0.5)) !important;
+}
+
+.user-level-5-game-detail-page .user-level-5-comment-card button svg.text-yellow-500,
+.user-level-5-game-detail-page .user-level-5-comment-card .text-yellow-500 {
+  color: #92400e !important;
+  fill: #f59e0b !important;
+  stroke: #7c2d12 !important;
+  filter: drop-shadow(0 1px 0 rgba(255, 251, 235, 0.42)) !important;
+}
+
+.user-level-5-game-detail-page .user-level-5-comment-empty,
+.user-level-5-game-detail-page .user-level-5-comment-empty p,
+.user-level-5-game-detail-page .user-level-5-comment-empty .text-sm {
+  color: #2b1a0a !important;
+  font-weight: 600 !important;
+}
+
+.user-level-5-game-detail-page .user-level-5-comment-empty .text-sm {
+  color: #4a2d12 !important;
+  font-weight: 500 !important;
+}
+
+.user-level-5-game-detail-page .user-level-5-comment-empty-icon {
+  color: #5b3a14 !important;
+  opacity: 0.82 !important;
+  stroke-width: 2.25 !important;
+}
+
+/* Nivel 5: diálogo de paletas más sutil */
+.user-level-5-profile-dialog {
+  background:
+    linear-gradient(180deg, rgba(39, 24, 10, 0.98) 0%, rgba(48, 30, 13, 0.98) 100%) !important;
+  border-color: rgba(251, 191, 36, 0.26) !important;
+  box-shadow:
+    0 22px 48px rgba(18, 10, 3, 0.46),
+    0 0 0 1px rgba(255, 251, 235, 0.08) inset !important;
+}
+
+.user-level-5-profile-dialog .rounded-xl[style] {
+  box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.035) !important;
+}
+
+.user-level-5-profile-dialog .text-slate-300,
+.user-level-5-profile-dialog p.text-xs {
+  color: rgba(255, 248, 225, 0.84) !important;
+}
+
+/* Nivel 5: encabezado de Juegos igual que Torneos */
+.user-level-5-games-page .user-level-5-section-heading,
+.user-level-5-games-page h1.user-level-5-section-heading {
+  background: none !important;
+  -webkit-background-clip: initial !important;
+  background-clip: initial !important;
+  color: #e7b42b !important;
+  -webkit-text-fill-color: #e7b42b !important;
+  text-shadow: 0 0 18px rgba(251, 191, 36, 0.16) !important;
+}
+
+.user-level-5-games-page .user-level-5-section-icon,
+.user-level-5-games-page h1.user-level-5-section-heading svg {
+  color: #d97706 !important;
+  -webkit-text-fill-color: #d97706 !important;
+  filter: drop-shadow(0 0 10px rgba(251, 191, 36, 0.16)) !important;
+}
+
+.user-level-5-games-page .user-level-5-copy,
+.user-level-5-games-page .user-level-5-games-copy {
+  color: #f0c75e !important;
+  -webkit-text-fill-color: #f0c75e !important;
+}
+
+/* Nivel 5: selección IA y header de juego en dorados legibles */
+.user-level-5-game-surface .online-game-lobby__ai-difficulty[data-selected="true"],
+.user-level-5-game-surface .online-game-lobby__ai-difficulty[data-selected="true"] .online-game-lobby__ai-difficulty-label {
+  color: #4a2d12 !important;
+  -webkit-text-fill-color: #4a2d12 !important;
+  font-weight: 800 !important;
+  text-shadow: 0 1px 0 rgba(255, 251, 235, 0.56) !important;
+}
+
+.user-level-5-game-surface .online-game-lobby__ai-difficulty[data-selected="true"] {
+  background:
+    linear-gradient(135deg, rgba(255, 246, 214, 0.9) 0%, rgba(251, 191, 36, 0.34) 100%) !important;
+  border-color: rgba(180, 83, 9, 0.56) !important;
+}
+
+.user-level-5-game-detail-page .user-level-5-game-detail-title,
+.user-level-5-game-detail-page h1.user-level-5-game-detail-title {
+  color: #fbbf24 !important;
+  -webkit-text-fill-color: #fbbf24 !important;
+  text-shadow:
+    0 2px 10px rgba(18, 10, 3, 0.86),
+    0 0 14px rgba(251, 191, 36, 0.34) !important;
+}
+
+.user-level-5-game-detail-page .user-level-5-game-detail-meta,
+.user-level-5-game-detail-page .user-level-5-game-detail-meta span,
+.user-level-5-game-detail-page .user-level-5-game-detail-publisher,
+.user-level-5-game-detail-page .user-level-5-game-detail-link,
+.user-level-5-game-detail-page .user-level-5-detail-rating,
+.user-level-5-game-detail-page .text-white.font-medium {
+  color: #f6d77a !important;
+  -webkit-text-fill-color: #f6d77a !important;
+  text-shadow: 0 2px 8px rgba(18, 10, 3, 0.82) !important;
+}
+
+.user-level-5-game-detail-page .user-level-5-game-detail-chip,
+.user-level-5-game-detail-page .user-level-5-game-detail-adult {
+  color: #4a2d12 !important;
+  -webkit-text-fill-color: #4a2d12 !important;
+  background: rgba(251, 191, 36, 0.82) !important;
+  border-color: rgba(255, 251, 235, 0.34) !important;
 }

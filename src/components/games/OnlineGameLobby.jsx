@@ -66,31 +66,37 @@ export default function OnlineGameLobby({
 
         {/* Modo vs Entrenador (IA) */}
         {showVsAI && onVsAI && (
-          <Card className="bg-white/5 border-white/10 p-4 space-y-3">
-            <div className="flex items-center gap-2 mb-1">
-              <Bot className="w-4 h-4 text-green-700" />
-              <h3 className="text-sm font-semibold" style={{ color: "#166534" }}>vs Entrenador (IA)</h3>
+          <Card className="online-game-lobby__ai-card bg-white/5 border-white/10 p-4 space-y-3">
+            <div className="online-game-lobby__ai-header flex items-center gap-2 mb-1">
+              <Bot className="online-game-lobby__ai-icon w-4 h-4 text-green-700" />
+              <h3 className="online-game-lobby__ai-title text-sm font-semibold" style={{ color: "#166534" }}>vs Entrenador (IA)</h3>
             </div>
-            <p className="text-xs text-gray-500">
+            <p className="online-game-lobby__ai-copy text-xs text-gray-500">
               Juega contra Stockfish y recibe análisis de tu partida al terminar.
             </p>
-            <div className="grid grid-cols-2 gap-2">
+            <div className="online-game-lobby__ai-grid grid grid-cols-2 gap-2">
               {AI_DIFFICULTIES.map(d => (
                 <button
                   key={d.key}
                   type="button"
                   onClick={() => setAiDifficulty(d.key)}
                   disabled={isSearching}
-                  className="relative flex flex-col items-center gap-1 py-2.5 px-3 rounded-lg border-2 transition-all duration-150 text-sm font-medium disabled:opacity-40 disabled:cursor-not-allowed"
+                  data-selected={aiDifficulty === d.key}
+                  className="online-game-lobby__ai-difficulty relative flex flex-col items-center gap-1 py-2.5 px-3 rounded-lg border-2 transition-all duration-150 text-sm font-medium disabled:opacity-40 disabled:cursor-not-allowed"
                   style={{
                     borderColor: aiDifficulty === d.key ? d.color : "rgba(255,255,255,0.08)",
                     background: aiDifficulty === d.key ? `${d.color}18` : "rgba(255,255,255,0.03)",
                     color: aiDifficulty === d.key ? "#ffffff" : "#2f4f1f",
                   }}
                 >
-                  {d.label}
+                  <span
+                    className="online-game-lobby__ai-difficulty-label"
+                    style={{ color: aiDifficulty === d.key ? "#ffffff" : "inherit" }}
+                  >
+                    {d.label}
+                  </span>
                   {aiDifficulty === d.key && (
-                    <span className="absolute top-1.5 right-1.5 w-1.5 h-1.5 rounded-full" style={{ background: d.color }} />
+                    <span className="online-game-lobby__ai-dot absolute top-1.5 right-1.5 w-1.5 h-1.5 rounded-full" style={{ background: d.color }} />
                   )}
                 </button>
               ))}
@@ -98,7 +104,7 @@ export default function OnlineGameLobby({
             <Button
               onClick={() => onVsAI(aiDifficulty)}
               disabled={loading || isSearching}
-              className="w-full"
+              className="online-game-lobby__ai-launch w-full"
               style={{ background: "linear-gradient(to right, #166534, #0e7490)" }}
             >
               <Bot className="w-4 h-4 mr-2" />
@@ -116,7 +122,7 @@ export default function OnlineGameLobby({
         )}
 
         {/* Selector de modo online */}
-        <div className="grid grid-cols-2 gap-3">
+        <div className="online-game-lobby__modes grid grid-cols-2 gap-3">
           {MODES.map((m) => {
             const Icon = m.icon;
             const selected = mode === m.key;
@@ -126,7 +132,9 @@ export default function OnlineGameLobby({
                 type="button"
                 onClick={() => !isSearching && setMode(m.key)}
                 disabled={isSearching}
-                className="relative flex flex-col items-center gap-2 p-4 rounded-xl border-2 transition-all duration-200 disabled:opacity-50 disabled:cursor-not-allowed"
+                data-selected={selected}
+                data-mode={m.key}
+                className="online-game-lobby__mode-card relative flex flex-col items-center gap-2 p-4 rounded-xl border-2 transition-all duration-200 disabled:opacity-50 disabled:cursor-not-allowed"
                 style={{
                   borderColor: selected ? m.color : "rgba(255,255,255,0.08)",
                   background: selected
@@ -135,15 +143,15 @@ export default function OnlineGameLobby({
                   boxShadow: selected ? `0 0 16px ${m.glow}` : "none",
                 }}
               >
-                <Icon className="w-6 h-6" style={{ color: selected ? m.color : "#6b7280" }} />
-                <span className="text-sm font-bold" style={{ color: selected ? "#ffffff" : "#23410c" }}>
+                <Icon className="online-game-lobby__mode-icon w-6 h-6" style={{ color: selected ? m.color : "#6b7280" }} />
+                <span className="online-game-lobby__mode-title text-sm font-bold" style={{ color: selected ? "#ffffff" : "#23410c" }}>
                   {m.label}
                 </span>
-                <span className="text-[11px] text-center leading-tight" style={{ color: selected ? "#eef8df" : "#35592a" }}>
+                <span className="online-game-lobby__mode-copy text-[11px] text-center leading-tight" style={{ color: selected ? "#eef8df" : "#35592a" }}>
                   {m.desc}
                 </span>
                 {selected && (
-                  <span className="absolute top-2 right-2 w-2 h-2 rounded-full" style={{ background: m.color }} />
+                  <span className="online-game-lobby__mode-dot absolute top-2 right-2 w-2 h-2 rounded-full" style={{ background: m.color }} />
                 )}
               </button>
             );

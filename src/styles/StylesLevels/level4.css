@@ -105,21 +105,6 @@
   color: #7e22ce !important;
 }
 
-.user-level-4-widget {
-  border-color: rgba(139, 92, 246, 0.28) !important;
-  background:
-    linear-gradient(145deg, rgba(221, 214, 254, 0.1) 0%, rgba(196, 181, 253, 0.07) 100%),
-    rgba(76, 29, 149, 0.08) !important;
-  box-shadow: 0 16px 38px rgba(49, 19, 96, 0.14) !important;
-}
-
-.user-level-4-widget:hover {
-  border-color: rgba(167, 139, 250, 0.48) !important;
-  background:
-    linear-gradient(145deg, rgba(221, 214, 254, 0.16) 0%, rgba(196, 181, 253, 0.12) 100%),
-    rgba(76, 29, 149, 0.1) !important;
-}
-
 .user-level-4-game-card,
 .user-level-4-news-card {
   background: linear-gradient(180deg, rgba(255, 255, 255, 0.96) 0%, rgba(221, 214, 254, 0.94) 100%) !important;
@@ -377,7 +362,7 @@
 }
 
 .user-level-4-comment-textarea {
-  background: linear-gradient(180deg, rgba(233, 213, 255, 0.76) 0%, rgba(221, 214, 254, 0.66) 100%) !important;
+  background: linear-gradient(180deg, #a269e1, #d6aeffc2) !important;
   border: 1px solid rgba(147, 51, 234, 0.82) !important;
   color: #4c1d95 !important;
   caret-color: #6d28d9 !important;
@@ -508,6 +493,11 @@
   color: var(--level4-ink) !important;
 }
 
+.text-gray-600{
+  color: #d2adf0 !important;
+
+}
+
 .user-level-4-game-detail-page [class*="bg-purple"],
 .user-level-4-game-detail-page [class*="border-purple"],
 .user-level-4-game-detail-page [class*="text-purple"] {
@@ -602,7 +592,7 @@
 .user-level-4-game-detail-page .user-level-4-game-surface.bg-white\/5,
 .user-level-4-game-detail-page .user-level-4-history.bg-white\/5 {
   background:
-    linear-gradient(180deg, rgba(233, 213, 255, 0.72) 0%, rgba(221, 214, 254, 0.56) 100%) !important;
+    linear-gradient(180deg, #a269e1, #d6aeffc2) !important;
   border-color: rgba(243, 232, 255, 0.5) !important;
   box-shadow:
     0 16px 34px rgba(49, 19, 96, 0.14),
@@ -718,7 +708,7 @@
 .user-level-4-games-empty-tone.text-gray-500,
 .user-level-4-games-empty-tone.text-gray-400,
 .user-level-4-games-empty-tone.text-gray-600 {
-  color: #6b21a8 !important;
+  color: #d2adf0 !important;
 }
 
 .user-level-4-favorites-empty-tone {
@@ -797,7 +787,7 @@
 }
 
 .user-level-4-profile-hero {
-  background: linear-gradient(135deg, rgba(199, 168, 248, 0.699) 0%, rgba(192, 170, 241, 0.712) 50%, rgba(198, 179, 233, 0.733) 100%) !important;
+  background: linear-gradient(135deg, rgba(171, 120, 253, 0.815) 0%, rgba(137, 102, 212, 0.884) 50%, rgba(156, 110, 240, 0.925) 100%) !important;
   border: 1px solid rgba(196, 181, 253, 0.28) !important;
   box-shadow:
     0 20px 40px rgba(49, 19, 96, 0.12),
@@ -979,7 +969,7 @@
 }
 
 .user-level-4-profile-panel {
-  background: linear-gradient(180deg, rgba(245, 243, 255, 0.46) 0%, rgba(233, 213, 255, 0.34) 100%) !important;
+  background: linear-gradient(180deg, #b777ff, #a06cd5bf) !important;
   border: 1px solid rgba(196, 181, 253, 0.18) !important;
 }
 
@@ -1029,7 +1019,7 @@
 
 .user-level-4-profile-hero {
   background:
-    linear-gradient(135deg, rgba(217, 197, 247, 0.897) 0%, rgba(195, 174, 248, 0.808) 54%, rgba(197, 175, 233, 0.829) 100%) !important;
+    linear-gradient(135deg, rgba(184, 143, 247, 0.897) 0%, rgba(157, 136, 212, 0.808) 54%, rgba(120, 96, 160, 0.829) 100%) !important;
   border-color: rgba(243, 232, 255, 0.32) !important;
   box-shadow:
     0 20px 42px rgba(49, 19, 96, 0.2),
@@ -1088,7 +1078,7 @@
 }
 
 .user-level-4-profile-panel {
-  background: linear-gradient(180deg, rgba(245, 243, 255, 0.78) 0%, rgba(233, 213, 255, 0.64) 100%) !important;
+  background: linear-gradient(180deg, #b777ff, #a06cd5bf) !important;
   border-color: rgba(167, 139, 250, 0.3) !important;
   box-shadow:
     0 16px 34px rgba(49, 19, 96, 0.12),
@@ -1490,10 +1480,9 @@
 .user-level-4-tournaments-bracket,
 .user-level-4-tournaments-bracket-icon,
 .user-level-4-friends-page .text-gray-400,
-.user-level-4-friends-page .text-gray-500,
-.user-level-4-tournaments-page .text-gray-400,
-.user-level-4-tournaments-page .text-gray-500 {
-  color: #6b21a8 !important;
+.user-level-4-friends-page .text-gray-500
+ {
+  color: #d2adf0 !important;
 }
 
 .user-level-4-friends-search {
@@ -1553,7 +1542,7 @@
 .user-level-4-tournaments-empty,
 .user-level-4-tournaments-empty-title,
 .user-level-4-tournaments-empty-icon {
-  color: #6b21a8 !important;
+  color: #d2adf0 !important;
 }
 
 .user-level-4-game-detail-page h1.text-white,
@@ -1596,7 +1585,7 @@
 }
 
 .user-level-4-profile-premium-card {
-  background: linear-gradient(135deg, rgba(255, 244, 179, 0.9) 0%, rgba(230, 244, 191, 0.88) 52%, rgba(204, 236, 182, 0.9) 100%) !important;
+  background: linear-gradient(180deg, #e2d2f3, #a86ce5bf) !important;
   border-color: rgba(229, 193, 74, 0.42) !important;
   box-shadow:
     0 18px 36px rgba(105, 92, 19, 0.12),
@@ -1733,7 +1722,7 @@
 .user-level-4-game-surface .online-game-lobby__separator,
 .user-level-4-game-surface .online-game-lobby__card p,
 .user-level-4-game-surface .online-game-lobby__card span {
-  color: #6b21a8 !important;
+  color: #d2adf0 !important;
 }
 
 .user-level-4-game-surface .online-game-lobby__card h3,
@@ -1899,51 +1888,779 @@
   border-color: rgba(167, 139, 250, 0.28) !important;
 }
 
-/* =================== CLASES FALTANTES =================== */
+/* Ajuste final ajedrez nivel 4: quitar verde residual y mejorar contraste */
+.user-level-4-game-surface .online-game-lobby__description,
+.user-level-4-game-surface .online-game-lobby__section-title,
+.user-level-4-game-surface .online-game-lobby__separator {
+  color: #5b21b6 !important;
+}
 
-.user-level-4-copy {
+.user-level-4-game-surface .online-game-lobby__ai-card,
+.user-level-4-game-surface .online-game-lobby__mode-card {
+  background: rgba(243, 232, 255, 0.84) !important;
+  border-color: rgba(124, 58, 237, 0.2) !important;
+}
+
+.user-level-4-game-surface .online-game-lobby__ai-icon,
+.user-level-4-game-surface .online-game-lobby__ai-title,
+.user-level-4-game-surface .online-game-lobby__mode-icon,
+.user-level-4-game-surface .online-game-lobby__mode-title {
+  color: #7c3aed !important;
+}
+
+.user-level-4-game-surface .online-game-lobby__mode-dot,
+.user-level-4-game-surface .online-game-lobby__ai-dot {
+  background: #7c3aed !important;
+}
+
+.user-level-4-game-surface .online-game-lobby__ai-copy,
+.user-level-4-game-surface .online-game-lobby__mode-copy,
+.user-level-4-game-surface .online-game-lobby__card p,
+.user-level-4-game-surface .online-game-lobby__card span {
+  color: #4c1d95 !important;
+}
+
+.user-level-4-game-surface .online-game-lobby__ai-difficulty,
+.user-level-4-game-surface .online-game-lobby__mode-card {
+  border-color: rgba(124, 58, 237, 0.18) !important;
+  color: #4c1d95 !important;
+  box-shadow: none !important;
+}
+
+.user-level-4-game-surface .online-game-lobby__ai-difficulty[data-selected="true"],
+.user-level-4-game-surface .online-game-lobby__mode-card[data-selected="true"] {
+  background: linear-gradient(135deg, rgba(124, 58, 237, 0.18) 0%, rgba(192, 132, 252, 0.2) 100%) !important;
+  border-color: rgba(124, 58, 237, 0.42) !important;
+  box-shadow: 0 0 16px rgba(124, 58, 237, 0.18) !important;
+}
+
+.user-level-4-game-surface .online-game-lobby__mode-card[data-selected="true"] .online-game-lobby__mode-title,
+.user-level-4-game-surface .online-game-lobby__mode-card[data-selected="true"] .online-game-lobby__mode-copy,
+.user-level-4-game-surface .online-game-lobby__ai-difficulty[data-selected="true"] {
+  color: #ffffff !important;
+}
+
+.user-level-4-game-surface .online-game-lobby__mode-card[data-selected="true"] .online-game-lobby__mode-icon {
+  color: #ede9fe !important;
+}
+
+.user-level-4-game-surface .online-game-lobby__mode-card[data-selected="true"] .online-game-lobby__mode-dot,
+.user-level-4-game-surface .online-game-lobby__ai-difficulty[data-selected="true"] .online-game-lobby__ai-dot {
+  background: #ede9fe !important;
+}
+
+.user-level-4-game-surface .online-game-lobby__ai-launch {
+  background: linear-gradient(90deg, #6d28d9 0%, #a855f7 100%) !important;
+  color: #ffffff !important;
+  border: 1px solid rgba(221, 214, 254, 0.22) !important;
+}
+
+.user-level-4-detail-panel,
+.user-level-4-history {
+  background: linear-gradient(180deg, rgba(221, 214, 254, 0.84) 0%, rgba(196, 181, 253, 0.74) 100%) !important;
+  border-color: rgba(167, 139, 250, 0.24) !important;
+}
+
+.user-level-4-detail-panel-title,
+.user-level-4-detail-icon-blue,
+.user-level-4-detail-panel .text-white,
+.user-level-4-detail-panel .text-gray-300,
+.user-level-4-detail-panel .text-gray-400,
+.user-level-4-detail-panel .text-gray-500,
+.user-level-4-history .text-white,
+.user-level-4-history .text-gray-300,
+.user-level-4-history .text-gray-400,
+.user-level-4-history .text-gray-500 {
+  color: #4c1d95 !important;
+}
+
+/* Ajustes finales nivel 4: legibilidad sin tapar tanto el fondo */
+.user-level-4-game-cover-overlay {
+  background: rgba(24, 12, 44, 0.26) !important;
+}
+
+.user-level-4-game-detail-page .user-level-4-game-detail-title,
+.user-level-4-game-detail-page h1.user-level-4-game-detail-title,
+.user-level-4-game-detail-page .user-level-4-game-detail-meta,
+.user-level-4-game-detail-page .user-level-4-game-detail-meta span,
+.user-level-4-game-detail-page .user-level-4-game-detail-publisher,
+.user-level-4-game-detail-page .user-level-4-game-detail-link {
+  color: #f8f1ff !important;
+  text-shadow:
+    0 2px 8px rgba(18, 8, 34, 0.72),
+    0 0 14px rgba(216, 180, 254, 0.18) !important;
+}
+
+.user-level-4-game-detail-page .user-level-4-game-detail-title {
+  color: #ffffff !important;
+}
+
+.user-level-4-game-detail-page .user-level-4-game-detail-link:hover {
+  color: #ffffff !important;
+}
+
+.user-level-4-game-detail-page .user-level-4-detail-panel,
+.user-level-4-game-detail-page .user-level-4-detail-panel.bg-white\/5,
+.user-level-4-game-detail-page .user-level-4-comment-card,
+.user-level-4-game-detail-page .user-level-4-comment-card.bg-white\/5 {
+  background:
+linear-gradient(rgb(183, 119, 255), rgba(160, 108, 213, 0.75)) !important;
+  border-color: rgba(124, 58, 237, 0.3) !important;
+  color: #3b0764 !important;
+}
+
+.user-level-4-game-detail-page .user-level-4-detail-panel-title,
+.user-level-4-game-detail-page .user-level-4-detail-panel p,
+.user-level-4-game-detail-page .user-level-4-detail-panel span,
+.user-level-4-game-detail-page .user-level-4-comment-label,
+.user-level-4-game-detail-page .user-level-4-comment-empty,
+.user-level-4-game-detail-page .user-level-4-comment-empty *,
+.user-level-4-game-detail-page .user-level-4-leaderboard-empty,
+.user-level-4-game-detail-page .user-level-4-leaderboard-empty * {
+  color: #3b0764 !important;
+  text-shadow: none !important;
+}
+
+.user-level-4-game-detail-action-share {
+  background: #f5f3ff !important;
+  border-color: rgba(109, 40, 217, 0.72) !important;
+  color: #4c1d95 !important;
+  box-shadow:
+    0 10px 24px rgba(76, 29, 149, 0.18),
+    0 0 0 1px rgba(255, 255, 255, 0.42) inset !important;
+}
+
+.user-level-4-game-detail-action-share svg {
+  color: #4c1d95 !important;
+  stroke-width: 2.6;
+}
+
+.user-level-4-game-detail-action-share:hover {
+  background: #ede9fe !important;
+  color: #2e1065 !important;
+}
+
+.user-level-4-crafty-close {
+  border: 1px solid rgba(250, 245, 255, 0.42) !important;
+  background: rgba(250, 245, 255, 0.18) !important;
+  border-radius: 9999px !important;
+}
+
+.user-level-4-crafty-close:hover {
+  background: rgba(250, 245, 255, 0.3) !important;
+}
+
+.user-level-4-crafty-assistant-message.user-crafty-message-bubble,
+.user-level-4-crafty-user-message.user-crafty-message-bubble {
+  position: relative;
+  border-radius: 16px !important;
+  border: 1px solid rgba(243, 232, 255, 0.24) !important;
+}
+
+.user-level-4-crafty-assistant-message.user-crafty-message-bubble::before {
+  content: "";
+  position: absolute;
+  left: -6px;
+  bottom: 8px;
+  border-top: 6px solid transparent;
+  border-bottom: 6px solid transparent;
+  border-right: 6px solid rgba(245, 243, 255, 0.92);
+}
+
+.user-level-4-crafty-user-message.user-crafty-message-bubble::after {
+  content: "";
+  position: absolute;
+  right: -6px;
+  bottom: 8px;
+  border-top: 6px solid transparent;
+  border-bottom: 6px solid transparent;
+  border-left: 6px solid #7c3aed;
+}
+
+.user-level-4-game-surface .online-game-lobby__title,
+.user-level-4-game-surface .online-game-lobby__description,
+.user-level-4-game-surface .online-game-lobby__section-title,
+.user-level-4-game-surface .online-game-lobby__separator,
+.user-level-4-game-surface .online-game-lobby__ai-copy,
+.user-level-4-game-surface .online-game-lobby__mode-copy {
+  color: #3b0764 !important;
+  -webkit-text-fill-color: #3b0764 !important;
+  text-shadow: none !important;
+}
+
+.user-level-4-game-surface .online-game-lobby__title {
+  background: none !important;
+  -webkit-background-clip: initial !important;
+  background-clip: initial !important;
+  color: #4c1d95 !important;
+  -webkit-text-fill-color: #4c1d95 !important;
+}
+
+.user-level-4-games-page .user-level-4-section-heading,
+.user-level-4-games-page .user-level-4-section-icon,
+.user-level-4-games-page .user-level-4-copy,
+.user-level-4-games-page .user-level-4-games-results {
+  color: #ffffff !important;
+  text-shadow: 0 2px 8px rgba(18, 8, 34, 0.72) !important;
+}
+
+.user-level-4-games-page .user-level-4-games-search,
+.user-level-4-games-page .user-level-4-games-filter {
+  background: rgba(245, 243, 255, 0.9) !important;
+  border-color: rgba(124, 58, 237, 0.34) !important;
+  color: #3b0764 !important;
+}
+
+.user-level-4-games-page .user-level-4-games-search::placeholder {
   color: #6d28d9 !important;
 }
 
-.user-level-4-button {
-  background: linear-gradient(135deg, #6d28d9 0%, #a855f7 56%, #7c3aed 100%) !important;
-  border: 1px solid rgba(221, 214, 254, 0.24) !important;
-  color: #f3e8ff !important;
+/* Nivel 4: cabecera de perfil con contraste alto sobre violeta */
+.user-level-4-profile-page .user-level-4-profile-hero {
+  background:
+    linear-gradient(135deg, rgba(243, 232, 255, 0.94) 0%, rgba(196, 181, 253, 0.9) 52%, rgba(139, 92, 246, 0.82) 100%) !important;
+  border-color: rgba(76, 29, 149, 0.34) !important;
   box-shadow:
-    0 12px 26px rgba(109, 40, 217, 0.22),
-    0 0 18px rgba(196, 181, 253, 0.14) !important;
+    0 20px 42px rgba(49, 19, 96, 0.22),
+    0 0 0 1px rgba(250, 245, 255, 0.34) inset !important;
 }
 
-.user-level-4-button:hover {
-  background: linear-gradient(135deg, #7c3aed 0%, #c084fc 56%, #8b5cf6 100%) !important;
+.user-level-4-profile-page .user-level-4-profile-hero .premium-rainbow {
+  animation: none !important;
+  color: #2e1065 !important;
+  text-shadow: 0 1px 0 rgba(250, 245, 255, 0.45) !important;
+}
+
+.user-level-4-profile-page .user-level-4-profile-hero .text-white,
+.user-level-4-profile-page .user-level-4-profile-hero .user-level-4-profile-name,
+.user-level-4-profile-page .user-level-4-profile-hero .user-level-4-profile-name * {
+  color: #2e1065 !important;
+  text-shadow: 0 1px 0 rgba(250, 245, 255, 0.42) !important;
+}
+
+.user-level-4-profile-page .user-level-4-profile-hero .user-level-4-profile-meta,
+.user-level-4-profile-page .user-level-4-profile-hero .user-level-4-profile-meta span,
+.user-level-4-profile-page .user-level-4-profile-hero .user-level-4-profile-meta-muted,
+.user-level-4-profile-page .user-level-4-profile-hero .user-level-4-profile-meta-muted span,
+.user-level-4-profile-page .user-level-4-profile-hero .user-level-4-profile-xp-label,
+.user-level-4-profile-page .user-level-4-profile-hero .user-level-4-profile-next-level {
+  color: #4c1d95 !important;
+  text-shadow: none !important;
+}
+
+.user-level-4-profile-page .user-level-4-profile-hero .user-level-4-profile-icon-soft,
+.user-level-4-profile-page .user-level-4-profile-hero .user-level-4-profile-icon-muted,
+.user-level-4-profile-page .user-level-4-profile-hero .user-level-4-profile-action-button,
+.user-level-4-profile-page .user-level-4-profile-hero .user-level-4-profile-action-button svg {
+  color: #4c1d95 !important;
+}
+
+.user-level-4-profile-page .user-level-4-profile-hero .user-level-4-profile-action-button:hover {
+  background: rgba(250, 245, 255, 0.36) !important;
+  color: #2e1065 !important;
+}
+
+.user-level-4-profile-page .user-level-4-profile-hero .user-level-4-profile-level-label {
+  color: #3b0764 !important;
+  text-shadow: none !important;
+}
+
+.user-level-4-profile-page .user-level-4-profile-hero .user-level-4-profile-progress-track {
+  background: rgba(76, 29, 149, 0.2) !important;
+}
+
+.user-level-4-profile-page .user-level-4-profile-hero .user-level-4-profile-progress-fill {
+  background: linear-gradient(90deg, #6d28d9 0%, #a855f7 64%, #f2c94c 100%) !important;
+  box-shadow: 0 0 12px rgba(49, 19, 96, 0.18) !important;
+}
+
+/* Nivel 4: detalle de juego y comentarios con contraste alto */
+.user-level-4-game-detail-page .user-level-4-detail-panel,
+.user-level-4-game-detail-page .user-level-4-detail-panel.bg-white\/5,
+.user-level-4-game-detail-page .user-level-4-comment-card,
+.user-level-4-game-detail-page .user-level-4-comment-card.bg-white\/5 {
+  background:
+    linear-gradient(180deg, rgba(245, 243, 255, 0.94) 0%, rgba(221, 214, 254, 0.88) 100%) !important;
+  border-color: rgba(109, 40, 217, 0.38) !important;
+  color: #2e1065 !important;
   box-shadow:
-    0 14px 30px rgba(109, 40, 217, 0.28),
-    0 0 22px rgba(196, 181, 253, 0.18) !important;
+    0 16px 34px rgba(49, 19, 96, 0.18),
+    0 0 0 1px rgba(250, 245, 255, 0.42) inset !important;
 }
 
-.user-level-4-favorites-icon {
-  color: #a855f7 !important;
-  fill: #a855f7 !important;
-  filter: drop-shadow(0 0 8px rgba(168, 85, 247, 0.4));
+.user-level-4-game-detail-page .user-level-4-detail-panel-title,
+.user-level-4-game-detail-page .user-level-4-detail-panel p,
+.user-level-4-game-detail-page .user-level-4-detail-panel span,
+.user-level-4-game-detail-page .user-level-4-comment-label,
+.user-level-4-game-detail-page .user-level-4-comment-card p,
+.user-level-4-game-detail-page .user-level-4-comment-card span,
+.user-level-4-game-detail-page .user-level-4-comment-empty,
+.user-level-4-game-detail-page .user-level-4-comment-empty p,
+.user-level-4-game-detail-page .user-level-4-comment-empty * {
+  color: #2e1065 !important;
+  text-shadow: none !important;
 }
 
-.user-level-4-friends-loader,
-.user-level-4-tournaments-loader {
+.user-level-4-game-detail-page .user-level-4-detail-panel-title,
+.user-level-4-game-detail-page .user-level-4-comment-label,
+.user-level-4-game-detail-page .user-level-4-comment-empty p:first-of-type {
+  font-weight: 700 !important;
+}
+
+.user-level-4-game-detail-page .user-level-4-comment-empty .text-sm {
+  color: #4c1d95 !important;
+  font-weight: 500 !important;
+}
+
+.user-level-4-game-detail-page .user-level-4-comment-empty-icon {
+  color: #4c1d95 !important;
+  opacity: 0.86 !important;
+  stroke-width: 2.25 !important;
+}
+
+.user-level-4-game-detail-page .user-level-4-comment-card button svg.text-violet-300 {
+  color: #5b21b6 !important;
+  stroke-width: 2.25 !important;
+  filter: drop-shadow(0 1px 0 rgba(250, 245, 255, 0.58)) !important;
+}
+
+.user-level-4-game-detail-page .user-level-4-comment-card button svg.text-yellow-500,
+.user-level-4-game-detail-page .user-level-4-comment-card .text-yellow-500 {
+  color: #7c2d12 !important;
+  fill: #f59e0b !important;
+  stroke: #581c87 !important;
+  filter: drop-shadow(0 1px 0 rgba(250, 245, 255, 0.45)) !important;
+}
+
+.user-level-4-game-detail-page textarea.user-level-4-comment-textarea,
+.user-level-4-game-detail-page textarea.user-level-4-comment-textarea:focus,
+.user-level-4-game-detail-page textarea.user-level-4-comment-textarea:focus-visible {
+  background: rgba(255, 255, 255, 0.86) !important;
+  color: #2e1065 !important;
+  -webkit-text-fill-color: #2e1065 !important;
+}
+
+.user-level-4-game-detail-page textarea.user-level-4-comment-textarea::placeholder {
+  color: #4c1d95 !important;
+}
+
+/* Nivel 4: diálogo de paletas más sutil */
+.user-level-4-profile-dialog {
+  background:
+    linear-gradient(180deg, rgba(31, 12, 58, 0.98) 0%, rgba(42, 18, 72, 0.98) 100%) !important;
+  border-color: rgba(196, 181, 253, 0.28) !important;
+  box-shadow:
+    0 22px 48px rgba(18, 8, 34, 0.44),
+    0 0 0 1px rgba(250, 245, 255, 0.08) inset !important;
+}
+
+.user-level-4-profile-dialog .rounded-xl[style] {
+  box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.035) !important;
+}
+
+.user-level-4-profile-dialog .text-slate-300,
+.user-level-4-profile-dialog p.text-xs {
+  color: rgba(243, 232, 255, 0.84) !important;
+}
+
+/* Nivel 4: legibilidad general con cards más transparentes */
+.user-level-4-game-card,
+.user-level-4-news-card,
+.user-level-4-tournament-card,
+.user-level-4-friends-row,
+.user-level-4-profile-stat-card,
+.user-level-4-profile-panel,
+.user-level-4-profile-premium-card,
+.user-level-4-profile-score-row,
+.user-level-4-profile-medal-row,
+.user-level-4-game-detail-page .user-level-4-detail-panel,
+.user-level-4-game-detail-page .user-level-4-detail-panel.bg-white\/5,
+.user-level-4-game-detail-page .user-level-4-comment-card,
+.user-level-4-game-detail-page .user-level-4-comment-card.bg-white\/5,
+.user-level-4-game-detail-page .user-level-4-history,
+.user-level-4-game-surface .online-game-lobby__card,
+.user-level-4-game-surface .online-game-lobby__ai-card,
+.user-level-4-game-surface .online-game-lobby__mode-card {
+  background:
+    linear-gradient(180deg, rgba(250, 245, 255, 0.68) 0%, rgba(221, 214, 254, 0.5) 100%) !important;
+  border-color: rgba(109, 40, 217, 0.28) !important;
+  color: #2e1065 !important;
+  box-shadow:
+    0 14px 30px rgba(49, 19, 96, 0.12),
+    0 0 0 1px rgba(250, 245, 255, 0.18) inset !important;
+  backdrop-filter: blur(5px);
+}
+
+.user-level-4-game-card:hover,
+.user-level-4-news-card:hover,
+.user-level-4-tournament-card:hover,
+.user-level-4-friends-row:hover,
+.user-level-4-profile-score-row:hover {
+  background:
+    linear-gradient(180deg, rgba(250, 245, 255, 0.78) 0%, rgba(221, 214, 254, 0.6) 100%) !important;
+  border-color: rgba(76, 29, 149, 0.36) !important;
+}
+
+.user-level-4-game-card h1,
+.user-level-4-game-card h2,
+.user-level-4-game-card h3,
+.user-level-4-game-card .text-white,
+.user-level-4-news-card h1,
+.user-level-4-news-card h2,
+.user-level-4-news-card h3,
+.user-level-4-news-card .text-white,
+.user-level-4-tournament-card-title,
+.user-level-4-friends-page .font-medium,
+.user-level-4-profile-page .user-level-4-profile-panel-title,
+.user-level-4-profile-page .user-level-4-profile-panel-title *,
+.user-level-4-profile-page .user-level-4-profile-panel-text,
+.user-level-4-profile-page .user-level-4-profile-panel-text *,
+.user-level-4-profile-page .user-level-4-profile-score-row p,
+.user-level-4-game-detail-page .user-level-4-detail-panel-title,
+.user-level-4-game-detail-page .user-level-4-comment-label,
+.user-level-4-game-surface .online-game-lobby__card h3,
+.user-level-4-game-surface .online-game-lobby__mode-title,
+.user-level-4-game-surface .online-game-lobby__ai-title {
+  color: #2e1065 !important;
+  -webkit-text-fill-color: #2e1065 !important;
+  text-shadow: none !important;
+}
+
+.user-level-4-game-card p,
+.user-level-4-game-card span,
+.user-level-4-news-card p,
+.user-level-4-news-card span,
+.user-level-4-tournament-card p,
+.user-level-4-tournament-card span,
+.user-level-4-friends-page .text-gray-400,
+.user-level-4-friends-page .text-gray-500,
+.user-level-4-profile-page .user-level-4-profile-panel p,
+.user-level-4-profile-page .user-level-4-profile-panel span,
+.user-level-4-profile-page .user-level-4-profile-stat-copy,
+.user-level-4-profile-page .user-level-4-profile-score-date,
+.user-level-4-game-detail-page .user-level-4-detail-panel p,
+.user-level-4-game-detail-page .user-level-4-detail-panel span,
+.user-level-4-game-detail-page .user-level-4-comment-card p,
+.user-level-4-game-detail-page .user-level-4-comment-card span,
+.user-level-4-game-surface .online-game-lobby__description,
+.user-level-4-game-surface .online-game-lobby__section-title,
+.user-level-4-game-surface .online-game-lobby__separator,
+.user-level-4-game-surface .online-game-lobby__card p,
+.user-level-4-game-surface .online-game-lobby__card span,
+.user-level-4-game-surface .online-game-lobby__mode-copy,
+.user-level-4-game-surface .online-game-lobby__ai-copy {
+  color: #4c1d95 !important;
+  -webkit-text-fill-color: #4c1d95 !important;
+  text-shadow: none !important;
+}
+
+.user-level-4-game-detail-page .user-level-4-game-surface,
+.user-level-4-game-surface {
+  background:
+    linear-gradient(180deg, rgba(49, 19, 96, 0.28) 0%, rgba(76, 29, 149, 0.2) 100%) !important;
+  border-color: rgba(221, 214, 254, 0.24) !important;
+  backdrop-filter: blur(3px);
+}
+
+.user-level-4-chess .bg-white\/5,
+.user-level-4-chess .bg-white\/10,
+.user-level-4-chess .bg-black\/70,
+.user-level-4-chess [class*="bg-white\/"],
+.user-level-4-chess .online-game-lobby__card,
+.user-level-4-chess .online-game-player-zone__card,
+.user-level-4-chess .online-game-chat__panel,
+.user-level-4-chess .online-game-chat__messages {
+  background:
+    linear-gradient(180deg, rgba(250, 245, 255, 0.72) 0%, rgba(221, 214, 254, 0.54) 100%) !important;
+  border-color: rgba(109, 40, 217, 0.28) !important;
+  color: #2e1065 !important;
+  backdrop-filter: blur(5px);
+}
+
+.user-level-4-chess .text-white,
+.user-level-4-chess .text-white\/80,
+.user-level-4-chess .text-white\/70,
+.user-level-4-chess .text-gray-200,
+.user-level-4-chess .text-gray-300,
+.user-level-4-chess .text-gray-400,
+.user-level-4-chess .font-semibold,
+.user-level-4-chess p,
+.user-level-4-chess span {
+  color: #2e1065 !important;
+  -webkit-text-fill-color: #2e1065 !important;
+  text-shadow: none !important;
+}
+
+.user-level-4-chess button,
+.user-level-4-game-surface button,
+.user-level-4-game-detail-page .user-level-4-game-launch,
+.user-level-4-game-detail-page .user-level-4-comment-button {
+  color: #ffffff !important;
+}
+
+.user-level-4-chess input,
+.user-level-4-chess textarea,
+.user-level-4-game-surface input,
+.user-level-4-game-surface textarea,
+.user-level-4-game-detail-page textarea.user-level-4-comment-textarea {
+  background: rgba(255, 255, 255, 0.78) !important;
+  border-color: rgba(76, 29, 149, 0.34) !important;
+  color: #2e1065 !important;
+  -webkit-text-fill-color: #2e1065 !important;
+}
+
+.user-level-4-profile-page .user-level-4-profile-hero {
+  background:
+    linear-gradient(135deg, rgba(250, 245, 255, 0.78) 0%, rgba(221, 214, 254, 0.62) 54%, rgba(167, 139, 250, 0.5) 100%) !important;
+  border-color: rgba(76, 29, 149, 0.3) !important;
+}
+
+.user-level-4-game-surface .online-game-lobby__ai-difficulty,
+.user-level-4-game-surface .online-game-lobby__mode-card,
+.user-level-4-game-surface .online-game-lobby__time-option,
+.user-level-4-game-surface .online-game-lobby__card button:not(.online-game-lobby__create-button):not(.online-game-lobby__join-button):not(.online-game-lobby__ai-launch) {
+  color: #2e1065 !important;
+  -webkit-text-fill-color: #2e1065 !important;
+}
+
+.user-level-4-game-surface .online-game-lobby__time-option--active,
+.user-level-4-game-surface .online-game-lobby__card button[class*="time-option--active"],
+.user-level-4-game-surface .online-game-lobby__create-button,
+.user-level-4-game-surface .online-game-lobby__join-button:not(:disabled),
+.user-level-4-game-surface .online-game-lobby__ai-launch {
+  color: #ffffff !important;
+  -webkit-text-fill-color: #ffffff !important;
+}
+
+.user-level-4-chess button:not(.user-level-4-chess-primary-button):not(.user-level-4-chess-secondary-button):not(.online-game-lobby__create-button):not(.online-game-lobby__join-button):not(.online-game-lobby__ai-launch):not([class*="bg-red"]):not([class*="bg-green"]) {
+  color: #2e1065 !important;
+  -webkit-text-fill-color: #2e1065 !important;
+}
+
+/* Nivel 4: separar texto flotante de texto dentro de cards */
+.user-level-4-home-title,
+.user-level-4-section-heading,
+.user-level-4-games-page .user-level-4-section-heading,
+.user-level-4-favorites-page .user-level-4-section-heading,
+.user-level-4-friends-page .user-level-4-friends-title,
+.user-level-4-tournaments-page .user-level-4-tournaments-title,
+.user-level-4-home .user-level-4-section-heading,
+.user-level-4-home h2.user-level-4-section-heading {
+  background: none !important;
   color: #c084fc !important;
+  -webkit-text-fill-color: #c084fc !important;
+  text-shadow:
+    0 2px 10px rgba(18, 8, 34, 0.82),
+    0 0 16px rgba(192, 132, 252, 0.5) !important;
 }
 
-.user-level-4-profile-premium-button {
-  background: linear-gradient(135deg, #7c3aed 0%, #a855f7 56%, #8b5cf6 100%) !important;
+.user-level-4-section-icon,
+.user-level-4-favorites-icon,
+.user-level-4-friends-icon-box,
+.user-level-4-tournaments-icon,
+.user-level-4-tournaments-bracket-icon,
+.user-level-4-games-page .user-level-4-section-icon {
+  color: #d8b4fe !important;
+  filter: drop-shadow(0 2px 8px rgba(18, 8, 34, 0.74)) drop-shadow(0 0 8px rgba(192, 132, 252, 0.34)) !important;
+}
+
+.user-level-4-home-subtitle,
+.user-level-4-copy,
+.user-level-4-games-page .user-level-4-copy,
+.user-level-4-games-page .user-level-4-games-results,
+.user-level-4-favorites-page .user-level-4-copy,
+.user-level-4-favorites-count,
+.user-level-4-friends-section-title,
+.user-level-4-friends-page .text-center p,
+.user-level-4-friends-page .text-center svg,
+.user-level-4-tournaments-copy,
+.user-level-4-tournaments-bracket,
+.user-level-4-tournaments-empty,
+.user-level-4-tournaments-empty-title,
+.user-level-4-tournaments-empty-icon,
+.user-level-4-games-empty-tone,
+.user-level-4-favorites-empty-tone {
+  color: #e9d5ff !important;
+  -webkit-text-fill-color: #e9d5ff !important;
+  text-shadow: 0 2px 8px rgba(18, 8, 34, 0.74) !important;
+}
+
+.user-level-4-friends-section-title,
+.user-level-4-games-page .user-level-4-games-results {
+  color: #d8b4fe !important;
+  -webkit-text-fill-color: #d8b4fe !important;
+}
+
+.user-level-4-games-search,
+.user-level-4-friends-search,
+.user-level-4-games-filter,
+.user-level-4-tournaments-tabs,
+.user-level-4-tournaments-tab {
+  background: rgba(250, 245, 255, 0.88) !important;
+  border-color: rgba(196, 181, 253, 0.5) !important;
+  color: #2e1065 !important;
+  -webkit-text-fill-color: #2e1065 !important;
+  text-shadow: none !important;
+}
+
+.user-level-4-games-search::placeholder,
+.user-level-4-friends-search::placeholder {
+  color: #6d28d9 !important;
+  -webkit-text-fill-color: #6d28d9 !important;
+}
+
+.user-level-4-games-filter-active,
+.user-level-4-tournaments-tab-active {
+  background: linear-gradient(135deg, rgba(109, 40, 217, 0.92) 0%, rgba(168, 85, 247, 0.9) 100%) !important;
   color: #f3e8ff !important;
-  border: 0 !important;
-  box-shadow:
-    0 12px 26px rgba(109, 40, 217, 0.22),
-    0 0 18px rgba(196, 181, 253, 0.14) !important;
+  -webkit-text-fill-color: #f3e8ff !important;
 }
 
-.user-level-4-profile-premium-button:hover {
-  background: linear-gradient(135deg, #8b5cf6 0%, #c084fc 56%, #a855f7 100%) !important;
-  box-shadow:
-    0 14px 30px rgba(109, 40, 217, 0.28),
-    0 0 22px rgba(196, 181, 253, 0.2) !important;
+.user-level-4-game-card,
+.user-level-4-news-card,
+.user-level-4-profile-premium-card,
+.user-level-4-profile-stat-card,
+.user-level-4-profile-panel,
+.user-level-4-profile-score-row,
+.user-level-4-profile-medal-row,
+.user-level-4-friends-row,
+.user-level-4-tournament-card {
+  background:
+    linear-gradient(180deg, rgba(250, 245, 255, 0.72) 0%, rgba(221, 214, 254, 0.54) 100%) !important;
+  border-color: rgba(109, 40, 217, 0.3) !important;
+  color: #2e1065 !important;
+  text-shadow: none !important;
+}
+
+.user-level-4-game-card h1,
+.user-level-4-game-card h2,
+.user-level-4-game-card h3,
+.user-level-4-game-card .font-bold,
+.user-level-4-game-card .font-semibold,
+.user-level-4-game-card .font-medium,
+.user-level-4-news-card h1,
+.user-level-4-news-card h2,
+.user-level-4-news-card h3,
+.user-level-4-news-card .font-bold,
+.user-level-4-news-card .font-semibold,
+.user-level-4-news-card .font-medium,
+.user-level-4-profile-premium-card h1,
+.user-level-4-profile-premium-card h2,
+.user-level-4-profile-premium-card h3,
+.user-level-4-profile-premium-card .font-bold,
+.user-level-4-profile-premium-card .font-semibold,
+.user-level-4-profile-premium-card .font-medium,
+.user-level-4-profile-panel .font-bold,
+.user-level-4-profile-panel .font-semibold,
+.user-level-4-profile-panel .font-medium,
+.user-level-4-friends-row .font-medium,
+.user-level-4-tournament-card-title {
+  color: #2e1065 !important;
+  -webkit-text-fill-color: #2e1065 !important;
+  text-shadow: none !important;
+}
+
+.user-level-4-game-card p,
+.user-level-4-game-card span:not([class*="bg-"]),
+.user-level-4-news-card p,
+.user-level-4-news-card span:not([class*="bg-"]),
+.user-level-4-profile-premium-card p,
+.user-level-4-profile-premium-card span:not([class*="text-yellow"]):not([class*="text-orange"]),
+.user-level-4-profile-premium-card li,
+.user-level-4-profile-panel p,
+.user-level-4-profile-panel span,
+.user-level-4-friends-row span,
+.user-level-4-tournament-card p,
+.user-level-4-tournament-card span {
+  color: #4c1d95 !important;
+  -webkit-text-fill-color: #4c1d95 !important;
+  text-shadow: none !important;
+}
+
+.user-level-4-profile-premium-card .text-yellow-400,
+.user-level-4-profile-premium-card .text-orange-400,
+.user-level-4-game-card .text-yellow-500,
+.user-level-4-game-card .fill-yellow-500,
+.user-level-4-tournament-elo {
+  color: #7c3aed !important;
+  fill: #7c3aed !important;
+  -webkit-text-fill-color: #7c3aed !important;
+}
+
+.user-level-4-game-card .absolute.top-3.left-3,
+.user-level-4-game-card .absolute.top-3.right-3,
+.user-level-4-game-card .absolute.top-3.left-3 *,
+.user-level-4-game-card .absolute.top-3.right-3 * {
+  color: #f3e8ff !important;
+  -webkit-text-fill-color: #f3e8ff !important;
+  text-shadow: none !important;
+}
+
+/* Nivel 4: ajustes finales de textos flotantes y selector del lobby */
+.user-level-4-game-surface .online-game-lobby__mode-card[data-selected="true"],
+.user-level-4-game-surface .online-game-lobby__ai-difficulty[data-selected="true"] {
+  background:
+    linear-gradient(135deg, rgba(76, 29, 149, 0.84) 0%, rgba(109, 40, 217, 0.72) 100%) !important;
+  border-color: rgba(216, 180, 254, 0.72) !important;
+}
+
+.user-level-4-game-surface .online-game-lobby__mode-card[data-selected="true"] .online-game-lobby__mode-icon,
+.user-level-4-game-surface .online-game-lobby__mode-card[data-selected="true"] .online-game-lobby__mode-title,
+.user-level-4-game-surface .online-game-lobby__mode-card[data-selected="true"] .online-game-lobby__mode-copy,
+.user-level-4-game-surface .online-game-lobby__ai-difficulty[data-selected="true"] {
+  color: #ffffff !important;
+  -webkit-text-fill-color: #ffffff !important;
+  text-shadow: 0 1px 7px rgba(18, 8, 34, 0.62) !important;
+}
+
+.user-level-4-game-surface .online-game-lobby__mode-card[data-selected="true"] .online-game-lobby__mode-dot,
+.user-level-4-game-surface .online-game-lobby__ai-difficulty[data-selected="true"] .online-game-lobby__ai-dot {
+  background: #f3e8ff !important;
+}
+
+.user-level-4-game-detail-page .user-level-4-game-detail-title,
+.user-level-4-game-detail-page h1.user-level-4-game-detail-title {
+  color: #c084fc !important;
+  -webkit-text-fill-color: #c084fc !important;
+  text-shadow:
+    0 2px 10px rgba(18, 8, 34, 0.82),
+    0 0 16px rgba(192, 132, 252, 0.48) !important;
+}
+
+.user-level-4-game-detail-page .user-level-4-game-detail-meta,
+.user-level-4-game-detail-page .user-level-4-game-detail-meta span,
+.user-level-4-game-detail-page .user-level-4-game-detail-publisher,
+.user-level-4-game-detail-page .user-level-4-game-detail-link,
+.user-level-4-game-detail-page .text-white.font-medium {
+  color: #e9d5ff !important;
+  -webkit-text-fill-color: #e9d5ff !important;
+  text-shadow: 0 2px 8px rgba(18, 8, 34, 0.74) !important;
+}
+
+.user-level-4-friends-page .user-level-4-friends-section-title,
+.user-level-4-friends-page h2.user-level-4-friends-section-title {
+  color: #d8b4fe !important;
+  -webkit-text-fill-color: #d8b4fe !important;
+  text-shadow: 0 2px 8px rgba(18, 8, 34, 0.74) !important;
+}
+
+.user-level-4-friends-page .text-center p,
+.user-level-4-friends-page .text-center svg {
+  color: #c4b5fd !important;
+  -webkit-text-fill-color: #c4b5fd !important;
+  text-shadow: 0 2px 8px rgba(18, 8, 34, 0.74) !important;
+}
+
+.user-level-4-game-surface .online-game-lobby__card button.online-game-lobby__ai-difficulty[data-selected="true"],
+.user-level-4-game-surface .online-game-lobby__ai-grid button.online-game-lobby__ai-difficulty[data-selected="true"],
+.user-level-4-game-surface button.online-game-lobby__ai-difficulty[data-selected="true"] {
+  color: #ffffff !important;
+  -webkit-text-fill-color: #ffffff !important;
+  text-shadow: 0 1px 7px rgba(18, 8, 34, 0.72) !important;
+}
+
+.user-level-4-game-surface .online-game-lobby__ai-difficulty[data-selected="true"] .online-game-lobby__ai-difficulty-label {
+  color: #ffffff !important;
+  -webkit-text-fill-color: #ffffff !important;
+  text-shadow: 0 1px 7px rgba(18, 8, 34, 0.72) !important;
 }

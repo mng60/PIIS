@@ -44,6 +44,61 @@ export default function GameArea({
   const vsAiChatContainerRef = useRef(null);
   const [iframeMoveHistory, setIframeMoveHistory] = useState([]);
   const { isLevel1User, isLevel2User, isLevel3User, isLevel4User, isLevel5User } = useLevelTheme({ user });
+  const gameSurfaceClass = isLevel1User
+    ? 'user-level-1-game-surface'
+    : isLevel2User
+      ? 'user-level-2-game-surface'
+      : isLevel3User
+        ? 'user-level-3-game-surface'
+        : isLevel4User
+          ? 'user-level-4-game-surface'
+          : isLevel5User
+            ? 'user-level-5-game-surface'
+            : '';
+  const detailPanelClass = isLevel1User
+    ? 'user-level-1-detail-panel'
+    : isLevel2User
+      ? 'user-level-2-detail-panel'
+      : isLevel3User
+        ? 'user-level-3-detail-panel'
+        : isLevel4User
+          ? 'user-level-4-detail-panel'
+          : isLevel5User
+            ? 'user-level-5-detail-panel'
+            : '';
+  const detailPanelTitleClass = isLevel1User
+    ? 'user-level-1-detail-panel-title'
+    : isLevel2User
+      ? 'user-level-2-detail-panel-title'
+      : isLevel3User
+        ? 'user-level-3-detail-panel-title'
+        : isLevel4User
+          ? 'user-level-4-detail-panel-title'
+          : isLevel5User
+            ? 'user-level-5-detail-panel-title'
+            : '';
+  const detailIconClass = isLevel1User
+    ? 'user-level-1-detail-icon-blue'
+    : isLevel2User
+      ? 'user-level-2-detail-icon-blue'
+      : isLevel3User
+        ? 'user-level-3-detail-icon-blue'
+        : isLevel4User
+          ? 'user-level-4-detail-icon-blue'
+          : isLevel5User
+            ? 'user-level-5-detail-icon-blue'
+            : '';
+  const historyClass = isLevel1User
+    ? 'user-level-1-history'
+    : isLevel2User
+      ? 'user-level-2-history'
+      : isLevel3User
+        ? 'user-level-3-history'
+        : isLevel4User
+          ? 'user-level-4-history'
+          : isLevel5User
+            ? 'user-level-5-history'
+            : '';
 
   useEffect(() => {
     if (vsAiChatContainerRef.current) {
@@ -114,7 +169,7 @@ export default function GameArea({
       return <SnakeGame onScoreUpdate={onScoreUpdate} onGameStart={onGameStart} user={user} serverBestScore={serverBestScore} />;
     }
     if (game.game_code === 'pong') {
-      return <PongGame onScoreUpdate={onScoreUpdate} onGameStart={onGameStart} />;
+      return <PongGame onScoreUpdate={onScoreUpdate} onGameStart={onGameStart} user={user} />;
     }
     if (game.game_code === 'chess-online') {
       if (!isPlaying) return <GameCover game={game} onPlay={onPlay} isLevel1User={isLevel1User} isLevel2User={isLevel2User} isLevel3User={isLevel3User} isLevel4User={isLevel4User} isLevel5User={isLevel5User} />;
@@ -184,7 +239,7 @@ export default function GameArea({
           <div className="w-full max-w-[520px]">{renderGame()}</div>
         </div>
       ) : (
-        <div className={`bg-[#0a0a0f] rounded-2xl border border-white/10 overflow-hidden ${isLevel2User ? 'user-level-2-game-surface' : ''} ${isLevel3User ? 'user-level-3-game-surface' : ''}`}>
+        <div className={`bg-[#0a0a0f] rounded-2xl border border-white/10 overflow-hidden ${gameSurfaceClass}`}>
           {renderGame()}
         </div>
       )}
@@ -192,11 +247,11 @@ export default function GameArea({
       {game.is_multiplayer && isPlaying && (
         <div className="flex flex-col gap-2 h-full">
           {/* Chat: 65% */}
-          <div className={`bg-white/5 rounded-xl border border-white/10 p-3 flex flex-col min-h-0 ${isLevel2User ? 'user-level-2-detail-panel' : ''} ${isLevel3User ? 'user-level-3-detail-panel' : ''}`} style={{ flex: '13 0 0' }}>
-            <h2 className={`text-sm font-semibold text-white mb-2 flex items-center gap-2 flex-shrink-0 ${isLevel2User ? 'user-level-2-detail-panel-title' : ''} ${isLevel3User ? 'user-level-3-detail-panel-title' : ''}`}>
-              {isVsAi ? <Bot className={`w-4 h-4 text-purple-400 ${isLevel2User ? 'user-level-2-detail-icon-blue' : ''} ${isLevel3User ? 'user-level-3-detail-icon-blue' : ''}`} /> : <MessageCircle className={`w-4 h-4 text-purple-400 ${isLevel2User ? 'user-level-2-detail-icon-blue' : ''} ${isLevel3User ? 'user-level-3-detail-icon-blue' : ''}`} />}
+          <div className={`bg-white/5 rounded-xl border border-white/10 p-3 flex flex-col min-h-0 ${detailPanelClass}`} style={{ flex: '13 0 0' }}>
+            <h2 className={`text-sm font-semibold text-white mb-2 flex items-center gap-2 flex-shrink-0 ${detailPanelTitleClass}`}>
+              {isVsAi ? <Bot className={`w-4 h-4 text-purple-400 ${detailIconClass}`} /> : <MessageCircle className={`w-4 h-4 text-purple-400 ${detailIconClass}`} />}
               Chat de partida
-              {isVsAi && vsAiAnalysisLoading && <Loader2 className="w-3 h-3 animate-spin text-purple-400 ml-auto" />}
+              {isVsAi && vsAiAnalysisLoading && <Loader2 className={`w-3 h-3 animate-spin text-purple-400 ml-auto ${detailIconClass}`} />}
             </h2>
             {isVsAi ? (
               <div ref={vsAiChatContainerRef} className="flex-1 min-h-0 overflow-y-auto space-y-2 [&::-webkit-scrollbar]:hidden [scrollbar-width:none]">
@@ -232,7 +287,7 @@ export default function GameArea({
             <OnlineGameMoveHistory
               moves={game.game_type === 'html5' ? iframeMoveHistory : chessMoveHistory}
               title="Historial de jugadas"
-              className={isLevel2User ? 'user-level-2-history' : ''}
+              className={historyClass}
               emptyMessage="Aún no hay movimientos"
               chessPairs={game.game_code === 'chess-online'}
             />
