@@ -30,6 +30,8 @@ export default function CommentSection({ gameId, comments, user, onCommentAdded 
   const isLevel1User = !isDark && userLevel === 1;
   const isLevel2User = !isDark && userLevel === 2;
   const isLevel3User = !isDark && userLevel === 3;
+  const isLevel4User = !isDark && userLevel === 4;
+  const isLevel5User = !isDark && userLevel === 5;
 
   const handleSubmit = async (e) => {
     e.preventDefault();
@@ -53,7 +55,7 @@ export default function CommentSection({ gameId, comments, user, onCommentAdded 
       {user ? (
         <form onSubmit={handleSubmit} className="space-y-4">
           <div>
-            <label className={`block text-sm text-gray-400 mb-2 ${isLevel1User ? "user-level-1-comment-label" : ""} ${isLevel2User ? "user-level-2-comment-label" : ""} ${isLevel3User ? "user-level-3-comment-label" : ""}`}>Tu valoración</label>
+            <label className={`block text-sm text-gray-400 mb-2 ${isLevel1User ? "user-level-1-comment-label" : ""} ${isLevel2User ? "user-level-2-comment-label" : ""} ${isLevel3User ? "user-level-3-comment-label" : ""} ${isLevel4User ? "user-level-4-comment-label" : ""} ${isLevel5User ? "user-level-5-comment-label" : ""}`}>Tu valoración</label>
             <div className="flex gap-1">
               {[1, 2, 3, 4, 5].map((star) => (
                 <button
@@ -75,13 +77,13 @@ export default function CommentSection({ gameId, comments, user, onCommentAdded 
             placeholder="Escribe tu comentario..."
             value={content}
             onChange={(e) => setContent(e.target.value)}
-            className={`bg-white/5 border-white/10 text-white placeholder:text-gray-500 min-h-24 ${isLevel1User ? "user-level-1-comment-textarea" : ""} ${isLevel2User ? "user-level-2-comment-textarea" : ""} ${isLevel3User ? "user-level-3-comment-textarea" : ""}`}
+            className={`bg-white/5 border-white/10 text-white placeholder:text-gray-500 min-h-24 ${isLevel1User ? "user-level-1-comment-textarea" : ""} ${isLevel2User ? "user-level-2-comment-textarea" : ""} ${isLevel3User ? "user-level-3-comment-textarea" : ""} ${isLevel4User ? "user-level-4-comment-textarea" : ""} ${isLevel5User ? "user-level-5-comment-textarea" : ""}`}
             maxLength={800}
           />
           <Button
             type="submit"
             disabled={!content.trim() || isSubmitting}
-            className={isLevel1User ? "user-level-1-comment-button" : isLevel2User ? "user-level-2-comment-button" : isLevel3User ? "user-level-3-button" : "bg-gradient-to-r from-purple-600 to-cyan-500 hover:opacity-90"}
+            className={isLevel5User ? "user-level-5-button" : isLevel4User ? "user-level-4-button" : isLevel3User ? "user-level-3-button" : isLevel2User ? "user-level-2-comment-button" : isLevel1User ? "user-level-1-comment-button" : "bg-gradient-to-r from-purple-600 to-cyan-500 hover:opacity-90"}
           >
             <Send className="w-4 h-4 mr-2" />
             Publicar
@@ -95,16 +97,16 @@ export default function CommentSection({ gameId, comments, user, onCommentAdded 
 
       <div className="space-y-4">
         {comments.length === 0 ? (
-          <div className={`text-center py-8 text-gray-500 ${isLevel1User ? "user-level-1-comment-empty" : ""} ${isLevel2User ? "user-level-2-comment-empty" : ""}`}>
-            <MessageSquare className={`w-12 h-12 mx-auto mb-3 opacity-30 ${isLevel1User ? "user-level-1-comment-empty-icon" : ""} ${isLevel2User ? "user-level-2-comment-empty-icon" : ""}`} />
-            <p className={`${isLevel1User ? "user-level-1-comment-empty" : ""} ${isLevel2User ? "user-level-2-comment-empty" : ""}`}>Sin comentarios aún</p>
-            <p className={`text-sm ${isLevel1User ? "user-level-1-comment-empty" : ""} ${isLevel2User ? "user-level-2-comment-empty" : ""}`}>¡Sé el primero en opinar!</p>
+          <div className={`text-center py-8 text-gray-500 ${isLevel1User ? "user-level-1-comment-empty" : ""} ${isLevel2User ? "user-level-2-comment-empty" : ""} ${isLevel3User ? "user-level-3-comment-empty" : ""} ${isLevel4User ? "user-level-4-comment-empty" : ""} ${isLevel5User ? "user-level-5-comment-empty" : ""}`}>
+            <MessageSquare className={`w-12 h-12 mx-auto mb-3 opacity-30 ${isLevel1User ? "user-level-1-comment-empty-icon" : ""} ${isLevel2User ? "user-level-2-comment-empty-icon" : ""} ${isLevel3User ? "user-level-3-comment-empty-icon" : ""} ${isLevel4User ? "user-level-4-comment-empty-icon" : ""} ${isLevel5User ? "user-level-5-comment-empty-icon" : ""}`} />
+            <p className={`${isLevel1User ? "user-level-1-comment-empty" : ""} ${isLevel2User ? "user-level-2-comment-empty" : ""} ${isLevel3User ? "user-level-3-comment-empty" : ""} ${isLevel4User ? "user-level-4-comment-empty" : ""} ${isLevel5User ? "user-level-5-comment-empty" : ""}`}>Sin comentarios aún</p>
+            <p className={`text-sm ${isLevel1User ? "user-level-1-comment-empty" : ""} ${isLevel2User ? "user-level-2-comment-empty" : ""} ${isLevel3User ? "user-level-3-comment-empty" : ""} ${isLevel4User ? "user-level-4-comment-empty" : ""} ${isLevel5User ? "user-level-5-comment-empty" : ""}`}>¡Sé el primero en opinar!</p>
           </div>
         ) : (
           comments.map((comment) => {
             const canReport = user && comment.user_email !== user.email;
             return (
-              <div key={comment.id} className={`p-4 bg-white/5 rounded-xl border border-white/5 ${isLevel3User ? "user-level-3-comment-card" : ""}`}>
+              <div key={comment.id} className={`p-4 bg-white/5 rounded-xl border border-white/5 ${isLevel3User ? "user-level-3-comment-card" : ""} ${isLevel4User ? "user-level-4-comment-card" : ""} ${isLevel5User ? "user-level-5-comment-card" : ""}`}>
                 <div className="flex items-start justify-between mb-2">
                   <div>
                     <p className="font-medium text-white">{comment.user_name?.includes('@') ? comment.user_name.split('@')[0] : comment.user_name}</p>

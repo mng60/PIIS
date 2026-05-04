@@ -54,7 +54,9 @@ export default function NotificationsPanel({ isDark: isDarkProp }) {
   const userLevel = isRegularUser ? getLevelFromXP(user.xp ?? 0).level : null;
   const isLevel2User = !isDark && userLevel === 2;
   const isLevel3User = !isDark && userLevel === 3;
-  const isLevelUser = !isDark && (userLevel === 1 || userLevel === 2 || userLevel === 3);
+  const isLevel4User = !isDark && userLevel === 4;
+  const isLevel5User = !isDark && userLevel === 5;
+  const isLevelUser = !isDark && userLevel >= 1 && userLevel <= 5;
   const [open, setOpen] = useState(false);
   const [notifications, setNotifications] = useState([]);
   const [unreadCount, setUnreadCount] = useState(0);
@@ -174,7 +176,7 @@ export default function NotificationsPanel({ isDark: isDarkProp }) {
         <Button
           variant="ghost"
           size="icon"
-          className={`relative ${isLevel3User ? "user-level-3-topbar-idle" : isLevel2User ? "user-level-2-topbar-idle" : isDark ? "text-gray-400 hover:text-white hover:bg-white/5" : "text-gray-500 hover:text-gray-900 hover:bg-gray-100"}`}
+          className={`relative ${isLevel5User ? "user-level-5-topbar-idle" : isLevel4User ? "user-level-4-topbar-idle" : isLevel3User ? "user-level-3-topbar-idle" : isLevel2User ? "user-level-2-topbar-idle" : isDark ? "text-gray-400 hover:text-white hover:bg-white/5" : "text-gray-500 hover:text-gray-900 hover:bg-gray-100"}`}
           title="Notificaciones"
         >
           <Bell className="w-4 h-4" />

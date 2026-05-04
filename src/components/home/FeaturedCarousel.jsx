@@ -34,6 +34,8 @@ export default function FeaturedCarousel({ games }) {
   const isLevel1User = !isDark && userLevel === 1;
   const isLevel2User = !isDark && userLevel === 2;
   const isLevel3User = !isDark && userLevel === 3;
+  const isLevel4User = !isDark && userLevel === 4;
+  const isLevel5User = !isDark && userLevel === 5;
 
   useEffect(() => {
     if (!isAutoPlaying || games.length <= 1) return;
@@ -58,8 +60,8 @@ export default function FeaturedCarousel({ games }) {
   const currentGame = games[currentIndex];
 
   return (
-    <div className={`relative rounded-2xl md:rounded-3xl overflow-hidden group ${isLevel1User ? "user-level-1-featured-card" : ""} ${isLevel2User ? "user-level-2-featured-card" : ""} ${isLevel3User ? "user-level-3-widget user-level-3-featured-card" : ""}`}>
-      <div className={`relative aspect-video md:aspect-[21/9] bg-gradient-to-br from-purple-900/50 to-cyan-900/50 ${isLevel2User ? "user-level-2-widget-media" : ""} ${isLevel3User ? "user-level-3-widget-media" : ""}`}>
+    <div className={`relative rounded-2xl md:rounded-3xl overflow-hidden group ${isLevel1User ? "user-level-1-featured-card" : ""} ${isLevel2User ? "user-level-2-featured-card" : ""} ${isLevel3User ? "user-level-3-widget user-level-3-featured-card" : ""} ${isLevel4User ? "user-level-4-widget user-level-4-featured-card" : ""} ${isLevel5User ? "user-level-5-widget user-level-5-featured-card" : ""}`}>
+      <div className={`relative aspect-video md:aspect-[21/9] bg-gradient-to-br from-purple-900/50 to-cyan-900/50 ${isLevel2User ? "user-level-2-widget-media" : ""} ${isLevel3User ? "user-level-3-widget-media" : ""} ${isLevel4User ? "user-level-4-widget-media" : ""} ${isLevel5User ? "user-level-5-widget-media" : ""}`}>
         {currentGame.thumbnail ? (
           <img
             src={currentGame.thumbnail}
@@ -91,7 +93,7 @@ export default function FeaturedCarousel({ games }) {
           </p>
 
           <Link to={`/games/${currentGame.id}`}>
-            <Button className={`${isLevel1User ? "user-level-1-hero-button" : isLevel2User ? "user-level-2-featured-button" : isLevel3User ? "user-level-3-button" : "bg-gradient-to-r from-purple-600 to-cyan-500 hover:opacity-90"} text-sm sm:text-base md:text-lg px-4 py-3 sm:px-6 sm:py-4 md:px-8 md:py-6`}>
+            <Button className={`${isLevel1User ? "user-level-1-hero-button" : isLevel2User ? "user-level-2-featured-button" : isLevel3User ? "user-level-3-button" : isLevel4User ? "user-level-4-button" : isLevel5User ? "user-level-5-button" : "bg-gradient-to-r from-purple-600 to-cyan-500 hover:opacity-90"} text-sm sm:text-base md:text-lg px-4 py-3 sm:px-6 sm:py-4 md:px-8 md:py-6`}>
               <Play className="w-4 h-4 sm:w-5 sm:h-5 mr-1 sm:mr-2 fill-white" />
               Jugar Ahora
             </Button>

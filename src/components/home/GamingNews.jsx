@@ -27,15 +27,17 @@ function NewsCard({ item }) {
   const isLevel1User = !isDark && userLevel === 1;
   const isLevel2User = !isDark && userLevel === 2;
   const isLevel3User = !isDark && userLevel === 3;
+  const isLevel4User = !isDark && userLevel === 4;
+  const isLevel5User = !isDark && userLevel === 5;
 
   return (
     <a
       href={item.link}
       target="_blank"
       rel="noopener noreferrer"
-      className={`group flex flex-col bg-white/5 border border-white/10 rounded-xl overflow-hidden hover:bg-white/[0.07] transition-all duration-200 ${isLevel1User ? "user-level-1-news-card" : isLevel3User ? "" : "hover:border-purple-500/40"} ${isLevel2User ? "user-level-2-news-card" : ""} ${isLevel3User ? "user-level-3-widget user-level-3-news-card" : ""}`}
+      className={`group flex flex-col bg-white/5 border border-white/10 rounded-xl overflow-hidden hover:bg-white/[0.07] transition-all duration-200 ${isLevel1User ? "user-level-1-news-card" : isLevel3User ? "" : "hover:border-purple-500/40"} ${isLevel2User ? "user-level-2-news-card" : ""} ${isLevel3User ? "user-level-3-widget user-level-3-news-card" : ""} ${isLevel4User ? "user-level-4-widget user-level-4-news-card" : ""} ${isLevel5User ? "user-level-5-widget user-level-5-news-card" : ""}`}
     >
-      <div className={`aspect-video bg-gradient-to-br from-purple-900/40 to-cyan-900/40 overflow-hidden shrink-0 ${isLevel2User ? "user-level-2-widget-media" : ""} ${isLevel3User ? "user-level-3-widget-media" : ""}`}>
+      <div className={`aspect-video bg-gradient-to-br from-purple-900/40 to-cyan-900/40 overflow-hidden shrink-0 ${isLevel2User ? "user-level-2-widget-media" : ""} ${isLevel3User ? "user-level-3-widget-media" : ""} ${isLevel4User ? "user-level-4-widget-media" : ""} ${isLevel5User ? "user-level-5-widget-media" : ""}`}>
         {item.image ? (
           <img
             src={item.image}
@@ -52,7 +54,7 @@ function NewsCard({ item }) {
 
       <div className="flex flex-col flex-1 p-4 gap-2">
         <div className="flex items-center justify-between gap-2">
-          <span className={`text-xs font-medium text-purple-400 uppercase tracking-wide ${isLevel2User ? "user-level-2-widget-accent" : ""} ${isLevel3User ? "user-level-3-widget-accent" : ""}`}>
+          <span className={`text-xs font-medium text-purple-400 uppercase tracking-wide ${isLevel2User ? "user-level-2-widget-accent" : ""} ${isLevel3User ? "user-level-3-widget-accent" : ""} ${isLevel4User ? "user-level-4-widget-accent" : ""} ${isLevel5User ? "user-level-5-widget-accent" : ""}`}>
             {item.source}
           </span>
           {date && (
@@ -63,7 +65,7 @@ function NewsCard({ item }) {
           )}
         </div>
 
-        <h3 className={`text-sm font-semibold text-white transition-colors line-clamp-2 leading-snug ${isLevel1User ? "user-level-1-news-title" : isLevel3User ? "" : "group-hover:text-purple-300"} ${isLevel2User ? "user-level-2-widget-title" : ""} ${isLevel3User ? "user-level-3-widget-title" : ""}`}>
+        <h3 className={`text-sm font-semibold text-white transition-colors line-clamp-2 leading-snug ${isLevel1User ? "user-level-1-news-title" : isLevel3User ? "" : "group-hover:text-purple-300"} ${isLevel2User ? "user-level-2-widget-title" : ""} ${isLevel3User ? "user-level-3-widget-title" : ""} ${isLevel4User ? "user-level-4-widget-title" : ""} ${isLevel5User ? "user-level-5-widget-title" : ""}`}>
           {item.title}
         </h3>
 
@@ -73,7 +75,7 @@ function NewsCard({ item }) {
           </p>
         )}
 
-        <div className={`mt-auto pt-2 flex items-center gap-1 text-xs text-gray-500 transition-colors ${isLevel1User ? "user-level-1-news-link" : isLevel3User ? "user-level-3-widget-accent" : "group-hover:text-purple-400"} ${isLevel2User ? "user-level-2-widget-accent" : ""}`}>
+        <div className={`mt-auto pt-2 flex items-center gap-1 text-xs text-gray-500 transition-colors ${isLevel1User ? "user-level-1-news-link" : isLevel3User ? "user-level-3-widget-accent" : "group-hover:text-purple-400"} ${isLevel2User ? "user-level-2-widget-accent" : ""} ${isLevel4User ? "user-level-4-widget-accent" : ""} ${isLevel5User ? "user-level-5-widget-accent" : ""}`}>
           <ExternalLink className="w-3 h-3" />
           Leer artículo
         </div>
@@ -111,12 +113,14 @@ export default function GamingNews() {
   const isLevel1User = !isDark && userLevel === 1;
   const isLevel2User = !isDark && userLevel === 2;
   const isLevel3User = !isDark && userLevel === 3;
+  const isLevel4User = !isDark && userLevel === 4;
+  const isLevel5User = !isDark && userLevel === 5;
 
   return (
     <div className="relative">
       <h2 className="text-2xl md:text-3xl font-bold mb-6 flex items-center gap-3">
-        <Newspaper className={`w-7 h-7 ${isLevel1User ? "user-level-1-news-icon" : "text-purple-400"} ${isLevel2User ? "user-level-2-section-icon" : ""} ${isLevel3User ? "user-level-3-section-icon" : ""}`} />
-        <span className={`${isLevel1User ? "user-level-1-news-heading" : ""} ${isLevel2User ? "user-level-2-section-heading" : ""} ${isLevel3User ? "user-level-3-section-heading" : ""}`}>Noticias Gaming</span>
+        <Newspaper className={`w-7 h-7 ${isLevel1User ? "user-level-1-news-icon" : "text-purple-400"} ${isLevel2User ? "user-level-2-section-icon" : ""} ${isLevel3User ? "user-level-3-section-icon" : ""} ${isLevel4User ? "user-level-4-section-icon" : ""} ${isLevel5User ? "user-level-5-section-icon" : ""}`} />
+        <span className={`${isLevel1User ? "user-level-1-news-heading" : ""} ${isLevel2User ? "user-level-2-section-heading" : ""} ${isLevel3User ? "user-level-3-section-heading" : ""} ${isLevel4User ? "user-level-4-section-heading" : ""} ${isLevel5User ? "user-level-5-section-heading" : ""}`}>Noticias Gaming</span>
       </h2>
 
       {isLoading && (
