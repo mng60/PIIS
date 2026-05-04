@@ -9,8 +9,9 @@ function parseStoredLevelTheme(value) {
 }
 
 const ThemeContext = createContext({
-  isDark: true,
+  isDark: false,
   toggleTheme: () => {},
+  setDark: () => {},
   selectedLevelTheme: "auto",
   setSelectedLevelTheme: () => {},
   resetLevelTheme: () => {},
@@ -19,7 +20,7 @@ const ThemeContext = createContext({
 export function ThemeProvider({ children }) {
   const [isDark, setIsDark] = useState(() => {
     const saved = localStorage.getItem("playcraft-theme");
-    return saved ? saved === "dark" : true;
+    return saved ? saved === "dark" : false;
   });
   const [selectedLevelTheme, setSelectedLevelThemeState] = useState(() =>
     parseStoredLevelTheme(localStorage.getItem(LEVEL_THEME_STORAGE_KEY))
@@ -49,6 +50,7 @@ export function ThemeProvider({ children }) {
       value={{
         isDark,
         toggleTheme: () => setIsDark((d) => !d),
+        setDark: (value) => setIsDark(value),
         selectedLevelTheme,
         setSelectedLevelTheme,
         resetLevelTheme: () => setSelectedLevelThemeState("auto"),

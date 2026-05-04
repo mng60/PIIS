@@ -5,8 +5,10 @@ import NavigationTracker from '@/lib/NavigationTracker'
 import { BrowserRouter as Router, Route, Routes } from 'react-router-dom';
 import PageNotFound from './lib/PageNotFound';
 import { AuthProvider, useAuth } from '@/lib/AuthContext';
-import { ThemeProvider } from '@/lib/ThemeContext';
+import { ThemeProvider, useTheme } from '@/lib/ThemeContext';
 import { Loader2 } from 'lucide-react';
+import { useEffect, useState } from 'react';
+import TutorialVideoModal from './components/TutorialVideoModal';
 import Layout from './Layout';
 import Login from './pages/Login';
 import Home from './pages/Home';
@@ -31,7 +33,25 @@ import { CurrentRoomProvider } from '@/lib/CurrentRoomContext';
 import { FloatingPanelsProvider } from '@/lib/FloatingPanelsContext';
 
 const AppRoutes = () => {
-  const { isLoadingAuth } = useAuth();
+  const { user, isLoadingAuth } = useAuth();
+  const { setDark } = useTheme();
+  const [showTutorial, setShowTutorial] = useState(false);
+
+  useEffect(() => {
+    if (!isLoadingAuth) {
+      setDark(!user || user.role === 'admin' || user.role === 'empresa');
+    }
+  }, [user, isLoadingAuth]);
+
+  useEffect(() => {
+    if (isLoadingAuth || !user) return;
+    const key = `playcraft-known-role-${user.id}`;
+    const knownRole = localStorage.getItem(key);
+    if (knownRole === null || knownRole !== user.role) {
+      setShowTutorial(true);
+      localStorage.setItem(key, user.role);
+    }
+  }, [user?.id, user?.role, isLoadingAuth]);
 
   if (isLoadingAuth) {
     return (
@@ -43,6 +63,11 @@ const AppRoutes = () => {
 
   return (
     <>
+      <TutorialVideoModal
+        open={showTutorial}
+        onClose={() => setShowTutorial(false)}
+        role={user?.role}
+      />
       <UserSanctionOverlay />
       <TournamentActiveAlert />
       <ActiveChessGamesAlert />

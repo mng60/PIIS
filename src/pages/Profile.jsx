@@ -8,8 +8,9 @@ import { useAuth } from "@/lib/AuthContext";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
 import {
   Loader2, User, Mail, Calendar, Gamepad2, Edit2, Save, Camera, Lock, MoreVertical,
-  Crown, Sparkles, Palette, Check,
+  Crown, Sparkles, Palette, Check, Youtube,
 } from "lucide-react";
+import TutorialVideoModal from "@/components/TutorialVideoModal";
 import { getEloRank } from "@/lib/eloRanks";
 import {
   DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger,
@@ -45,6 +46,7 @@ export default function Profile() {
 
   const [showPwDialog, setShowPwDialog] = useState(false);
   const [showColorDialog, setShowColorDialog] = useState(false);
+  const [showTutorial, setShowTutorial] = useState(false);
   const [pwForm, setPwForm] = useState({ current: "", next: "", confirm: "" });
   const [pwErrors, setPwErrors] = useState({});
   const [isChangingPw, setIsChangingPw] = useState(false);
@@ -316,6 +318,13 @@ export default function Profile() {
                             Cambiar colores
                           </DropdownMenuItem>
                         )}
+                        <DropdownMenuItem
+                          onClick={() => setShowTutorial(true)}
+                          className={isLevel1User ? "user-level-1-profile-menu-item" : isLevel2User ? "user-level-2-profile-menu-item" : isLevel3User ? "user-level-3-profile-menu-item" : isLevel4User ? "user-level-4-profile-menu-item" : isLevel5User ? "user-level-5-profile-menu-item" : "cursor-pointer hover:bg-white/5 gap-2"}
+                        >
+                          <Youtube className={`w-4 h-4 ${isLevel1User ? "user-level-1-profile-icon-soft" : isLevel2User ? "user-level-2-profile-icon-soft" : isLevel3User ? "user-level-3-profile-icon-soft" : isLevel4User ? "user-level-4-profile-icon-soft" : isLevel5User ? "user-level-5-profile-icon-soft" : "text-red-400"}`} />
+                          Video tutorial
+                        </DropdownMenuItem>
                         <DropdownMenuItem
                           onClick={() => { setPwForm({ current: "", next: "", confirm: "" }); setPwErrors({}); setShowPwDialog(true); }}
                           className={isLevel1User ? "user-level-1-profile-menu-item" : isLevel2User ? "user-level-2-profile-menu-item" : isLevel3User ? "user-level-3-profile-menu-item" : isLevel4User ? "user-level-4-profile-menu-item" : isLevel5User ? "user-level-5-profile-menu-item" : "cursor-pointer hover:bg-white/5 gap-2"}
@@ -667,6 +676,12 @@ export default function Profile() {
         externalSelectedKey={selectedGameForAchievements}
         onExternalClose={() => setSelectedGameForAchievements(null)}
         hideCard
+      />
+
+      <TutorialVideoModal
+        open={showTutorial}
+        onClose={() => setShowTutorial(false)}
+        role={user.role}
       />
     </div>
   );
