@@ -7,6 +7,7 @@ import ChessOnlineGame from '@/components/games/ChessOnlineGame';
 import ChatSection from '@/components/games/ChatSection';
 import OnlineGameMoveHistory from '@/components/games/OnlineGameMoveHistory';
 import { useChessGame } from '@/hooks/useChessGame';
+import ParchisOnlineGame from '@/components/games/ParchisOnlineGame';
 
 export default function GameArea({
   game,
@@ -79,6 +80,19 @@ export default function GameArea({
           user={user}
           onScoreUpdate={onScoreUpdate}
           onRoomCodeChange={code => onChatSessionIdChange(code || null)}
+          onMoveHistoryChange={onChessMoveHistoryChange}
+        />
+      );
+    }
+    // ... dentro de renderGame()
+    if (game.game_code === 'parchis-online') {
+      if (!isPlaying) return <GameCover game={game} onPlay={onPlay} />;
+      return (
+        <ParchisOnlineGame
+          user={user}
+          gameId={gameId}
+          isPlaying={isPlaying}
+          onRoomCodeChange={onChatSessionIdChange}
           onMoveHistoryChange={onChessMoveHistoryChange}
         />
       );

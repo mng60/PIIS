@@ -1,61 +1,41 @@
-import { useRef, useEffect, useState } from 'react';
-import { createSession, getSession, updateSession } from '@/api/sessions';
+import { useRef, useState, useEffect } from 'react';
+import { createSession, getSession, updateSession, joinSession } from '@/api/sessions';
 
-/**
- * Generic relay hook for turn-based multiplayer board games.
- *
- * Handles the full session lifecycle:
- *   - CREATE_ROOM  → creates a DB session, replies ROOM_CREATED
- *   - JOIN_ROOM    → validates and joins the session
- *   - [actionType] → stores the player's action in game_state.actions
- *   - Polling      → fetches the session every 1.5 s and delivers
- *                    undelivered opponent actions to the iframe
- *
- * All game-specific behavior (message types, action shape, player info
- * payload) is injected via callbacks so this hook stays reusable.
- *
- * @param {object}   opts
- * @param {boolean}  opts.isPlaying          - Whether the game session is active
- * @param {object}   opts.user               - Authenticated user
- * @param {string}   opts.gameId
- * @param {React.RefObject} opts.iframeRef   - Ref attached to the game iframe
- * @param {function} opts.onRoomCodeChange   - Called with the room code when created/joined
- *
- * @param {string}   opts.actionType           - Incoming message type that stores an action
- *                                               (default: 'GAME_ACTION')
- * @param {function} opts.extractAction        - (msg) => object  — what to persist per action
- * @param {function} opts.buildOpponentMessage - (action) => postMessage payload sent to opponent
- * @param {function} [opts.formatMoveLabel]    - (action) => string  — label for move history display.
- *                                               If provided, actions are exposed via the returned
- *                                               `moveHistory` array as { move, player } objects.
- *
- * @param {function} [opts.onGuestJoined]    - (session, iframeRef, user) => void
- * @param {function} [opts.onHostGameStart]  - (session, iframeRef, user) => void
- *
- * @returns {{ moveHistory: Array<{move: string, player: string}> }}
- */
 export function useTurnGameRelay({
-  isPlaying,
-  user,
-  gameId,
-  iframeRef,
-  onRoomCodeChange,
-
-  actionType = 'GAME_ACTION',
-  extractAction,
-  buildOpponentMessage,
-  formatMoveLabel,
-
-  onGuestJoined,
-  onHostGameStart,
+  isPlaying, user, gameId, iframeRef, onRoomCodeChange,
+  actionType = 'GAME_ACTION', extractAction, buildOpponentMessage, formatMoveLabel,
+  onGuestJoined, onHostGameStart,
 }) {
   const [moveHistory, setMoveHistory] = useState([]);
-  const sessionRef          = useRef(null);
-  const roleRef             = useRef(null);       // 'host' | 'guest'
+  const [roomCode, setRoomCode] = useState(null);
+  const [isMyTurn, setIsMyTurn] = useState(false);
+  
+  const playerIndexRef = useRef(null);
   const lastDeliveredIdxRef = useRef(-1);
-  const hostNotifiedRef     = useRef(false);
+  const isUpdatingRef = useRef(false);
+  const hostNotifiedRef = useRef(false);
 
-  // ── Message handler: CREATE_ROOM / JOIN_ROOM / [actionType] ───────────────
+  // 1. EL CABALLO DE TROYA: En vez de DELETE, enviamos una "jugada" de abandono
+  useEffect(() => {
+    const avisarAbandono = () => {
+      if (roomCode && playerIndexRef.current !== null) {
+        getSession(roomCode).then(latest => {
+          if (!latest) return;
+          const actions = [...(latest.game_state?.actions || []), { type: 'ABANDON', player: playerIndexRef.current }];
+          updateSession(roomCode, { game_state: { actions } }).catch(() => {});
+        }).catch(() => {});
+      }
+    };
+
+    window.addEventListener('beforeunload', avisarAbandono);
+    
+    return () => {
+      avisarAbandono();
+      window.removeEventListener('beforeunload', avisarAbandono);
+    };
+  }, [roomCode]);
+
+  // 2. ESCUCHAR AL IFRAME
   useEffect(() => {
     if (!isPlaying || !user) return;
 
@@ -63,97 +43,124 @@ export function useTurnGameRelay({
       const msg = event.data;
       if (!msg || typeof msg !== 'object') return;
 
-      // ── CREATE_ROOM ──────────────────────────────────────────────────────
       if (msg.type === 'CREATE_ROOM') {
         const code = Math.random().toString(36).substring(2, 8).toUpperCase();
         try {
-          const session = await createSession(code, gameId);
-          sessionRef.current          = session;
-          roleRef.current             = 'host';
-          lastDeliveredIdxRef.current = -1;
-          hostNotifiedRef.current     = false;
-          iframeRef.current?.contentWindow?.postMessage({ type: 'ROOM_CREATED', code }, '*');
+          await createSession(code, gameId);
+          playerIndexRef.current = 0;
+          setRoomCode(code);
+          setIsMyTurn(true);
           onRoomCodeChange?.(code);
-        } catch (e) { console.error('[useTurnGameRelay] CREATE_ROOM error:', e); }
+          iframeRef.current?.contentWindow?.postMessage({ type: 'ROOM_CREATED', code }, '*');
+          iframeRef.current?.contentWindow?.postMessage({ type: 'ASSIGN_COLOR', color: 'rojo', index: 0 }, '*');
+          iframeRef.current?.contentWindow?.postMessage({ type: 'UPDATE_TURN', isMyTurn: true }, '*');
+        } catch (e) {}
       }
 
-      // ── JOIN_ROOM ────────────────────────────────────────────────────────
       if (msg.type === 'JOIN_ROOM') {
         try {
-          const session = await getSession(msg.code);
-          if (!session || session.status !== 'waiting') {
-            iframeRef.current?.contentWindow?.postMessage({ type: 'ROOM_ERROR', message: 'Sala no encontrada' }, '*');
-            return;
-          }
-          await updateSession(msg.code, {
-            guest_email: user.email,
-            guest_name: user.full_name || user.email.split('@')[0],
-            status: 'playing',
-          });
-          sessionRef.current          = { ...session, guest_email: user.email, status: 'playing' };
-          roleRef.current             = 'guest';
-          lastDeliveredIdxRef.current = -1;
-          onGuestJoined?.(session, iframeRef, user);
-        } catch (e) { console.error('[useTurnGameRelay] JOIN_ROOM error:', e); }
+          const session = await joinSession(msg.code);
+          const myIndex = session.participants.findIndex(p => p.email === user.email);
+          playerIndexRef.current = myIndex;
+          setRoomCode(msg.code);
+          onRoomCodeChange?.(msg.code);
+          const colors = ['rojo', 'azul', 'amarillo', 'verde'];
+          iframeRef.current?.contentWindow?.postMessage({ 
+            type: 'ASSIGN_COLOR', color: colors[myIndex] || 'azul', index: myIndex 
+          }, '*');
+        } catch (e) {}
       }
 
-      // ── GAME ACTION (e.g. CHESS_MOVE, CHECKERS_MOVE, …) ─────────────────
-      if (msg.type === actionType && sessionRef.current) {
+      // --- AQUÍ ESTÁ LA MAGIA INYECTADA CON SEGURIDAD ---
+      if (msg.type === actionType && roomCode && !isUpdatingRef.current) {
+        if (!isMyTurn) return;
+        isUpdatingRef.current = true;
         try {
-          const s       = sessionRef.current;
-          const action  = { ...extractAction(msg), player: roleRef.current };
-          const actions = [...(s.game_state?.actions || []), action];
-          await updateSession(s.room_code, { game_state: { actions } });
-          sessionRef.current = { ...s, game_state: { actions } };
-          if (formatMoveLabel) {
-            setMoveHistory(prev => [...prev, { move: formatMoveLabel(action), player: action.player }]);
+          const latest = await getSession(roomCode);
+          const action = { ...extractAction(msg), player: playerIndexRef.current };
+          const actions = [...(latest.game_state?.actions || []), action];
+          
+          // Calculamos el turno localmente para decirle al servidor a quién le toca
+          let nextTurn = playerIndexRef.current; 
+          
+          // Si el juego NO manda "keepTurn: true", avanzamos el turno
+          if (!msg.keepTurn) {
+              const totalPlayers = latest.participants?.length || 2;
+              nextTurn = (playerIndexRef.current + 1) % totalPlayers;
           }
-        } catch (e) { console.error('[useTurnGameRelay] action error:', e); }
+
+          // Enviamos al servidor la jugada Y a quién le toca ahora
+          await updateSession(roomCode, { 
+              game_state: { actions },
+              current_turn: String(nextTurn)
+          });
+          
+          // Solo bloqueamos nuestra pantalla si hemos pasado el turno
+          if (!msg.keepTurn) {
+              setIsMyTurn(false);
+              iframeRef.current?.contentWindow?.postMessage({ type: 'UPDATE_TURN', isMyTurn: false }, '*');
+          }
+        } catch (e) {} finally { isUpdatingRef.current = false; }
       }
     };
 
     window.addEventListener('message', handler);
     return () => window.removeEventListener('message', handler);
-  }, [isPlaying, user, gameId]);
+  }, [isPlaying, user, roomCode, isMyTurn, actionType]);
 
-  // ── Polling: sync opponent actions + notify host when game starts ─────────
+  // 3. POLLING (El vigilante que detecta el Caballo de Troya)
   useEffect(() => {
-    if (!isPlaying || !user) return;
+    if (!isPlaying || !roomCode) return;
 
     const poll = async () => {
-      const session = sessionRef.current;
-      if (!session) return;
+      if (isUpdatingRef.current) return;
+
       try {
-        const latest = await getSession(session.room_code);
-        if (!latest) return;
-        sessionRef.current = latest;
+        const latest = await getSession(roomCode);
+        if (!latest || latest.error) throw new Error("Sala muerta");
 
         const actions = latest.game_state?.actions || [];
-        const myRole  = roleRef.current;
-
-        // Notify host once when the guest has joined and the game started
-        if (myRole === 'host' && latest.status === 'playing' && !hostNotifiedRef.current) {
-          hostNotifiedRef.current = true;
-          onHostGameStart?.(latest, iframeRef, user);
+        
+        if (actions.some(a => a.type === 'ABANDON')) {
+          throw new Error("El otro jugador huyó");
         }
 
-        // Deliver any opponent actions not yet delivered to the iframe
+        const turnStatus = (String(latest.current_turn) === String(playerIndexRef.current));
+        if (turnStatus !== isMyTurn) {
+          setIsMyTurn(turnStatus);
+          iframeRef.current?.contentWindow?.postMessage({ type: 'UPDATE_TURN', isMyTurn: turnStatus }, '*');
+        }
+
+        if (playerIndexRef.current === 0 && latest.status === 'playing' && !hostNotifiedRef.current) {
+            hostNotifiedRef.current = true;
+            onHostGameStart?.(latest, iframeRef, user);
+        }
+
+        const newMoves = [];
         for (let i = lastDeliveredIdxRef.current + 1; i < actions.length; i++) {
-          const action = actions[i];
-          if (action.player !== myRole) {
-            iframeRef.current?.contentWindow?.postMessage(buildOpponentMessage(action), '*');
-            if (formatMoveLabel) {
-              setMoveHistory(prev => [...prev, { move: formatMoveLabel(action), player: action.player }]);
-            }
+          const act = actions[i];
+          if (String(act.player) !== String(playerIndexRef.current) && act.type !== 'ABANDON') {
+            iframeRef.current?.contentWindow?.postMessage(buildOpponentMessage(act), '*');
+          }
+          if (formatMoveLabel && act.type !== 'ABANDON') {
+            const p = latest.participants?.[act.player];
+            newMoves.push({ move: formatMoveLabel(act), player: p ? (p.name || p.email.split('@')[0]) : `Jugador ${act.player}` });
           }
           lastDeliveredIdxRef.current = i;
         }
-      } catch { /* silently ignore transient polling errors */ }
+        if (newMoves.length > 0) setMoveHistory(prev => [...prev, ...newMoves]);
+        
+      } catch (e) {
+        setRoomCode(null);
+        setIsMyTurn(false);
+        setMoveHistory([]);
+        iframeRef.current?.contentWindow?.postMessage({ type: 'ROOM_CLOSED' }, '*');
+      }
     };
 
     const id = setInterval(poll, 1500);
     return () => clearInterval(id);
-  }, [isPlaying, user]);
+  }, [isPlaying, roomCode, isMyTurn]);
 
-  return { moveHistory };
+  return { moveHistory, roomCode, isMyTurn };
 }

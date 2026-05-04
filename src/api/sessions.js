@@ -4,6 +4,10 @@ import { api } from './client';
 export const createSession = (roomCode, gameId, initialState = {}) =>
   api.post('/sessions', { room_code: roomCode, game_id: gameId, game_state: initialState, current_turn: 'host' });
 
+// Llama al endpoint de unión para gestionar múltiples participantes
+export const joinSession = (roomCode) => 
+  api.post(`/sessions/${roomCode}/join`);
+
 export const getSession    = (code)       => api.get(`/sessions/${code}`);
 export const updateSession = (code, data) => api.patch(`/sessions/${code}`, data);
 export const deleteSession = (code)       => api.delete(`/sessions/${code}`);

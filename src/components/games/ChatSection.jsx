@@ -1,6 +1,5 @@
 import React, { useState, useEffect, useRef } from "react";
 import { getChatMessages, sendChatMessage } from "@/api/chat";
-import { useQuery } from "@tanstack/react-query";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Send, Flag } from "lucide-react";
@@ -9,26 +8,38 @@ import { toast } from "sonner";
 import ReportDialog from "@/components/moderation/ReportDialog";
 
 export default function ChatSection({ gameId, user, sessionId }) {
+  const [messages, setMessages] = useState([]);
   const [message, setMessage] = useState("");
   const [isSending, setIsSending] = useState(false);
   const containerRef = useRef(null);
   const [reportOpen, setReportOpen] = useState(false);
   const [reportTarget, setReportTarget] = useState(null);
 
-  const canChat = !!user && !!gameId && !!sessionId;
+  // LIMPIEZA EXTREMA DEL SESSION ID: Evita que el creador y el que se une acaben en salas diferentes
+  const safeSessionId = sessionId ? String(sessionId).replace(/[^a-zA-Z0-9]/g, '').toUpperCase() : "";
+  const canChat = !!user && !!gameId && !!safeSessionId;
 
-  const { data: messages = [], refetch } = useQuery({
-    queryKey: ["chat-messages", gameId, sessionId],
-    queryFn: () => getChatMessages(gameId, sessionId),
-    enabled: !!gameId && !!sessionId,
-  });
-
+  // SOLUCIÓN CHAT DEFINITIVA: Polling manual.
+  // Evitamos que React Query pause la carga cuando la ventana pierde el foco.
   useEffect(() => {
     if (!canChat) return;
-    const interval = setInterval(() => refetch(), 4000);
-    return () => clearInterval(interval);
-  }, [refetch, canChat]);
 
+    const fetchMessages = async () => {
+      try {
+        const data = await getChatMessages(gameId, safeSessionId);
+        setMessages(data);
+      } catch (e) {
+        // Fallo silencioso
+      }
+    };
+
+    fetchMessages(); // Carga inicial
+    const interval = setInterval(fetchMessages, 3000); // Forzamos actualización cada 3s
+
+    return () => clearInterval(interval);
+  }, [canChat, gameId, safeSessionId]);
+
+  // Autoscroll
   useEffect(() => {
     if (containerRef.current) {
       containerRef.current.scrollTop = containerRef.current.scrollHeight;
@@ -37,7 +48,7 @@ export default function ChatSection({ gameId, user, sessionId }) {
 
   const handleSend = async () => {
     if (!message.trim() || isSending || !user) return;
-    if (!sessionId) {
+    if (!safeSessionId) {
       toast.message("Crea o únete a una partida para habilitar el chat.");
       return;
     }
@@ -47,9 +58,11 @@ export default function ChatSection({ gameId, user, sessionId }) {
     }
     setIsSending(true);
     try {
-      await sendChatMessage(gameId, sessionId, message.trim());
+      await sendChatMessage(gameId, safeSessionId, message.trim());
       setMessage("");
-      refetch();
+      // Al enviar, refrescamos el chat localmente al instante
+      const data = await getChatMessages(gameId, safeSessionId);
+      setMessages(data);
     } catch {
       toast.error("No se pudo enviar el mensaje");
     } finally {
@@ -67,7 +80,7 @@ export default function ChatSection({ gameId, user, sessionId }) {
   if (!user) {
     return <div className="text-center py-8 text-gray-400"><p>Inicia sesión para chatear</p></div>;
   }
-  if (!sessionId) {
+  if (!safeSessionId) {
     return <div className="text-center py-8 text-gray-400"><p>Crea o únete a una partida para abrir el chat.</p></div>;
   }
 
@@ -99,7 +112,7 @@ export default function ChatSection({ gameId, user, sessionId }) {
                           target_kind: "chat_message",
                           target_id: msg.id,
                           game_id: gameId,
-                          session_id: sessionId,
+                          session_id: safeSessionId,
                           reported_user_email: msg.user_email,
                           reported_user_name: msg.user_name,
                           target_text: msg.message,

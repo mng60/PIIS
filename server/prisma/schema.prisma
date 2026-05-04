@@ -213,8 +213,12 @@ model GameSession {
   game_id       String
   host_email    String
   host_name     String
-  guest_email   String?
-  guest_name    String?
+  
+  // guest_email   String?
+  // guest_name    String?
+
+  participants  Json          @default("[]")
+  
   game_state    Json          @default("{}")
   current_turn  String        @default("host")
   winner        String?

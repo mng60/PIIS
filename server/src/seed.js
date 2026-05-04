@@ -46,6 +46,18 @@ const games = [
     publisher: 'PlayCraft',
     created_by: 'admin@playcraft.com',
   },
+  {
+    title: 'Parchís Online',
+    description: 'Clásico juego de mesa para hasta 4 jugadores.',
+    full_description: 'Lleva tus cuatro fichas a la meta antes que nadie. Lanza el dado, come las fichas de tus oponentes y usa los seguros para protegerte.',
+    category: 'estrategia',
+    game_type: 'builtin',
+    game_code: 'parchis-online', // IMPORTANTE: Este nombre debe coincidir con la carpeta
+    is_active: true,
+    is_multiplayer: true,
+    publisher: 'PlayCraft',
+    created_by: 'admin@playcraft.com',
+  }
 ];
 
 async function main() {
