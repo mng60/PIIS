@@ -180,22 +180,30 @@
 }
 
 .user-level-3-button {
-  border: 1px solid rgba(160, 225, 255, 0.58) !important;
+  border: 1px solid rgba(160, 225, 255, 0.85) !important;
   background:
-    linear-gradient(135deg, rgba(55, 135, 180, 0.94), rgba(25, 82, 128, 0.94)) !important;
+    linear-gradient(135deg, #2b78a8, #55c9f4) !important;
   color: #ffffff !important;
-  box-shadow: 0 12px 26px rgba(80, 180, 235, 0.22);
+  box-shadow:
+    0 0 18px rgba(85, 201, 244, 0.55),
+    0 0 36px rgba(120, 210, 255, 0.3),
+    0 12px 26px rgba(43, 120, 168, 0.4) !important;
+  text-shadow: 0 0 8px rgba(255, 255, 255, 0.6);
 }
 
 .user-level-3-button svg {
   color: #ffffff !important;
   fill: #ffffff !important;
+  filter: drop-shadow(0 0 4px rgba(255, 255, 255, 0.7));
 }
 
 .user-level-3-button:hover {
   background:
-    linear-gradient(135deg, rgba(72, 155, 204, 0.98), rgba(31, 96, 146, 0.98)) !important;
-  box-shadow: 0 16px 32px rgba(100, 200, 255, 0.3);
+    linear-gradient(135deg, #3a94cc, #78deff) !important;
+  box-shadow:
+    0 0 24px rgba(85, 201, 244, 0.75),
+    0 0 48px rgba(120, 210, 255, 0.45),
+    0 16px 32px rgba(43, 120, 168, 0.5) !important;
 }
 
 .user-level-3-games-filter {
