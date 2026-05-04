@@ -2,6 +2,7 @@ import { Link } from 'react-router-dom';
 import { ArrowLeft, Star, Play, Heart, Share2, Users } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
+import { getLevelFromXP } from '@/lib/levels';
 
 const categoryLabels = {
   accion: 'Acción', puzzle: 'Puzzle', arcade: 'Arcade', estrategia: 'Estrategia',
@@ -11,10 +12,15 @@ export default function GameHeader({ game, user, isFavorite, onToggleFavorite, o
   const rating = game.rating_count > 0
     ? (game.rating_sum / game.rating_count).toFixed(1)
     : null;
+  const isRegularUser = user && user.role !== "admin" && user.role !== "empresa";
+  const userLevel = isRegularUser ? getLevelFromXP(user.xp ?? 0).level : null;
+  const isLevel1User = userLevel === 1;
+  const isLevel2User = userLevel === 2;
+  const isLevel3User = userLevel === 3;
 
   return (
     <>
-      <Link to="/games" className="inline-flex items-center gap-2 text-gray-400 hover:text-white mb-6 transition-colors text-sm">
+      <Link to="/games" className={`inline-flex items-center gap-2 text-gray-400 hover:text-white mb-6 transition-colors text-sm ${isLevel1User ? "user-level-1-game-detail-link" : ""} ${isLevel2User ? "user-level-2-game-detail-link" : ""} ${isLevel3User ? "user-level-3-game-detail-link" : ""}`}>
         <ArrowLeft className="w-4 h-4" /> Volver al catálogo
       </Link>
 
@@ -34,7 +40,7 @@ export default function GameHeader({ game, user, isFavorite, onToggleFavorite, o
             )}
           </div>
 
-          <h1 className="text-2xl sm:text-3xl font-bold text-white">{game.title}</h1>
+          <h1 className={`text-2xl sm:text-3xl font-bold text-white ${isLevel2User ? "user-level-2-game-detail-title" : ""}`}>{game.title}</h1>
 
           <div className="flex flex-wrap items-center gap-4 mt-2 text-sm text-gray-400">
             {rating ? (
@@ -60,7 +66,7 @@ export default function GameHeader({ game, user, isFavorite, onToggleFavorite, o
             variant="outline"
             size="icon"
             onClick={onToggleFavorite}
-            className={`border-white/10 ${isFavorite ? 'text-red-500 bg-red-500/10 border-red-500/20' : 'text-gray-400 hover:text-white'}`}
+            className={`border-white/10 ${isLevel2User ? `user-level-2-game-detail-action ${isFavorite ? 'user-level-2-game-detail-action-favorite' : ''}` : ''} ${isFavorite ? 'text-red-500 bg-red-500/10 border-red-500/20' : 'text-gray-400 hover:text-white'}`}
           >
             <Heart className={`w-4 h-4 ${isFavorite ? 'fill-current' : ''}`} />
           </Button>
@@ -68,7 +74,7 @@ export default function GameHeader({ game, user, isFavorite, onToggleFavorite, o
             variant="outline"
             size="icon"
             onClick={onShare}
-            className="border-white/10 text-gray-400 hover:text-white"
+            className={`border-white/10 text-gray-400 hover:text-white ${isLevel2User ? "user-level-2-game-detail-action user-level-2-game-detail-action-share" : ""}`}
           >
             <Share2 className="w-4 h-4" />
           </Button>

@@ -8,6 +8,7 @@ import DiceRaceOnlineGame from '@/components/games/DiceRaceOnlineGame';
 import ChatSection from '@/components/games/ChatSection';
 import OnlineGameMoveHistory from '@/components/games/OnlineGameMoveHistory';
 import { useChessGame } from '@/hooks/useChessGame';
+import { getLevelFromXP } from '@/lib/levels';
 
 const DIFFICULTY_LABELS = { 1: "Principiante", 2: "Intermedio", 3: "Avanzado", 4: "Maestro" };
 
@@ -42,6 +43,11 @@ export default function GameArea({
   const [vsAiAnalysisLoading, setVsAiAnalysisLoading] = useState(false);
   const vsAiChatContainerRef = useRef(null);
   const [iframeMoveHistory, setIframeMoveHistory] = useState([]);
+  const isRegularUser = user && user.role !== "admin" && user.role !== "empresa";
+  const userLevel = isRegularUser ? getLevelFromXP(user.xp ?? 0).level : null;
+  const isLevel1User = userLevel === 1;
+  const isLevel2User = userLevel === 2;
+  const isLevel3User = userLevel === 3;
 
   useEffect(() => {
     if (vsAiChatContainerRef.current) {
@@ -115,7 +121,7 @@ export default function GameArea({
       return <PongGame onScoreUpdate={onScoreUpdate} onGameStart={onGameStart} />;
     }
     if (game.game_code === 'chess-online') {
-      if (!isPlaying) return <GameCover game={game} onPlay={onPlay} />;
+      if (!isPlaying) return <GameCover game={game} onPlay={onPlay} isLevel1User={isLevel1User} isLevel2User={isLevel2User} />;
       return (
         <ChessOnlineGame
           user={user}
@@ -135,7 +141,7 @@ export default function GameArea({
       );
     }
     if (game.game_code === 'dados-online') {
-      if (!isPlaying) return <GameCover game={game} onPlay={onPlay} />;
+      if (!isPlaying) return <GameCover game={game} onPlay={onPlay} isLevel1User={isLevel1User} isLevel2User={isLevel2User} />;
       return (
         <DiceRaceOnlineGame
           user={user}
@@ -150,7 +156,7 @@ export default function GameArea({
       );
     }
     if (game.game_type === 'html5') {
-      if (!isPlaying) return <GameCover game={game} onPlay={onPlay} />;
+      if (!isPlaying) return <GameCover game={game} onPlay={onPlay} isLevel1User={isLevel1User} isLevel2User={isLevel2User} />;
       if (!iframeSrcDoc && !game.game_url) return (
         <div className="aspect-video flex items-center justify-center">
           <Loader2 className="w-8 h-8 animate-spin text-purple-500" />
@@ -182,7 +188,7 @@ export default function GameArea({
           <div className="w-full max-w-[520px]">{renderGame()}</div>
         </div>
       ) : (
-        <div className="bg-[#0a0a0f] rounded-2xl border border-white/10 overflow-hidden">
+        <div className={`bg-[#0a0a0f] rounded-2xl border border-white/10 overflow-hidden ${isLevel2User ? 'user-level-2-game-surface' : ''} ${isLevel3User ? 'user-level-3-game-surface' : ''}`}>
           {renderGame()}
         </div>
       )}
@@ -190,9 +196,9 @@ export default function GameArea({
       {game.is_multiplayer && isPlaying && (
         <div className="flex flex-col gap-2 h-full">
           {/* Chat: 65% */}
-          <div className="bg-white/5 rounded-xl border border-white/10 p-3 flex flex-col min-h-0" style={{ flex: '13 0 0' }}>
-            <h2 className="text-sm font-semibold text-white mb-2 flex items-center gap-2 flex-shrink-0">
-              {isVsAi ? <Bot className="w-4 h-4 text-purple-400" /> : <MessageCircle className="w-4 h-4 text-purple-400" />}
+          <div className={`bg-white/5 rounded-xl border border-white/10 p-3 flex flex-col min-h-0 ${isLevel2User ? 'user-level-2-detail-panel' : ''} ${isLevel3User ? 'user-level-3-detail-panel' : ''}`} style={{ flex: '13 0 0' }}>
+            <h2 className={`text-sm font-semibold text-white mb-2 flex items-center gap-2 flex-shrink-0 ${isLevel2User ? 'user-level-2-detail-panel-title' : ''} ${isLevel3User ? 'user-level-3-detail-panel-title' : ''}`}>
+              {isVsAi ? <Bot className={`w-4 h-4 text-purple-400 ${isLevel2User ? 'user-level-2-detail-icon-blue' : ''} ${isLevel3User ? 'user-level-3-detail-icon-blue' : ''}`} /> : <MessageCircle className={`w-4 h-4 text-purple-400 ${isLevel2User ? 'user-level-2-detail-icon-blue' : ''} ${isLevel3User ? 'user-level-3-detail-icon-blue' : ''}`} />}
               Chat de partida
               {isVsAi && vsAiAnalysisLoading && <Loader2 className="w-3 h-3 animate-spin text-purple-400 ml-auto" />}
             </h2>
@@ -230,6 +236,7 @@ export default function GameArea({
             <OnlineGameMoveHistory
               moves={game.game_type === 'html5' ? iframeMoveHistory : chessMoveHistory}
               title="Historial de jugadas"
+              className={isLevel2User ? 'user-level-2-history' : ''}
               emptyMessage="Aún no hay movimientos"
               chessPairs={game.game_code === 'chess-online'}
             />
@@ -240,7 +247,7 @@ export default function GameArea({
   );
 }
 
-function GameCover({ game, onPlay }) {
+function GameCover({ game, onPlay, isLevel1User, isLevel2User }) {
   return (
     <div className="relative aspect-video w-full">
       {game.thumbnail ? (
@@ -253,7 +260,7 @@ function GameCover({ game, onPlay }) {
       <div className="absolute inset-0 bg-black/50 flex items-center justify-center">
         <Button
           onClick={onPlay}
-          className="bg-gradient-to-r from-purple-600 to-cyan-500 hover:opacity-90 text-lg px-8 py-6 rounded-xl"
+          className={`${isLevel2User ? 'user-level-2-game-launch' : `bg-gradient-to-r ${isLevel1User ? 'from-amber-800 to-orange-900' : 'from-purple-600 to-cyan-500'}`} hover:opacity-90 text-lg px-8 py-6 rounded-xl`}
         >
           <Play className="w-6 h-6 mr-2 fill-white" /> Jugar
         </Button>
