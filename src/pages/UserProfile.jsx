@@ -128,10 +128,10 @@ function SocialActions({ status, name, onSendRequest, onRemoveFriend, onCancelRe
   const f = status.friendship;
   if (f?.status === "accepted") return (
     <div className="flex gap-2">
-      <Button size="sm" className="bg-red-600 hover:bg-red-700 text-white border-0" onClick={onRemoveFriend}>
+      <Button size="sm" className="bg-red-600 hover:bg-red-700 !text-white border-0" onClick={onRemoveFriend}>
         <UserMinus className="w-4 h-4 mr-2" /> Eliminar amigo
       </Button>
-      <Button size="sm" className="bg-gray-600 hover:bg-gray-700 text-white border-0" onClick={onBlock}>
+      <Button size="sm" className="bg-gray-600 hover:bg-gray-700 !text-white border-0" onClick={onBlock}>
         <UserX className="w-4 h-4 mr-2" /> Bloquear
       </Button>
     </div>
@@ -145,7 +145,7 @@ function SocialActions({ status, name, onSendRequest, onRemoveFriend, onCancelRe
       <Button size="sm" className="bg-gradient-to-r from-purple-600 to-cyan-500 border-0" onClick={onSendRequest}>
         <UserPlus className="w-4 h-4 mr-2" /> Añadir amigo
       </Button>
-      <Button size="sm" className="bg-gray-600 hover:bg-gray-700 text-white border-0" onClick={onBlock}>
+      <Button size="sm" className="bg-gray-600 hover:bg-gray-700 !text-white border-0" onClick={onBlock}>
         <UserX className="w-4 h-4 mr-2" /> Bloquear
       </Button>
     </div>
