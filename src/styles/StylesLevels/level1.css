@@ -1028,12 +1028,24 @@
 }
 
 .user-level-1-friends-icon-box,
+.user-level-1-friends-avatar,
 .user-level-1-friends-page .bg-gradient-to-r.from-purple-600.to-cyan-500,
 .user-level-1-friends-page .bg-gradient-to-br.from-purple-600.to-cyan-500 {
   background: linear-gradient(135deg, #7a4d26 0%, #c9953e 54%, #e3bc66 100%) !important;
   color: #fff7e5 !important;
   border: 1px solid rgba(238, 198, 111, 0.42) !important;
   box-shadow: 0 10px 26px rgba(118, 75, 35, 0.34), 0 0 18px rgba(209, 160, 74, 0.2) !important;
+}
+
+.user-level-1-friends-avatar {
+  text-shadow: 0 0 8px rgba(255, 247, 229, 0.36);
+}
+
+.user-level-1-profile-hero {
+  background:
+    linear-gradient(135deg, rgba(122, 77, 38, 0.34), rgba(201, 149, 62, 0.22)),
+    rgba(255, 247, 235, 0.16) !important;
+  border-color: rgba(201, 149, 62, 0.32) !important;
 }
 
 .user-level-1-tournaments-tab,

@@ -21,12 +21,13 @@ import { useLevelTheme } from "@/lib/useLevelTheme";
 const POLL_INTERVAL = 8_000;
 
 function NotificationIcon({ type }) {
-  if (type === "friend_request") return <UserPlus className="w-4 h-4 text-purple-400" />;
-  if (type === "friend_accepted") return <UserCheck className="w-4 h-4 text-cyan-400" />;
-  if (type === "game_invite") return <Gamepad2 className="w-4 h-4 text-emerald-400" />;
-  if (type === "game_timeout") return <Swords className="w-4 h-4 text-amber-400" />;
-  if (type === "draw_offer") return <Scale className="w-4 h-4 text-yellow-400" />;
-  return <Bell className="w-4 h-4 text-gray-400" />;
+  const baseClass = "w-4 h-4 notification-panel__icon";
+  if (type === "friend_request") return <UserPlus className={`${baseClass} notification-panel__icon--friend-request text-purple-400`} />;
+  if (type === "friend_accepted") return <UserCheck className={`${baseClass} notification-panel__icon--friend-accepted text-cyan-400`} />;
+  if (type === "game_invite") return <Gamepad2 className={`${baseClass} notification-panel__icon--game-invite text-emerald-400`} />;
+  if (type === "game_timeout") return <Swords className={`${baseClass} notification-panel__icon--game-timeout text-amber-400`} />;
+  if (type === "draw_offer") return <Scale className={`${baseClass} notification-panel__icon--draw-offer text-yellow-400`} />;
+  return <Bell className={`${baseClass} notification-panel__icon--default text-gray-400`} />;
 }
 
 function NotificationText({ n }) {
@@ -50,7 +51,7 @@ export default function NotificationsPanel({ isDark: isDarkProp }) {
   const { isDark: isDarkCtx } = useTheme();
   const isDark = isDarkProp ?? isDarkCtx;
   const navigate = useNavigate();
-  const { isLevel2User, isLevel3User, isLevel4User, isLevel5User, isLevelUser } = useLevelTheme();
+  const { isRegularUser, visualLevel, isLevel2User, isLevel3User, isLevel4User, isLevel5User, isLevelUser } = useLevelTheme();
   const [open, setOpen] = useState(false);
   const [notifications, setNotifications] = useState([]);
   const [unreadCount, setUnreadCount] = useState(0);
@@ -164,6 +165,11 @@ export default function NotificationsPanel({ isDark: isDarkProp }) {
 
   if (!user) return null;
 
+  const notificationLevelClass = isRegularUser && visualLevel
+    ? `user-level-${visualLevel}-notifications`
+    : "";
+  const notificationThemeClass = isDark ? "user-notifications-dark" : "user-notifications-light";
+
   return (
     <Popover open={open} onOpenChange={setOpen}>
       <PopoverTrigger asChild>
@@ -183,23 +189,23 @@ export default function NotificationsPanel({ isDark: isDarkProp }) {
       </PopoverTrigger>
       <PopoverContent
         align="end"
-        className={`w-80 p-0 ${isLevelUser || isDark ? "bg-[#0f0f18] border-white/10" : "bg-white border-gray-200"}`}
+        className={`w-80 p-0 user-notifications-panel ${notificationLevelClass} ${notificationThemeClass} ${isLevelUser || isDark ? "bg-[#0f0f18] border-white/10" : "bg-white border-gray-200"}`}
       >
-        <div className="flex items-center justify-between px-4 py-3 border-b border-white/10">
+        <div className="notification-panel__header flex items-center justify-between px-4 py-3 border-b border-white/10">
           <h3 className="font-semibold text-sm">Notificaciones</h3>
           {unreadCount > 0 && (
             <button
               onClick={handleMarkAllRead}
-              className="text-xs text-gray-400 hover:text-white flex items-center gap-1 transition-colors"
+              className="notification-panel__mark-all text-xs text-gray-400 hover:text-white flex items-center gap-1 transition-colors"
             >
               <CheckCheck className="w-3 h-3" /> Marcar todas
             </button>
           )}
         </div>
 
-        <div className="max-h-[280px] overflow-y-auto [&::-webkit-scrollbar]:hidden [scrollbar-width:none]">
+        <div className="notification-panel__list max-h-[280px] overflow-y-auto [&::-webkit-scrollbar]:hidden [scrollbar-width:none]">
           {notifications.length === 0 ? (
-            <div className="py-8 text-center text-gray-500 text-sm">
+            <div className="notification-panel__empty py-8 text-center text-gray-500 text-sm">
               <Bell className="w-8 h-8 mx-auto mb-2 opacity-30" />
               Sin notificaciones
             </div>
@@ -212,9 +218,9 @@ export default function NotificationsPanel({ isDark: isDarkProp }) {
               return (
                 <div
                   key={n.id}
-                  className={`px-4 py-3 border-b border-white/5 transition-colors ${
+                  className={`notification-panel__item px-4 py-3 border-b border-white/5 transition-colors ${
                     !n.is_read ? (isLevelUser || isDark ? "bg-purple-500/5" : "bg-purple-50") : ""
-                  }`}
+                  } ${!n.is_read ? "notification-panel__item--unread" : ""}`}
                 >
                   <div className="flex items-start gap-3">
                     <div className="mt-0.5 flex-shrink-0">
@@ -222,12 +228,12 @@ export default function NotificationsPanel({ isDark: isDarkProp }) {
                     </div>
                     <div className="flex-1 min-w-0">
                       <p
-                        className="text-sm leading-snug cursor-pointer hover:opacity-80"
+                        className="notification-panel__text text-sm leading-snug cursor-pointer hover:opacity-80"
                         onClick={() => handleClickNotification(n)}
                       >
                         <NotificationText n={n} />
                       </p>
-                      <p className="text-xs text-gray-500 mt-0.5">
+                      <p className="notification-panel__time text-xs text-gray-500 mt-0.5">
                         {formatDistanceToNow(new Date(n.created_at), { addSuffix: true, locale: es })}
                       </p>
 
@@ -273,11 +279,11 @@ export default function NotificationsPanel({ isDark: isDarkProp }) {
                         </div>
                       )}
 
-                      {n._accepted && <p className="text-xs text-cyan-400 mt-1 flex items-center gap-1"><Check className="w-3 h-3" /> Solicitud aceptada</p>}
-                      {n._rejected && <p className="text-xs text-gray-500 mt-1">Solicitud rechazada</p>}
+                      {n._accepted && <p className="notification-panel__status notification-panel__status--accepted text-xs text-cyan-400 mt-1 flex items-center gap-1"><Check className="w-3 h-3" /> Solicitud aceptada</p>}
+                      {n._rejected && <p className="notification-panel__status notification-panel__status--rejected text-xs text-gray-500 mt-1">Solicitud rechazada</p>}
                     </div>
                     {!n.is_read && !isRequest && (
-                      <div className="w-2 h-2 rounded-full bg-purple-400 flex-shrink-0 mt-1" />
+                      <div className="notification-panel__unread-dot w-2 h-2 rounded-full bg-purple-400 flex-shrink-0 mt-1" />
                     )}
                   </div>
                 </div>

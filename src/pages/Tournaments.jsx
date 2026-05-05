@@ -104,8 +104,8 @@ export default function Tournaments() {
       {/* Header */}
       <div className="flex items-center justify-between mb-8">
         <div>
-          <h1 className={`text-3xl font-bold text-white flex items-center gap-3 ${isLevel1User ? "user-level-1-games-title user-level-1-tournaments-title" : ""} ${isLevel2User ? "user-level-2-section-heading user-level-2-tournaments-title" : ""} ${isLevel3User ? "user-level-2-section-heading user-level-3-tournaments-title" : ""} ${isLevel4User ? "user-level-4-section-heading user-level-4-tournaments-title" : ""} ${isLevel5User ? "user-level-5-section-heading user-level-5-tournaments-title" : ""}`}>
-            <Trophy className={`w-8 h-8 text-yellow-400 ${isLevel1User ? "user-level-1-games-icon user-level-1-tournaments-icon" : ""} ${isLevel2User ? "user-level-2-tournaments-icon" : ""}`} />
+          <h1 className={`text-3xl font-bold text-white flex items-center gap-3 ${isLevel1User ? "user-level-1-games-title user-level-1-tournaments-title" : ""} ${isLevel2User ? "user-level-2-section-heading user-level-2-tournaments-title" : ""} ${isLevel3User ? "user-level-3-section-heading user-level-3-tournaments-title" : ""} ${isLevel4User ? "user-level-4-section-heading user-level-4-tournaments-title" : ""} ${isLevel5User ? "user-level-5-section-heading user-level-5-tournaments-title" : ""}`}>
+            <Trophy className={`w-8 h-8 text-yellow-400 ${isLevel1User ? "user-level-1-games-icon user-level-1-tournaments-icon" : ""} ${isLevel2User ? "user-level-2-tournaments-icon" : ""} ${isLevel3User ? "user-level-3-tournaments-icon" : ""}`} />
             Torneos
           </h1>
           <p className={`text-gray-400 mt-1 ${isLevel1User ? "user-level-1-tournaments-copy" : ""} ${isLevel2User ? "user-level-2-tournaments-copy" : ""} ${isLevel3User ? "user-level-3-tournaments-copy" : ""} ${isLevel4User ? "user-level-4-tournaments-copy" : ""} ${isLevel5User ? "user-level-5-tournaments-copy" : ""}`}>Compite contra jugadores de tu nivel</p>
