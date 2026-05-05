@@ -2,6 +2,8 @@ import { useState, useRef, useEffect } from 'react';
 import { Bot, X, Send, Loader2 } from 'lucide-react'; // Bot se usa como fallback en CraftyAvatar
 import { useAuth } from '@/lib/AuthContext';
 import { chatWithCrafty } from '@/api/assistant';
+import { getGames } from '@/api/games';
+import { getTournaments } from '@/api/tournaments';
 import { useFloatingPanels } from '@/lib/FloatingPanelsContext';
 import { useLevelTheme } from '@/lib/useLevelTheme';
 
@@ -55,6 +57,115 @@ const WELCOME_BY_ROLE = {
   admin:   '¡Hola! Soy **Crafty**. Puedo ayudarte con reportes, sanciones, gestión de usuarios, mantenimiento y más. ¿En qué te ayudo?',
 };
 
+const CATEGORY_LABELS = {
+  accion: 'accion',
+  puzzle: 'puzzle',
+  arcade: 'arcade',
+  estrategia: 'estrategia',
+};
+
+function normalizeText(text = '') {
+  return text
+    .toLowerCase()
+    .normalize('NFD')
+    .replace(/[\u0300-\u036f]/g, '')
+    .replace(/[?!.;,]/g, ' ')
+    .replace(/\s+/g, ' ')
+    .trim();
+}
+
+function detectCategory(text) {
+  const normalized = normalizeText(text);
+  return Object.keys(CATEGORY_LABELS).find((category) => normalized.includes(category)) || null;
+}
+
+function formatGameCount(count, category = null) {
+  if (category) {
+    return `En PlayCraft, hay **${count}** juego${count === 1 ? '' : 's'} de **${CATEGORY_LABELS[category]}**.`;
+  }
+
+  return `En PlayCraft, hay **${count}** juego${count === 1 ? '' : 's'} disponibles.`;
+}
+
+function formatGameList(games, category = null) {
+  if (!games.length) {
+    return category
+      ? `Ahora mismo no veo juegos de **${CATEGORY_LABELS[category]}** en PlayCraft.`
+      : 'Ahora mismo no veo juegos disponibles en PlayCraft.';
+  }
+
+  const visibleGames = games.slice(0, 8).map((game) => `**${game.title}**`);
+  const prefix = category
+    ? `En PlayCraft, los juegos de **${CATEGORY_LABELS[category]}** son: `
+    : 'En PlayCraft, ahora mismo estan estos juegos: ';
+  const suffix = games.length > visibleGames.length ? ' y mas.' : '.';
+
+  return `${prefix}${visibleGames.join(', ')}${suffix}`;
+}
+
+function formatTournamentSummary(tournaments) {
+  const upcoming = tournaments.filter((tournament) => tournament.status === 'upcoming').length;
+  const active = tournaments.filter((tournament) => tournament.status === 'active').length;
+  const finished = tournaments.filter((tournament) => tournament.status === 'finished').length;
+
+  return `En PlayCraft, hay **${tournaments.length}** torneo${tournaments.length === 1 ? '' : 's'}: **${upcoming}** proximos, **${active}** en curso y **${finished}** finalizados.`;
+}
+
+async function buildLocalReply(message, cacheRef) {
+  const normalized = normalizeText(message);
+  const category = detectCategory(normalized);
+  const isGreeting = /^(hola|buenas|hey|buenos dias|buenas tardes|buenas noches)$/.test(normalized);
+  const asksForGames = normalized.includes('juego');
+  const asksForTournaments = normalized.includes('torneo');
+
+  if (isGreeting) {
+    return 'Hola! En que te puedo ayudar?';
+  }
+
+  if (!asksForGames && !asksForTournaments) {
+    return null;
+  }
+
+  if (asksForGames) {
+    if (!cacheRef.current.games) {
+      const response = await getGames('?limit=500&all=true');
+      cacheRef.current.games = response?.games || [];
+    }
+
+    const games = cacheRef.current.games;
+    const filteredGames = category ? games.filter((game) => game.category === category) : games;
+    const asksForCount = /(cuantos|cuantas|numero|total|hay)/.test(normalized);
+    const asksForList = /(cuales|que juegos|lista|muestrame|dime)/.test(normalized);
+
+    if (category && (asksForCount || normalized.includes(`de ${category}`))) {
+      if (asksForList && !/(solo|solamente)/.test(normalized)) {
+        return `${formatGameCount(filteredGames.length, category)} ${formatGameList(filteredGames, category)}`;
+      }
+
+      return formatGameCount(filteredGames.length, category);
+    }
+
+    if (asksForList) {
+      return formatGameList(filteredGames, category);
+    }
+
+    if (asksForCount || normalized === 'juegos' || normalized === 'cuantos juegos hay') {
+      return formatGameCount(filteredGames.length, category);
+    }
+  }
+
+  if (asksForTournaments) {
+    if (!cacheRef.current.tournaments) {
+      const response = await getTournaments();
+      cacheRef.current.tournaments = Array.isArray(response) ? response : [];
+    }
+
+    return formatTournamentSummary(cacheRef.current.tournaments);
+  }
+
+  return null;
+}
+
 function formatText(text) {
   return text
     .replace(/\*\*(.*?)\*\*/g, '<strong>$1</strong>')
@@ -71,6 +182,7 @@ export default function CraftyAssistant() {
   const messagesEndRef = useRef(null);
   const inputRef = useRef(null);
   const containerRef = useRef(null);
+  const knowledgeCacheRef = useRef({ games: null, tournaments: null });
 
   const role = user?.role || 'user';
   const { isLevel1User, isLevel2User, isLevel3User, isLevel4User, isLevel5User } = useLevelTheme();
@@ -126,6 +238,12 @@ export default function CraftyAssistant() {
     setLoading(true);
 
     try {
+      const localReply = await buildLocalReply(text, knowledgeCacheRef);
+      if (localReply) {
+        setMessages(prev => [...prev, { role: 'assistant', content: localReply }]);
+        return;
+      }
+
       const history = nextMessages.slice(-7, -1); // últimos 6 antes del actual
       const { reply } = await chatWithCrafty(text, history);
       setMessages(prev => [...prev, { role: 'assistant', content: reply }]);
