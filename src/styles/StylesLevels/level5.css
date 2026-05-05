@@ -2610,3 +2610,29 @@
   fill: #fffbeb !important;
   filter: drop-shadow(0 0 4px rgba(255, 255, 255, 0.5));
 }
+
+.user-level-5-friends-page .user-level-5-friends-avatar {
+  background: linear-gradient(135deg, #92400e 0%, #fbbf24 62%, #d97706 100%) !important;
+  border: 1px solid rgba(255, 251, 235, 0.82) !important;
+  box-shadow: 0 8px 18px rgba(146, 64, 14, 0.24) !important;
+  color: #fffbeb !important;
+}
+
+.user-level-5-friends-page .user-level-5-friends-action-primary {
+  background: linear-gradient(135deg, #92400e 0%, #fbbf24 62%, #d97706 100%) !important;
+  color: #3b220c !important;
+  box-shadow: 0 8px 18px rgba(146, 64, 14, 0.18) !important;
+}
+
+.user-level-5-friends-page .user-level-5-friends-action-ghost {
+  color: #92400e !important;
+}
+
+.user-level-5-friends-page .user-level-5-friends-row .font-medium {
+  color: #4a2d12 !important;
+}
+
+.user-level-5-friends-page .user-level-5-friends-row .text-xs,
+.user-level-5-friends-page .user-level-5-friends-row .text-gray-500 {
+  color: #6b4218 !important;
+}

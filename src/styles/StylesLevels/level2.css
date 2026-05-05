@@ -1896,3 +1896,19 @@
 .user-level-2-chess .online-game-lobby__card .border-white\/10 {
   border-color: rgba(122, 169, 92, 0.28) !important;
 }
+.user-level-2-friends-page .user-level-2-friends-avatar {
+  background: linear-gradient(135deg, #166534 0%, #22c55e 62%, #0e7490 100%) !important;
+  border: 1px solid rgba(220, 252, 231, 0.72) !important;
+  box-shadow: 0 8px 18px rgba(22, 101, 52, 0.22) !important;
+  color: #f7fff1 !important;
+}
+
+.user-level-2-friends-page .user-level-2-friends-action-primary {
+  background: linear-gradient(135deg, #166534 0%, #22c55e 62%, #0e7490 100%) !important;
+  color: #f7fff1 !important;
+  box-shadow: 0 8px 18px rgba(22, 101, 52, 0.18) !important;
+}
+
+.user-level-2-friends-page .user-level-2-friends-action-ghost {
+  color: #166534 !important;
+}

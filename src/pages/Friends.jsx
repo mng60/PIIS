@@ -28,7 +28,7 @@ function Avatar({ url, name, size = "md", themeClasses = {} }) {
 
 function XpBadge({ xp, isPremium = false }) {
   const level = getLevelFromXP(xp, isPremium).level;
-  return <span className="text-xs text-purple-400">Nv. {level} · {xp} XP</span>;
+  return <span className="text-xs text-purple-400">Nv. {level} - {xp.toLocaleString()} XP</span>;
 }
 
 const SEARCH_KEY = "friends_search_query";
