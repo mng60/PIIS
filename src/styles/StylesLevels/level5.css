@@ -2596,3 +2596,89 @@
   fill: #fffbeb !important;
   filter: drop-shadow(0 0 4px rgba(255, 255, 255, 0.5));
 }
+
+.user-level-5-friends-page .user-level-5-friends-avatar {
+  background: linear-gradient(135deg, #92400e 0%, #fbbf24 62%, #d97706 100%) !important;
+  border: 1px solid rgba(255, 251, 235, 0.82) !important;
+  box-shadow: 0 8px 18px rgba(146, 64, 14, 0.24) !important;
+  color: #fffbeb !important;
+}
+
+.user-level-5-friends-page .user-level-5-friends-action-primary {
+  background: linear-gradient(135deg, #92400e 0%, #fbbf24 62%, #d97706 100%) !important;
+  color: #3b220c !important;
+  box-shadow: 0 8px 18px rgba(146, 64, 14, 0.18) !important;
+}
+
+.user-level-5-friends-page .user-level-5-friends-action-ghost {
+  color: #ffffff !important;
+}
+
+.user-level-5-friends-page .user-level-5-friends-action-ghost svg {
+  color: #ffffff !important;
+}
+
+.user-level-5-profile-action-block,
+.user-level-5-friends-action-block,
+.user-level-5-friends-page .user-level-5-friends-action-block {
+  background: rgba(127, 29, 29, 0.16) !important;
+  border: 1px solid rgba(153, 27, 27, 0.44) !important;
+  color: #ffffff !important;
+}
+
+.user-level-5-profile-action-block svg,
+.user-level-5-friends-action-block svg {
+  color: #ffffff !important;
+}
+
+.user-level-5-friends-page .user-level-5-friends-row .font-medium {
+  color: #4a2d12 !important;
+}
+
+.user-level-5-friends-page .user-level-5-friends-row .text-xs,
+.user-level-5-friends-page .user-level-5-friends-row .text-gray-500 {
+  color: #6b4218 !important;
+}
+
+.user-level-5-friends-page.user-level-5-friends-row .font-medium,
+.user-level-5-friends-page.user-level-5-friends-row .text-purple-400 {
+  color: #4a2d12 !important;
+}
+
+.user-level-5-friends-page.user-level-5-friends-row .text-xs,
+.user-level-5-friends-page.user-level-5-friends-row .text-gray-500 {
+  color: #6b4218 !important;
+}
+
+.user-level-5-friends-page.user-level-5-friends-row {
+  background: linear-gradient(180deg, rgba(248, 229, 177, 0.92) 0%, rgba(233, 190, 93, 0.42) 100%) !important;
+  border: 1px solid rgba(180, 83, 9, 0.28) !important;
+  box-shadow:
+    0 14px 28px rgba(91, 58, 20, 0.14),
+    0 0 0 1px rgba(255, 244, 179, 0.22) inset !important;
+}
+
+.user-level-5-friends-page.user-level-5-friends-row:hover {
+  background: linear-gradient(180deg, rgba(251, 236, 191, 0.96) 0%, rgba(240, 202, 111, 0.5) 100%) !important;
+  border-color: rgba(146, 64, 14, 0.42) !important;
+}
+
+.user-level-5-profile-back {
+  color: #92400e !important;
+  text-shadow: 0 1px 7px rgba(255, 251, 235, 0.55) !important;
+}
+
+.user-level-5-profile-back:hover {
+  color: #451a03 !important;
+}
+
+.user-level-5-profile-back svg {
+  color: currentColor !important;
+}
+
+.user-level-5-profile-page .user-level-5-profile-action-white,
+.user-level-5-profile-page .user-level-5-profile-action-white *,
+.user-level-5-profile-page .user-level-5-profile-action-white svg {
+  color: #ffffff !important;
+  -webkit-text-fill-color: #ffffff !important;
+}

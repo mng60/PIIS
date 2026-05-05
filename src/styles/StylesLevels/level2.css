@@ -1886,3 +1886,101 @@
 .user-level-2-chess .online-game-lobby__card .border-white\/10 {
   border-color: rgba(122, 169, 92, 0.28) !important;
 }
+
+.user-level-2-friends-page .user-level-2-friends-avatar {
+  background: linear-gradient(135deg, #166534 0%, #22c55e 62%, #0e7490 100%) !important;
+  border: 1px solid rgba(220, 252, 231, 0.72) !important;
+  box-shadow: 0 8px 18px rgba(22, 101, 52, 0.22) !important;
+  color: #f7fff1 !important;
+}
+
+.user-level-2-friends-page .user-level-2-friends-action-primary {
+  background: linear-gradient(135deg, #166534 0%, #22c55e 62%, #0e7490 100%) !important;
+  color: #f7fff1 !important;
+  box-shadow: 0 8px 18px rgba(22, 101, 52, 0.18) !important;
+}
+
+.user-level-2-friends-page .user-level-2-friends-action-ghost {
+  color: #ffffff !important;
+}
+
+.user-level-2-friends-page .user-level-2-friends-action-ghost svg {
+  color: #ffffff !important;
+}
+
+.user-level-2-profile-action-block,
+.user-level-2-friends-action-block,
+.user-level-2-friends-page .user-level-2-friends-action-block {
+  background: linear-gradient(135deg, rgba(127, 29, 29, 0.94), rgba(185, 28, 28, 0.86)) !important;
+  border: 1px solid rgba(254, 202, 202, 0.78) !important;
+  color: #ffffff !important;
+  box-shadow: 0 8px 18px rgba(127, 29, 29, 0.26) !important;
+}
+
+.user-level-2-profile-action-block svg,
+.user-level-2-friends-action-block svg {
+  color: #ffffff !important;
+}
+
+.user-level-2-profile-page .user-level-2-profile-hero .user-level-2-profile-level-label {
+  color: #38d5ff !important;
+  text-shadow: 0 1px 6px rgba(3, 31, 18, 0.7) !important;
+}
+
+.user-level-2-profile-page .user-level-2-profile-hero .user-level-2-profile-xp-label,
+.user-level-2-profile-page .user-level-2-profile-hero .user-level-2-profile-next-level {
+  color: #f4fff6 !important;
+  text-shadow: 0 1px 6px rgba(3, 31, 18, 0.78) !important;
+}
+
+.user-level-2-profile-page .user-level-2-profile-hero .user-level-2-profile-progress-track {
+  background: rgba(14, 55, 30, 0.34) !important;
+}
+
+.user-level-2-profile-page .user-level-2-profile-hero .user-level-2-profile-progress-fill {
+  background: linear-gradient(90deg, #22c55e 0%, #38d5ff 100%) !important;
+  box-shadow: 0 0 16px rgba(56, 213, 255, 0.28) !important;
+}
+
+.user-level-2-friends-page.user-level-2-friends-row .font-medium,
+.user-level-2-friends-page.user-level-2-friends-row .text-purple-400 {
+  color: #14532d !important;
+}
+
+.user-level-2-friends-page.user-level-2-friends-row .text-xs,
+.user-level-2-friends-page.user-level-2-friends-row .text-gray-500 {
+  color: #335f28 !important;
+}
+
+.user-level-2-friends-page.user-level-2-friends-row {
+  background: linear-gradient(180deg, rgba(243, 252, 232, 0.94) 0%, rgba(219, 242, 194, 0.9) 100%) !important;
+  border: 1px solid rgba(124, 179, 83, 0.32) !important;
+  box-shadow:
+    0 14px 28px rgba(34, 75, 31, 0.12),
+    0 0 0 1px rgba(250, 255, 238, 0.22) inset !important;
+}
+
+.user-level-2-friends-page.user-level-2-friends-row:hover {
+  background: linear-gradient(180deg, rgba(248, 255, 240, 0.98) 0%, rgba(231, 248, 211, 0.94) 100%) !important;
+  border-color: rgba(34, 197, 94, 0.42) !important;
+}
+
+.user-level-2-profile-back {
+  color: #7ddf9a !important;
+  text-shadow: 0 1px 8px rgba(3, 31, 18, 0.86) !important;
+}
+
+.user-level-2-profile-back:hover {
+  color: #d9ffe1 !important;
+}
+
+.user-level-2-profile-back svg {
+  color: currentColor !important;
+}
+
+.user-level-2-profile-page .user-level-2-profile-action-white,
+.user-level-2-profile-page .user-level-2-profile-action-white *,
+.user-level-2-profile-page .user-level-2-profile-action-white svg {
+  color: #ffffff !important;
+  -webkit-text-fill-color: #ffffff !important;
+}

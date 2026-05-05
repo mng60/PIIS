@@ -13,7 +13,6 @@ import {
   Gamepad2, ArrowLeft, Briefcase, Trophy, Star,
 } from "lucide-react";
 import { getLevelFromXP, getNextLevel, getLevelProgress, RARITY_CONFIG } from "@/lib/levels";
-import { useLevelTheme } from "@/lib/useLevelTheme";
 import PremiumUsername from "@/components/ui/PremiumUsername";
 import { evaluateMedals } from "@/lib/medals";
 import { format } from "date-fns";
@@ -114,7 +113,7 @@ function PublicAchievementsOverlay({ gameId, gameTitle, definitions, unlockedIds
 
 // ─── Acciones sociales ────────────────────────────────────────────────────────
 
-function SocialActions({ status, name, onSendRequest, onRemoveFriend, onCancelRequest, onBlock, onUnblock, pending }) {
+function SocialActions({ status, name, onSendRequest, onRemoveFriend, onCancelRequest, onBlock, onUnblock, pending, actionWhiteClass = "" }) {
   if (pending) return <Loader2 className="w-5 h-5 animate-spin text-gray-400" />;
   if (!status) return null;
 
@@ -128,10 +127,10 @@ function SocialActions({ status, name, onSendRequest, onRemoveFriend, onCancelRe
   const f = status.friendship;
   if (f?.status === "accepted") return (
     <div className="flex gap-2">
-      <Button size="sm" className="bg-red-600 hover:bg-red-700 !text-white border-0" onClick={onRemoveFriend}>
+      <Button size="sm" className={`bg-red-600 hover:bg-red-700 !text-white border-0 ${actionWhiteClass}`} onClick={onRemoveFriend}>
         <UserMinus className="w-4 h-4 mr-2" /> Eliminar amigo
       </Button>
-      <Button size="sm" className="bg-gray-600 hover:bg-gray-700 !text-white border-0" onClick={onBlock}>
+      <Button size="sm" className={`bg-gray-600 hover:bg-gray-700 !text-white border-0 ${actionWhiteClass}`} onClick={onBlock}>
         <UserX className="w-4 h-4 mr-2" /> Bloquear
       </Button>
     </div>
@@ -145,7 +144,7 @@ function SocialActions({ status, name, onSendRequest, onRemoveFriend, onCancelRe
       <Button size="sm" className="bg-gradient-to-r from-purple-600 to-cyan-500 border-0" onClick={onSendRequest}>
         <UserPlus className="w-4 h-4 mr-2" /> Añadir amigo
       </Button>
-      <Button size="sm" className="bg-gray-600 hover:bg-gray-700 !text-white border-0" onClick={onBlock}>
+      <Button size="sm" className={`bg-gray-600 hover:bg-gray-700 !text-white border-0 ${actionWhiteClass}`} onClick={onBlock}>
         <UserX className="w-4 h-4 mr-2" /> Bloquear
       </Button>
     </div>
@@ -215,8 +214,7 @@ function UserNormalProfile({ profile, status, definitions, socialProps }) {
   const nextLevel = getNextLevel(xp, isPremium);
   const levelPct = Math.round(getLevelProgress(xp, isPremium) * 100);
   const level = currentLevel.level;
-  const { visualLevel, isRegularUser } = useLevelTheme();
-  const viewLevel = isRegularUser && visualLevel ? visualLevel : level;
+  const viewLevel = level;
   const profileLevelClass = `user-level-${viewLevel}-profile-page`;
   const profileHeroClass = `user-level-${viewLevel}-profile-hero`;
   const profilePanelClass = `user-level-${viewLevel}-profile-panel`;
@@ -226,6 +224,7 @@ function UserNormalProfile({ profile, status, definitions, socialProps }) {
   const profileScoreRowClass = `user-level-${viewLevel}-profile-score-row`;
   const profileIconClass = `user-level-${viewLevel}-profile-stat-icon-sky`;
   const profileNameClass = `user-level-${viewLevel}-profile-name`;
+  const profileActionWhiteClass = `user-level-${viewLevel}-profile-action-white`;
 
   const totalPlays = profile.stats.reduce((a, s) => a + s.plays_count, 0);
   const totalWins = profile.stats.reduce((a, s) => a + s.wins_count, 0);
@@ -268,7 +267,7 @@ function UserNormalProfile({ profile, status, definitions, socialProps }) {
                   ? <PremiumUsername name={profile.full_name} />
                   : <span className="text-white">{profile.full_name}</span>}
               </h1>
-              <SocialActions {...socialProps} />
+              <SocialActions {...socialProps} actionWhiteClass={profileActionWhiteClass} />
               <div className="mt-4 max-w-xs mx-auto md:mx-0">
                 <div className="flex items-center justify-between mb-1.5">
                   <span className={`text-sm font-bold user-level-${viewLevel}-profile-level-label`} style={{ color: currentLevel.color }}>Nv.{currentLevel.level} {currentLevel.name}</span>
