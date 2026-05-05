@@ -1409,6 +1409,12 @@
   box-shadow: 0 14px 28px rgba(88, 28, 135, 0.22) !important;
 }
 
+.user-level-4-crafty-user-message {
+  background: rgba(245, 243, 255, 0.92) !important;
+  color: #4c1d95 !important;
+  border: 1px solid rgba(168, 85, 247, 0.32) !important;
+}
+
 .user-level-4-crafty-input-wrap,
 .user-level-4-floating-chat-input-wrap {
   border-color: rgba(243, 232, 255, 0.16) !important;

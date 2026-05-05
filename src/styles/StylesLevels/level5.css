@@ -1438,6 +1438,12 @@
   box-shadow: 0 14px 28px rgba(120, 53, 15, 0.22) !important;
 }
 
+.user-level-5-crafty-user-message {
+  background: rgba(255, 249, 230, 0.92) !important;
+  color: #5b3a14 !important;
+  border: 1px solid rgba(212, 160, 23, 0.32) !important;
+}
+
 .user-level-5-crafty-button {
   width: 3rem !important;
   height: 3rem !important;

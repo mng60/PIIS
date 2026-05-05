@@ -58,7 +58,9 @@ export default function GameHeader({ game, user, isFavorite, onToggleFavorite, o
                 <span>({game.rating_count} votos)</span>
               </span>
             ) : (
-              <span className={`text-gray-600 ${isLevel1User ? "user-level-1-detail-rating" : ""} ${isLevel2User ? "user-level-2-game-detail-meta" : ""} ${isLevel3User ? "user-level-3-game-detail-meta" : ""} ${isLevel4User ? "user-level-4-game-detail-meta" : ""} ${isLevel5User ? "user-level-5-game-detail-meta" : ""}`}>
+              <span
+                className={`text-gray-600 ${isLevel1User ? "user-level-1-detail-rating" : ""} ${isLevel2User ? "user-level-2-game-detail-unrated" : ""} ${isLevel3User ? "user-level-3-game-detail-meta" : ""} ${isLevel4User ? "user-level-4-game-detail-meta" : ""} ${isLevel5User ? "user-level-5-game-detail-meta" : ""}`}
+              >
                 Sin valoraciones
               </span>
             )}

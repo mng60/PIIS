@@ -21,6 +21,42 @@ function formatTime(dateStr) {
   return d.toLocaleTimeString('es-ES', { hour: '2-digit', minute: '2-digit' });
 }
 
+function getLevelBubbleStyle({ mine, isLevel2User, isLevel4User, isLevel5User }) {
+  if (isLevel2User) {
+    return {
+      background: 'rgba(239, 250, 219, 0.92)',
+      color: '#1c3f16',
+      border: '1px solid rgba(134, 191, 88, 0.32)',
+    };
+  }
+
+  if (isLevel4User) {
+    return {
+      background: 'rgba(245, 243, 255, 0.92)',
+      color: '#4c1d95',
+      border: '1px solid rgba(168, 85, 247, 0.32)',
+    };
+  }
+
+  if (isLevel5User) {
+    return {
+      background: 'rgba(255, 249, 230, 0.92)',
+      color: '#5b3a14',
+      border: '1px solid rgba(212, 160, 23, 0.32)',
+    };
+  }
+
+  return {
+    background: mine
+      ? 'linear-gradient(135deg, #7c3aed, #06b6d4)'
+      : 'rgba(255,255,255,0.08)',
+  };
+}
+
+function shouldUseDarkBubbleText({ isLevel2User, isLevel4User, isLevel5User }) {
+  return isLevel2User || isLevel4User || isLevel5User;
+}
+
 export default function FloatingChat() {
   const { isAuthenticated, user } = useAuth();
   const { currentRoom } = useCurrentRoom();
@@ -227,19 +263,26 @@ export default function FloatingChat() {
                 )}
                 {messages.map(msg => {
                   const mine = msg.sender_email === user?.email;
+                  const darkBubbleText = shouldUseDarkBubbleText({
+                    isLevel2User,
+                    isLevel4User,
+                    isLevel5User,
+                  });
+                  const bubbleStyle = getLevelBubbleStyle({
+                    mine,
+                    isLevel2User,
+                    isLevel4User,
+                    isLevel5User,
+                  });
                   return (
                     <div key={msg.id} className={`flex ${mine ? 'justify-end' : 'justify-start'}`}>
                       <div className={`${isLevel1User ? 'user-level-1-floating-chat-message' : ''} ${isLevel2User ? 'user-level-2-floating-chat-message' : ''} ${isLevel3User ? 'user-level-3-floating-chat-message' : ''} ${isLevel4User ? 'user-level-4-floating-chat-message' : ''} ${isLevel5User ? 'user-level-5-floating-chat-message' : ''} max-w-[75%] px-3 py-2 rounded-2xl text-sm break-words ${
                         mine
-                          ? `${isLevel1User ? 'user-level-1-floating-chat-message-mine' : ''} ${isLevel2User ? 'user-level-2-floating-chat-message-mine' : ''} ${isLevel3User ? 'user-level-3-floating-chat-message-mine' : ''} ${isLevel4User ? 'user-level-4-floating-chat-message-mine' : ''} ${isLevel5User ? 'user-level-5-floating-chat-message-mine' : ''} text-white rounded-br-sm`
-                          : 'text-white/90 rounded-bl-sm'
-                      }`} style={{
-                        background: mine
-                          ? 'linear-gradient(135deg, #7c3aed, #06b6d4)'
-                          : 'rgba(255,255,255,0.08)',
-                      }}>
+                          ? `${isLevel1User ? 'user-level-1-floating-chat-message-mine' : ''} ${isLevel2User ? 'user-level-2-floating-chat-message-mine' : ''} ${isLevel3User ? 'user-level-3-floating-chat-message-mine' : ''} ${isLevel4User ? 'user-level-4-floating-chat-message-mine' : ''} ${isLevel5User ? 'user-level-5-floating-chat-message-mine' : ''} ${darkBubbleText ? 'text-black' : 'text-white'} rounded-br-sm`
+                          : `${darkBubbleText ? 'text-black' : 'text-white/90'} rounded-bl-sm`
+                      }`} style={bubbleStyle}>
                         <p>{msg.message}</p>
-                        <p className={`text-[10px] mt-1 ${mine ? 'text-white/60 text-right' : 'text-white/40'}`}>
+                        <p className={`text-[10px] mt-1 ${mine ? (darkBubbleText ? 'text-black/70 text-right' : 'text-white/60 text-right') : (darkBubbleText ? 'text-black/60' : 'text-white/40')}`}>
                           {formatTime(msg.created_at)}
                         </p>
                       </div>

@@ -58,10 +58,17 @@ const WELCOME_BY_ROLE = {
 };
 
 const CATEGORY_LABELS = {
-  accion: 'accion',
-  puzzle: 'puzzle',
-  arcade: 'arcade',
-  estrategia: 'estrategia',
+  accion: 'Accion',
+  puzzle: 'Puzzle',
+  arcade: 'Arcade',
+  estrategia: 'Estrategia',
+};
+
+const CATEGORY_SYNONYMS = {
+  accion: ['accion', 'acciones'],
+  puzzle: ['puzzle', 'puzzles', 'rompecabezas'],
+  arcade: ['arcade', 'arcades'],
+  estrategia: ['estrategia', 'estrategias'],
 };
 
 function normalizeText(text = '') {
@@ -76,7 +83,54 @@ function normalizeText(text = '') {
 
 function detectCategory(text) {
   const normalized = normalizeText(text);
-  return Object.keys(CATEGORY_LABELS).find((category) => normalized.includes(category)) || null;
+  return Object.entries(CATEGORY_SYNONYMS).find(([, synonyms]) =>
+    synonyms.some((term) => normalized.includes(term))
+  )?.[0] || null;
+}
+
+function formatCategoryList(games) {
+  const categories = [...new Set(games.map((game) => game.category).filter(Boolean))]
+    .filter((category) => CATEGORY_LABELS[category])
+    .sort((a, b) => CATEGORY_LABELS[a].localeCompare(CATEGORY_LABELS[b], 'es'));
+
+  if (!categories.length) {
+    return 'Ahora mismo no veo categorias de juegos disponibles en PlayCraft.';
+  }
+
+  return `En PlayCraft, los juegos estan organizados en estas categorias: ${categories.map((category) => `**${CATEGORY_LABELS[category]}**`).join(', ')}.`;
+}
+
+function formatGameNames(games, category = null) {
+  if (!games.length) {
+    return category
+      ? `Ahora mismo no veo ningun juego de **${CATEGORY_LABELS[category]}** en PlayCraft.`
+      : 'Ahora mismo no veo juegos disponibles en PlayCraft.';
+  }
+
+  if (games.length === 1) {
+    return category
+      ? `El juego de **${CATEGORY_LABELS[category]}** es **${games[0].title}**.`
+      : `El juego es **${games[0].title}**.`;
+  }
+
+  const names = games.slice(0, 8).map((game) => `**${game.title}**`);
+  const suffix = games.length > names.length ? ' y mas.' : '.';
+  return category
+    ? `Los juegos de **${CATEGORY_LABELS[category]}** son: ${names.join(', ')}${suffix}`
+    : `Los juegos son: ${names.join(', ')}${suffix}`;
+}
+
+async function ensureGamesLoaded(cacheRef) {
+  if (!cacheRef.current.games) {
+    const response = await getGames('?limit=500&all=true');
+    cacheRef.current.games = response?.games || [];
+  }
+
+  return cacheRef.current.games;
+}
+
+function saveLastGameContext(cacheRef, context) {
+  cacheRef.current.lastGameContext = context;
 }
 
 function formatGameCount(count, category = null) {
@@ -114,43 +168,99 @@ function formatTournamentSummary(tournaments) {
 async function buildLocalReply(message, cacheRef) {
   const normalized = normalizeText(message);
   const category = detectCategory(normalized);
+  const lastGameContext = cacheRef.current.lastGameContext || null;
   const isGreeting = /^(hola|buenas|hey|buenos dias|buenas tardes|buenas noches)$/.test(normalized);
   const asksForGames = normalized.includes('juego');
   const asksForTournaments = normalized.includes('torneo');
+  const asksAboutCategories = /(^| )(categoria|categorias)( |$)/.test(normalized);
+  const asksForCategories = asksAboutCategories && !category && (
+    /^(categoria|categorias)$/.test(normalized) ||
+    !asksForGames ||
+    /(^| )(que|cuales|y)( |$)/.test(normalized)
+  );
+  const asksForNames = /(como se llama|como se llaman|cual es|cuales son|nombre|nombres)/.test(normalized);
 
   if (isGreeting) {
     return 'Hola! En que te puedo ayudar?';
   }
 
-  if (!asksForGames && !asksForTournaments) {
+  if (!asksForGames && !asksForTournaments && !asksForCategories && !asksForNames) {
     return null;
   }
 
-  if (asksForGames) {
-    if (!cacheRef.current.games) {
-      const response = await getGames('?limit=500&all=true');
-      cacheRef.current.games = response?.games || [];
+  if (asksForGames || asksForCategories || asksForNames) {
+    const games = await ensureGamesLoaded(cacheRef);
+    const inferredCategory = category || lastGameContext?.category || null;
+    const filteredGames = inferredCategory ? games.filter((game) => game.category === inferredCategory) : games;
+    const asksForCount = /(cuantos|cuantas|numero|total|hay)/.test(normalized);
+    const asksForList = /(cuales|que juegos|lista|muestrame|dime|decir|me puedes decir|puedes decirme)/.test(normalized);
+
+    if (asksForCategories) {
+      saveLastGameContext(cacheRef, {
+        topic: 'games',
+        category: null,
+        games,
+        kind: 'categories',
+      });
+      return formatCategoryList(games);
     }
 
-    const games = cacheRef.current.games;
-    const filteredGames = category ? games.filter((game) => game.category === category) : games;
-    const asksForCount = /(cuantos|cuantas|numero|total|hay)/.test(normalized);
-    const asksForList = /(cuales|que juegos|lista|muestrame|dime)/.test(normalized);
+    if (asksForNames && inferredCategory && filteredGames.length) {
+      saveLastGameContext(cacheRef, {
+        topic: 'games',
+        category: inferredCategory,
+        games: filteredGames,
+        kind: 'names',
+      });
+      return formatGameNames(filteredGames, inferredCategory);
+    }
 
-    if (category && (asksForCount || normalized.includes(`de ${category}`))) {
+    if (asksForNames && lastGameContext?.topic === 'games' && lastGameContext.games?.length) {
+      return formatGameNames(lastGameContext.games, lastGameContext.category || null);
+    }
+
+    if (inferredCategory && (asksForList || normalized.includes('juegos de la categoria') || normalized.includes('juegos de categoria'))) {
+      saveLastGameContext(cacheRef, {
+        topic: 'games',
+        category: inferredCategory,
+        games: filteredGames,
+        kind: 'list',
+      });
+      return formatGameList(filteredGames, inferredCategory);
+    }
+
+    if (inferredCategory && (asksForCount || normalized.includes(`de ${inferredCategory}`) || normalized.includes('categoria'))) {
+      saveLastGameContext(cacheRef, {
+        topic: 'games',
+        category: inferredCategory,
+        games: filteredGames,
+        kind: 'count',
+      });
       if (asksForList && !/(solo|solamente)/.test(normalized)) {
-        return `${formatGameCount(filteredGames.length, category)} ${formatGameList(filteredGames, category)}`;
+        return `${formatGameCount(filteredGames.length, inferredCategory)} ${formatGameList(filteredGames, inferredCategory)}`;
       }
 
-      return formatGameCount(filteredGames.length, category);
+      return formatGameCount(filteredGames.length, inferredCategory);
     }
 
     if (asksForList) {
-      return formatGameList(filteredGames, category);
+      saveLastGameContext(cacheRef, {
+        topic: 'games',
+        category: inferredCategory,
+        games: filteredGames,
+        kind: 'list',
+      });
+      return formatGameList(filteredGames, inferredCategory);
     }
 
     if (asksForCount || normalized === 'juegos' || normalized === 'cuantos juegos hay') {
-      return formatGameCount(filteredGames.length, category);
+      saveLastGameContext(cacheRef, {
+        topic: 'games',
+        category: inferredCategory,
+        games: filteredGames,
+        kind: 'count',
+      });
+      return formatGameCount(filteredGames.length, inferredCategory);
     }
   }
 
@@ -182,7 +292,7 @@ export default function CraftyAssistant() {
   const messagesEndRef = useRef(null);
   const inputRef = useRef(null);
   const containerRef = useRef(null);
-  const knowledgeCacheRef = useRef({ games: null, tournaments: null });
+  const knowledgeCacheRef = useRef({ games: null, tournaments: null, lastGameContext: null });
 
   const role = user?.role || 'user';
   const { isLevel1User, isLevel2User, isLevel3User, isLevel4User, isLevel5User } = useLevelTheme();

@@ -510,6 +510,10 @@
   color: #436f35 !important;
 }
 
+.user-level-2-game-detail-page .text-gray-600.user-level-2-game-detail-unrated {
+  color: #008000 !important;
+}
+
 .user-level-2-game-detail-link {
   color: #3b7a35 !important;
 }
@@ -1400,6 +1404,12 @@
   box-shadow: 0 14px 28px rgba(18, 95, 45, 0.22) !important;
 }
 
+.user-level-2-crafty-user-message {
+  background: rgba(239, 250, 219, 0.92) !important;
+  color: #1c3f16 !important;
+  border: 1px solid rgba(134, 191, 88, 0.32) !important;
+}
+
 .user-level-2-crafty-input-wrap,
 .user-level-2-floating-chat-input-wrap {
   border-color: rgba(226, 255, 199, 0.16) !important;
@@ -1923,7 +1933,7 @@
 }
 
 .user-level-2-profile-page .user-level-2-profile-hero .user-level-2-profile-level-label {
-  color: #38d5ff !important;
+  color: #14532d !important;
   text-shadow: 0 1px 6px rgba(3, 31, 18, 0.7) !important;
 }
 
