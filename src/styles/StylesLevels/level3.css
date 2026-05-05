@@ -944,6 +944,23 @@
   color: #55c9f4 !important;
 }
 
+.user-level-3-friends-avatar {
+  background: linear-gradient(135deg, #0f4c81 0%, #55c9f4 62%, #7c3aed 100%) !important;
+  border: 1px solid rgba(214, 242, 255, 0.72) !important;
+  box-shadow: 0 8px 18px rgba(85, 201, 244, 0.22) !important;
+  color: #f0fbff !important;
+}
+
+.user-level-3-friends-action-primary {
+  background: linear-gradient(135deg, #0f4c81 0%, #55c9f4 62%, #7c3aed 100%) !important;
+  color: #f0fbff !important;
+  box-shadow: 0 8px 18px rgba(85, 201, 244, 0.18) !important;
+}
+
+.user-level-3-friends-action-ghost {
+  color: #55c9f4 !important;
+}
+
 .user-level-3-footer {
   border-color: rgba(120, 205, 255, 0.18) !important;
 }

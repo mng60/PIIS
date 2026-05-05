@@ -32,6 +32,50 @@ function AvatarImg({ url, name, size = "lg" }) {
 
 // ─── Overlay de logros (solo logros desbloqueados del otro usuario) ───────────
 
+function getProfileLevelClasses(level) {
+  const isLevel1User = level === 1;
+  const isLevel2User = level === 2;
+  const isLevel3User = level === 3;
+  const isLevel4User = level === 4;
+  const isLevel5User = level === 5;
+
+  return {
+    page: `${isLevel1User ? "user-level-1-profile-page" : ""} ${isLevel2User ? "user-level-2-profile-page" : ""} ${isLevel3User ? "user-level-3-profile-page" : ""} ${isLevel4User ? "user-level-4-profile-page" : ""} ${isLevel5User ? "user-level-5-profile-page" : ""}`,
+    hero: `${isLevel1User ? "user-level-1-game-card" : ""} ${isLevel2User ? "user-level-2-profile-hero" : ""} ${isLevel3User ? "user-level-3-profile-hero" : ""} ${isLevel4User ? "user-level-4-profile-hero" : ""} ${isLevel5User ? "user-level-5-profile-hero" : ""}`,
+    avatar: `${isLevel1User ? "user-level-1-profile-avatar" : ""} ${isLevel2User ? "user-level-2-profile-avatar" : ""} ${isLevel3User ? "user-level-3-profile-avatar" : ""} ${isLevel4User ? "user-level-4-profile-avatar" : ""} ${isLevel5User ? "user-level-5-profile-avatar" : ""}`,
+    avatarFallback: `${isLevel1User ? "user-level-1-profile-avatar-fallback" : ""} ${isLevel2User ? "user-level-2-profile-avatar-fallback" : ""} ${isLevel3User ? "user-level-3-profile-avatar-fallback" : ""} ${isLevel4User ? "user-level-4-profile-avatar-fallback" : ""} ${isLevel5User ? "user-level-5-profile-avatar-fallback" : ""}`,
+    name: `${isLevel1User ? "user-level-1-profile-name" : ""} ${isLevel2User ? "user-level-2-profile-name" : ""} ${isLevel3User ? "user-level-3-profile-name" : ""} ${isLevel4User ? "user-level-4-profile-name" : ""} ${isLevel5User ? "user-level-5-profile-name" : ""}`,
+    panel: `${isLevel1User ? "user-level-1-game-card" : ""} ${isLevel2User ? "user-level-2-profile-panel" : ""} ${isLevel3User ? "user-level-3-profile-panel" : ""} ${isLevel4User ? "user-level-4-profile-panel" : ""} ${isLevel5User ? "user-level-5-profile-panel" : ""}`,
+    panelTitle: `${isLevel2User ? "user-level-2-profile-panel-title" : ""} ${isLevel3User ? "user-level-3-profile-panel-title" : ""} ${isLevel4User ? "user-level-4-profile-panel-title" : ""} ${isLevel5User ? "user-level-5-profile-panel-title" : ""}`,
+    panelText: `${isLevel2User ? "user-level-2-profile-panel-text" : ""} ${isLevel3User ? "user-level-3-profile-panel-text" : ""} ${isLevel4User ? "user-level-4-profile-panel-text" : ""} ${isLevel5User ? "user-level-5-profile-panel-text" : ""}`,
+    iconSoft: `${isLevel1User ? "user-level-1-profile-icon-soft" : ""} ${isLevel2User ? "user-level-2-profile-icon-soft" : ""} ${isLevel3User ? "user-level-3-profile-icon-soft" : ""} ${isLevel4User ? "user-level-4-profile-icon-soft" : ""} ${isLevel5User ? "user-level-5-profile-icon-soft" : ""}`,
+    levelLabel: `${isLevel4User ? "user-level-4-profile-level-label" : ""} ${isLevel5User ? "user-level-5-profile-level-label" : ""}`,
+    xpLabel: `${isLevel4User ? "user-level-4-profile-xp-label" : ""} ${isLevel5User ? "user-level-5-profile-xp-label" : ""}`,
+    nextLevel: `${isLevel4User ? "user-level-4-profile-next-level" : ""} ${isLevel5User ? "user-level-5-profile-next-level" : ""}`,
+    progressTrack: `${isLevel4User ? "user-level-4-profile-progress-track" : ""} ${isLevel5User ? "user-level-5-profile-progress-track" : ""}`,
+    progressFill: `${isLevel4User ? "user-level-4-profile-progress-fill" : ""} ${isLevel5User ? "user-level-5-profile-progress-fill" : ""}`,
+    actionPrimary: `${isLevel1User ? "user-level-1-profile-dialog-save" : ""} ${isLevel2User ? "user-level-2-profile-dialog-save" : ""} ${isLevel3User ? "user-level-3-profile-dialog-save" : ""} ${isLevel4User ? "user-level-4-profile-dialog-save" : ""} ${isLevel5User ? "user-level-5-profile-dialog-save" : ""}`,
+    actionOutline: `${isLevel1User ? "user-level-1-profile-dialog-cancel" : ""} ${isLevel2User ? "user-level-2-profile-dialog-cancel" : ""} ${isLevel3User ? "user-level-3-profile-dialog-cancel" : ""} ${isLevel4User ? "user-level-4-profile-dialog-cancel" : ""} ${isLevel5User ? "user-level-5-profile-dialog-cancel" : ""}`,
+    medalRow: `${isLevel2User ? "user-level-2-profile-medal-row" : ""} ${isLevel3User ? "user-level-3-profile-medal-row" : ""} ${isLevel4User ? "user-level-4-profile-medal-row" : ""} ${isLevel5User ? "user-level-5-profile-medal-row" : ""}`,
+    medalIcon: `${isLevel2User ? "user-level-2-profile-medal-icon" : ""} ${isLevel3User ? "user-level-3-profile-medal-icon" : ""} ${isLevel4User ? "user-level-4-profile-medal-icon" : ""} ${isLevel5User ? "user-level-5-profile-medal-icon" : ""}`,
+    scoreRow: `${isLevel2User ? "user-level-2-profile-score-row" : ""} ${isLevel3User ? "user-level-3-profile-score-row" : ""} ${isLevel4User ? "user-level-4-profile-score-row" : ""} ${isLevel5User ? "user-level-5-profile-score-row" : ""}`,
+    filter: isLevel2User ? "user-level-2-games-filter" : isLevel3User ? "user-level-3-games-filter" : isLevel4User ? "user-level-4-games-filter" : isLevel5User ? "user-level-5-games-filter" : "",
+    filterActive: isLevel2User ? "user-level-2-games-filter-active" : isLevel3User ? "user-level-3-games-filter-active" : isLevel4User ? "user-level-4-games-filter-active" : isLevel5User ? "user-level-5-games-filter-active" : "",
+  };
+}
+
+function PublicAvatar({ url, name, themeClasses }) {
+  if (url) {
+    return <img src={url} alt={name} className={`w-28 h-28 text-4xl border-4 border-purple-500/50 rounded-full object-cover ${themeClasses.avatar}`} />;
+  }
+
+  return (
+    <div className={`w-28 h-28 text-4xl border-4 border-purple-500/50 rounded-full bg-gradient-to-br from-purple-600 to-cyan-500 flex items-center justify-center font-bold text-white ${themeClasses.avatar} ${themeClasses.avatarFallback}`}>
+      {name?.[0]?.toUpperCase() || "?"}
+    </div>
+  );
+}
+
 function PublicAchievementsOverlay({ gameId, gameTitle, definitions, unlockedIds, onClose }) {
   const gameDefs = useMemo(() =>
     definitions.filter(d => (d.game_id ?? "__global__") === gameId).sort((a, b) => (a.sort_order || 0) - (b.sort_order || 0)),
@@ -111,12 +155,12 @@ function PublicAchievementsOverlay({ gameId, gameTitle, definitions, unlockedIds
 
 // ─── Acciones sociales ────────────────────────────────────────────────────────
 
-function SocialActions({ status, name, onSendRequest, onRemoveFriend, onCancelRequest, onBlock, onUnblock, pending }) {
+function SocialActions({ status, onSendRequest, onRemoveFriend, onCancelRequest, onBlock, onUnblock, pending, themeClasses = {} }) {
   if (pending) return <Loader2 className="w-5 h-5 animate-spin text-gray-400" />;
   if (!status) return null;
 
   if (status.blocked_by_me) return (
-    <Button variant="outline" size="sm" className="border-red-500/50 text-red-400 hover:bg-red-500/10" onClick={onUnblock}>
+    <Button variant="outline" size="sm" className={`border-red-500/50 text-red-400 hover:bg-red-500/10 ${themeClasses.actionOutline || ""}`} onClick={onUnblock}>
       <ShieldOff className="w-4 h-4 mr-2" /> Desbloquear
     </Button>
   );
@@ -125,24 +169,24 @@ function SocialActions({ status, name, onSendRequest, onRemoveFriend, onCancelRe
   const f = status.friendship;
   if (f?.status === "accepted") return (
     <div className="flex gap-2">
-      <Button variant="outline" size="sm" className="border-red-500/40 text-red-400 hover:bg-red-500/10" onClick={onRemoveFriend}>
+      <Button variant="outline" size="sm" className={`border-red-500/40 text-red-400 hover:bg-red-500/10 ${themeClasses.actionOutline || ""}`} onClick={onRemoveFriend}>
         <UserMinus className="w-4 h-4 mr-2" /> Eliminar amigo
       </Button>
-      <Button variant="outline" size="sm" className="border-gray-600 text-gray-400 hover:text-red-400" onClick={onBlock}>
+      <Button variant="outline" size="sm" className={`border-gray-600 text-gray-400 hover:text-red-400 ${themeClasses.actionOutline || ""}`} onClick={onBlock}>
         <UserX className="w-4 h-4 mr-2" /> Bloquear
       </Button>
     </div>
   );
   if (f?.status === "pending") return f.i_sent
-    ? <Button variant="outline" size="sm" className="border-gray-600 text-gray-400" onClick={onCancelRequest}><Clock className="w-4 h-4 mr-2" /> Cancelar solicitud</Button>
+    ? <Button variant="outline" size="sm" className={`border-gray-600 text-gray-400 ${themeClasses.actionOutline || ""}`} onClick={onCancelRequest}><Clock className="w-4 h-4 mr-2" /> Cancelar solicitud</Button>
     : <span className="text-sm text-yellow-400 flex items-center gap-1"><Clock className="w-4 h-4" /> Te envió solicitud</span>;
 
   return (
     <div className="flex gap-2">
-      <Button size="sm" className="bg-gradient-to-r from-purple-600 to-cyan-500 border-0" onClick={onSendRequest}>
+      <Button size="sm" className={`bg-gradient-to-r from-purple-600 to-cyan-500 border-0 ${themeClasses.actionPrimary || ""}`} onClick={onSendRequest}>
         <UserPlus className="w-4 h-4 mr-2" /> Añadir amigo
       </Button>
-      <Button variant="outline" size="sm" className="border-gray-600 text-gray-400 hover:text-red-400" onClick={onBlock}>
+      <Button variant="outline" size="sm" className={`border-gray-600 text-gray-400 hover:text-red-400 ${themeClasses.actionOutline || ""}`} onClick={onBlock}>
         <UserX className="w-4 h-4 mr-2" /> Bloquear
       </Button>
     </div>
@@ -209,6 +253,7 @@ function UserNormalProfile({ profile, status, definitions, socialProps }) {
   const xp = profile.xp ?? 0;
   const isPremium = !!(profile.is_premium);
   const currentLevel = getLevelFromXP(xp, isPremium);
+  const themeClasses = getProfileLevelClasses(currentLevel.level);
   const nextLevel = getNextLevel(xp, isPremium);
   const levelPct = Math.round(getLevelProgress(xp, isPremium) * 100);
 
@@ -230,7 +275,7 @@ function UserNormalProfile({ profile, status, definitions, socialProps }) {
     : null;
 
   return (
-    <div className="max-w-4xl mx-auto px-4 py-8">
+    <div className={`max-w-4xl mx-auto px-4 py-8 ${themeClasses.page}`}>
       {/* Overlay logros */}
       {selectedGame && (
         <PublicAchievementsOverlay
@@ -243,27 +288,27 @@ function UserNormalProfile({ profile, status, definitions, socialProps }) {
       )}
 
       {/* Cabecera */}
-      <Card className="bg-gradient-to-br from-purple-900/30 to-cyan-900/30 border-white/10 mb-8">
+      <Card className={`bg-gradient-to-br from-purple-900/30 to-cyan-900/30 border-white/10 mb-8 ${themeClasses.hero}`}>
         <CardContent className="p-8">
           <div className="flex flex-col md:flex-row items-center gap-6">
-            <AvatarImg url={profile.avatar_url} name={profile.full_name} />
+            <PublicAvatar url={profile.avatar_url} name={profile.full_name} themeClasses={themeClasses} />
             <div className="flex-1 text-center md:text-left">
-              <h1 className="text-2xl font-bold mb-3">
+              <h1 className={`text-2xl font-bold mb-3 ${themeClasses.name}`}>
                 {isPremium
                   ? <PremiumUsername name={profile.full_name} />
                   : <span className="text-white">{profile.full_name}</span>}
               </h1>
-              <SocialActions {...socialProps} />
+              <SocialActions {...socialProps} themeClasses={themeClasses} />
               <div className="mt-4 max-w-xs mx-auto md:mx-0">
                 <div className="flex items-center justify-between mb-1.5">
-                  <span className="text-sm font-bold" style={{ color: currentLevel.color }}>Nv.{currentLevel.level} {currentLevel.name}</span>
-                  <span className="text-xs text-gray-400">{xp.toLocaleString()} XP{nextLevel && ` / ${nextLevel.xpRequired.toLocaleString()}`}</span>
+                  <span className={`text-sm font-bold ${themeClasses.levelLabel}`} style={{ color: currentLevel.color }}>Nv.{currentLevel.level} {currentLevel.name}</span>
+                  <span className={`text-xs text-gray-400 ${themeClasses.xpLabel}`}>{xp.toLocaleString()} XP{nextLevel && ` / ${nextLevel.xpRequired.toLocaleString()}`}</span>
                 </div>
-                <div className="h-2 rounded-full bg-white/10 overflow-hidden">
-                  <div className="h-full rounded-full transition-all duration-500" style={{ width: `${levelPct}%`, backgroundColor: currentLevel.color }} />
+                <div className={`h-2 rounded-full bg-white/10 overflow-hidden ${themeClasses.progressTrack}`}>
+                  <div className={`h-full rounded-full transition-all duration-500 ${themeClasses.progressFill}`} style={{ width: `${levelPct}%`, backgroundColor: currentLevel.color }} />
                 </div>
                 {nextLevel
-                  ? <p className="text-[11px] text-gray-500 mt-1">{(nextLevel.xpRequired - xp).toLocaleString()} XP para {nextLevel.name}</p>
+                  ? <p className={`text-[11px] text-gray-500 mt-1 ${themeClasses.nextLevel}`}>{(nextLevel.xpRequired - xp).toLocaleString()} XP para {nextLevel.name}</p>
                   : <p className="text-[11px] mt-1" style={{ color: currentLevel.color }}>Nivel máximo alcanzado</p>
                 }
               </div>
@@ -274,18 +319,18 @@ function UserNormalProfile({ profile, status, definitions, socialProps }) {
 
       {/* Amigos en común */}
       {profile.common_friends?.length > 0 && (
-        <Card className="bg-white/5 border-white/10 mb-6">
+        <Card className={`bg-white/5 border-white/10 mb-6 ${themeClasses.panel}`}>
           <CardHeader>
-            <CardTitle className="text-white flex items-center gap-2 text-base">
+            <CardTitle className={`text-white flex items-center gap-2 text-base ${themeClasses.panelTitle}`}>
               Amigos en común ({profile.common_friends.length})
             </CardTitle>
           </CardHeader>
           <CardContent>
             <div className="flex flex-wrap gap-3">
               {profile.common_friends.map(f => (
-                <div key={f.email} className="flex items-center gap-2 px-3 py-2 rounded-xl bg-white/5">
+                <div key={f.email} className={`flex items-center gap-2 px-3 py-2 rounded-xl bg-white/5 ${themeClasses.scoreRow}`}>
                   <AvatarImg url={f.avatar_url} name={f.full_name} size="sm" />
-                  <span className="text-sm font-medium">{f.full_name}</span>
+                  <span className={`text-sm font-medium ${themeClasses.panelText}`}>{f.full_name}</span>
                 </div>
               ))}
             </div>
@@ -295,19 +340,19 @@ function UserNormalProfile({ profile, status, definitions, socialProps }) {
 
       {/* Medallas */}
       {earnedMedals.length > 0 && (
-        <Card className="bg-white/5 border-white/10 mb-6">
+        <Card className={`bg-white/5 border-white/10 mb-6 ${themeClasses.panel}`}>
           <CardHeader><CardTitle className="text-white flex items-center gap-2"><span className="text-xl">🎖️</span> Medallas</CardTitle></CardHeader>
           <CardContent>
             <div className="max-h-64 overflow-y-auto space-y-2 pr-1 [&::-webkit-scrollbar]:hidden [scrollbar-width:none]">
               {earnedMedals.map(medal => {
                 const isUrl = /^https?:\/\/|^\/|^data:/.test(medal.icon) || /\.(png|svg|jpg|webp|gif)$/i.test(medal.icon);
                 return (
-                  <div key={medal.id} className="flex items-center gap-3 p-3 rounded-lg" style={{ backgroundColor: medal.color + "11", border: `1px solid ${medal.color}33` }}>
-                    <div className="w-10 h-10 rounded-full flex items-center justify-center flex-shrink-0 text-xl" style={{ backgroundColor: medal.color + "22" }}>
+                  <div key={medal.id} className={`flex items-center gap-3 p-3 rounded-lg ${themeClasses.medalRow}`} style={{ backgroundColor: medal.color + "11", border: `1px solid ${medal.color}33` }}>
+                    <div className={`w-10 h-10 rounded-full flex items-center justify-center flex-shrink-0 text-xl ${themeClasses.medalIcon}`} style={{ backgroundColor: medal.color + "22" }}>
                       {isUrl ? <img src={medal.icon} alt="" className="w-7 h-7 object-contain" /> : medal.icon}
                     </div>
                     <div>
-                      <p className="font-semibold text-sm text-white">{medal.name}</p>
+                      <p className={`font-semibold text-sm text-white ${themeClasses.panelText}`}>{medal.name}</p>
                       <p className="text-xs text-gray-400">{medal.description}</p>
                     </div>
                   </div>
@@ -319,10 +364,10 @@ function UserNormalProfile({ profile, status, definitions, socialProps }) {
       )}
 
       {/* Juegos jugados */}
-      <Card className="bg-white/5 border-white/10">
+      <Card className={`bg-white/5 border-white/10 ${themeClasses.panel}`}>
         <CardHeader>
-          <CardTitle className="text-white flex items-center gap-2">
-            <Gamepad2 className="w-5 h-5 text-purple-400" /> Juegos jugados
+          <CardTitle className={`text-white flex items-center gap-2 ${themeClasses.panelTitle}`}>
+            <Gamepad2 className={`w-5 h-5 text-purple-400 ${themeClasses.iconSoft}`} /> Juegos jugados
             <span className="text-sm font-normal text-gray-400">({profile.stats.length})</span>
           </CardTitle>
         </CardHeader>
@@ -331,7 +376,7 @@ function UserNormalProfile({ profile, status, definitions, socialProps }) {
             <div className="flex flex-wrap gap-1.5">
               {Object.entries(CATEGORY_LABELS).map(([key, label]) => (
                 <button key={key} onClick={() => setCategoryFilter(key)}
-                  className={`px-3 py-1 rounded-full text-xs font-medium transition-colors ${categoryFilter === key ? "bg-gradient-to-r from-purple-600 to-cyan-500 text-white" : "bg-white/5 text-gray-400 hover:text-white"}`}>
+                  className={`px-3 py-1 rounded-full text-xs font-medium transition-colors ${categoryFilter === key ? (themeClasses.filterActive || "bg-gradient-to-r from-purple-600 to-cyan-500 text-white") : (themeClasses.filter || "bg-white/5 text-gray-400 hover:text-white")}`}>
                   {label}
                 </button>
               ))}
@@ -339,7 +384,7 @@ function UserNormalProfile({ profile, status, definitions, socialProps }) {
             <div className="flex gap-1.5 ml-auto">
               {[["all","Todos"],["solo","Solo"],["multi","Multi"]].map(([key,label]) => (
                 <button key={key} onClick={() => setModeFilter(key)}
-                  className={`px-3 py-1 rounded-full text-xs font-medium transition-colors ${modeFilter === key ? "bg-cyan-500/80 text-white" : "bg-white/5 text-gray-400 hover:text-white"}`}>
+                  className={`px-3 py-1 rounded-full text-xs font-medium transition-colors ${modeFilter === key ? (themeClasses.filterActive || "bg-cyan-500/80 text-white") : (themeClasses.filter || "bg-white/5 text-gray-400 hover:text-white")}`}>
                   {label}
                 </button>
               ))}
@@ -350,7 +395,7 @@ function UserNormalProfile({ profile, status, definitions, socialProps }) {
             : <div className="space-y-2">
                 {filteredGames.map(s => (
                   <button key={s.game_id} onClick={() => setSelectedGameId(s.game_id)}
-                    className="w-full flex gap-3 items-center p-3 bg-white/5 hover:bg-white/10 rounded-xl transition-colors text-left">
+                    className={`w-full flex gap-3 items-center p-3 bg-white/5 hover:bg-white/10 rounded-xl transition-colors text-left ${themeClasses.scoreRow}`}>
                     {s.game?.thumbnail
                       ? <img src={s.game.thumbnail} alt={s.game.title} className="w-12 h-12 rounded-lg object-cover flex-shrink-0" />
                       : <div className="w-12 h-12 rounded-lg bg-gradient-to-br from-purple-600/30 to-cyan-500/30 flex items-center justify-center flex-shrink-0"><Gamepad2 className="w-5 h-5 text-purple-400" /></div>

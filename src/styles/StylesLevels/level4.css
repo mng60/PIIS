@@ -1475,6 +1475,23 @@
   box-shadow: 0 14px 30px rgba(109, 40, 217, 0.18) !important;
 }
 
+.user-level-4-friends-avatar {
+  background: linear-gradient(135deg, #581c87 0%, #a855f7 62%, #7c3aed 100%) !important;
+  border: 1px solid rgba(243, 232, 255, 0.72) !important;
+  box-shadow: 0 8px 18px rgba(88, 28, 135, 0.22) !important;
+  color: #f7fff1 !important;
+}
+
+.user-level-4-friends-action-primary {
+  background: linear-gradient(135deg, #581c87 0%, #a855f7 62%, #7c3aed 100%) !important;
+  color: #f7fff1 !important;
+  box-shadow: 0 8px 18px rgba(88, 28, 135, 0.18) !important;
+}
+
+.user-level-4-friends-action-ghost {
+  color: #6d28d9 !important;
+}
+
 .user-level-4-friends-section-title,
 .user-level-4-tournaments-copy,
 .user-level-4-tournaments-bracket,
