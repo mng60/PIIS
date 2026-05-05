@@ -18,9 +18,12 @@ import { getLevelFromXP } from "@/lib/levels";
 
 function Avatar({ url, name, size = "md", themeClasses = {} }) {
   const sz = size === "lg" ? "w-14 h-14 text-xl" : "w-10 h-10 text-base";
+  const avatarBase = themeClasses.avatar?.trim()
+    ? ""
+    : "bg-gradient-to-br from-purple-600 to-cyan-500";
   if (url) return <img src={url} alt={name} className={`${sz} rounded-full object-cover ${themeClasses.avatar || ""}`} />;
   return (
-    <div className={`${sz} rounded-full flex items-center justify-center font-bold text-white bg-gradient-to-br from-purple-600 to-cyan-500 ${themeClasses.avatar || ""}`}>
+    <div className={`${sz} rounded-full flex items-center justify-center font-bold text-white ${avatarBase} ${themeClasses.avatar || ""}`}>
       {name?.[0]?.toUpperCase() || "?"}
     </div>
   );
@@ -214,6 +217,9 @@ export default function Friends() {
     const loading = pendingActions[u.email];
     const status = u._status;
     const isFriend = inSearch ? u._isFriend : true;
+    const primaryActionBase = rowThemeClasses.actionPrimary?.trim()
+      ? ""
+      : "bg-gradient-to-r from-purple-600 to-cyan-500";
 
     if (loading) return <Loader2 className="w-4 h-4 animate-spin text-gray-400" />;
 
@@ -250,7 +256,7 @@ export default function Friends() {
       }
       return (
         <div className="flex gap-1">
-          <Button size="sm" className={`bg-gradient-to-r from-purple-600 to-cyan-500 h-8 px-3 text-xs border-0 ${rowThemeClasses.actionPrimary}`} onClick={() => handleSendRequest(u.email)}>
+          <Button size="sm" className={`${primaryActionBase} h-8 px-3 text-xs border-0 ${rowThemeClasses.actionPrimary}`} onClick={() => handleSendRequest(u.email)}>
             <UserPlus className="w-3 h-3 mr-1" /> Añadir
           </Button>
           <Button size="sm" variant="ghost" className={`text-gray-400 hover:text-red-400 h-8 px-2 ${rowThemeClasses.actionBlock}`} title="Bloquear" onClick={() => handleBlock(u.email, u.full_name)}>

@@ -54,6 +54,7 @@ function getProfileLevelClasses(level) {
     nextLevel: `${isLevel1User ? "user-level-1-profile-next-level" : ""} ${isLevel2User ? "user-level-2-profile-next-level" : ""} ${isLevel3User ? "user-level-3-profile-next-level" : ""} ${isLevel4User ? "user-level-4-profile-next-level" : ""} ${isLevel5User ? "user-level-5-profile-next-level" : ""}`,
     progressTrack: `${isLevel1User ? "user-level-1-profile-progress-track" : ""} ${isLevel2User ? "user-level-2-profile-progress-track" : ""} ${isLevel3User ? "user-level-3-profile-progress-track" : ""} ${isLevel4User ? "user-level-4-profile-progress-track" : ""} ${isLevel5User ? "user-level-5-profile-progress-track" : ""}`,
     progressFill: `${isLevel1User ? "user-level-1-profile-progress-fill" : ""} ${isLevel2User ? "user-level-2-profile-progress-fill" : ""} ${isLevel3User ? "user-level-3-profile-progress-fill" : ""} ${isLevel4User ? "user-level-4-profile-progress-fill" : ""} ${isLevel5User ? "user-level-5-profile-progress-fill" : ""}`,
+    backButton: `${isLevel1User ? "user-level-1-profile-back" : ""} ${isLevel2User ? "user-level-2-profile-back" : ""} ${isLevel3User ? "user-level-3-profile-back" : ""} ${isLevel4User ? "user-level-4-profile-back" : ""} ${isLevel5User ? "user-level-5-profile-back" : ""}`,
     actionPrimary: `${isLevel1User ? "user-level-1-profile-dialog-save" : ""} ${isLevel2User ? "user-level-2-profile-dialog-save" : ""} ${isLevel3User ? "user-level-3-profile-dialog-save" : ""} ${isLevel4User ? "user-level-4-profile-dialog-save" : ""} ${isLevel5User ? "user-level-5-profile-dialog-save" : ""}`,
     actionOutline: `${isLevel1User ? "user-level-1-profile-dialog-cancel" : ""} ${isLevel2User ? "user-level-2-profile-dialog-cancel" : ""} ${isLevel3User ? "user-level-3-profile-dialog-cancel" : ""} ${isLevel4User ? "user-level-4-profile-dialog-cancel" : ""} ${isLevel5User ? "user-level-5-profile-dialog-cancel" : ""}`,
     actionBlock: `${isLevel1User ? "user-level-1-profile-action-block" : ""} ${isLevel2User ? "user-level-2-profile-action-block" : ""} ${isLevel3User ? "user-level-3-profile-action-block" : ""} ${isLevel4User ? "user-level-4-profile-action-block" : ""} ${isLevel5User ? "user-level-5-profile-action-block" : ""}`,
@@ -66,12 +67,15 @@ function getProfileLevelClasses(level) {
 }
 
 function PublicAvatar({ url, name, themeClasses }) {
+  const avatarBase = themeClasses.avatarFallback?.trim()
+    ? ""
+    : "bg-gradient-to-br from-purple-600 to-cyan-500";
   if (url) {
     return <img src={url} alt={name} className={`w-28 h-28 text-4xl border-4 border-purple-500/50 rounded-full object-cover ${themeClasses.avatar}`} />;
   }
 
   return (
-    <div className={`w-28 h-28 text-4xl border-4 border-purple-500/50 rounded-full bg-gradient-to-br from-purple-600 to-cyan-500 flex items-center justify-center font-bold text-white ${themeClasses.avatar} ${themeClasses.avatarFallback}`}>
+    <div className={`w-28 h-28 text-4xl border-4 border-purple-500/50 rounded-full ${avatarBase} flex items-center justify-center font-bold text-white ${themeClasses.avatar} ${themeClasses.avatarFallback}`}>
       {name?.[0]?.toUpperCase() || "?"}
     </div>
   );
@@ -182,9 +186,13 @@ function SocialActions({ status, onSendRequest, onRemoveFriend, onCancelRequest,
     ? <Button variant="outline" size="sm" className={`border-gray-600 text-gray-400 ${themeClasses.actionOutline || ""}`} onClick={onCancelRequest}><Clock className="w-4 h-4 mr-2" /> Cancelar solicitud</Button>
     : <span className="text-sm text-yellow-400 flex items-center gap-1"><Clock className="w-4 h-4" /> Te envió solicitud</span>;
 
+  const primaryActionBase = themeClasses.actionPrimary?.trim()
+    ? ""
+    : "bg-gradient-to-r from-purple-600 to-cyan-500";
+
   return (
     <div className="flex gap-2">
-      <Button size="sm" className={`bg-gradient-to-r from-purple-600 to-cyan-500 border-0 ${themeClasses.actionPrimary || ""}`} onClick={onSendRequest}>
+      <Button size="sm" className={`${primaryActionBase} border-0 ${themeClasses.actionPrimary || ""}`} onClick={onSendRequest}>
         <UserPlus className="w-4 h-4 mr-2" /> Añadir amigo
       </Button>
       <Button variant="outline" size="sm" className={`border-gray-600 text-gray-400 hover:text-red-400 ${themeClasses.actionBlock || ""}`} onClick={onBlock}>
@@ -511,11 +519,14 @@ export default function UserProfile() {
     onCancelRequest: handleCancelRequest, onBlock: handleBlock,
     onUnblock: handleUnblock, pending,
   };
+  const publicProfileThemeClasses = profile.role === "empresa"
+    ? {}
+    : getProfileLevelClasses(getLevelFromXP(profile.xp ?? 0, !!profile.is_premium).level);
 
   return (
     <div>
       <div className="max-w-4xl mx-auto px-4 pt-6">
-        <button onClick={() => navigate(-1)} className="flex items-center gap-2 text-gray-400 hover:text-white transition-colors mb-2">
+        <button onClick={() => navigate(-1)} className={`flex items-center gap-2 text-gray-400 hover:text-white transition-colors mb-2 ${publicProfileThemeClasses.backButton || ""}`}>
           <ArrowLeft className="w-4 h-4" /> Volver
         </button>
       </div>

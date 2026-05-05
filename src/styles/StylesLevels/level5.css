@@ -2672,3 +2672,16 @@
   background: linear-gradient(180deg, rgba(251, 236, 191, 0.96) 0%, rgba(240, 202, 111, 0.5) 100%) !important;
   border-color: rgba(146, 64, 14, 0.42) !important;
 }
+
+.user-level-5-profile-back {
+  color: #92400e !important;
+  text-shadow: 0 1px 7px rgba(255, 251, 235, 0.55) !important;
+}
+
+.user-level-5-profile-back:hover {
+  color: #451a03 !important;
+}
+
+.user-level-5-profile-back svg {
+  color: currentColor !important;
+}

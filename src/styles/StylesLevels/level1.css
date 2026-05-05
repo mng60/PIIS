@@ -1323,3 +1323,16 @@
 .user-level-1-friends-page.user-level-1-friends-row .text-gray-500 {
   color: #d1b385 !important;
 }
+
+.user-level-1-profile-back {
+  color: #d8b77a !important;
+  text-shadow: 0 1px 8px rgba(22, 13, 7, 0.86) !important;
+}
+
+.user-level-1-profile-back:hover {
+  color: #f3ddb6 !important;
+}
+
+.user-level-1-profile-back svg {
+  color: currentColor !important;
+}

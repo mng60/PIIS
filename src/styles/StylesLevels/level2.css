@@ -1968,3 +1968,16 @@
   background: linear-gradient(180deg, rgba(248, 255, 240, 0.98) 0%, rgba(231, 248, 211, 0.94) 100%) !important;
   border-color: rgba(34, 197, 94, 0.42) !important;
 }
+
+.user-level-2-profile-back {
+  color: #7ddf9a !important;
+  text-shadow: 0 1px 8px rgba(3, 31, 18, 0.86) !important;
+}
+
+.user-level-2-profile-back:hover {
+  color: #d9ffe1 !important;
+}
+
+.user-level-2-profile-back svg {
+  color: currentColor !important;
+}
