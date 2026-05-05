@@ -63,6 +63,7 @@ model Game {
   elo_k_factor          Int          @default(32)
   elo_min_rating        Int          @default(0)
   elo_position_points   String?      // JSON: puntos por posición para 3+ jugadores, ej: "[20,10,-5,-15]"
+  video_url           String?
   publisher           String?
   created_by       String?
   created_at       DateTime     @default(now())
@@ -276,6 +277,7 @@ model GameSession {
   host_name     String
   guest_email   String?
   guest_name    String?
+  players       Json          @default("[]")
   game_state    Json          @default("{}")
   current_turn  String        @default("host")
   winner        String?

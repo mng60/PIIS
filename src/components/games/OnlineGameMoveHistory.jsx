@@ -28,7 +28,7 @@ export default function OnlineGameMoveHistory({
   const defaultRenderMove = (move, index) => (
     <div
       key={index}
-      className="px-3 py-2 border-b border-white/5 hover:bg-white/5 transition-colors"
+      className="online-game-history__item px-3 py-2 border-b border-white/5 hover:bg-white/5 transition-colors"
     >
       <div className="flex items-center justify-between gap-2">
         <div className="flex items-center gap-2 flex-1 min-w-0">
@@ -50,7 +50,7 @@ export default function OnlineGameMoveHistory({
     return pairs.map((pair) => (
       <div
         key={pair.number}
-        className="flex items-center gap-1 px-3 py-1.5 border-b border-white/5 hover:bg-white/5 font-mono text-sm"
+        className="online-game-history__item flex items-center gap-1 px-3 py-1.5 border-b border-white/5 hover:bg-white/5 font-mono text-sm"
       >
         <span className="text-gray-500 w-7 flex-shrink-0 text-right">{pair.number}.</span>
         <span className="text-white w-[5.5rem] flex-shrink-0 px-1">{pair.white?.move}</span>
@@ -60,20 +60,20 @@ export default function OnlineGameMoveHistory({
   };
 
   return (
-    <div className={`bg-white/5 border border-white/10 rounded-lg overflow-hidden h-full flex flex-col ${className}`}>
-      <div className="px-3 py-2 border-b border-white/10 bg-white/5 flex-shrink-0">
-        <h3 className="text-sm font-semibold text-gray-300">{title}</h3>
+    <div className={`online-game-history bg-white/5 border border-white/10 rounded-lg overflow-hidden h-full flex flex-col ${className}`.trim()}>
+      <div className="online-game-history__header px-3 py-2 border-b border-white/10 bg-white/5 flex-shrink-0">
+        <h3 className="online-game-history__title text-sm font-semibold text-gray-300">{title}</h3>
       </div>
 
-      <div ref={scrollRef} className="flex-1 min-h-0 overflow-y-auto [&::-webkit-scrollbar]:hidden [scrollbar-width:none]">
+      <div ref={scrollRef} className="online-game-history__body flex-1 min-h-0 overflow-y-auto [&::-webkit-scrollbar]:hidden [scrollbar-width:none]">
         {moves.length === 0 ? (
-          <div className="px-3 py-8 text-center text-sm text-gray-500">
+          <div className="online-game-history__empty px-3 py-8 text-center text-sm text-gray-500">
             {emptyMessage}
           </div>
         ) : chessPairs ? (
           renderChessPairs()
         ) : (
-          <div className="divide-y divide-white/5">
+          <div className="online-game-history__list divide-y divide-white/5">
             {moves.map((move, index) =>
               renderMove ? renderMove(move, index) : defaultRenderMove(move, index)
             )}

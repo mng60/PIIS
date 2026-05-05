@@ -1,8 +1,7 @@
 import React, { useCallback, useEffect, useRef, useState } from "react";
-import { useSinglePlayerGame } from "@/hooks/useSinglePlayerGame";
 import { Play, ChevronUp, ChevronDown, ChevronLeft, ChevronRight } from "lucide-react";
-import { useAuth } from "@/lib/AuthContext";
-import { getLevelFromXP } from "@/lib/levels";
+import { useSinglePlayerGame } from "@/hooks/useSinglePlayerGame";
+import { useLevelTheme } from "@/lib/useLevelTheme";
 
 const COLS = 20;
 const ROWS = 20;
@@ -14,6 +13,12 @@ const DIFFICULTIES = [
   { id: "extremo", label: "Extremo", ms: 40 },
 ];
 
+const CELL_BASE = {
+  width: "100%",
+  height: "100%",
+  transition: "background-color 60ms ease",
+};
+
 function randomPos(exclude = []) {
   let p;
   do {
@@ -24,7 +29,7 @@ function randomPos(exclude = []) {
 
 function buildCells(snake, food, bonus) {
   const map = {};
-  for (let i = snake.length - 1; i >= 1; i--) {
+  for (let i = snake.length - 1; i >= 1; i -= 1) {
     map[`${snake[i].x},${snake[i].y}`] = { t: "body", pct: 1 - i / snake.length };
   }
   if (snake[0]) map[`${snake[0].x},${snake[0].y}`] = { t: "head" };
@@ -33,54 +38,157 @@ function buildCells(snake, food, bonus) {
   return map;
 }
 
-const CELL_BASE = {
-  width: "100%",
-  height: "100%",
-  transition: "background-color 60ms ease",
-};
+function getSnakeTheme({ isLevel1User, isLevel2User, isLevel3User, isLevel4User, isLevel5User }) {
+  if (isLevel5User) {
+    return {
+      empty: "#2f1b0b",
+      grid: "#6b4218",
+      head: "#fbbf24",
+      headGlow: "rgba(251,191,36,0.55)",
+      bodyStart: [146, 64, 14],
+      bodyEnd: [251, 191, 36],
+      accent: "#fbbf24",
+      accentSoft: "rgba(251,191,36,0.15)",
+      accentBorder: "rgba(251,191,36,0.5)",
+      accentText: "#fde68a",
+      titleText: "#fcd34d",
+      pointsText: "#fff8e1",
+      levelText: "#fbbf24",
+      recordText: "#fde68a",
+      copyText: "#f6e7b0",
+      overlayBg: "rgba(32,18,8,0.88)",
+      buttonText: "#fff8e1",
+    };
+  }
 
-function cellStyle(cell, isLevel1User, isLevel3User) {
-  if (!cell) return { ...CELL_BASE, backgroundColor: isLevel3User ? "#07182a" : "#0f172a" };
+  if (isLevel4User) {
+    return {
+      empty: "#140a24",
+      grid: "#3b1b63",
+      head: "#a855f7",
+      headGlow: "rgba(168,85,247,0.55)",
+      bodyStart: [88, 28, 135],
+      bodyEnd: [192, 132, 252],
+      accent: "#a855f7",
+      accentSoft: "rgba(168,85,247,0.15)",
+      accentBorder: "rgba(168,85,247,0.5)",
+      accentText: "#d8b4fe",
+      titleText: "#c084fc",
+      pointsText: "#a855f7",
+      levelText: "#d8b4fe",
+      recordText: "#f59e0b",
+      copyText: "#ddd6fe",
+      overlayBg: "rgba(20,10,36,0.88)",
+      buttonText: "#ffffff",
+    };
+  }
+
+  if (isLevel3User) {
+    return {
+      empty: "#07131f",
+      grid: "#12344f",
+      head: "#38bdf8",
+      headGlow: "rgba(56,189,248,0.55)",
+      bodyStart: [16, 70, 111],
+      bodyEnd: [96, 165, 250],
+      accent: "#38bdf8",
+      accentSoft: "rgba(56,189,248,0.15)",
+      accentBorder: "rgba(56,189,248,0.5)",
+      accentText: "#bae6fd",
+      titleText: "#add8ea",
+      pointsText: "#f5fcff",
+      levelText: "#8fdcff",
+      recordText: "#2d9fd3",
+      copyText: "#c7dfeb",
+      overlayBg: "rgba(6,22,38,0.84)",
+      buttonText: "#ffffff",
+    };
+  }
+
+  if (isLevel2User) {
+    return {
+      empty: "#0f172a",
+      grid: "#1e293b",
+      head: "#22c55e",
+      headGlow: "rgba(34,197,94,0.55)",
+      bodyStart: [21, 101, 52],
+      bodyEnd: [74, 222, 128],
+      accent: "#22c55e",
+      accentSoft: "rgba(34,197,94,0.15)",
+      accentBorder: "rgba(34,197,94,0.5)",
+      accentText: "#86efac",
+      titleText: "#14532d",
+      pointsText: "#1e3a8a",
+      levelText: "#22c55e",
+      recordText: "#f59e0b",
+      copyText: "#d1fae5",
+      overlayBg: "rgba(7,18,26,0.86)",
+      buttonText: "#f0fdf4",
+    };
+  }
+
+  if (isLevel1User) {
+    return {
+      empty: "#1c130c",
+      grid: "#4a3219",
+      head: "#bd8d4b",
+      headGlow: "rgba(189,141,75,0.55)",
+      bodyStart: [109, 74, 35],
+      bodyEnd: [223, 181, 119],
+      accent: "#bd8d4b",
+      accentSoft: "rgba(189,141,75,0.15)",
+      accentBorder: "rgba(189,141,75,0.5)",
+      accentText: "#dfb577",
+      titleText: "#e3c496",
+      pointsText: "#e69320",
+      levelText: "#c96500",
+      recordText: "#e8d509",
+      copyText: "#e3c496",
+      overlayBg: "rgba(28,19,12,0.88)",
+      buttonText: "#fff7eb",
+    };
+  }
+
+  return {
+    empty: "#0f172a",
+    grid: "#1e293b",
+    head: "#4ade80",
+    headGlow: "rgba(74,222,128,0.55)",
+    bodyStart: [22, 101, 52],
+    bodyEnd: [74, 222, 128],
+    accent: "#4ade80",
+    accentSoft: "rgba(74,222,128,0.15)",
+    accentBorder: "rgba(74,222,128,0.5)",
+    accentText: "#86efac",
+    titleText: "#e5e7eb",
+    pointsText: "#ffffff",
+    levelText: "#4ade80",
+    recordText: "#fbbf24",
+    copyText: "#d1d5db",
+    overlayBg: "rgba(0,0,0,0.82)",
+    buttonText: "#04130a",
+  };
+}
+
+function cellStyle(cell, theme) {
+  if (!cell) return { ...CELL_BASE, backgroundColor: theme.empty };
 
   if (cell.t === "head") {
     return {
       ...CELL_BASE,
-      backgroundColor: isLevel1User ? "#9c702f" : isLevel3User ? "#8fdcff" : "#4ade80",
+      backgroundColor: theme.head,
       borderRadius: "30%",
-      boxShadow: isLevel1User
-        ? "0 0 6px 1px rgba(156,112,47,0.55)"
-        : isLevel3User
-          ? "0 0 7px 1px rgba(143,220,255,0.58)"
-          : "0 0 6px 1px rgba(74,222,128,0.55)",
+      boxShadow: `0 0 6px 1px ${theme.headGlow}`,
     };
   }
 
   if (cell.t === "body") {
-    if (isLevel1User) {
-      const r = Math.round(111 + cell.pct * 74);
-      const g = Math.round(77 + cell.pct * 49);
-      const b = Math.round(49 + cell.pct * 26);
-      return {
-        ...CELL_BASE,
-        backgroundColor: `rgb(${r},${g},${b})`,
-        borderRadius: "20%",
-      };
-    }
+    const [startR, startG, startB] = theme.bodyStart;
+    const [endR, endG, endB] = theme.bodyEnd;
+    const r = Math.round(startR + cell.pct * (endR - startR));
+    const g = Math.round(startG + cell.pct * (endG - startG));
+    const b = Math.round(startB + cell.pct * (endB - startB));
 
-    if (isLevel3User) {
-      const r = Math.round(28 + cell.pct * 44);
-      const g = Math.round(118 + cell.pct * 74);
-      const b = Math.round(168 + cell.pct * 58);
-      return {
-        ...CELL_BASE,
-        backgroundColor: `rgb(${r},${g},${b})`,
-        borderRadius: "20%",
-      };
-    }
-
-    const r = Math.round(22 + cell.pct * 52);
-    const g = Math.round(101 + cell.pct * 96);
-    const b = Math.round(52 + cell.pct * 40);
     return {
       ...CELL_BASE,
       backgroundColor: `rgb(${r},${g},${b})`,
@@ -91,11 +199,9 @@ function cellStyle(cell, isLevel1User, isLevel3User) {
   if (cell.t === "food") {
     return {
       ...CELL_BASE,
-      backgroundColor: isLevel3User ? "#d6f3ff" : "#f87171",
+      backgroundColor: "#f87171",
       borderRadius: "50%",
-      boxShadow: isLevel3User
-        ? "0 0 8px 2px rgba(214,243,255,0.62)"
-        : "0 0 8px 2px rgba(248,113,113,0.6)",
+      boxShadow: "0 0 8px 2px rgba(248,113,113,0.6)",
     };
   }
 
@@ -108,19 +214,36 @@ function cellStyle(cell, isLevel1User, isLevel3User) {
     };
   }
 
-  return { ...CELL_BASE, backgroundColor: isLevel3User ? "#07182a" : "#0f172a" };
+  return { ...CELL_BASE, backgroundColor: theme.empty };
 }
 
 export default function SnakeGame({ onScoreUpdate, onGameStart, user, serverBestScore }) {
-  const { user: authUser } = useAuth();
-  const { gameState, score, highScore, scoreRef, startGame, addPoints, endGame, resetGame } =
-    useSinglePlayerGame({ onScoreUpdate, storageKey: "snake", userEmail: user?.email, serverBestScore });
+  const { isLevel1User, isLevel2User, isLevel3User, isLevel4User, isLevel5User } = useLevelTheme({ user });
+  const {
+    gameState,
+    score,
+    highScore,
+    scoreRef,
+    startGame,
+    addPoints,
+    endGame,
+    resetGame,
+  } = useSinglePlayerGame({ onScoreUpdate, storageKey: "snake", userEmail: user?.email, serverBestScore });
 
-  const levelUser = authUser ?? user;
-  const isRegularUser = levelUser && levelUser.role !== "admin" && levelUser.role !== "empresa";
-  const isLevel1User = isRegularUser && getLevelFromXP(levelUser.xp ?? 0).level === 1;
-  const isLevel2User = isRegularUser && getLevelFromXP(levelUser.xp ?? 0).level === 2;
-  const isLevel3User = isRegularUser && getLevelFromXP(levelUser.xp ?? 0).level === 3;
+  const theme = getSnakeTheme({ isLevel1User, isLevel2User, isLevel3User, isLevel4User, isLevel5User });
+  const shellClassName = isLevel1User
+    ? "user-level-1-snake-shell"
+    : isLevel2User
+      ? "user-level-2-snake-shell"
+      : isLevel3User
+        ? "user-level-3-snake-shell"
+        : isLevel4User
+          ? "user-level-4-snake-shell"
+          : isLevel5User
+            ? "user-level-5-snake-shell"
+            : "";
+  const checkboxClassName = isLevel1User ? "user-level-1-snake-checkbox" : isLevel3User ? "user-level-3-snake-checkbox" : "";
+  const buttonClassName = isLevel1User ? "user-level-1-snake-button" : isLevel3User ? "user-level-3-snake-button" : "";
 
   const [difficulty, setDifficulty] = useState("normal");
   const [wallWrap, setWallWrap] = useState(false);
@@ -141,7 +264,9 @@ export default function SnakeGame({ onScoreUpdate, onGameStart, user, serverBest
   const bonusT2 = useRef(null);
   const touchStart = useRef(null);
 
-  const flush = () => setCells(buildCells(snakeRef.current, foodRef.current, bonusRef.current));
+  const flush = () => {
+    setCells(buildCells(snakeRef.current, foodRef.current, bonusRef.current));
+  };
 
   const stopLoop = () => {
     clearInterval(intervalId.current);
@@ -153,6 +278,7 @@ export default function SnakeGame({ onScoreUpdate, onGameStart, user, serverBest
   const scheduleBonus = useCallback(() => {
     clearTimeout(bonusT1.current);
     clearTimeout(bonusT2.current);
+
     bonusT1.current = setTimeout(() => {
       bonusRef.current = randomPos([...snakeRef.current, foodRef.current].filter(Boolean));
       flush();
@@ -232,7 +358,7 @@ export default function SnakeGame({ onScoreUpdate, onGameStart, user, serverBest
     foodRef.current = randomPos(snakeRef.current);
     bonusRef.current = null;
 
-    const diff = DIFFICULTIES.find((d) => d.id === difficulty) ?? DIFFICULTIES[1];
+    const diff = DIFFICULTIES.find((item) => item.id === difficulty) ?? DIFFICULTIES[1];
     baseMsRef.current = diff.ms;
 
     startGame();
@@ -249,12 +375,14 @@ export default function SnakeGame({ onScoreUpdate, onGameStart, user, serverBest
       if (!KEYS.has(e.key)) return;
       if (document.activeElement?.matches("input, textarea, select, [contenteditable]")) return;
       e.preventDefault();
+
       const d = dirRef.current;
       if ((e.key === "ArrowUp" || e.key === "w" || e.key === "W") && d.y !== 1) nextDirRef.current = { x: 0, y: -1 };
       if ((e.key === "ArrowDown" || e.key === "s" || e.key === "S") && d.y !== -1) nextDirRef.current = { x: 0, y: 1 };
       if ((e.key === "ArrowLeft" || e.key === "a" || e.key === "A") && d.x !== 1) nextDirRef.current = { x: -1, y: 0 };
       if ((e.key === "ArrowRight" || e.key === "d" || e.key === "D") && d.x !== -1) nextDirRef.current = { x: 1, y: 0 };
     };
+
     window.addEventListener("keydown", onKey);
     return () => window.removeEventListener("keydown", onKey);
   }, []);
@@ -266,11 +394,14 @@ export default function SnakeGame({ onScoreUpdate, onGameStart, user, serverBest
 
   const onTouchEnd = (e) => {
     if (!touchStart.current) return;
+
     const t = e.changedTouches[0];
     const dx = t.clientX - touchStart.current.x;
     const dy = t.clientY - touchStart.current.y;
     touchStart.current = null;
+
     if (Math.abs(dx) < 12 && Math.abs(dy) < 12) return;
+
     const d = dirRef.current;
     if (Math.abs(dx) > Math.abs(dy)) {
       if (dx > 0 && d.x !== -1) nextDirRef.current = { x: 1, y: 0 };
@@ -290,19 +421,14 @@ export default function SnakeGame({ onScoreUpdate, onGameStart, user, serverBest
   };
 
   return (
-    <div className={`flex flex-col gap-3 w-full select-none ${isLevel1User ? "user-level-1-snake-shell" : ""} ${isLevel2User ? "user-level-2-snake-shell" : ""} ${isLevel3User ? "user-level-3-snake-shell" : ""}`}>
+    <div className={`flex flex-col gap-3 w-full select-none ${shellClassName}`}>
       <div className="flex items-center justify-between px-2">
-        <Stat label="Puntos" value={score} color={isLevel1User ? "user-level-1-snake-points" : isLevel2User ? "user-level-2-snake-points" : isLevel3User ? "user-level-3-snake-points" : "text-white"} labelClass={isLevel1User ? "user-level-1-snake-title" : isLevel2User ? "user-level-2-snake-title" : isLevel3User ? "user-level-3-snake-title" : ""} />
-        <Stat label="Nivel" value={level} color={isLevel1User ? "user-level-1-snake-value-highlight" : isLevel2User ? "user-level-2-snake-level" : isLevel3User ? "user-level-3-snake-level" : "text-green-400"} labelClass={isLevel1User ? "user-level-1-snake-title" : isLevel2User ? "user-level-2-snake-title" : isLevel3User ? "user-level-3-snake-title" : ""} />
-        <Stat label="Record" value={highScore} color={isLevel1User ? "user-level-1-snake-record" : isLevel2User ? "user-level-2-snake-record" : isLevel3User ? "user-level-3-snake-record" : "text-amber-400"} labelClass={isLevel1User ? "user-level-1-snake-title" : isLevel2User ? "user-level-2-snake-title" : isLevel3User ? "user-level-3-snake-title" : ""} />
+        <Stat label="Puntos" value={score} valueStyle={{ color: theme.pointsText }} labelStyle={{ color: theme.titleText }} />
+        <Stat label="Nivel" value={level} valueStyle={{ color: theme.levelText }} labelStyle={{ color: theme.titleText }} />
+        <Stat label="Record" value={highScore} valueStyle={{ color: theme.recordText }} labelStyle={{ color: theme.titleText }} />
       </div>
 
-      <div
-        className="relative w-full"
-        style={{ aspectRatio: "1 / 1" }}
-        onTouchStart={onTouchStart}
-        onTouchEnd={onTouchEnd}
-      >
+      <div className="relative w-full" style={{ aspectRatio: "1 / 1" }} onTouchStart={onTouchStart} onTouchEnd={onTouchEnd}>
         <div
           style={{
             width: "100%",
@@ -311,7 +437,7 @@ export default function SnakeGame({ onScoreUpdate, onGameStart, user, serverBest
             gridTemplateColumns: `repeat(${COLS}, 1fr)`,
             gridTemplateRows: `repeat(${ROWS}, 1fr)`,
             gap: "1px",
-            backgroundColor: isLevel3User ? "#123654" : "#1e293b",
+            backgroundColor: theme.grid,
             borderRadius: "12px",
             overflow: "hidden",
             padding: "2px",
@@ -321,58 +447,53 @@ export default function SnakeGame({ onScoreUpdate, onGameStart, user, serverBest
           {Array.from({ length: ROWS * COLS }, (_, i) => {
             const x = i % COLS;
             const y = Math.floor(i / COLS);
-            return <div key={i} style={cellStyle(cells[`${x},${y}`], isLevel1User, isLevel3User)} />;
+            return <div key={i} style={cellStyle(cells[`${x},${y}`], theme)} />;
           })}
         </div>
 
         {gameState !== "playing" && (
           <div
-            className={`absolute inset-0 rounded-xl flex flex-col items-center justify-center gap-4 p-6 ${isLevel3User ? "user-level-3-snake-overlay" : ""}`}
-            style={isLevel3User ? undefined : { backgroundColor: "rgba(0,0,0,0.82)", backdropFilter: "blur(3px)" }}
+            className="absolute inset-0 rounded-xl flex flex-col items-center justify-center gap-4 p-6"
+            style={{ backgroundColor: theme.overlayBg, backdropFilter: "blur(3px)" }}
           >
             {gameState === "gameover" && (
               <div className="text-center">
                 <p className="text-3xl font-bold text-red-400 mb-1">Game Over</p>
-                <p className="text-gray-300 text-sm">
+                <p className="text-sm" style={{ color: theme.copyText }}>
                   Puntuacion: <span className="font-bold text-white">{score}</span>
                 </p>
                 {score > 0 && score >= highScore && (
-                  <p className="text-amber-400 font-semibold mt-1 text-sm">Nuevo record</p>
+                  <p className="font-semibold mt-1 text-sm" style={{ color: theme.recordText }}>Nuevo record</p>
                 )}
               </div>
             )}
 
             {gameState === "idle" && (
               <div className="flex flex-col items-center gap-3 w-full max-w-xs">
-                <p className={`text-xs text-gray-500 uppercase tracking-widest ${isLevel3User ? "user-level-3-snake-title" : ""}`}>Dificultad</p>
+                <p className="text-xs uppercase tracking-widest" style={{ color: theme.titleText }}>Dificultad</p>
                 <div className="flex gap-2 flex-wrap justify-center">
-                  {DIFFICULTIES.map((d) => (
+                  {DIFFICULTIES.map((item) => (
                     <button
-                      key={d.id}
-                      onClick={() => setDifficulty(d.id)}
+                      key={item.id}
+                      onClick={() => setDifficulty(item.id)}
                       className="px-3 py-1.5 rounded-lg text-xs font-medium border transition-all"
                       style={{
-                        borderColor: difficulty === d.id
-                          ? (isLevel1User ? "rgba(156,112,47,0.5)" : isLevel3User ? "rgba(143,220,255,0.58)" : "rgba(74,222,128,0.5)")
-                          : (isLevel3User ? "rgba(120,205,255,0.28)" : "rgba(255,255,255,0.1)"),
-                        backgroundColor: difficulty === d.id
-                          ? (isLevel1User ? "rgba(156,112,47,0.18)" : isLevel3User ? "rgba(55,135,180,0.28)" : "rgba(74,222,128,0.15)")
-                          : (isLevel3User ? "rgba(4,18,32,0.42)" : "transparent"),
-                        color: difficulty === d.id
-                          ? (isLevel1User ? "#e3c496" : isLevel3User ? "#dff7ff" : "#86efac")
-                          : (isLevel1User ? "#e3c496" : isLevel3User ? "#b9d3df" : "#9ca3af"),
+                        borderColor: difficulty === item.id ? theme.accentBorder : "rgba(255,255,255,0.1)",
+                        backgroundColor: difficulty === item.id ? theme.accentSoft : "transparent",
+                        color: difficulty === item.id ? theme.accentText : "#9ca3af",
                       }}
                     >
-                      {d.label}
+                      {item.label}
                     </button>
                   ))}
                 </div>
-                <label className={`flex items-center gap-2 text-sm text-gray-400 cursor-pointer mt-1 ${isLevel3User ? "user-level-3-snake-copy" : ""}`}>
+                <label className="flex items-center gap-2 text-sm cursor-pointer mt-1" style={{ color: theme.copyText }}>
                   <input
                     type="checkbox"
                     checked={wallWrap}
                     onChange={(e) => setWallWrap(e.target.checked)}
-                    className={`w-4 h-4 rounded ${isLevel1User ? "user-level-1-snake-checkbox" : isLevel3User ? "user-level-3-snake-checkbox" : "accent-green-500"}`}
+                    className={`w-4 h-4 rounded ${checkboxClassName}`}
+                    style={checkboxClassName ? undefined : { accentColor: theme.accent }}
                   />
                   Paredes teletransportadoras
                 </label>
@@ -383,16 +504,25 @@ export default function SnakeGame({ onScoreUpdate, onGameStart, user, serverBest
               {gameState === "gameover" && (
                 <button
                   onClick={resetGame}
-                  className="px-5 py-2 rounded-lg text-sm text-gray-300 hover:text-white transition-colors"
-                  style={{ border: "1px solid rgba(255,255,255,0.15)" }}
+                  className="px-5 py-2 rounded-lg text-sm transition-colors"
+                  style={{ border: `1px solid ${theme.accentBorder}`, color: theme.accentText }}
                 >
                   Menu
                 </button>
               )}
               <button
                 onClick={initGame}
-                className={`flex items-center gap-2 px-7 py-2 rounded-lg font-semibold text-sm transition-all hover:opacity-90 ${isLevel1User ? "user-level-1-snake-button text-white" : isLevel3User ? "user-level-3-snake-button" : "text-black"}`}
-                style={isLevel1User || isLevel3User ? undefined : { backgroundColor: "#4ade80" }}
+                className={`flex items-center gap-2 px-7 py-2 rounded-lg font-semibold text-sm transition-all hover:opacity-90 ${buttonClassName || "text-black"}`}
+                style={
+                  buttonClassName
+                    ? undefined
+                    : {
+                        background: `linear-gradient(135deg, ${theme.head} 0%, ${theme.accent} 100%)`,
+                        color: theme.buttonText,
+                        border: `1px solid ${theme.accentBorder}`,
+                        boxShadow: `0 12px 24px ${theme.accentSoft}`,
+                      }
+                }
               >
                 <Play className="w-4 h-4 fill-current" />
                 {gameState === "idle" ? "Jugar" : "Reintentar"}
@@ -400,7 +530,7 @@ export default function SnakeGame({ onScoreUpdate, onGameStart, user, serverBest
             </div>
 
             {gameState === "idle" && (
-              <p className={`text-xs text-gray-600 text-center mt-1 ${isLevel3User ? "user-level-3-snake-copy" : ""}`}>
+              <p className="text-xs text-center mt-1" style={{ color: theme.copyText }}>
                 Comida dorada = 30 pts · Cada 50 pts sube de nivel
               </p>
             )}
@@ -420,18 +550,18 @@ export default function SnakeGame({ onScoreUpdate, onGameStart, user, serverBest
         </div>
       )}
 
-      <p className={`hidden sm:block text-xs text-gray-600 text-center ${isLevel3User ? "user-level-3-snake-copy" : ""}`}>
+      <p className="hidden sm:block text-xs text-center" style={{ color: theme.copyText }}>
         Flechas / WASD · Movil: desliza en el tablero
       </p>
     </div>
   );
 }
 
-function Stat({ label, value, color, labelClass = "" }) {
+function Stat({ label, value, valueStyle, labelStyle }) {
   return (
     <div className="text-center min-w-[60px]">
-      <p className={`text-[10px] text-gray-500 uppercase tracking-widest ${labelClass}`}>{label}</p>
-      <p className={`text-xl font-bold tabular-nums ${color}`}>{value}</p>
+      <p className="text-[10px] uppercase tracking-widest" style={labelStyle}>{label}</p>
+      <p className="text-xl font-bold tabular-nums" style={valueStyle}>{value}</p>
     </div>
   );
 }
@@ -439,7 +569,10 @@ function Stat({ label, value, color, labelClass = "" }) {
 function DPadBtn({ onClick, children }) {
   return (
     <button
-      onPointerDown={(e) => { e.preventDefault(); onClick(); }}
+      onPointerDown={(e) => {
+        e.preventDefault();
+        onClick();
+      }}
       className="w-11 h-11 rounded-xl flex items-center justify-center text-gray-300 active:text-white"
       style={{ backgroundColor: "rgba(255,255,255,0.08)", border: "1px solid rgba(255,255,255,0.1)" }}
     >

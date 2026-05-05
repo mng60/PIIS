@@ -2,7 +2,7 @@ import { useState, useEffect, useRef } from 'react';
 import { Link, useParams, useSearchParams, useNavigate } from 'react-router-dom';
 import { useAuth } from '@/lib/AuthContext';
 import { useQueryClient, useQuery } from '@tanstack/react-query';
-import { Loader2, Gamepad, Trophy, MessageSquare, TrendingUp, Clock } from 'lucide-react';
+import { Loader2, Gamepad, Trophy, MessageSquare, TrendingUp, Clock, Youtube } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { toast } from 'sonner';
 import { useGameDetail } from '@/hooks/useGameDetail';
@@ -19,6 +19,7 @@ import { getEloLeaderboard } from '@/api/elo';
 import { getLevelFromXP } from '@/lib/levels';
 import { evaluateMedals } from '@/lib/medals';
 import { checkinMatch } from '@/api/tournaments';
+import { useLevelTheme } from '@/lib/useLevelTheme';
 
 // ─── Banner de espera de oponente con countdown ───────────────────────────────
 
@@ -65,14 +66,10 @@ export default function GameDetail() {
   const roomCode = searchParams.get('room') || null;
   const tournamentId = searchParams.get('tournament') || null;
   const tournamentRedirectRef = useRef(false);
+  const { isLevel1User, isLevel2User, isLevel3User, isLevel4User, isLevel5User } = useLevelTheme();
 
   const { game, gameLoading, scores, comments, refetchComments, isFavorite, toggleFavorite, invalidateGame } =
     useGameDetail(gameId, user);
-  const isRegularUser = user && user.role !== "admin" && user.role !== "empresa";
-  const userLevel = isRegularUser ? getLevelFromXP(user.xp ?? 0).level : null;
-  const isLevel1User = userLevel === 1;
-  const isLevel2User = userLevel === 2;
-  const isLevel3User = userLevel === 3;
 
   const { data: userGameStatsArr = [] } = useQuery({
     queryKey: ['userGameStats', user?.email, gameId],
@@ -298,7 +295,7 @@ export default function GameDetail() {
   }
 
   return (
-    <div className={`max-w-7xl mx-auto px-4 py-6 ${isLevel1User ? 'user-level-1-game-detail-page' : ''} ${isLevel2User ? 'user-level-2-game-detail-page' : ''} ${isLevel3User ? 'user-level-3-game-detail-page' : ''}`}>
+    <div className={`max-w-7xl mx-auto px-4 py-6 ${isLevel1User ? 'user-level-1-game-detail-page' : ''} ${isLevel2User ? 'user-level-2-game-detail-page' : ''} ${isLevel3User ? 'user-level-3-game-detail-page' : ''} ${isLevel4User ? 'user-level-4-game-detail-page' : ''} ${isLevel5User ? 'user-level-5-game-detail-page' : ''}`}>
       <AgeGateDialog
         open={ageGateOpen}
         onConfirm={() => {
@@ -372,7 +369,7 @@ export default function GameDetail() {
         />
 
         {(game.full_description || game.description) && (
-          <div className={`bg-white/5 rounded-xl border border-white/10 p-5 ${isLevel2User ? "user-level-2-detail-panel" : ""} ${isLevel3User ? "user-level-3-detail-panel" : ""}`}>
+          <div className={`bg-white/5 rounded-xl border border-white/10 p-5 ${isLevel2User ? "user-level-2-detail-panel" : ""} ${isLevel3User ? "user-level-3-detail-panel" : ""} ${isLevel4User ? "user-level-4-detail-panel" : ""} ${isLevel5User ? "user-level-5-detail-panel" : ""}`}>
             <h2 className={`text-base font-semibold text-white mb-2 ${isLevel2User ? "user-level-2-detail-panel-title" : ""} ${isLevel3User ? "user-level-3-detail-panel-title" : ""}`}>Descripción</h2>
             <p className={`text-gray-300 text-sm leading-relaxed ${isLevel3User ? "user-level-3-copy" : ""}`}>
               {game.full_description || game.description}
@@ -380,12 +377,43 @@ export default function GameDetail() {
           </div>
         )}
 
+        {game.video_url && (() => {
+          const embedUrl = game.video_url.replace(
+            /(?:https?:\/\/)?(?:www\.)?(?:youtube\.com\/watch\?v=|youtu\.be\/)([^?&]+)/,
+            'https://www.youtube.com/embed/$1'
+          );
+          return (
+            <div className={`bg-white/5 rounded-xl border border-white/10 p-5 ${isLevel2User ? "user-level-2-detail-panel" : ""} ${isLevel3User ? "user-level-3-detail-panel" : ""} ${isLevel4User ? "user-level-4-detail-panel" : ""} ${isLevel5User ? "user-level-5-detail-panel" : ""}`}>
+              <h2 className={`text-base font-semibold text-white mb-3 flex items-center gap-2 ${isLevel2User ? "user-level-2-detail-panel-title" : ""} ${isLevel3User ? "user-level-3-detail-panel-title" : ""}`}>
+                <Youtube className="w-4 h-4 text-red-500" /> Video tutorial
+              </h2>
+              <div className="relative w-full aspect-video rounded-lg overflow-hidden">
+                <iframe
+                  src={embedUrl}
+                  title="Video tutorial"
+                  className="absolute inset-0 w-full h-full"
+                  allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
+                  allowFullScreen
+                />
+              </div>
+              <a
+                href={game.video_url}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="inline-flex items-center gap-1.5 mt-3 text-xs text-gray-400 hover:text-red-400 transition-colors"
+              >
+                <Youtube className="w-3.5 h-3.5" /> Ver en YouTube
+              </a>
+            </div>
+          );
+        })()}
+
         {(game.show_leaderboard !== false || game.show_achievements !== false) && (
           <div className="grid sm:grid-cols-2 gap-4">
             {game.show_leaderboard !== false && (
-              <div className={`bg-white/5 rounded-xl border border-white/10 p-5 ${isLevel1User ? "user-level-1-game-card" : ""} ${isLevel2User ? "user-level-2-detail-panel" : ""} ${isLevel3User ? "user-level-3-detail-panel" : ""}`}>
-                <h2 className={`text-base font-semibold text-white mb-4 flex items-center gap-2 ${isLevel2User ? "user-level-2-detail-panel-title" : ""} ${isLevel3User ? "user-level-3-detail-panel-title" : ""}`}>
-                  <Trophy className={`w-4 h-4 text-yellow-500 ${isLevel2User ? 'user-level-2-detail-icon-yellow' : ''} ${isLevel3User ? 'user-level-3-detail-icon-yellow' : ''}`} /> Top 5
+              <div className={`bg-white/5 rounded-xl border border-white/10 p-5 ${isLevel1User ? "user-level-1-game-card" : ""} ${isLevel2User ? "user-level-2-detail-panel" : ""} ${isLevel3User ? "user-level-3-detail-panel" : ""} ${isLevel4User ? "user-level-4-detail-panel" : ""} ${isLevel5User ? "user-level-5-detail-panel" : ""}`}>
+                <h2 className={`text-base font-semibold text-white mb-4 flex items-center gap-2 ${isLevel2User ? "user-level-2-detail-panel-title" : ""} ${isLevel3User ? "user-level-3-detail-panel-title" : ""} ${isLevel4User ? "user-level-4-detail-panel-title" : ""} ${isLevel5User ? "user-level-5-detail-panel-title" : ""}`}>
+                  <Trophy className={`w-4 h-4 text-yellow-500 ${isLevel2User ? 'user-level-2-detail-icon-yellow' : ''} ${isLevel3User ? 'user-level-3-detail-icon-yellow' : ''} ${isLevel4User ? 'user-level-4-detail-icon-yellow' : ''} ${isLevel5User ? 'user-level-5-detail-icon-yellow' : ''}`} /> Top 5
                 </h2>
                 <Leaderboard scores={scores} isMultiplayer={game.is_multiplayer} />
               </div>
@@ -397,9 +425,9 @@ export default function GameDetail() {
         )}
 
         {game.elo_enabled && eloLeaderboard.length > 0 && (
-          <div className={`bg-white/5 rounded-xl border border-white/10 p-5 ${isLevel2User ? "user-level-2-detail-panel" : ""} ${isLevel3User ? "user-level-3-detail-panel" : ""}`}>
-            <h2 className={`text-base font-semibold text-white mb-4 flex items-center gap-2 ${isLevel2User ? "user-level-2-detail-panel-title" : ""} ${isLevel3User ? "user-level-3-detail-panel-title" : ""}`}>
-              <TrendingUp className="w-4 h-4 text-cyan-400" /> Ranking ELO
+          <div className={`bg-white/5 rounded-xl border border-white/10 p-5 ${isLevel2User ? "user-level-2-detail-panel" : ""} ${isLevel3User ? "user-level-3-detail-panel" : ""} ${isLevel4User ? "user-level-4-detail-panel" : ""} ${isLevel5User ? "user-level-5-detail-panel" : ""}`}>
+            <h2 className={`text-base font-semibold text-white mb-4 flex items-center gap-2 ${isLevel2User ? "user-level-2-detail-panel-title" : ""} ${isLevel3User ? "user-level-3-detail-panel-title" : ""} ${isLevel4User ? "user-level-4-detail-panel-title" : ""} ${isLevel5User ? "user-level-5-detail-panel-title" : ""}`}>
+              <TrendingUp className={`w-4 h-4 text-cyan-400 ${isLevel2User ? 'user-level-2-detail-icon-blue' : ''} ${isLevel3User ? 'user-level-3-detail-icon-blue' : ''} ${isLevel4User ? 'user-level-4-detail-icon-blue' : ''} ${isLevel5User ? 'user-level-5-detail-icon-blue' : ''}`} /> Ranking ELO
             </h2>
             <div className="space-y-2">
               {eloLeaderboard.slice(0, 10).map((entry, i) => (
@@ -414,9 +442,9 @@ export default function GameDetail() {
           </div>
         )}
 
-        <div className={`bg-white/5 rounded-xl border border-white/10 p-5 ${isLevel2User ? "user-level-2-detail-panel" : ""} ${isLevel3User ? "user-level-3-detail-panel" : ""}`}>
-          <h2 className={`text-base font-semibold text-white mb-4 flex items-center gap-2 ${isLevel2User ? "user-level-2-detail-panel-title" : ""} ${isLevel3User ? "user-level-3-detail-panel-title" : ""}`}>
-            <MessageSquare className={`w-4 h-4 ${isLevel2User ? 'user-level-2-detail-icon-blue' : ''} ${isLevel3User ? 'user-level-3-detail-icon-blue' : ''}`} /> Comentarios ({comments.length})
+        <div className={`bg-white/5 rounded-xl border border-white/10 p-5 ${isLevel2User ? "user-level-2-detail-panel" : ""} ${isLevel3User ? "user-level-3-detail-panel" : ""} ${isLevel4User ? "user-level-4-detail-panel" : ""} ${isLevel5User ? "user-level-5-detail-panel" : ""}`}>
+          <h2 className={`text-base font-semibold text-white mb-4 flex items-center gap-2 ${isLevel2User ? "user-level-2-detail-panel-title" : ""} ${isLevel3User ? "user-level-3-detail-panel-title" : ""} ${isLevel4User ? "user-level-4-detail-panel-title" : ""} ${isLevel5User ? "user-level-5-detail-panel-title" : ""}`}>
+            <MessageSquare className={`w-4 h-4 ${isLevel2User ? 'user-level-2-detail-icon-blue' : ''} ${isLevel3User ? 'user-level-3-detail-icon-blue' : ''} ${isLevel4User ? 'user-level-4-detail-icon-blue' : ''} ${isLevel5User ? 'user-level-5-detail-icon-blue' : ''}`} /> Comentarios ({comments.length})
           </h2>
           <CommentSection
             gameId={gameId}

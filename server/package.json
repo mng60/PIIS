@@ -26,5 +26,8 @@
     "jsonwebtoken": "^9.0.2",
     "prisma": "^5.22.0",
     "stockfish": "^18.0.7"
+  },
+  "prisma": {
+    "seed": "node src/seed.js"
   }
 }

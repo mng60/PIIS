@@ -18,6 +18,68 @@ async function cleanupChatMessages(room_code) {
   } catch { /* silencioso */ }
 }
 
+// GET /api/sessions/my-active — list active/waiting sessions for the current user
+// IMPORTANT: must be defined BEFORE /:room_code to avoid 'my-active' being treated as a room code
+router.get('/my-active', requireAuth, async (req, res) => {
+  const email = req.user.email;
+  try {
+    const playerRecords = await prisma.gameSessionPlayer.findMany({
+      where: { user_email: email, status: 'active' },
+      select: { room_code: true },
+    });
+    const roomCodes = playerRecords.map(p => p.room_code);
+
+    const sessions = await prisma.gameSession.findMany({
+      where: {
+        status: { in: ['playing', 'waiting'] },
+        OR: [
+          { host_email: email },
+          { guest_email: email },
+          { room_code: { in: roomCodes } },
+        ],
+      },
+      orderBy: { updated_at: 'desc' },
+    });
+
+    if (!sessions.length) return res.json([]);
+
+    const gameIds = [...new Set(sessions.map(s => s.game_id))];
+    const games = await prisma.game.findMany({
+      where: { id: { in: gameIds } },
+      select: { id: true, title: true, game_code: true },
+    });
+    const gameMap = Object.fromEntries(games.map(g => [g.id, g]));
+
+    const allPlayers = await prisma.gameSessionPlayer.findMany({
+      where: { room_code: { in: sessions.map(s => s.room_code) }, status: 'active' },
+      select: { room_code: true, user_name: true, user_email: true, seat: true },
+    });
+
+    const result = sessions
+      .filter((session) => {
+        const gamePlayers = allPlayers.filter(p => p.room_code === session.room_code);
+        if (gamePlayers.length > 0) {
+          return roomCodes.includes(session.room_code);
+        }
+        return session.host_email === email || session.guest_email === email;
+      })
+      .map(s => {
+      const gamePlayers = allPlayers.filter(p => p.room_code === s.room_code);
+      return {
+        ...s,
+        game: gameMap[s.game_id] || null,
+        player_count: gamePlayers.length,
+        player_names: gamePlayers.sort((a, b) => a.seat - b.seat).map(p => p.user_name),
+      };
+      });
+
+    res.json(result);
+  } catch (err) {
+    console.error('[Sessions] my-active error:', err);
+    res.status(500).json({ error: 'Error interno' });
+  }
+});
+
 // GET /api/sessions/:room_code
 router.get('/:room_code', async (req, res) => {
   const session = await prisma.gameSession.findUnique({ where: { room_code: req.params.room_code } });
@@ -162,22 +224,28 @@ router.post('/:room_code/join', requireAuth, async (req, res) => {
   // Check capacity
   const playerCount = await prisma.gameSessionPlayer.count({ where: { room_code, status: 'active' } });
   if (playerCount >= session.max_players) return res.status(409).json({ error: 'Sala llena' });
-  if (playerCount === 0) return res.status(409).json({ error: 'Sala no disponible' });
+  if (playerCount === 0 && !session.game_state?.manualStart) return res.status(409).json({ error: 'Sala no disponible' });
 
   const dbUser = await prisma.user.findUnique({ where: { id: req.user.id }, select: { full_name: true } });
   const userName = dbUser?.full_name || req.user.email;
 
   const seat = playerCount;
-  await prisma.gameSessionPlayer.create({
-    data: {
-      room_code,
-      user_email: req.user.email,
-      user_name: userName,
-      seat,
-      role: 'player',
-      color: SEAT_COLORS[seat] ?? SEAT_COLORS[SEAT_COLORS.length - 1],
-    },
-  });
+  try {
+    await prisma.gameSessionPlayer.create({
+      data: {
+        room_code,
+        user_email: req.user.email,
+        user_name: userName,
+        seat,
+        role: 'player',
+        color: SEAT_COLORS[seat] ?? SEAT_COLORS[SEAT_COLORS.length - 1],
+      },
+    });
+  } catch (e) {
+    if (e.code === 'P2002') {
+      // Race condition: otro request concurrente ya insertó este jugador — OK, seguimos
+    } else throw e;
+  }
 
   const updates = {};
   if (seat === 1) {
@@ -185,7 +253,8 @@ router.post('/:room_code/join', requireAuth, async (req, res) => {
     updates.guest_email = req.user.email;
     updates.guest_name = userName;
   }
-  if (playerCount + 1 >= session.min_players && session.status === 'waiting') {
+  const isManualStart = session.game_state?.manualStart === true;
+  if (!isManualStart && playerCount + 1 >= session.min_players && session.status === 'waiting') {
     updates.status = 'playing';
   }
 

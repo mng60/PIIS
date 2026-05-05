@@ -42,7 +42,7 @@ import { TIME_LIMITS, initClockFromMinutes, formatMs, getDisplayedMs, applyClock
 import OnlineGameLobby from "@/components/games/OnlineGameLobby";
 import OnlineGamePlayerZone from "@/components/games/OnlineGamePlayerZone";
 import ChessVsAIGame from "@/components/games/ChessVsAIGame";
-import { getLevelFromXP } from "@/lib/levels";
+import { useLevelTheme } from "@/lib/useLevelTheme";
 
 
 const BOARD_THEMES = {
@@ -64,9 +64,7 @@ const nickName = (name) => {
 };
 
 export default function ChessOnlineGame({ user, gameId, myEloRating = 1200, onScoreUpdate, onEloApplied, onRoomCodeChange, onMoveHistoryChange, initialRoomCode, onLeave, onVsAiChange, onVsAiRestore, onVsAiMessage, onVsAiAnalysisLoading }) {
-  const isRegularUser = user && user.role !== "admin" && user.role !== "empresa";
-  const isLevel2User = isRegularUser && getLevelFromXP(user.xp ?? 0).level === 2;
-  const isLevel3User = isRegularUser && getLevelFromXP(user.xp ?? 0).level === 3;
+  const { isLevel2User, isLevel3User } = useLevelTheme({ user });
   const [vsAiDifficulty, setVsAiDifficulty] = useState(null);
   const [screen, setScreen] = useState("lobby");
   const [roomCode, setRoomCode] = useState("");
