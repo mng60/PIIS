@@ -1916,14 +1916,15 @@
 .user-level-2-profile-action-block,
 .user-level-2-friends-action-block,
 .user-level-2-friends-page .user-level-2-friends-action-block {
-  background: rgba(127, 29, 29, 0.12) !important;
-  border: 1px solid rgba(185, 28, 28, 0.42) !important;
-  color: #991b1b !important;
+  background: linear-gradient(135deg, rgba(127, 29, 29, 0.94), rgba(185, 28, 28, 0.86)) !important;
+  border: 1px solid rgba(254, 202, 202, 0.78) !important;
+  color: #fff1f2 !important;
+  box-shadow: 0 8px 18px rgba(127, 29, 29, 0.26) !important;
 }
 
 .user-level-2-profile-action-block svg,
 .user-level-2-friends-action-block svg {
-  color: #991b1b !important;
+  color: #fff1f2 !important;
 }
 
 .user-level-2-profile-page .user-level-2-profile-hero .user-level-2-profile-level-label {
