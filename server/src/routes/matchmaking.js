@@ -81,7 +81,17 @@ router.post('/join', requireAuth, async (req, res) => {
           guest_email: me,
           guest_name: myName,
           game_mode,
+          game_state: { manualStart: true },
+          current_turn: '0',
         },
+      });
+      // Create player entries so both can join via the relay's JOIN_ROOM flow
+      await prisma.gameSessionPlayer.createMany({
+        data: [
+          { room_code, user_email: opponent.user_email, user_name: opponent.user_name, seat: 0, role: 'host', status: 'active' },
+          { room_code, user_email: me, user_name: myName, seat: 1, role: 'player', status: 'active' },
+        ],
+        skipDuplicates: true,
       });
     }
 

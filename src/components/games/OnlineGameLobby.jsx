@@ -1,6 +1,7 @@
 import { useState } from "react";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
+import { Input } from "@/components/ui/input";
 import { Loader2, Swords, Trophy, Search, Bot } from "lucide-react";
 
 const MODES = [
@@ -42,6 +43,9 @@ export default function OnlineGameLobby({
   selectedTimeKey,
   onTimeChange,
   onCreateRoom,
+  onJoinRoom,
+  joinCode,
+  onJoinCodeChange,
   onFindMatch,
   onVsAI,
   isSearching = false,
@@ -189,13 +193,50 @@ export default function OnlineGameLobby({
           </Button>
         </Card>
 
-        <div className="online-game-lobby__separator flex items-center gap-2 text-gray-500 text-sm">
-          <div className="online-game-lobby__separator-line flex-1 h-px bg-white/10" />
-          <span>o</span>
-          <div className="online-game-lobby__separator-line flex-1 h-px bg-white/10" />
-        </div>
+        {(onJoinRoom || onFindMatch) && (
+          <div className="online-game-lobby__separator flex items-center gap-2 text-gray-500 text-sm">
+            <div className="online-game-lobby__separator-line flex-1 h-px bg-white/10" />
+            <span>o</span>
+            <div className="online-game-lobby__separator-line flex-1 h-px bg-white/10" />
+          </div>
+        )}
 
-        {isSearching ? (
+        {onJoinRoom && (
+          <>
+            <Card className="online-game-lobby__card bg-white/5 border-white/10 p-4 space-y-3">
+              <h3 className="online-game-lobby__section-title text-sm font-semibold text-gray-400 uppercase">Unirse con código</h3>
+              <p className="text-xs text-gray-500">
+                Introduce el código de sala que te compartió un amigo.
+              </p>
+              <div className="flex gap-2">
+                <Input
+                  value={joinCode ?? ""}
+                  onChange={e => onJoinCodeChange?.(e.target.value.toUpperCase().replace(/[^A-Z0-9]/g, ""))}
+                  onKeyDown={e => e.key === "Enter" && (joinCode?.length === 6) && onJoinRoom(joinCode)}
+                  placeholder="XXXXXX"
+                  maxLength={6}
+                  className="flex-1 bg-white/10 border-white/20 text-white font-mono tracking-widest placeholder:text-gray-600 focus:border-cyan-500"
+                  disabled={loading || isSearching}
+                />
+                <Button
+                  onClick={() => onJoinRoom(joinCode)}
+                  disabled={loading || isSearching || (joinCode?.length ?? 0) !== 6}
+                  variant="secondary"
+                >
+                  Unirse
+                </Button>
+              </div>
+            </Card>
+
+            <div className="online-game-lobby__separator flex items-center gap-2 text-gray-500 text-sm">
+              <div className="online-game-lobby__separator-line flex-1 h-px bg-white/10" />
+              <span>o</span>
+              <div className="online-game-lobby__separator-line flex-1 h-px bg-white/10" />
+            </div>
+          </>
+        )}
+
+        {onFindMatch && (isSearching ? (
           <Card className="bg-white/5 border-white/10 p-5">
             <div className="flex flex-col items-center gap-3">
               <div className="flex items-center gap-3">
@@ -223,7 +264,7 @@ export default function OnlineGameLobby({
             </Button>
             {error && <p className="text-red-400 text-xs mt-2 text-center">{error}</p>}
           </Card>
-        )}
+        ))}
       </div>
     </div>
   );

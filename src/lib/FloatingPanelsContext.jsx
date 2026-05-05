@@ -9,12 +9,15 @@ export function FloatingPanelsProvider({ children }) {
     activePanel,
     isAssistantOpen: activePanel === 'assistant',
     isChessAlertOpen: activePanel === 'chess-alert',
+    isMultiplayerAlertOpen: activePanel === 'multiplayer-alert',
     openAssistant: () => setActivePanel('assistant'),
     closeAssistant: () => setActivePanel(prev => (prev === 'assistant' ? null : prev)),
     toggleAssistant: () => setActivePanel(prev => (prev === 'assistant' ? null : 'assistant')),
     openChessAlert: () => setActivePanel('chess-alert'),
     closeChessAlert: () => setActivePanel(prev => (prev === 'chess-alert' ? null : prev)),
     toggleChessAlert: () => setActivePanel(prev => (prev === 'chess-alert' ? null : 'chess-alert')),
+    openMultiplayerAlert: () => setActivePanel('multiplayer-alert'),
+    closeMultiplayerAlert: () => setActivePanel(prev => (prev === 'multiplayer-alert' ? null : prev)),
   }), [activePanel]);
 
   return (

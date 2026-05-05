@@ -23,3 +23,5 @@ export const joinSession = (code) => api.post(`/sessions/${code}/join`, {});
 export const getSessionPlayers    = (code)         => api.get(`/sessions/${code}/players`);
 export const addSessionPlayer     = (code, data)   => api.post(`/sessions/${code}/players`, data);
 export const updateMyPlayerStatus = (code, status) => api.patch(`/sessions/${code}/players/me`, { status });
+
+export const getMyActiveSessions = () => api.get('/sessions/my-active');

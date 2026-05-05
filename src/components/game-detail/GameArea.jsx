@@ -8,6 +8,7 @@ import DiceRaceOnlineGame from '@/components/games/DiceRaceOnlineGame';
 import ChatSection from '@/components/games/ChatSection';
 import OnlineGameMoveHistory from '@/components/games/OnlineGameMoveHistory';
 import { useChessGame } from '@/hooks/useChessGame';
+import ParchisOnlineGame from '@/components/games/ParchisOnlineGame';
 import { useLevelTheme } from '@/lib/useLevelTheme';
 
 const DIFFICULTY_LABELS = { 1: "Principiante", 2: "Intermedio", 3: "Avanzado", 4: "Maestro" };
@@ -188,6 +189,21 @@ export default function GameArea({
           onVsAiRestore={handleVsAiRestore}
           onVsAiMessage={(type, text) => setVsAiMessages(prev => [...prev, { type, text }])}
           onVsAiAnalysisLoading={setVsAiAnalysisLoading}
+        />
+      );
+    }
+    if (game.game_code === 'parchis-online') {
+      if (!isPlaying) return <GameCover game={game} onPlay={onPlay} isLevel1User={isLevel1User} isLevel2User={isLevel2User} isLevel3User={isLevel3User} isLevel4User={isLevel4User} isLevel5User={isLevel5User} />;
+      return (
+        <ParchisOnlineGame
+          user={user}
+          gameId={gameId}
+          isPlaying={isPlaying}
+          onRoomCodeChange={code => onChatSessionIdChange(code || null)}
+          onMoveHistoryChange={onChessMoveHistoryChange}
+          onScoreUpdate={onScoreUpdate}
+          initialRoomCode={initialRoomCode}
+          onLeave={onLeave}
         />
       );
     }

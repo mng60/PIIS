@@ -8,6 +8,7 @@ const users = [
   { email: 'usuario@playcraft.com',    full_name: 'Usuario Normal',    password: 'user123',     role: 'user'    },
   { email: 'empresa@playcraft.com',    full_name: 'Empresa PlayCraft', password: 'empresa123',  role: 'empresa' },
   { email: 'gonzalo1904@playcraft.com', full_name: 'gonzalo1904',      password: 'gonzalo1904', role: 'empresa' },
+  { email: 'manu@playcraft.com',        full_name: 'Manuel',            password: 'manuel123',   role: 'empresa' },
 ];
 
 const games = [
@@ -58,6 +59,18 @@ const games = [
     is_multiplayer: true,
     publisher: 'PlayCraft',
     created_by: 'admin@playcraft.com',
+  },
+  {
+    title: 'Parchís Online',
+    description: 'Clásico juego de mesa para hasta 4 jugadores.',
+    full_description: 'Lleva tus cuatro fichas a la meta antes que nadie. Lanza el dado, come las fichas de tus oponentes y usa los seguros para protegerte. Partidas de 2 a 4 jugadores en tiempo real.',
+    category: 'estrategia',
+    game_type: 'builtin',
+    game_code: 'parchis-online',
+    is_active: true,
+    is_multiplayer: true,
+    publisher: 'Manuel',
+    created_by: 'manu@playcraft.com',
   },
   {
     title: 'Settlers of Catan',
