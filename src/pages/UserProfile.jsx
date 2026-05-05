@@ -56,6 +56,7 @@ function getProfileLevelClasses(level) {
     progressFill: `${isLevel4User ? "user-level-4-profile-progress-fill" : ""} ${isLevel5User ? "user-level-5-profile-progress-fill" : ""}`,
     actionPrimary: `${isLevel1User ? "user-level-1-profile-dialog-save" : ""} ${isLevel2User ? "user-level-2-profile-dialog-save" : ""} ${isLevel3User ? "user-level-3-profile-dialog-save" : ""} ${isLevel4User ? "user-level-4-profile-dialog-save" : ""} ${isLevel5User ? "user-level-5-profile-dialog-save" : ""}`,
     actionOutline: `${isLevel1User ? "user-level-1-profile-dialog-cancel" : ""} ${isLevel2User ? "user-level-2-profile-dialog-cancel" : ""} ${isLevel3User ? "user-level-3-profile-dialog-cancel" : ""} ${isLevel4User ? "user-level-4-profile-dialog-cancel" : ""} ${isLevel5User ? "user-level-5-profile-dialog-cancel" : ""}`,
+    actionBlock: `${isLevel1User ? "user-level-1-profile-action-block" : ""} ${isLevel2User ? "user-level-2-profile-action-block" : ""} ${isLevel3User ? "user-level-3-profile-action-block" : ""} ${isLevel4User ? "user-level-4-profile-action-block" : ""} ${isLevel5User ? "user-level-5-profile-action-block" : ""}`,
     medalRow: `${isLevel2User ? "user-level-2-profile-medal-row" : ""} ${isLevel3User ? "user-level-3-profile-medal-row" : ""} ${isLevel4User ? "user-level-4-profile-medal-row" : ""} ${isLevel5User ? "user-level-5-profile-medal-row" : ""}`,
     medalIcon: `${isLevel2User ? "user-level-2-profile-medal-icon" : ""} ${isLevel3User ? "user-level-3-profile-medal-icon" : ""} ${isLevel4User ? "user-level-4-profile-medal-icon" : ""} ${isLevel5User ? "user-level-5-profile-medal-icon" : ""}`,
     scoreRow: `${isLevel2User ? "user-level-2-profile-score-row" : ""} ${isLevel3User ? "user-level-3-profile-score-row" : ""} ${isLevel4User ? "user-level-4-profile-score-row" : ""} ${isLevel5User ? "user-level-5-profile-score-row" : ""}`,
@@ -172,7 +173,7 @@ function SocialActions({ status, onSendRequest, onRemoveFriend, onCancelRequest,
       <Button variant="outline" size="sm" className={`border-red-500/40 text-red-400 hover:bg-red-500/10 ${themeClasses.actionOutline || ""}`} onClick={onRemoveFriend}>
         <UserMinus className="w-4 h-4 mr-2" /> Eliminar amigo
       </Button>
-      <Button variant="outline" size="sm" className={`border-gray-600 text-gray-400 hover:text-red-400 ${themeClasses.actionOutline || ""}`} onClick={onBlock}>
+      <Button variant="outline" size="sm" className={`border-gray-600 text-gray-400 hover:text-red-400 ${themeClasses.actionBlock || ""}`} onClick={onBlock}>
         <UserX className="w-4 h-4 mr-2" /> Bloquear
       </Button>
     </div>
@@ -186,7 +187,7 @@ function SocialActions({ status, onSendRequest, onRemoveFriend, onCancelRequest,
       <Button size="sm" className={`bg-gradient-to-r from-purple-600 to-cyan-500 border-0 ${themeClasses.actionPrimary || ""}`} onClick={onSendRequest}>
         <UserPlus className="w-4 h-4 mr-2" /> Añadir amigo
       </Button>
-      <Button variant="outline" size="sm" className={`border-gray-600 text-gray-400 hover:text-red-400 ${themeClasses.actionOutline || ""}`} onClick={onBlock}>
+      <Button variant="outline" size="sm" className={`border-gray-600 text-gray-400 hover:text-red-400 ${themeClasses.actionBlock || ""}`} onClick={onBlock}>
         <UserX className="w-4 h-4 mr-2" /> Bloquear
       </Button>
     </div>
@@ -309,7 +310,7 @@ function UserNormalProfile({ profile, status, definitions, socialProps }) {
                 </div>
                 {nextLevel
                   ? <p className={`text-[11px] text-gray-500 mt-1 ${themeClasses.nextLevel}`}>{(nextLevel.xpRequired - xp).toLocaleString()} XP para {nextLevel.name}</p>
-                  : <p className="text-[11px] mt-1" style={{ color: currentLevel.color }}>Nivel máximo alcanzado</p>
+                  : <p className={`text-[11px] mt-1 ${themeClasses.nextLevel}`} style={{ color: currentLevel.color }}>Nivel máximo alcanzado</p>
                 }
               </div>
             </div>

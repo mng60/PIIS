@@ -2698,3 +2698,26 @@ linear-gradient(rgb(183, 119, 255), rgba(160, 108, 213, 0.75)) !important;
 .user-level-4-friends-page .user-level-4-friends-action-ghost {
   color: #6d28d9 !important;
 }
+
+.user-level-4-profile-action-block,
+.user-level-4-friends-action-block,
+.user-level-4-friends-page .user-level-4-friends-action-block {
+  background: rgba(127, 29, 29, 0.14) !important;
+  border: 1px solid rgba(185, 28, 28, 0.46) !important;
+  color: #7f1d1d !important;
+}
+
+.user-level-4-profile-action-block svg,
+.user-level-4-friends-action-block svg {
+  color: #7f1d1d !important;
+}
+
+.user-level-4-friends-page.user-level-4-friends-row .font-medium,
+.user-level-4-friends-page.user-level-4-friends-row .text-purple-400 {
+  color: #581c87 !important;
+}
+
+.user-level-4-friends-page.user-level-4-friends-row .text-xs,
+.user-level-4-friends-page.user-level-4-friends-row .text-gray-500 {
+  color: #6d28d9 !important;
+}

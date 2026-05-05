@@ -31,6 +31,23 @@ function XpBadge({ xp, isPremium = false }) {
   return <span className="text-xs text-purple-400">Nv. {level} - {xp.toLocaleString()} XP</span>;
 }
 
+function getFriendsLevelClasses(level) {
+  const isLevel1User = level === 1;
+  const isLevel2User = level === 2;
+  const isLevel3User = level === 3;
+  const isLevel4User = level === 4;
+  const isLevel5User = level === 5;
+
+  return {
+    page: `${isLevel1User ? "user-level-1-friends-page" : ""} ${isLevel2User ? "user-level-2-friends-page" : ""} ${isLevel3User ? "user-level-3-friends-page" : ""} ${isLevel4User ? "user-level-4-friends-page" : ""} ${isLevel5User ? "user-level-5-friends-page" : ""}`,
+    row: `${isLevel1User ? "user-level-1-friends-row" : ""} ${isLevel2User ? "user-level-2-friends-row" : ""} ${isLevel3User ? "user-level-3-friends-row" : ""} ${isLevel4User ? "user-level-4-friends-row" : ""} ${isLevel5User ? "user-level-5-friends-row" : ""}`,
+    avatar: `${isLevel1User ? "user-level-1-friends-avatar" : ""} ${isLevel2User ? "user-level-2-friends-avatar" : ""} ${isLevel3User ? "user-level-3-friends-avatar" : ""} ${isLevel4User ? "user-level-4-friends-avatar" : ""} ${isLevel5User ? "user-level-5-friends-avatar" : ""}`,
+    actionPrimary: `${isLevel1User ? "user-level-1-friends-action-primary" : ""} ${isLevel2User ? "user-level-2-friends-action-primary" : ""} ${isLevel3User ? "user-level-3-friends-action-primary" : ""} ${isLevel4User ? "user-level-4-friends-action-primary" : ""} ${isLevel5User ? "user-level-5-friends-action-primary" : ""}`,
+    actionGhost: `${isLevel2User ? "user-level-2-friends-action-ghost" : ""} ${isLevel3User ? "user-level-3-friends-action-ghost" : ""} ${isLevel4User ? "user-level-4-friends-action-ghost" : ""} ${isLevel5User ? "user-level-5-friends-action-ghost" : ""}`,
+    actionBlock: `${isLevel1User ? "user-level-1-friends-action-block" : ""} ${isLevel2User ? "user-level-2-friends-action-block" : ""} ${isLevel3User ? "user-level-3-friends-action-block" : ""} ${isLevel4User ? "user-level-4-friends-action-block" : ""} ${isLevel5User ? "user-level-5-friends-action-block" : ""}`,
+  };
+}
+
 const SEARCH_KEY = "friends_search_query";
 const RESULTS_KEY = "friends_search_results";
 
@@ -48,11 +65,8 @@ export default function Friends() {
   const searchTimeout = useRef(null);
   const prevUserEmail = useRef(user?.email);
   const { isLevel1User, isLevel2User, isLevel3User, isLevel4User, isLevel5User } = useLevelTheme();
-  const themeClasses = {
-    avatar: `${isLevel2User ? "user-level-2-friends-avatar" : ""} ${isLevel3User ? "user-level-3-friends-avatar" : ""} ${isLevel4User ? "user-level-4-friends-avatar" : ""} ${isLevel5User ? "user-level-5-friends-avatar" : ""}`,
-    actionPrimary: `${isLevel2User ? "user-level-2-friends-action-primary" : ""} ${isLevel3User ? "user-level-3-friends-action-primary" : ""} ${isLevel4User ? "user-level-4-friends-action-primary" : ""} ${isLevel5User ? "user-level-5-friends-action-primary" : ""}`,
-    actionGhost: `${isLevel2User ? "user-level-2-friends-action-ghost" : ""} ${isLevel3User ? "user-level-3-friends-action-ghost" : ""} ${isLevel4User ? "user-level-4-friends-action-ghost" : ""} ${isLevel5User ? "user-level-5-friends-action-ghost" : ""}`,
-  };
+  const currentThemeLevel = isLevel5User ? 5 : isLevel4User ? 4 : isLevel3User ? 3 : isLevel2User ? 2 : 1;
+  const themeClasses = getFriendsLevelClasses(currentThemeLevel);
 
   useEffect(() => {
     loadFriends();
@@ -196,7 +210,7 @@ export default function Friends() {
     }
   }
 
-  function FriendActions({ u, inSearch = false }) {
+  function FriendActions({ u, inSearch = false, rowThemeClasses = themeClasses }) {
     const loading = pendingActions[u.email];
     const status = u._status;
     const isFriend = inSearch ? u._isFriend : true;
@@ -206,7 +220,7 @@ export default function Friends() {
     if (inSearch) {
       if (status?.blocked_by_me) {
         return (
-          <Button size="sm" variant="ghost" className={`text-cyan-400 hover:text-cyan-300 h-8 px-2 text-xs ${themeClasses.actionGhost}`} onClick={() => handleUnblock(u.email, u.full_name)}>
+          <Button size="sm" variant="ghost" className={`text-cyan-400 hover:text-cyan-300 h-8 px-2 text-xs ${rowThemeClasses.actionGhost}`} onClick={() => handleUnblock(u.email, u.full_name)}>
             <ShieldOff className="w-3 h-3 mr-1" /> Desbloquear
           </Button>
         );
@@ -215,10 +229,10 @@ export default function Friends() {
       if (isFriend || status?.friendship?.status === "accepted") {
         return (
           <div className="flex gap-1">
-            <Button size="sm" variant="ghost" className={`text-red-400 hover:text-red-300 h-8 px-2 ${themeClasses.actionGhost}`} title="Eliminar amigo" onClick={() => handleRemoveFriend(u.email)}>
+            <Button size="sm" variant="ghost" className={`text-red-400 hover:text-red-300 h-8 px-2 ${rowThemeClasses.actionGhost}`} title="Eliminar amigo" onClick={() => handleRemoveFriend(u.email)}>
               <UserMinus className="w-4 h-4" />
             </Button>
-            <Button size="sm" variant="ghost" className={`text-gray-400 hover:text-red-400 h-8 px-2 ${themeClasses.actionGhost}`} title="Bloquear" onClick={() => handleBlock(u.email, u.full_name)}>
+            <Button size="sm" variant="ghost" className={`text-gray-400 hover:text-red-400 h-8 px-2 ${rowThemeClasses.actionBlock}`} title="Bloquear" onClick={() => handleBlock(u.email, u.full_name)}>
               <UserX className="w-4 h-4" />
             </Button>
           </div>
@@ -227,7 +241,7 @@ export default function Friends() {
       if (status?.friendship?.status === "pending") {
         if (status.friendship.i_sent) {
           return (
-            <Button size="sm" variant="ghost" className={`text-gray-400 hover:text-red-400 h-8 px-2 text-xs ${themeClasses.actionGhost}`} onClick={() => handleCancelRequest(u.email)}>
+            <Button size="sm" variant="ghost" className={`text-gray-400 hover:text-red-400 h-8 px-2 text-xs ${rowThemeClasses.actionGhost}`} onClick={() => handleCancelRequest(u.email)}>
               <X className="w-3 h-3 mr-1" /> Cancelar
             </Button>
           );
@@ -236,10 +250,10 @@ export default function Friends() {
       }
       return (
         <div className="flex gap-1">
-          <Button size="sm" className={`bg-gradient-to-r from-purple-600 to-cyan-500 h-8 px-3 text-xs border-0 ${themeClasses.actionPrimary}`} onClick={() => handleSendRequest(u.email)}>
+          <Button size="sm" className={`bg-gradient-to-r from-purple-600 to-cyan-500 h-8 px-3 text-xs border-0 ${rowThemeClasses.actionPrimary}`} onClick={() => handleSendRequest(u.email)}>
             <UserPlus className="w-3 h-3 mr-1" /> Añadir
           </Button>
-          <Button size="sm" variant="ghost" className={`text-gray-400 hover:text-red-400 h-8 px-2 ${themeClasses.actionGhost}`} title="Bloquear" onClick={() => handleBlock(u.email, u.full_name)}>
+          <Button size="sm" variant="ghost" className={`text-gray-400 hover:text-red-400 h-8 px-2 ${rowThemeClasses.actionBlock}`} title="Bloquear" onClick={() => handleBlock(u.email, u.full_name)}>
             <UserX className="w-4 h-4" />
           </Button>
         </div>
@@ -248,10 +262,10 @@ export default function Friends() {
 
     return (
       <div className="flex gap-1">
-        <Button size="sm" variant="ghost" className={`text-red-400 hover:text-red-300 h-8 px-2 ${themeClasses.actionGhost}`} title="Eliminar amigo" onClick={() => handleRemoveFriend(u.email)}>
+        <Button size="sm" variant="ghost" className={`text-red-400 hover:text-red-300 h-8 px-2 ${rowThemeClasses.actionGhost}`} title="Eliminar amigo" onClick={() => handleRemoveFriend(u.email)}>
           <UserMinus className="w-4 h-4" />
         </Button>
-        <Button size="sm" variant="ghost" className={`text-gray-400 hover:text-red-400 h-8 px-2 ${themeClasses.actionGhost}`} title="Bloquear" onClick={() => handleBlock(u.email, u.full_name)}>
+        <Button size="sm" variant="ghost" className={`text-gray-400 hover:text-red-400 h-8 px-2 ${rowThemeClasses.actionBlock}`} title="Bloquear" onClick={() => handleBlock(u.email, u.full_name)}>
           <UserX className="w-4 h-4" />
         </Button>
       </div>
@@ -259,17 +273,19 @@ export default function Friends() {
   }
 
   function UserRow({ u, inSearch = false }) {
+    const userLevel = getLevelFromXP(u.xp || 0, !!u.is_premium).level;
+    const rowThemeClasses = inSearch ? getFriendsLevelClasses(userLevel) : themeClasses;
     return (
-      <div className={`flex items-center gap-3 p-3 rounded-xl bg-white/5 hover:bg-white/8 transition-colors ${isLevel2User ? "user-level-2-friends-row" : ""} ${isLevel3User ? "user-level-3-friends-row" : ""} ${isLevel4User ? "user-level-4-friends-row" : ""} ${isLevel5User ? "user-level-5-friends-row" : ""}`}>
+      <div className={`flex items-center gap-3 p-3 rounded-xl bg-white/5 hover:bg-white/8 transition-colors ${rowThemeClasses.page} ${rowThemeClasses.row}`}>
         <button className="flex-shrink-0" onClick={() => navigate(`/profile/${encodeURIComponent(u.email)}`)}>
-          <Avatar url={u.avatar_url} name={u.full_name} themeClasses={themeClasses} />
+          <Avatar url={u.avatar_url} name={u.full_name} themeClasses={rowThemeClasses} />
         </button>
         <div className="flex-1 min-w-0 cursor-pointer" onClick={() => navigate(`/profile/${encodeURIComponent(u.email)}`)}>
           <p className="font-medium truncate">{u.full_name}</p>
           <XpBadge xp={u.xp || 0} isPremium={!!u.is_premium} />
         </div>
         <div className="flex items-center gap-1">
-          <FriendActions u={u} inSearch={inSearch} />
+          <FriendActions u={u} inSearch={inSearch} rowThemeClasses={rowThemeClasses} />
         </div>
       </div>
     );

@@ -1912,3 +1912,26 @@
 .user-level-2-friends-page .user-level-2-friends-action-ghost {
   color: #166534 !important;
 }
+
+.user-level-2-profile-action-block,
+.user-level-2-friends-action-block,
+.user-level-2-friends-page .user-level-2-friends-action-block {
+  background: rgba(127, 29, 29, 0.12) !important;
+  border: 1px solid rgba(185, 28, 28, 0.42) !important;
+  color: #991b1b !important;
+}
+
+.user-level-2-profile-action-block svg,
+.user-level-2-friends-action-block svg {
+  color: #991b1b !important;
+}
+
+.user-level-2-friends-page.user-level-2-friends-row .font-medium,
+.user-level-2-friends-page.user-level-2-friends-row .text-purple-400 {
+  color: #14532d !important;
+}
+
+.user-level-2-friends-page.user-level-2-friends-row .text-xs,
+.user-level-2-friends-page.user-level-2-friends-row .text-gray-500 {
+  color: #335f28 !important;
+}

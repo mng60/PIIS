@@ -1243,6 +1243,23 @@
   color: #f0fbff !important;
 }
 
+.user-level-3-friends-row {
+  background:
+    linear-gradient(180deg, rgba(11, 38, 64, 0.92), rgba(4, 22, 40, 0.88)),
+    rgba(6, 24, 42, 0.86) !important;
+  border: 1px solid rgba(120, 205, 255, 0.34) !important;
+  box-shadow:
+    0 14px 28px rgba(0, 20, 42, 0.18),
+    0 0 0 1px rgba(185, 235, 255, 0.08) inset !important;
+}
+
+.user-level-3-friends-row:hover {
+  background:
+    linear-gradient(180deg, rgba(13, 48, 80, 0.96), rgba(6, 28, 50, 0.92)),
+    rgba(9, 32, 56, 0.9) !important;
+  border-color: rgba(150, 225, 255, 0.46) !important;
+}
+
 .user-level-3-friends-page .user-level-3-friends-action-primary {
   background: linear-gradient(135deg, #0f4c81 0%, #55c9f4 62%, #7c3aed 100%) !important;
   color: #f0fbff !important;
@@ -1251,4 +1268,27 @@
 
 .user-level-3-friends-page .user-level-3-friends-action-ghost {
   color: #55c9f4 !important;
+}
+
+.user-level-3-profile-action-block,
+.user-level-3-friends-action-block,
+.user-level-3-friends-page .user-level-3-friends-action-block {
+  background: rgba(127, 29, 29, 0.18) !important;
+  border: 1px solid rgba(248, 113, 113, 0.5) !important;
+  color: #fecaca !important;
+}
+
+.user-level-3-profile-action-block svg,
+.user-level-3-friends-action-block svg {
+  color: #fecaca !important;
+}
+
+.user-level-3-friends-page.user-level-3-friends-row .font-medium,
+.user-level-3-friends-page.user-level-3-friends-row .text-purple-400 {
+  color: #e8f9ff !important;
+}
+
+.user-level-3-friends-page.user-level-3-friends-row .text-xs,
+.user-level-3-friends-page.user-level-3-friends-row .text-gray-500 {
+  color: #a9d6ea !important;
 }
