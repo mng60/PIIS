@@ -1359,3 +1359,74 @@
   color: #ffffff !important;
   -webkit-text-fill-color: #ffffff !important;
 }
+
+/* Nivel 1: cabecera de perfil con paleta oliva y tipografia clara */
+.user-level-1-profile-page .user-level-1-profile-hero {
+  background:
+    linear-gradient(135deg, rgba(132, 155, 97, 0.94) 0%, rgba(118, 143, 86, 0.92) 54%, rgba(93, 117, 67, 0.88) 100%) !important;
+  border-color: rgba(204, 223, 168, 0.24) !important;
+  box-shadow:
+    0 20px 42px rgba(46, 63, 28, 0.2),
+    0 0 0 1px rgba(223, 237, 198, 0.26) inset !important;
+}
+
+.user-level-1-profile-page .user-level-1-profile-hero .premium-rainbow {
+  animation: none !important;
+  color: #d3dde8 !important;
+  text-shadow: 0 1px 0 rgba(78, 95, 117, 0.22) !important;
+}
+
+.user-level-1-profile-page .user-level-1-profile-hero .text-white,
+.user-level-1-profile-page .user-level-1-profile-hero .user-level-1-profile-name,
+.user-level-1-profile-page .user-level-1-profile-hero .user-level-1-profile-name * {
+  color: #d3dde8 !important;
+  text-shadow: 0 1px 0 rgba(78, 95, 117, 0.2) !important;
+}
+
+.user-level-1-profile-page .user-level-1-profile-hero .user-level-1-profile-meta,
+.user-level-1-profile-page .user-level-1-profile-hero .user-level-1-profile-meta span,
+.user-level-1-profile-page .user-level-1-profile-hero .user-level-1-profile-meta-muted,
+.user-level-1-profile-page .user-level-1-profile-hero .user-level-1-profile-meta-muted span,
+.user-level-1-profile-page .user-level-1-profile-hero .user-level-1-profile-xp-label,
+.user-level-1-profile-page .user-level-1-profile-hero .user-level-1-profile-next-level {
+  color: #bcc9d7 !important;
+  text-shadow: none !important;
+}
+
+.user-level-1-profile-page .user-level-1-profile-hero .user-level-1-profile-icon-soft,
+.user-level-1-profile-page .user-level-1-profile-hero .user-level-1-profile-icon-muted,
+.user-level-1-profile-page .user-level-1-profile-hero .user-level-1-profile-action-button,
+.user-level-1-profile-page .user-level-1-profile-hero .user-level-1-profile-action-button svg {
+  color: #bcc9d7 !important;
+}
+
+.user-level-1-profile-page .user-level-1-profile-hero .user-level-1-profile-action-button:hover {
+  background: rgba(214, 226, 240, 0.16) !important;
+  color: #dde6ef !important;
+}
+
+.user-level-1-profile-page .user-level-1-profile-hero .user-level-1-profile-level-label {
+  color: #d3dde8 !important;
+  text-shadow: none !important;
+}
+
+.user-level-1-profile-page .user-level-1-profile-hero .user-level-1-profile-progress-track {
+  background: rgba(220, 230, 239, 0.28) !important;
+}
+
+.user-level-1-profile-page .user-level-1-profile-hero .user-level-1-profile-progress-fill {
+  background: linear-gradient(90deg, #c9d7e6 0%, #9db2ca 64%, #dce6f1 100%) !important;
+  box-shadow: 0 0 12px rgba(124, 151, 183, 0.18) !important;
+}
+
+.user-level-1-profile-page .user-level-1-profile-hero .user-level-1-profile-avatar {
+  border-color: rgba(206, 219, 232, 0.5) !important;
+  box-shadow:
+    0 0 0 2px rgba(109, 134, 160, 0.2),
+    0 0 20px rgba(190, 208, 226, 0.16) !important;
+}
+
+.user-level-1-profile-page .user-level-1-profile-hero .user-level-1-profile-avatar-fallback {
+  background: linear-gradient(135deg, #8ea5bd 0%, #7290b0 54%, #617f9d 100%) !important;
+  color: #e9f1f8 !important;
+}

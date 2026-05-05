@@ -201,7 +201,7 @@ export default function AdminMaintenanceTab({ games, users }) {
 
                         <ConfirmAction
                           label="¿Resetear XP?"
-                          description={`Se pondrá la XP de "${u.full_name || u.email}" a 0. El nivel bajará a Novato.`}
+                          description={`Se pondrá la XP de "${u.full_name || u.email}" a 0. El nivel bajará a Minero.`}
                           variant="orange"
                           onConfirm={() =>
                             run(`xp_${u.id}`, () => resetUserXp(u.email), `XP de "${u.full_name || u.email}" reseteada`)

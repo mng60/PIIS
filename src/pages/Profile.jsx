@@ -245,7 +245,7 @@ export default function Profile() {
 
   return (
     <div className={`max-w-4xl mx-auto px-4 py-8 ${isLevel1User ? "user-level-1-profile-page" : ""} ${isLevel2User ? "user-level-2-profile-page" : ""} ${isLevel3User ? "user-level-3-profile-page" : ""} ${isLevel4User ? "user-level-4-profile-page" : ""} ${isLevel5User ? "user-level-5-profile-page" : ""}`}>
-      <Card className={`bg-gradient-to-br from-purple-900/30 to-cyan-900/30 border-white/10 mb-8 ${isLevel1User ? "user-level-1-game-card" : ""} ${isLevel2User ? "user-level-2-profile-hero" : ""} ${isLevel3User ? "user-level-3-profile-hero" : ""} ${isLevel4User ? "user-level-4-profile-hero" : ""} ${isLevel5User ? "user-level-5-profile-hero" : ""}`}>
+      <Card className={`bg-gradient-to-br from-purple-900/30 to-cyan-900/30 border-white/10 mb-8 ${isLevel1User ? "user-level-1-profile-hero" : ""} ${isLevel2User ? "user-level-2-profile-hero" : ""} ${isLevel3User ? "user-level-3-profile-hero" : ""} ${isLevel4User ? "user-level-4-profile-hero" : ""} ${isLevel5User ? "user-level-5-profile-hero" : ""}`}>
         <CardContent className="p-8">
           <div className="flex flex-col md:flex-row items-center gap-6">
             <div className="relative group cursor-pointer" onClick={() => avatarInputRef.current?.click()}>

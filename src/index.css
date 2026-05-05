@@ -120,4 +120,14 @@
   .scrollbar-hide::-webkit-scrollbar {
     display: none;
   }
+
+  .friends-remove-action,
+  .friends-remove-action svg {
+    color: #f87171 !important;
+  }
+
+  .friends-remove-action:hover,
+  .friends-remove-action:hover svg {
+    color: #fca5a5 !important;
+  }
 }

@@ -235,7 +235,7 @@ export default function Friends() {
       if (isFriend || status?.friendship?.status === "accepted") {
         return (
           <div className="flex gap-1">
-            <Button size="sm" variant="ghost" className={`text-red-400 hover:text-red-300 h-8 px-2 ${rowThemeClasses.actionGhost}`} title="Eliminar amigo" onClick={() => handleRemoveFriend(u.email)}>
+            <Button size="sm" variant="ghost" className={`friends-remove-action text-red-400 hover:text-red-300 h-8 px-2 ${rowThemeClasses.actionGhost}`} title="Eliminar amigo" onClick={() => handleRemoveFriend(u.email)}>
               <UserMinus className="w-4 h-4" />
             </Button>
             <Button size="sm" variant="ghost" className={`text-gray-400 hover:text-red-400 h-8 px-2 ${rowThemeClasses.actionBlock}`} title="Bloquear" onClick={() => handleBlock(u.email, u.full_name)}>
@@ -268,7 +268,7 @@ export default function Friends() {
 
     return (
       <div className="flex gap-1">
-        <Button size="sm" variant="ghost" className={`text-red-400 hover:text-red-300 h-8 px-2 ${rowThemeClasses.actionGhost}`} title="Eliminar amigo" onClick={() => handleRemoveFriend(u.email)}>
+        <Button size="sm" variant="ghost" className={`friends-remove-action text-red-400 hover:text-red-300 h-8 px-2 ${rowThemeClasses.actionGhost}`} title="Eliminar amigo" onClick={() => handleRemoveFriend(u.email)}>
           <UserMinus className="w-4 h-4" />
         </Button>
         <Button size="sm" variant="ghost" className={`text-gray-400 hover:text-red-400 h-8 px-2 ${rowThemeClasses.actionBlock}`} title="Bloquear" onClick={() => handleBlock(u.email, u.full_name)}>

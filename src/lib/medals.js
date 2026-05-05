@@ -37,10 +37,10 @@ export const MEDALS = [
   { id: 'collector', name: 'Coleccionista', description: 'Prueba 10 juegos distintos', icon: '📚', color: '#f59e0b', condition: s => s.gamesPlayed >= 10 },
 
   // ── Niveles de gamificación ───────────────────────────────────────────
-  { id: 'level_2', name: 'Casual',   description: 'Alcanza el nivel Casual',   icon: '🌊', color: '#22d3ee', condition: s => s.level >= 2 },
-  { id: 'level_3', name: 'Veterano', description: 'Alcanza el nivel Veterano', icon: '💜', color: '#a855f7', condition: s => s.level >= 3 },
-  { id: 'level_4', name: 'Maestro',  description: 'Alcanza el nivel Maestro',  icon: '✨', color: '#f59e0b', condition: s => s.level >= 4 },
-  { id: 'level_5', name: 'Leyenda',  description: 'Alcanza el nivel Leyenda',  icon: '🔥', color: '#f43f5e', condition: s => s.level >= 5 },
+  { id: 'level_2', name: 'Jardinero',  description: 'Alcanza el nivel Jardinero',  icon: '🌊', color: '#22d3ee', condition: s => s.level >= 2 },
+  { id: 'level_3', name: 'Piloto',     description: 'Alcanza el nivel Piloto',     icon: '💜', color: '#a855f7', condition: s => s.level >= 3 },
+  { id: 'level_4', name: 'Astronauta', description: 'Alcanza el nivel Astronauta', icon: '✨', color: '#f59e0b', condition: s => s.level >= 4 },
+  { id: 'level_5', name: 'Alien',      description: 'Alcanza el nivel Alien',      icon: '🔥', color: '#f43f5e', condition: s => s.level >= 5 },
 ];
 
 /**

@@ -3,11 +3,11 @@
 // El compañero encargado del diseño puede editar nombres y colores aquí.
 
 export const LEVELS = [
-  { level: 1, name: "Novato",   xpRequired: 0,      color: "#9ca3af" },
-  { level: 2, name: "Casual",   xpRequired: 200,    color: "#22d3ee" },
-  { level: 3, name: "Veterano", xpRequired: 1000,   color: "#a855f7" },
-  { level: 4, name: "Maestro",  xpRequired: 4000,   color: "#8b5cf6" },
-  { level: 5, name: "Leyenda",  xpRequired: 12000,  color: "#fbbf24" },
+  { level: 1, name: "Minero",      xpRequired: 0,      color: "#9ca3af" },
+  { level: 2, name: "Jardinero",   xpRequired: 200,    color: "#22d3ee" },
+  { level: 3, name: "Piloto",      xpRequired: 1000,   color: "#a855f7" },
+  { level: 4, name: "Astronauta",  xpRequired: 4000,   color: "#8b5cf6" },
+  { level: 5, name: "Alien",       xpRequired: 12000,  color: "#fbbf24" },
 ];
 
 export const LEVEL_THEME_COLORS = {
