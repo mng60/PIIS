@@ -49,11 +49,11 @@ function getProfileLevelClasses(level) {
     panelTitle: `${isLevel2User ? "user-level-2-profile-panel-title" : ""} ${isLevel3User ? "user-level-3-profile-panel-title" : ""} ${isLevel4User ? "user-level-4-profile-panel-title" : ""} ${isLevel5User ? "user-level-5-profile-panel-title" : ""}`,
     panelText: `${isLevel2User ? "user-level-2-profile-panel-text" : ""} ${isLevel3User ? "user-level-3-profile-panel-text" : ""} ${isLevel4User ? "user-level-4-profile-panel-text" : ""} ${isLevel5User ? "user-level-5-profile-panel-text" : ""}`,
     iconSoft: `${isLevel1User ? "user-level-1-profile-icon-soft" : ""} ${isLevel2User ? "user-level-2-profile-icon-soft" : ""} ${isLevel3User ? "user-level-3-profile-icon-soft" : ""} ${isLevel4User ? "user-level-4-profile-icon-soft" : ""} ${isLevel5User ? "user-level-5-profile-icon-soft" : ""}`,
-    levelLabel: `${isLevel4User ? "user-level-4-profile-level-label" : ""} ${isLevel5User ? "user-level-5-profile-level-label" : ""}`,
-    xpLabel: `${isLevel4User ? "user-level-4-profile-xp-label" : ""} ${isLevel5User ? "user-level-5-profile-xp-label" : ""}`,
-    nextLevel: `${isLevel4User ? "user-level-4-profile-next-level" : ""} ${isLevel5User ? "user-level-5-profile-next-level" : ""}`,
-    progressTrack: `${isLevel4User ? "user-level-4-profile-progress-track" : ""} ${isLevel5User ? "user-level-5-profile-progress-track" : ""}`,
-    progressFill: `${isLevel4User ? "user-level-4-profile-progress-fill" : ""} ${isLevel5User ? "user-level-5-profile-progress-fill" : ""}`,
+    levelLabel: `${isLevel1User ? "user-level-1-profile-level-label" : ""} ${isLevel2User ? "user-level-2-profile-level-label" : ""} ${isLevel3User ? "user-level-3-profile-level-label" : ""} ${isLevel4User ? "user-level-4-profile-level-label" : ""} ${isLevel5User ? "user-level-5-profile-level-label" : ""}`,
+    xpLabel: `${isLevel1User ? "user-level-1-profile-xp-label" : ""} ${isLevel2User ? "user-level-2-profile-xp-label" : ""} ${isLevel3User ? "user-level-3-profile-xp-label" : ""} ${isLevel4User ? "user-level-4-profile-xp-label" : ""} ${isLevel5User ? "user-level-5-profile-xp-label" : ""}`,
+    nextLevel: `${isLevel1User ? "user-level-1-profile-next-level" : ""} ${isLevel2User ? "user-level-2-profile-next-level" : ""} ${isLevel3User ? "user-level-3-profile-next-level" : ""} ${isLevel4User ? "user-level-4-profile-next-level" : ""} ${isLevel5User ? "user-level-5-profile-next-level" : ""}`,
+    progressTrack: `${isLevel1User ? "user-level-1-profile-progress-track" : ""} ${isLevel2User ? "user-level-2-profile-progress-track" : ""} ${isLevel3User ? "user-level-3-profile-progress-track" : ""} ${isLevel4User ? "user-level-4-profile-progress-track" : ""} ${isLevel5User ? "user-level-5-profile-progress-track" : ""}`,
+    progressFill: `${isLevel1User ? "user-level-1-profile-progress-fill" : ""} ${isLevel2User ? "user-level-2-profile-progress-fill" : ""} ${isLevel3User ? "user-level-3-profile-progress-fill" : ""} ${isLevel4User ? "user-level-4-profile-progress-fill" : ""} ${isLevel5User ? "user-level-5-profile-progress-fill" : ""}`,
     actionPrimary: `${isLevel1User ? "user-level-1-profile-dialog-save" : ""} ${isLevel2User ? "user-level-2-profile-dialog-save" : ""} ${isLevel3User ? "user-level-3-profile-dialog-save" : ""} ${isLevel4User ? "user-level-4-profile-dialog-save" : ""} ${isLevel5User ? "user-level-5-profile-dialog-save" : ""}`,
     actionOutline: `${isLevel1User ? "user-level-1-profile-dialog-cancel" : ""} ${isLevel2User ? "user-level-2-profile-dialog-cancel" : ""} ${isLevel3User ? "user-level-3-profile-dialog-cancel" : ""} ${isLevel4User ? "user-level-4-profile-dialog-cancel" : ""} ${isLevel5User ? "user-level-5-profile-dialog-cancel" : ""}`,
     actionBlock: `${isLevel1User ? "user-level-1-profile-action-block" : ""} ${isLevel2User ? "user-level-2-profile-action-block" : ""} ${isLevel3User ? "user-level-3-profile-action-block" : ""} ${isLevel4User ? "user-level-4-profile-action-block" : ""} ${isLevel5User ? "user-level-5-profile-action-block" : ""}`,
@@ -302,15 +302,15 @@ function UserNormalProfile({ profile, status, definitions, socialProps }) {
               <SocialActions {...socialProps} themeClasses={themeClasses} />
               <div className="mt-4 max-w-xs mx-auto md:mx-0">
                 <div className="flex items-center justify-between mb-1.5">
-                  <span className={`text-sm font-bold ${themeClasses.levelLabel}`} style={{ color: currentLevel.color }}>Nv.{currentLevel.level} {currentLevel.name}</span>
+                  <span className={`text-sm font-bold ${themeClasses.levelLabel}`}>Nv.{currentLevel.level} {currentLevel.name}</span>
                   <span className={`text-xs text-gray-400 ${themeClasses.xpLabel}`}>{xp.toLocaleString()} XP{nextLevel && ` / ${nextLevel.xpRequired.toLocaleString()}`}</span>
                 </div>
                 <div className={`h-2 rounded-full bg-white/10 overflow-hidden ${themeClasses.progressTrack}`}>
-                  <div className={`h-full rounded-full transition-all duration-500 ${themeClasses.progressFill}`} style={{ width: `${levelPct}%`, backgroundColor: currentLevel.color }} />
+                  <div className={`h-full rounded-full transition-all duration-500 ${themeClasses.progressFill}`} style={{ width: `${levelPct}%` }} />
                 </div>
                 {nextLevel
                   ? <p className={`text-[11px] text-gray-500 mt-1 ${themeClasses.nextLevel}`}>{(nextLevel.xpRequired - xp).toLocaleString()} XP para {nextLevel.name}</p>
-                  : <p className={`text-[11px] mt-1 ${themeClasses.nextLevel}`} style={{ color: currentLevel.color }}>Nivel máximo alcanzado</p>
+                  : <p className={`text-[11px] mt-1 ${themeClasses.nextLevel}`}>Nivel máximo alcanzado</p>
                 }
               </div>
             </div>

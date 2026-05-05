@@ -2659,3 +2659,16 @@
 .user-level-5-friends-page.user-level-5-friends-row .text-gray-500 {
   color: #6b4218 !important;
 }
+
+.user-level-5-friends-page.user-level-5-friends-row {
+  background: linear-gradient(180deg, rgba(248, 229, 177, 0.92) 0%, rgba(233, 190, 93, 0.42) 100%) !important;
+  border: 1px solid rgba(180, 83, 9, 0.28) !important;
+  box-shadow:
+    0 14px 28px rgba(91, 58, 20, 0.14),
+    0 0 0 1px rgba(255, 244, 179, 0.22) inset !important;
+}
+
+.user-level-5-friends-page.user-level-5-friends-row:hover {
+  background: linear-gradient(180deg, rgba(251, 236, 191, 0.96) 0%, rgba(240, 202, 111, 0.5) 100%) !important;
+  border-color: rgba(146, 64, 14, 0.42) !important;
+}

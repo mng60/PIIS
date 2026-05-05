@@ -1283,6 +1283,23 @@
   color: #fecaca !important;
 }
 
+.user-level-3-profile-page .user-level-3-profile-hero .user-level-3-profile-level-label,
+.user-level-3-profile-page .user-level-3-profile-hero .text-purple-400 {
+  color: #8fdcff !important;
+  text-shadow: 0 1px 8px rgba(0, 20, 42, 0.72) !important;
+}
+
+.user-level-3-profile-page .user-level-3-profile-hero .user-level-3-profile-xp-label,
+.user-level-3-profile-page .user-level-3-profile-hero .user-level-3-profile-next-level {
+  color: #dff5ff !important;
+  text-shadow: 0 1px 8px rgba(0, 20, 42, 0.76) !important;
+}
+
+.user-level-3-profile-page .user-level-3-profile-hero .user-level-3-profile-progress-fill {
+  background: linear-gradient(90deg, #2d9fd3, #8fdcff) !important;
+  box-shadow: 0 0 16px rgba(85, 201, 244, 0.34) !important;
+}
+
 .user-level-3-friends-page.user-level-3-friends-row .font-medium,
 .user-level-3-friends-page.user-level-3-friends-row .text-purple-400 {
   color: #e8f9ff !important;
@@ -1291,4 +1308,21 @@
 .user-level-3-friends-page.user-level-3-friends-row .text-xs,
 .user-level-3-friends-page.user-level-3-friends-row .text-gray-500 {
   color: #a9d6ea !important;
+}
+
+.user-level-3-friends-page.user-level-3-friends-row {
+  background:
+    linear-gradient(180deg, rgba(11, 38, 64, 0.92), rgba(4, 22, 40, 0.88)),
+    rgba(6, 24, 42, 0.86) !important;
+  border: 1px solid rgba(120, 205, 255, 0.34) !important;
+  box-shadow:
+    0 14px 28px rgba(0, 20, 42, 0.18),
+    0 0 0 1px rgba(185, 235, 255, 0.08) inset !important;
+}
+
+.user-level-3-friends-page.user-level-3-friends-row:hover {
+  background:
+    linear-gradient(180deg, rgba(13, 48, 80, 0.96), rgba(6, 28, 50, 0.92)),
+    rgba(9, 32, 56, 0.9) !important;
+  border-color: rgba(150, 225, 255, 0.46) !important;
 }
