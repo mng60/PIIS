@@ -1218,3 +1218,214 @@
 .user-level-3-game-surface .online-game-lobby__ai-launch:hover {
   background: linear-gradient(135deg, #165985, #46bee8) !important;
 }
+
+/* Nivel 3: Amigos */
+.user-level-3-friends-icon-box,
+.user-level-3-friends-avatar {
+  background:
+    radial-gradient(circle at 28% 22%, rgba(183, 236, 255, 0.42) 0%, transparent 30%),
+    linear-gradient(135deg, #08284a 0%, #135f95 56%, #35b7e7 100%) !important;
+  box-shadow:
+    inset 0 1px 0 rgba(230, 248, 255, 0.24),
+    0 14px 30px rgba(4, 24, 44, 0.34),
+    0 0 22px rgba(85, 201, 244, 0.26) !important;
+}
+
+.user-level-3-friends-icon-box svg,
+.user-level-3-friends-avatar {
+  color: #f4fbff !important;
+  text-shadow: 0 0 8px rgba(183, 236, 255, 0.44);
+}
+
+.user-level-3-friends-xp {
+  color: #b46cff !important;
+  text-shadow: 0 0 10px rgba(180, 108, 255, 0.26);
+}
+
+/* Notificaciones: base legible en claro/oscuro */
+.user-notifications-panel {
+  overflow: hidden;
+}
+
+.user-notifications-panel.user-notifications-light {
+  background: rgba(255, 255, 255, 0.98) !important;
+  border-color: rgba(15, 23, 42, 0.12) !important;
+  color: #111827 !important;
+  box-shadow: 0 18px 42px rgba(15, 23, 42, 0.16) !important;
+}
+
+.user-notifications-panel.user-notifications-dark {
+  background: rgba(10, 10, 15, 0.98) !important;
+  border-color: rgba(255, 255, 255, 0.12) !important;
+  color: #f8fafc !important;
+  box-shadow: 0 20px 44px rgba(0, 0, 0, 0.42) !important;
+}
+
+.user-notifications-panel .notification-panel__header,
+.user-notifications-panel .notification-panel__item {
+  border-color: currentColor !important;
+}
+
+.user-notifications-panel.user-notifications-light .notification-panel__header,
+.user-notifications-panel.user-notifications-light .notification-panel__item {
+  border-color: rgba(15, 23, 42, 0.1) !important;
+}
+
+.user-notifications-panel.user-notifications-dark .notification-panel__header,
+.user-notifications-panel.user-notifications-dark .notification-panel__item {
+  border-color: rgba(255, 255, 255, 0.1) !important;
+}
+
+.user-notifications-panel .notification-panel__text,
+.user-notifications-panel .notification-panel__text .font-medium {
+  color: inherit !important;
+}
+
+.user-notifications-panel .notification-panel__time,
+.user-notifications-panel .notification-panel__empty,
+.user-notifications-panel .notification-panel__mark-all,
+.user-notifications-panel .notification-panel__status--rejected {
+  color: rgba(100, 116, 139, 0.95) !important;
+}
+
+.user-notifications-panel.user-notifications-dark .notification-panel__time,
+.user-notifications-panel.user-notifications-dark .notification-panel__empty,
+.user-notifications-panel.user-notifications-dark .notification-panel__mark-all,
+.user-notifications-panel.user-notifications-dark .notification-panel__status--rejected {
+  color: rgba(203, 213, 225, 0.76) !important;
+}
+
+.user-notifications-panel .notification-panel__item:hover {
+  background: rgba(99, 102, 241, 0.08) !important;
+}
+
+.user-notifications-panel .notification-panel__unread-dot {
+  box-shadow: 0 0 10px currentColor;
+}
+
+/* Notificaciones por nivel */
+.user-level-1-notifications.user-notifications-light {
+  background: linear-gradient(180deg, rgba(255, 247, 235, 0.98), rgba(239, 222, 196, 0.98)) !important;
+  border-color: rgba(141, 99, 50, 0.28) !important;
+  color: #4f3520 !important;
+}
+
+.user-level-1-notifications.user-notifications-dark {
+  background: linear-gradient(180deg, rgba(38, 25, 14, 0.98), rgba(69, 45, 23, 0.98)) !important;
+  border-color: rgba(223, 181, 119, 0.28) !important;
+  color: #fff7eb !important;
+}
+
+.user-level-1-notifications .notification-panel__item--unread {
+  background: rgba(189, 141, 75, 0.16) !important;
+}
+
+.user-level-1-notifications .notification-panel__icon,
+.user-level-1-notifications .notification-panel__unread-dot,
+.user-level-1-notifications .notification-panel__status--accepted {
+  color: #bd8d4b !important;
+}
+
+.user-level-2-notifications.user-notifications-light {
+  background: linear-gradient(180deg, rgba(241, 253, 244, 0.98), rgba(219, 245, 229, 0.98)) !important;
+  border-color: rgba(34, 197, 94, 0.24) !important;
+  color: #10331f !important;
+}
+
+.user-level-2-notifications.user-notifications-dark {
+  background: linear-gradient(180deg, rgba(8, 32, 22, 0.98), rgba(12, 55, 38, 0.98)) !important;
+  border-color: rgba(74, 222, 128, 0.26) !important;
+  color: #ecfdf5 !important;
+}
+
+.user-level-2-notifications .notification-panel__item--unread {
+  background: rgba(34, 197, 94, 0.14) !important;
+}
+
+.user-level-2-notifications .notification-panel__icon,
+.user-level-2-notifications .notification-panel__unread-dot,
+.user-level-2-notifications .notification-panel__status--accepted {
+  color: #16a34a !important;
+}
+
+.user-level-3-notifications.user-notifications-light {
+  background:
+    radial-gradient(circle at 100% 0%, rgba(143, 220, 255, 0.28), transparent 34%),
+    linear-gradient(180deg, rgba(235, 248, 255, 0.98), rgba(205, 233, 248, 0.98)) !important;
+  border-color: rgba(43, 120, 168, 0.32) !important;
+  color: #06233d !important;
+}
+
+.user-level-3-notifications.user-notifications-dark {
+  background:
+    radial-gradient(circle at 100% 0%, rgba(85, 201, 244, 0.2), transparent 34%),
+    linear-gradient(180deg, rgba(4, 18, 32, 0.98), rgba(8, 37, 64, 0.98)) !important;
+  border-color: rgba(150, 225, 255, 0.3) !important;
+  color: #eaf9ff !important;
+}
+
+.user-level-3-notifications .notification-panel__item--unread {
+  background: rgba(45, 159, 211, 0.14) !important;
+}
+
+.user-level-3-notifications .notification-panel__icon,
+.user-level-3-notifications .notification-panel__unread-dot,
+.user-level-3-notifications .notification-panel__status--accepted {
+  color: #2d9fd3 !important;
+}
+
+.user-level-3-notifications.user-notifications-dark .notification-panel__icon,
+.user-level-3-notifications.user-notifications-dark .notification-panel__unread-dot,
+.user-level-3-notifications.user-notifications-dark .notification-panel__status--accepted {
+  color: #8fdcff !important;
+}
+
+.user-level-4-notifications.user-notifications-light {
+  background: linear-gradient(180deg, rgba(250, 245, 255, 0.98), rgba(237, 233, 254, 0.98)) !important;
+  border-color: rgba(139, 92, 246, 0.26) !important;
+  color: #3b0764 !important;
+}
+
+.user-level-4-notifications.user-notifications-dark {
+  background: linear-gradient(180deg, rgba(28, 17, 46, 0.98), rgba(49, 19, 96, 0.98)) !important;
+  border-color: rgba(196, 181, 253, 0.26) !important;
+  color: #f3e8ff !important;
+}
+
+.user-level-4-notifications .notification-panel__item--unread {
+  background: rgba(139, 92, 246, 0.14) !important;
+}
+
+.user-level-4-notifications .notification-panel__icon,
+.user-level-4-notifications .notification-panel__unread-dot,
+.user-level-4-notifications .notification-panel__status--accepted {
+  color: #7c3aed !important;
+}
+
+.user-level-5-notifications.user-notifications-light {
+  background: linear-gradient(180deg, rgba(255, 251, 235, 0.98), rgba(254, 243, 199, 0.98)) !important;
+  border-color: rgba(212, 160, 23, 0.3) !important;
+  color: #4a2f0b !important;
+}
+
+.user-level-5-notifications.user-notifications-dark {
+  background: linear-gradient(180deg, rgba(36, 22, 10, 0.98), rgba(78, 45, 12, 0.98)) !important;
+  border-color: rgba(253, 230, 138, 0.26) !important;
+  color: #fef3c7 !important;
+}
+
+.user-level-5-notifications .notification-panel__item--unread {
+  background: rgba(212, 160, 23, 0.16) !important;
+}
+
+.user-level-5-notifications .notification-panel__icon,
+.user-level-5-notifications .notification-panel__unread-dot,
+.user-level-5-notifications .notification-panel__status--accepted {
+  color: #d97706 !important;
+}
+
+.user-level-5-notifications.user-notifications-dark .notification-panel__icon,
+.user-level-5-notifications.user-notifications-dark .notification-panel__unread-dot,
+.user-level-5-notifications.user-notifications-dark .notification-panel__status--accepted {
+  color: #fbbf24 !important;
+}
