@@ -15,11 +15,21 @@ import {
 } from "lucide-react";
 import { useLevelTheme } from "@/lib/useLevelTheme";
 
-function Avatar({ url, name, size = "md", isLevel2User = false, isLevel3User = false }) {
+function Avatar({
+  url,
+  name,
+  size = "md",
+  isLevel1User = false,
+  isLevel2User = false,
+  isLevel3User = false,
+  isLevel4User = false,
+  isLevel5User = false,
+}) {
   const sz = size === "lg" ? "w-14 h-14 text-xl" : "w-10 h-10 text-base";
   if (url) return <img src={url} alt={name} className={`${sz} rounded-full object-cover`} />;
+  const hasLevelAvatar = isLevel1User || isLevel2User || isLevel3User || isLevel4User || isLevel5User;
   return (
-    <div className={`${sz} rounded-full flex items-center justify-center font-bold text-white ${isLevel2User ? "user-level-2-friends-avatar" : ""} ${isLevel3User ? "user-level-3-friends-avatar" : ""} ${!isLevel2User && !isLevel3User ? "bg-gradient-to-br from-purple-600 to-cyan-500" : ""}`}>
+    <div className={`${sz} rounded-full flex items-center justify-center font-bold text-white ${isLevel1User ? "user-level-1-friends-avatar" : ""} ${isLevel2User ? "user-level-2-friends-avatar" : ""} ${isLevel3User ? "user-level-3-friends-avatar" : ""} ${isLevel4User ? "user-level-4-friends-avatar" : ""} ${isLevel5User ? "user-level-5-friends-avatar" : ""} ${!hasLevelAvatar ? "bg-gradient-to-br from-purple-600 to-cyan-500" : ""}`}>
       {name?.[0]?.toUpperCase() || "?"}
     </div>
   );
@@ -256,7 +266,15 @@ export default function Friends() {
     return (
       <div className={`flex items-center gap-3 p-3 rounded-xl bg-white/5 hover:bg-white/8 transition-colors ${isLevel2User ? "user-level-2-friends-row" : ""} ${isLevel3User ? "user-level-3-friends-row" : ""} ${isLevel4User ? "user-level-4-friends-row" : ""} ${isLevel5User ? "user-level-5-friends-row" : ""}`}>
         <button className="flex-shrink-0" onClick={() => navigate(`/profile/${encodeURIComponent(u.email)}`)}>
-          <Avatar url={u.avatar_url} name={u.full_name} isLevel2User={isLevel2User} isLevel3User={isLevel3User} />
+          <Avatar
+            url={u.avatar_url}
+            name={u.full_name}
+            isLevel1User={isLevel1User}
+            isLevel2User={isLevel2User}
+            isLevel3User={isLevel3User}
+            isLevel4User={isLevel4User}
+            isLevel5User={isLevel5User}
+          />
         </button>
         <div className="flex-1 min-w-0 cursor-pointer" onClick={() => navigate(`/profile/${encodeURIComponent(u.email)}`)}>
           <p className="font-medium truncate">{u.full_name}</p>

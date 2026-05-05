@@ -18,13 +18,15 @@ import { evaluateMedals } from "@/lib/medals";
 import { format } from "date-fns";
 import { es } from "date-fns/locale";
 
-function AvatarImg({ url, name, size = "lg" }) {
+function AvatarImg({ url, name, size = "lg", level = null }) {
   const cls = size === "lg"
     ? "w-28 h-28 text-4xl border-4 border-purple-500/50"
     : "w-8 h-8 text-sm";
-  if (url) return <img src={url} alt={name} className={`${cls} rounded-full object-cover`} />;
+  const levelAvatarClass = level ? `user-level-${level}-profile-avatar` : "";
+  const levelFallbackClass = level ? `user-level-${level}-profile-avatar-fallback` : "";
+  if (url) return <img src={url} alt={name} className={`${cls} rounded-full object-cover ${levelAvatarClass}`} />;
   return (
-    <div className={`${cls} rounded-full bg-gradient-to-br from-purple-600 to-cyan-500 flex items-center justify-center font-bold text-white`}>
+    <div className={`${cls} rounded-full bg-gradient-to-br from-purple-600 to-cyan-500 flex items-center justify-center font-bold text-white ${levelAvatarClass} ${levelFallbackClass}`}>
       {name?.[0]?.toUpperCase() || "?"}
     </div>
   );
@@ -211,6 +213,16 @@ function UserNormalProfile({ profile, status, definitions, socialProps }) {
   const currentLevel = getLevelFromXP(xp, isPremium);
   const nextLevel = getNextLevel(xp, isPremium);
   const levelPct = Math.round(getLevelProgress(xp, isPremium) * 100);
+  const level = currentLevel.level;
+  const profileLevelClass = `user-level-${level}-profile-page`;
+  const profileHeroClass = `user-level-${level}-profile-hero`;
+  const profilePanelClass = `user-level-${level}-profile-panel`;
+  const profilePanelTitleClass = `user-level-${level}-profile-panel-title`;
+  const profilePanelTextClass = `user-level-${level}-profile-panel-text`;
+  const profilePanelCopyClass = `user-level-${level}-profile-panel-copy`;
+  const profileScoreRowClass = `user-level-${level}-profile-score-row`;
+  const profileIconClass = `user-level-${level}-profile-stat-icon-sky`;
+  const profileNameClass = `user-level-${level}-profile-name`;
 
   const totalPlays = profile.stats.reduce((a, s) => a + s.plays_count, 0);
   const totalWins = profile.stats.reduce((a, s) => a + s.wins_count, 0);
@@ -246,9 +258,9 @@ function UserNormalProfile({ profile, status, definitions, socialProps }) {
       <Card className="bg-gradient-to-br from-purple-900/30 to-cyan-900/30 border-white/10 mb-8">
         <CardContent className="p-8">
           <div className="flex flex-col md:flex-row items-center gap-6">
-            <AvatarImg url={profile.avatar_url} name={profile.full_name} />
+            <AvatarImg url={profile.avatar_url} name={profile.full_name} level={level} />
             <div className="flex-1 text-center md:text-left">
-              <h1 className="text-2xl font-bold mb-3">
+              <h1 className={`text-2xl font-bold mb-3 ${profileNameClass}`}>
                 {isPremium
                   ? <PremiumUsername name={profile.full_name} />
                   : <span className="text-white">{profile.full_name}</span>}
@@ -274,9 +286,9 @@ function UserNormalProfile({ profile, status, definitions, socialProps }) {
 
       {/* Amigos en común */}
       {profile.common_friends?.length > 0 && (
-        <Card className="bg-white/5 border-white/10 mb-6">
+        <Card className={`bg-white/5 border-white/10 mb-6 ${profilePanelClass}`}>
           <CardHeader>
-            <CardTitle className="text-white flex items-center gap-2 text-base">
+            <CardTitle className={`text-white flex items-center gap-2 text-base ${profilePanelTitleClass}`}>
               Amigos en común ({profile.common_friends.length})
             </CardTitle>
           </CardHeader>
@@ -284,8 +296,8 @@ function UserNormalProfile({ profile, status, definitions, socialProps }) {
             <div className="flex flex-wrap gap-3">
               {profile.common_friends.map(f => (
                 <div key={f.email} className="flex items-center gap-2 px-3 py-2 rounded-xl bg-white/5">
-                  <AvatarImg url={f.avatar_url} name={f.full_name} size="sm" />
-                  <span className="text-sm font-medium">{f.full_name}</span>
+                  <AvatarImg url={f.avatar_url} name={f.full_name} size="sm" level={level} />
+                  <span className={`text-sm font-medium ${profilePanelTextClass}`}>{f.full_name}</span>
                 </div>
               ))}
             </div>
@@ -295,20 +307,20 @@ function UserNormalProfile({ profile, status, definitions, socialProps }) {
 
       {/* Medallas */}
       {earnedMedals.length > 0 && (
-        <Card className="bg-white/5 border-white/10 mb-6">
-          <CardHeader><CardTitle className="text-white flex items-center gap-2"><span className="text-xl">🎖️</span> Medallas</CardTitle></CardHeader>
+        <Card className={`bg-white/5 border-white/10 mb-6 ${profilePanelClass}`}>
+          <CardHeader><CardTitle className={`text-white flex items-center gap-2 ${profilePanelTitleClass}`}><span className="text-xl">🎖️</span> Medallas</CardTitle></CardHeader>
           <CardContent>
             <div className="max-h-64 overflow-y-auto space-y-2 pr-1 [&::-webkit-scrollbar]:hidden [scrollbar-width:none]">
               {earnedMedals.map(medal => {
                 const isUrl = /^https?:\/\/|^\/|^data:/.test(medal.icon) || /\.(png|svg|jpg|webp|gif)$/i.test(medal.icon);
                 return (
-                  <div key={medal.id} className="flex items-center gap-3 p-3 rounded-lg" style={{ backgroundColor: medal.color + "11", border: `1px solid ${medal.color}33` }}>
+                  <div key={medal.id} className={`flex items-center gap-3 p-3 rounded-lg user-level-${level}-profile-medal-row`} style={{ backgroundColor: medal.color + "11", border: `1px solid ${medal.color}33` }}>
                     <div className="w-10 h-10 rounded-full flex items-center justify-center flex-shrink-0 text-xl" style={{ backgroundColor: medal.color + "22" }}>
                       {isUrl ? <img src={medal.icon} alt="" className="w-7 h-7 object-contain" /> : medal.icon}
                     </div>
                     <div>
-                      <p className="font-semibold text-sm text-white">{medal.name}</p>
-                      <p className="text-xs text-gray-400">{medal.description}</p>
+                      <p className={`font-semibold text-sm text-white ${profilePanelTextClass}`}>{medal.name}</p>
+                      <p className={`text-xs text-gray-400 ${profilePanelCopyClass}`}>{medal.description}</p>
                     </div>
                   </div>
                 );
@@ -319,10 +331,10 @@ function UserNormalProfile({ profile, status, definitions, socialProps }) {
       )}
 
       {/* Juegos jugados */}
-      <Card className="bg-white/5 border-white/10">
+      <Card className={`bg-white/5 border-white/10 ${profilePanelClass}`}>
         <CardHeader>
-          <CardTitle className="text-white flex items-center gap-2">
-            <Gamepad2 className="w-5 h-5 text-purple-400" /> Juegos jugados
+          <CardTitle className={`text-white flex items-center gap-2 ${profilePanelTitleClass}`}>
+            <Gamepad2 className={`w-5 h-5 text-purple-400 ${profileIconClass}`} /> Juegos jugados
             <span className="text-sm font-normal text-gray-400">({profile.stats.length})</span>
           </CardTitle>
         </CardHeader>
@@ -331,7 +343,7 @@ function UserNormalProfile({ profile, status, definitions, socialProps }) {
             <div className="flex flex-wrap gap-1.5">
               {Object.entries(CATEGORY_LABELS).map(([key, label]) => (
                 <button key={key} onClick={() => setCategoryFilter(key)}
-                  className={`px-3 py-1 rounded-full text-xs font-medium transition-colors ${categoryFilter === key ? "bg-gradient-to-r from-purple-600 to-cyan-500 text-white" : "bg-white/5 text-gray-400 hover:text-white"}`}>
+                  className={`px-3 py-1 rounded-full text-xs font-medium transition-colors ${categoryFilter === key ? `user-level-${level}-games-filter-active text-white` : `user-level-${level}-games-filter text-gray-400 hover:text-white`}`}>
                   {label}
                 </button>
               ))}
@@ -339,7 +351,7 @@ function UserNormalProfile({ profile, status, definitions, socialProps }) {
             <div className="flex gap-1.5 ml-auto">
               {[["all","Todos"],["solo","Solo"],["multi","Multi"]].map(([key,label]) => (
                 <button key={key} onClick={() => setModeFilter(key)}
-                  className={`px-3 py-1 rounded-full text-xs font-medium transition-colors ${modeFilter === key ? "bg-cyan-500/80 text-white" : "bg-white/5 text-gray-400 hover:text-white"}`}>
+                  className={`px-3 py-1 rounded-full text-xs font-medium transition-colors ${modeFilter === key ? `user-level-${level}-games-filter-active text-white` : `user-level-${level}-games-filter text-gray-400 hover:text-white`}`}>
                   {label}
                 </button>
               ))}
@@ -350,14 +362,14 @@ function UserNormalProfile({ profile, status, definitions, socialProps }) {
             : <div className="space-y-2">
                 {filteredGames.map(s => (
                   <button key={s.game_id} onClick={() => setSelectedGameId(s.game_id)}
-                    className="w-full flex gap-3 items-center p-3 bg-white/5 hover:bg-white/10 rounded-xl transition-colors text-left">
+                    className={`w-full flex gap-3 items-center p-3 bg-white/5 hover:bg-white/10 rounded-xl transition-colors text-left ${profileScoreRowClass}`}>
                     {s.game?.thumbnail
                       ? <img src={s.game.thumbnail} alt={s.game.title} className="w-12 h-12 rounded-lg object-cover flex-shrink-0" />
-                      : <div className="w-12 h-12 rounded-lg bg-gradient-to-br from-purple-600/30 to-cyan-500/30 flex items-center justify-center flex-shrink-0"><Gamepad2 className="w-5 h-5 text-purple-400" /></div>
+                      : <div className="w-12 h-12 rounded-lg bg-gradient-to-br from-purple-600/30 to-cyan-500/30 flex items-center justify-center flex-shrink-0"><Gamepad2 className={`w-5 h-5 text-purple-400 ${profileIconClass}`} /></div>
                     }
                     <div className="flex-1 min-w-0">
-                      <p className="font-medium text-white truncate">{s.game?.title ?? s.game_id}</p>
-                      <p className="text-xs text-gray-500">
+                      <p className={`font-medium text-white truncate ${profilePanelTextClass}`}>{s.game?.title ?? s.game_id}</p>
+                      <p className={`text-xs text-gray-500 ${profilePanelCopyClass}`}>
                         {CATEGORY_LABELS[s.game?.category] ?? s.game?.category}
                         {s.game?.is_multiplayer ? " · Multijugador" : " · Solo"}
                         {" · "}{s.plays_count} partidas · {s.wins_count} victorias
