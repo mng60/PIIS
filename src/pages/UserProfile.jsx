@@ -216,7 +216,7 @@ function UserNormalProfile({ profile, status, definitions, socialProps }) {
   const level = currentLevel.level;
   const viewLevel = level;
   const profileLevelClass = `user-level-${viewLevel}-profile-page`;
-  const profileHeroClass = `user-level-${viewLevel}-profile-hero`;
+  const profileHeroClass = viewLevel === 1 ? "user-level-1-game-card" : `user-level-${viewLevel}-profile-hero`;
   const profilePanelClass = `user-level-${viewLevel}-profile-panel`;
   const profilePanelTitleClass = `user-level-${viewLevel}-profile-panel-title`;
   const profilePanelTextClass = `user-level-${viewLevel}-profile-panel-text`;
