@@ -20,7 +20,7 @@ const teamStyles = {
   default: { border: "border-white/10", shadow: "", text: "text-white" }
 };
 
-export default function ParchisOnlineGame({ isPlaying, user, gameId, onRoomCodeChange, onMoveHistoryChange }) {
+export default function ParchisOnlineGame({ isPlaying, user, gameId, onRoomCodeChange, onMoveHistoryChange, onScoreUpdate }) {
   const [screen, setScreen] = useState("lobby");
   const [joinCode, setJoinCode] = useState("");
 
@@ -28,10 +28,24 @@ export default function ParchisOnlineGame({ isPlaying, user, gameId, onRoomCodeC
   const [myColorState, setMyColorState] = useState(null);
   const [isMyTurnState, setIsMyTurnState] = useState(false);
   const [roomCodeState, setRoomCodeState] = useState("");
-  const [participants, setParticipants] = useState([]); // Array con los jugadores reales
+  
+  // ESTADO P2P: Guarda los nombres dictados directamente por la red
+  const [playerNames, setPlayerNames] = useState({}); 
 
   // Array ref para ir guardando el historial de forma local
   const localLogsRef = useRef([]);
+  const playerNamesRef = useRef({});
+  const userRef = useRef(user);
+  
+  // FIX CHAT: Referencia para saber si somos los creadores de la sala
+  const isHostRef = useRef(false);
+  // FIX VICTORIAS: Evitar que asigne puntos múltiples veces
+  const didAwardRef = useRef(false);
+
+  useEffect(() => {
+    playerNamesRef.current = playerNames;
+    userRef.current = user;
+  }, [playerNames, user]);
 
   // Refs para que el EventListener de VanillaJS pueda actualizar React
   const onRoomCodeChangeRef = useRef(onRoomCodeChange);
@@ -60,7 +74,6 @@ export default function ParchisOnlineGame({ isPlaying, user, gameId, onRoomCodeC
     iframeRef: mockIframeRef,
     onRoomCodeChange,
     actionType: 'PARCHIS_MOVE',
-    // EL FIX CLAVE: Ahora dejamos pasar toda la info por la red para que el rival sepa QUIÉN pasó el turno y por qué
     extractAction: (msg) => ({
       piece: msg.piece,
       to: msg.to,
@@ -70,7 +83,9 @@ export default function ParchisOnlineGame({ isPlaying, user, gameId, onRoomCodeC
       eaten: msg.eaten,
       eatenColor: msg.eatenColor,
       keepTurn: msg.keepTurn,
-      isThirdSix: msg.isThirdSix
+      isThirdSix: msg.isThirdSix,
+      openedBarrier: msg.openedBarrier, // EXTRAEMOS SI SE ABRIÓ BARRERA PARA LOGGEARLO
+      playerName: msg.playerName  // Extraemos el nombre que viene incrustado en la jugada real
     }),
     buildOpponentMessage: (action) => ({
       type: 'OPPONENT_MOVED',
@@ -81,48 +96,22 @@ export default function ParchisOnlineGame({ isPlaying, user, gameId, onRoomCodeC
   // Sincronizar el código de la sala inicial
   useEffect(() => {
     if (roomCode) {
-      onRoomCodeChange?.(roomCode);
       setRoomCodeState(roomCode);
+      
+      // FIX CHAT: Si somos el creador, damos 1.5s de margen al backend 
+      // para que termine de crear la sala antes de avisar al componente Chat
+      if (isHostRef.current) {
+        setTimeout(() => {
+          onRoomCodeChange?.(roomCode);
+        }, 1500);
+      } else {
+        onRoomCodeChange?.(roomCode);
+      }
     }
   }, [roomCode, onRoomCodeChange]);
 
-  // EL RADAR DEFINITIVO: Escanea tu backend y asegura los nombres reales rompiendo caché
-  useEffect(() => {
-    if (screen !== "playing" || !roomCodeState) return;
-
-    const fetchSession = async () => {
-      try {
-        const res = await fetch(`/api/sessions/${roomCodeState}?t=${Date.now()}`, { cache: 'no-store' });
-        const contentType = res.headers.get("content-type");
-        
-        // Verificamos que sea JSON válido para que no explote
-        if (res.ok && contentType && contentType.includes("application/json")) {
-          const data = await res.json();
-          let parsedParts = [];
-          
-          if (Array.isArray(data.participants)) {
-            parsedParts = data.participants;
-          } else if (typeof data.participants === 'string') {
-            try { parsedParts = JSON.parse(data.participants); } catch (e) {}
-          } else if (data.participants && Array.isArray(data.participants.participants)) {
-            parsedParts = data.participants.participants;
-          }
-          
-          if (!Array.isArray(parsedParts)) parsedParts = [];
-          setParticipants(parsedParts);
-        }
-      } catch (e) {
-        // Fallo silencioso si hay problemas de red temporales
-      }
-    };
-
-    fetchSession(); // Primera lectura al instante
-    const interval = setInterval(fetchSession, 2500); // Polling cada 2.5s
-    return () => clearInterval(interval);
-  }, [screen, roomCodeState]);
-
-  // FIX: Cambiamos el orden. Primero mostramos el tablero, luego lanzamos la petición de red
   const handleCreateRoom = () => {
+    isHostRef.current = true; // FIX CHAT: Marcamos que somos el host
     setScreen("playing");
     setTimeout(() => {
       window.postMessage({ type: 'CREATE_ROOM' }, '*');
@@ -131,6 +120,7 @@ export default function ParchisOnlineGame({ isPlaying, user, gameId, onRoomCodeC
 
   const handleJoinRoom = (code) => {
     const cleanCode = code.trim().toUpperCase();
+    isHostRef.current = false; // FIX CHAT: Nos aseguramos de marcar que somos invitados
     setScreen("playing");
     setTimeout(() => {
       onRoomCodeChange?.(cleanCode); 
@@ -320,10 +310,8 @@ export default function ParchisOnlineGame({ isPlaying, user, gameId, onRoomCodeC
             diceEl.style.transform = "rotate(0deg)";
             currentDice = Math.floor(Math.random() * 6) + 1;
             document.getElementById('diceResult').innerText = `🎲 ${currentDice}`;
+            log(`Tiras un ${currentDice}.`); // REGISTRO LOCAL DE TIRADA
             
-            // LOG LOCAL: Tira el dado en 3a persona
-            log(`${myColor.toUpperCase()} tira un ${currentDice}.`);
-
             if (currentDice === 6) {
                 consecutiveSixes++;
             } else {
@@ -331,19 +319,20 @@ export default function ParchisOnlineGame({ isPlaying, user, gameId, onRoomCodeC
             }
 
             if (consecutiveSixes === 3) {
-                log(`${myColor.toUpperCase()} saca tres 6. Pierde turno.`);
-                
                 let savedDice = currentDice; 
                 if (lastMovedPieceId) {
                     const f = gameState[myColor].find(x => x.id === lastMovedPieceId);
                     if (f && f.progress >= 0 && f.progress <= 50) {
+                        log(`¡Tres 6 seguidos! Ficha a casa.`); // REGISTRO DE CASTIGO
                         f.progress = -1;
                         actualizarTableroVisual(f.id, myColor, -1, null, null);
                         enviarJugada(f.id, -1, null, null, false, savedDice, true);
                     } else {
+                        log(`¡Tres 6 seguidos! Pierdes turno (Ficha a salvo).`);
                         enviarJugada(null, null, null, null, false, savedDice, true);
                     }
                 } else {
+                    log(`¡Tres 6 seguidos! Pierdes turno.`);
                     enviarJugada(null, null, null, null, false, savedDice, true);
                 }
                 
@@ -382,6 +371,7 @@ export default function ParchisOnlineGame({ isPlaying, user, gameId, onRoomCodeC
             filteredMoves = exits; 
         } else if (currentDice === 6 && bonusMoves === 0 && barrierOpeners.length > 0) {
             filteredMoves = barrierOpeners;
+            log(`¡Obligatorio abrir barrera con el 6!`); // REGISTRO DE AVISO OBLIGATORIO
         } else if (captures.length > 0) {
             filteredMoves = captures;
         } else {
@@ -391,18 +381,19 @@ export default function ParchisOnlineGame({ isPlaying, user, gameId, onRoomCodeC
         if (filteredMoves.length === 0) {
             let hadSix = (currentDice === 6 && bonusMoves === 0);
             let savedDice = currentDice; 
-
-            if (hadSix) {
-                log(`Sin movimientos. Tira de nuevo.`);
-            } else if (bonusMoves === 0) {
-                log(`Sin movimientos. Pasa turno.`);
+            
+            // REGISTROS RICOS SI NO HAY MOVIMIENTOS
+            if (bonusMoves > 0) {
+                log(`No puedes contar las ${bonusMoves}. Pasas turno.`);
+            } else if (currentDice > 0) {
+                if (hadSix) log(`Sin movimientos con el ${currentDice}. Tiras de nuevo.`);
+                else log(`Sin movimientos con el ${currentDice}. Pasas turno.`);
             }
             
             bonusMoves = 0;
             currentDice = 0;
             
             setTimeout(() => {
-                // Pasamos el dado y si mantuvimos turno para que el rival registre bien el pase de turno
                 enviarJugada(null, null, null, null, hadSix, savedDice, false);
                 
                 if (hadSix) {
@@ -430,6 +421,13 @@ export default function ParchisOnlineGame({ isPlaying, user, gameId, onRoomCodeC
         const ficha = gameState[myColor].find(f => f.id === fichaId);
         let moveValue = bonusMoves > 0 ? bonusMoves : currentDice;
         
+        // COMPROBAR SI ACABA DE ABRIR UNA BARRERA PARA COMUNICARLO
+        let wasBarrierOpen = false;
+        if (currentDice === 6 && bonusMoves === 0) {
+            let misFichasAqui = gameState[myColor].filter(f2 => f2.progress === ficha.progress).length;
+            if (misFichasAqui === 2) wasBarrierOpen = true;
+        }
+
         let moveInfo = getMoveInfo(ficha, moveValue);
         if (!moveInfo) return; 
 
@@ -447,12 +445,22 @@ export default function ParchisOnlineGame({ isPlaying, user, gameId, onRoomCodeC
         }
 
         actualizarTableroVisual(fichaId, myColor, nuevoProgreso, comidaId, comidaColor);
-        
-        log(`${myColor.toUpperCase()} mueve ficha.`);
 
         let earnedBonus = 0;
-        if (comidaId) earnedBonus = 20; 
-        else if (nuevoProgreso === 56) earnedBonus = 10; 
+        let localLogMsg = `Mueves ficha.`; // LOG BASE
+
+        // ENRIQUECEMOS EL LOG LOCAL DE LA JUGADA
+        if (comidaId && comidaColor) {
+            earnedBonus = 20; 
+            localLogMsg = `¡Te comes una ficha ${comidaColor.toUpperCase()}! Cuentas 20.`;
+        } else if (nuevoProgreso === 56) {
+            earnedBonus = 10; 
+            localLogMsg = `¡Ficha en la meta! Cuentas 10.`;
+        } else if (wasBarrierOpen) {
+            localLogMsg = `Abres barrera por obligación del 6.`;
+        }
+        
+        log(localLogMsg);
 
         let usedBonus = (bonusMoves > 0);
         let hadSix = (!usedBonus && currentDice === 6); 
@@ -464,7 +472,7 @@ export default function ParchisOnlineGame({ isPlaying, user, gameId, onRoomCodeC
 
         let keepsTurn = (bonusMoves > 0 || hadSix);
 
-        enviarJugada(fichaId, nuevoProgreso, comidaId, comidaColor, keepsTurn, savedDice, false);
+        enviarJugada(fichaId, nuevoProgreso, comidaId, comidaColor, keepsTurn, savedDice, false, wasBarrierOpen);
 
         if (keepsTurn) {
             if (bonusMoves > 0) {
@@ -478,7 +486,18 @@ export default function ParchisOnlineGame({ isPlaying, user, gameId, onRoomCodeC
 
         const allInMeta = gameState[myColor].every(f => f.progress === 56);
         if (allInMeta) {
-            setTimeout(() => alert("🎉 ¡HAS GANADO LA PARTIDA! 🎉"), 500);
+            setTimeout(() => {
+                if (!didAwardRef.current) {
+                    didAwardRef.current = true;
+                    // LÓGICA DE VICTORIA BASADA EN LA API DE INTEGRACIÓN PARA TERCEROS 🔴
+                    window.parent.postMessage({ type: 'SCORE_UPDATE', score: 1 }, '*');
+                    window.parent.postMessage({ type: 'GAME_OVER', score: 1 }, '*');
+                    onScoreUpdate?.(1); // Mantenemos el callback por si se ejecuta dentro del entorno local
+                    toast.success("¡Victoria! +1 punto");
+                    
+                    window.postMessage({ type: 'PARCHIS_WIN', color: myColor }, '*');
+                }
+            }, 500);
         }
     }
 
@@ -509,8 +528,10 @@ export default function ParchisOnlineGame({ isPlaying, user, gameId, onRoomCodeC
         }
     }
 
-    function enviarJugada(fichaId, nuevoProgreso, comidaId, colorComida, mantieneTurno, overrideDice = null, isThirdSix = false) {
+    function enviarJugada(fichaId, nuevoProgreso, comidaId, colorComida, mantieneTurno, overrideDice = null, isThirdSix = false, openedBarrier = false) {
         let diceToSend = overrideDice !== null ? overrideDice : currentDice;
+        
+        const currentName = userRef.current ? (nickName(userRef.current.full_name) || userRef.current.email?.split('@')[0]) : "Jugador";
 
         window.postMessage({
             type: 'PARCHIS_MOVE',
@@ -522,7 +543,9 @@ export default function ParchisOnlineGame({ isPlaying, user, gameId, onRoomCodeC
             eaten: comidaId,
             eatenColor: colorComida,
             keepTurn: mantieneTurno,
-            isThirdSix: isThirdSix // Pasamos este dato vital por la red
+            isThirdSix: isThirdSix,
+            openedBarrier: openedBarrier, // INCRUSTAMOS SI ABRIÓ BARRERA EN LA RED
+            playerName: currentName
         }, '*');
         
         if (!mantieneTurno) {
@@ -538,7 +561,15 @@ export default function ParchisOnlineGame({ isPlaying, user, gameId, onRoomCodeC
         if (m.type === 'ROOM_CREATED') {
             if (m.code) {
                 setRoomCodeStateRef.current?.(m.code);
-                onRoomCodeChangeRef.current?.(m.code);
+                
+                // FIX CHAT: Aplicamos el margen solo si somos el host
+                if (isHostRef.current) {
+                  setTimeout(() => {
+                    onRoomCodeChangeRef.current?.(m.code);
+                  }, 1500);
+                } else {
+                  onRoomCodeChangeRef.current?.(m.code);
+                }
             }
         }
         
@@ -563,9 +594,19 @@ export default function ParchisOnlineGame({ isPlaying, user, gameId, onRoomCodeC
         }
 
         if (m.type === 'OPPONENT_MOVED') {
+            
+            // INTERCEPTOR: Guardamos el nombre que viaja en la jugada
+            if (m.color && m.playerName) {
+                setPlayerNames(prev => {
+                    if (prev[m.color] !== m.playerName) {
+                        return { ...prev, [m.color]: m.playerName };
+                    }
+                    return prev;
+                });
+            }
+
             let moveColor = m.color;
             
-            // Intento de rescate por si el color de red fallara, inferimos a través de la ficha
             if (!moveColor && m.piece) {
                 if (m.piece.startsWith('r')) moveColor = 'rojo';
                 else if (m.piece.startsWith('v')) moveColor = 'verde';
@@ -573,19 +614,22 @@ export default function ParchisOnlineGame({ isPlaying, user, gameId, onRoomCodeC
                 else if (m.piece.startsWith('y')) moveColor = 'amarillo';
             }
             
-            if (!moveColor) return; // Salvaguarda si algo crítico falla por red
+            if (!moveColor) return; 
 
-            // 1. Log común de tirada de dado para TODOS (solo si hay dado real)
-            if (m.dice && m.dice > 0) {
+            // LOG DE TIRADA DE OPONENTE
+            if (m.dice && m.dice > 0 && (!m.piece || !m.isThirdSix)) {
                 log(`${moveColor.toUpperCase()} tira un ${m.dice}.`);
             }
 
-            // 2. Log de penalización si se dio el caso
+            // LOG DE CASTIGO DE OPONENTE (CORREGIDO)
             if (m.isThirdSix) {
-                log(`${moveColor.toUpperCase()} saca tres 6. Pierde turno.`);
+                if (m.to === -1 || m.to === "-1") {
+                    log(`¡${moveColor.toUpperCase()} saca tres 6! Ficha a casa.`);
+                } else {
+                    log(`¡${moveColor.toUpperCase()} saca tres 6! Pierde turno.`);
+                }
             }
             
-            // 3. Evaluar movimiento o paso de turno
             if (m.piece) { 
                 let rawPos = m.progress !== undefined ? m.progress : m.to;
                 let targetPos = parseInt(rawPos, 10);
@@ -635,21 +679,46 @@ export default function ParchisOnlineGame({ isPlaying, user, gameId, onRoomCodeC
 
                 if (!isNaN(targetPos)) {
                     actualizarTableroVisual(m.piece, moveColor, targetPos, eId, eColor);
-                    // Solo anunciamos "mueve ficha" si no es un castigo que la está enviando a casa
                     if (!m.isThirdSix) {
-                        log(`${moveColor.toUpperCase()} mueve ficha.`); 
+                        
+                        // LOG RICO PARA MOVIMIENTO DE OPONENTE
+                        let oppLogMsg = `${moveColor.toUpperCase()} mueve ficha.`;
+                        
+                        if (eId && eColor) {
+                            oppLogMsg = `¡${moveColor.toUpperCase()} se come una ficha ${eColor.toUpperCase()}! Cuenta 20.`;
+                        } else if (targetPos === 56) {
+                            oppLogMsg = `¡${moveColor.toUpperCase()} mete ficha en la meta! Cuenta 10.`;
+                        } else if (m.openedBarrier) {
+                            oppLogMsg = `${moveColor.toUpperCase()} abre barrera por obligación del 6.`;
+                        }
+
+                        log(oppLogMsg); 
                     }
                 }
             } else {
-                // LOG REMOTO: Pasa turno (o tira de nuevo sin haber movido pieza)
                 if (!m.isThirdSix) {
+                    // LOG RICO CUANDO OPONENTE NO PUEDE MOVER
                     if (m.keepTurn) {
-                        log(`Sin movimientos. Tira de nuevo.`);
+                        log(`${moveColor.toUpperCase()} sin movimientos. Tira de nuevo.`);
                     } else {
-                        log(`Sin movimientos. Pasa turno.`);
+                        log(`${moveColor.toUpperCase()} sin movimientos. Pasa turno.`);
                     }
                 }
             }
+        }
+
+        if (m.type === 'PARCHIS_WIN') {
+            if (!didAwardRef.current) {
+                didAwardRef.current = true;
+                // 🔴 LÓGICA DE RECEPCIÓN DE DERROTA BASADA EN API INTEGRACIÓN 🔴
+                window.parent.postMessage({ type: 'SCORE_UPDATE', score: 0 }, '*');
+                window.parent.postMessage({ type: 'GAME_OVER', score: 0 }, '*');
+                onScoreUpdate?.(0); // Mantenemos el callback local
+                toast.info("Derrota");
+            }
+            setTimeout(() => {
+                window.location.reload(); 
+            }, 3000);
         }
 
         if (m.type === 'ROOM_CLOSED') {
@@ -662,7 +731,7 @@ export default function ParchisOnlineGame({ isPlaying, user, gameId, onRoomCodeC
 
     function log(t) {
         const newLog = { move: t, player: '🎲' };
-        localLogsRef.current = [...localLogsRef.current, newLog];
+        localLogsRef.current = [newLog, ...localLogsRef.current];
         onMoveHistoryChangeRef.current?.(localLogsRef.current);
     }
 
@@ -670,19 +739,30 @@ export default function ParchisOnlineGame({ isPlaying, user, gameId, onRoomCodeC
         window.removeEventListener('message', handleMessage);
     };
 
-  }, [screen]); 
+  }, [screen, user]); 
 
+  // PINTA LAS TARJETAS Y APLICA LA LÓGICA DE OPACIDAD
   const renderPlayerCard = (color) => {
     const isMe = myColorState === color;
     const isMyTurn = isMe && isMyTurnState;
     const style = teamStyles[color] || teamStyles.default;
 
-    // Texto fijo sin lógica de base de datos
-    const displayName = isMe ? (nickName(user?.full_name) || "Tú") : "Rival";
+    let displayName = "Esperando...";
+    let isActive = false;
+    
+    if (isMe) {
+      displayName = nickName(user?.full_name) || "Tú";
+      isActive = true; 
+    } else if (playerNames[color]) {
+      displayName = playerNames[color];
+      isActive = true; 
+    }
 
-    // Siempre encendidos: opacity-100 y style.shadow añadidos siempre
+    // Aplicamos opacidad condicional según la actividad
+    const opacityClass = isActive ? "opacity-100" : "opacity-40";
+
     return (
-      <div key={color} className={`flex flex-col justify-center p-3 rounded-lg border bg-[#1e293b] transition-all duration-300 min-h-[3rem] ${style.border} ${style.shadow} opacity-100`}>
+      <div key={color} className={`flex flex-col justify-center p-3 rounded-lg border bg-[#1e293b] transition-all duration-300 min-h-[3rem] ${style.border} ${isActive ? style.shadow : ""} ${opacityClass}`}>
          <div className="flex justify-between items-center w-full">
            <span className="text-sm font-bold text-white break-words" title={displayName}>
              {displayName}
@@ -693,13 +773,11 @@ export default function ParchisOnlineGame({ isPlaying, user, gameId, onRoomCodeC
     );
   };
 
-  // Cuatro colores fijos siempre visibles
   const activeColors = ['rojo', 'azul', 'amarillo', 'verde'];
 
   return (
     <div className="w-full relative min-h-screen bg-[#0f172a] text-white flex flex-col items-center">
       
-      {/* PANTALLA LOBBY */}
       {screen === "lobby" && (
         <div className="w-full">
           <OnlineGameLobby
@@ -714,11 +792,10 @@ export default function ParchisOnlineGame({ isPlaying, user, gameId, onRoomCodeC
         </div>
       )}
 
-      {/* PANTALLA DE JUEGO MULTIJUGADOR */}
       {screen === "playing" && (
         <div className="w-full max-w-5xl p-4 flex flex-col items-center gap-4 mt-2">
           
-          <div className="parchis-wrapper w-full flex flex-col md:flex-row gap-6 justify-center items-start">
+          <div className="parchis-wrapper w-full md:w-fit flex flex-col items-center md:items-start mx-auto">
             <style>{`
               .parchis-wrapper { font-family: 'Segoe UI', system-ui; user-select: none; }
               .parchis-wrapper .card { background: #1e293b; padding: 1.5rem; border-radius: 1rem; border: 1px solid #334155; text-align: center; box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.3); }
@@ -768,47 +845,86 @@ export default function ParchisOnlineGame({ isPlaying, user, gameId, onRoomCodeC
               .parchis-wrapper .token.movable { animation: pulse 1s infinite; border-color: #fde047; z-index: 20; transform: scale(1.1); }
               @keyframes pulse { 0% { box-shadow: 0 0 0 0 rgba(253, 224, 71, 0.7); } 70% { box-shadow: 0 0 0 10px rgba(253, 224, 71, 0); } 100% { box-shadow: 0 0 0 0 rgba(253, 224, 71, 0); } }
               
-              /* CONTROLES LATERALES */
-              .parchis-wrapper .controls { display: flex; flex-direction: column; width: 280px; }
-              .parchis-wrapper .dice-container { font-size: 5rem; margin: 1.5rem 0; cursor: pointer; transition: transform 0.2s; background: #0f172a; border-radius: 1rem; border: 1px solid #334155; padding: 1.5rem; display: flex; justify-content: center; align-items: center;}
+              /* CONTROLES LATERALES ADAPTADOS PARA MÓVIL Y ESCRITORIO */
+              .parchis-wrapper .controls { width: 100% !important; max-width: 506px !important; }
+              @media (min-width: 768px) { .parchis-wrapper .controls { width: 280px !important; max-width: 280px !important; height: 506px !important; justify-content: center !important; gap: 2.5rem !important; } }
+              
+              /* FIX DEL "ENTRECORTE": Forzar forma cuadrada absoluta para que gire sin salir de los bordes */
+              .parchis-wrapper .dice-container { 
+                  font-size: 3.5rem; 
+                  width: 90px;
+                  height: 90px;
+                  cursor: pointer; 
+                  transition: transform 0.3s ease-in-out; 
+                  background: #0f172a; 
+                  border-radius: 1rem; 
+                  border: 1px solid #334155; 
+                  display: flex; 
+                  justify-content: center; 
+                  align-items: center;
+                  flex-shrink: 0;
+              }
+              @media (min-width: 768px) { 
+                  .parchis-wrapper .dice-container { 
+                      font-size: 5.5rem; 
+                      width: 150px;
+                      height: 150px;
+                      border-radius: 1.5rem;
+                  } 
+              }
+              
               .parchis-wrapper .dice-container:active { transform: scale(0.9); }
               .parchis-wrapper .dice-container.disabled { opacity: 0.5; cursor: not-allowed; pointer-events: none; }
             `}</style>
             
-            <div className="flex flex-col gap-4 items-center">
-                <div className="grid grid-cols-2 gap-4 w-full">
-                   {activeColors.map((color) => renderPlayerCard(color))}
+            {/* 1. TARJETAS DE JUGADORES */}
+            <div className="w-full" style={{ maxWidth: '506px' }}>
+                <div className="grid grid-cols-2 gap-4 w-full mb-4">
+                    {activeColors.map((color) => renderPlayerCard(color))}
                 </div>
+            </div>
 
-                <div className="board card" id="board" style={{padding: '10px'}}>
+            {/* 2. TABLERO Y CONTROLES */}
+            <div className="flex flex-col md:flex-row gap-6 items-center md:items-start w-full">
+                
+                {/* TABLERO */}
+                <div className="board card flex-shrink-0" id="board" style={{padding: '10px', margin: 0}}>
                     <div className="home verde" id="home-verde"></div>
                     <div className="home azul" id="home-azul"></div>
                     <div className="home rojo" id="home-rojo"></div>
                     <div className="home amarillo" id="home-amarillo"></div>
                     <div id="meta"></div>
                 </div>
+
+                {/* CONTROLES */}
+                <div className="controls card flex flex-row md:flex-col items-center justify-between md:justify-center h-auto w-full p-4 md:p-6" style={{ margin: 0 }}>
+                    
+                    {/* ZONA DE CÓDIGO DE SALA (A la derecha en móvil, arriba en PC) */}
+                    {roomCodeState && (
+                        <div className="w-1/2 md:w-full flex flex-col items-center order-2 md:order-1 border-l md:border-l-0 md:border-b border-white/10 pl-4 md:pl-0 md:pb-6">
+                            <span className="text-xs text-gray-400 uppercase tracking-widest mb-3 font-semibold">Código de Sala</span>
+                            <button 
+                                onClick={() => { navigator.clipboard.writeText(roomCodeState); toast.success("Código copiado"); }}
+                                className="flex items-center gap-2 md:gap-3 px-4 md:px-8 py-2 bg-white/5 hover:bg-white/10 border border-white/10 rounded-2xl transition-colors w-fit justify-center group overflow-hidden"
+                                title="Copiar código"
+                            >
+                                <span className="text-base md:text-xl font-bold text-cyan-400 tracking-widest truncate">{roomCodeState}</span>
+                                <Copy className="w-4 h-4 md:w-5 md:h-5 text-gray-400 group-hover:text-white transition-colors flex-shrink-0" />
+                            </button>
+                        </div>
+                    )}
+
+                    {/* ZONA DE TIRADA (A la izquierda en móvil, abajo en PC) */}
+                    <div className="w-1/2 md:w-full flex flex-col items-center order-1 md:order-2">
+                        <h3 className="text-sm font-semibold text-gray-400 uppercase tracking-widest w-full text-center mb-4">Tirada</h3>
+                        
+                        <div id="dice" className="dice-container disabled">🎲</div>
+                        
+                        <div id="diceResult" className="mt-4" style={{fontSize: '1.2rem', fontWeight: 'bold', minHeight: '30px', color: '#fde047'}}></div>
+                    </div>
+                </div>
             </div>
 
-            <div className="controls card flex flex-col items-center justify-start h-full">
-                {roomCodeState && (
-                  <div className="w-full flex flex-col items-center mb-6 pb-4 border-b border-white/10">
-                    <span className="text-xs text-gray-400 uppercase tracking-widest mb-2 font-semibold">Código de Sala</span>
-                    <button 
-                      onClick={() => { navigator.clipboard.writeText(roomCodeState); toast.success("Código copiado"); }}
-                      className="flex items-center gap-3 px-4 py-2 bg-white/5 hover:bg-white/10 border border-white/10 rounded-full transition-colors w-full justify-center group"
-                      title="Copiar código"
-                    >
-                      <span className="text-lg font-bold text-cyan-400 tracking-widest">{roomCodeState}</span>
-                      <Copy className="w-4 h-4 text-gray-400 group-hover:text-white transition-colors" />
-                    </button>
-                  </div>
-                )}
-
-                <h3 className="text-sm font-semibold text-gray-400 uppercase tracking-widest w-full text-center mb-2">Tirada</h3>
-                
-                <div id="dice" className="dice-container disabled w-full">🎲</div>
-                <div id="diceResult" style={{fontSize: '1.2rem', fontWeight: 'bold', minHeight: '30px', color: '#fde047'}}></div>
-            </div>
           </div>
         </div>
       )}
