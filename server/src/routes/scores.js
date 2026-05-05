@@ -1,7 +1,6 @@
 import { Router } from 'express';
 import { PrismaClient } from '@prisma/client';
 import { requireAuth } from '../middleware/auth.js';
-import { isDatabaseConnectionError } from '../mockData.js';
 
 const router = Router();
 const prisma = new PrismaClient();
@@ -13,7 +12,6 @@ const prisma = new PrismaClient();
 router.get('/', async (req, res) => {
   const { game_id, user_email, limit = '20' } = req.query;
 
-  try {
   if (user_email && game_id) {
     // Logros: stats de un usuario en un juego concreto
     const stat = await prisma.userGameStats.findUnique({
@@ -52,21 +50,18 @@ router.get('/', async (req, res) => {
       orderBy: { best_score: 'desc' },
       take: parseInt(limit),
     });
-      const emails = stats.map(s => s.user_email);
-      const users = await prisma.user.findMany({
-        where: { email: { in: emails } },
-        select: { email: true, premium_until: true },
-      });
-      const premiumSet = new Set(
-        users.filter(u => u.premium_until && new Date(u.premium_until) > new Date()).map(u => u.email)
-      );
-      return res.json(stats.map(s => ({ ...s, is_premium: premiumSet.has(s.user_email) })));
-    }
-    res.status(400).json({ error: 'Se requiere game_id o user_email' });
-  } catch (error) {
-    if (!isDatabaseConnectionError(error)) throw error;
-    return res.json([]);
+    const emails = stats.map(s => s.user_email);
+    const users = await prisma.user.findMany({
+      where: { email: { in: emails } },
+      select: { email: true, premium_until: true },
+    });
+    const premiumSet = new Set(
+      users.filter(u => u.premium_until && new Date(u.premium_until) > new Date()).map(u => u.email)
+    );
+    return res.json(stats.map(s => ({ ...s, is_premium: premiumSet.has(s.user_email) })));
   }
+
+  res.status(400).json({ error: 'Se requiere game_id o user_email' });
 });
 
 // POST /api/scores — registra una partida y actualiza UserGameStats

@@ -3,7 +3,6 @@ import { PrismaClient } from '@prisma/client';
 import { requireAuth } from '../middleware/auth.js';
 import { advanceTournamentMatch, createMatchRoomForTournament } from '../lib/tournamentAdvance.js';
 import { activateTournamentById } from '../lib/tournamentScheduler.js';
-import { isDatabaseConnectionError } from '../mockData.js';
 
 const router = Router();
 const prisma = new PrismaClient();
@@ -64,7 +63,6 @@ router.get('/', async (req, res) => {
       participant_count: countMap[t.id] || 0,
     })));
   } catch (err) {
-    if (isDatabaseConnectionError(err)) return res.json([]);
     console.error(err);
     res.status(500).json({ error: 'Error al obtener torneos' });
   }

@@ -5,8 +5,8 @@ import PremiumUsername from "@/components/ui/PremiumUsername";
 export default function Leaderboard({ scores, isMultiplayer = false }) {
   if (!scores || scores.length === 0) {
     return (
-      <div className="user-level-2-leaderboard-empty text-center py-8 text-gray-500">
-        <Trophy className="user-level-2-leaderboard-empty-icon w-12 h-12 mx-auto mb-3 opacity-30" />
+      <div className="text-center py-8 text-gray-500">
+        <Trophy className="w-12 h-12 mx-auto mb-3 opacity-30" />
         <p>Aún no hay puntuaciones</p>
         <p className="text-sm">¡Sé el primero en jugar!</p>
       </div>

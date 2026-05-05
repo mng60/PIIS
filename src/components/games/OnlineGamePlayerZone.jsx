@@ -44,7 +44,7 @@ function PlayerCard({ player, isActive, compact = false }) {
 
   return (
     <div
-      className={`online-game-player-zone__card ${isActive ? "online-game-player-zone__card--active" : ""} rounded-lg px-3 py-2 border transition-all duration-300 flex-1 min-w-[110px]
+      className={`rounded-lg px-3 py-2 border transition-all duration-300 flex-1 min-w-[110px]
         ${isActive ? "scale-105" : "bg-white/5 border-white/10 opacity-70 scale-100"}`}
       style={isActive ? { backgroundColor: `${player.color}18`, ...borderStyle } : {}}
     >
@@ -94,12 +94,12 @@ function DuelLayout({
   const bottom = bottomPlayer ? { ...bottomPlayer, color: bottomPlayer.color || "#22d3ee" } : null;
 
   return (
-    <div className="online-game-player-zone w-full max-w-2xl flex flex-col gap-3">
+    <div className="w-full max-w-2xl flex flex-col gap-3">
       <div className="flex items-center justify-between gap-2">
 
         {/* Jugador izquierdo */}
         <div
-          className={`online-game-player-zone__card online-game-player-zone__card--top ${isTopPlayerActive ? "online-game-player-zone__card--active" : ""} rounded-lg px-3 py-2 border transition-all duration-300 flex-1 min-w-0
+          className={`rounded-lg px-3 py-2 border transition-all duration-300 flex-1 min-w-0
             ${isTopPlayerActive
               ? "bg-purple-500/15 border-purple-500 ring-2 ring-purple-500/40 shadow-lg shadow-purple-500/20 scale-105"
               : "bg-white/5 border-white/10 opacity-70 scale-100"}`}
@@ -140,7 +140,7 @@ function DuelLayout({
 
         {/* Jugador derecho */}
         <div
-          className={`online-game-player-zone__card online-game-player-zone__card--bottom ${isBottomPlayerActive ? "online-game-player-zone__card--active" : ""} rounded-lg px-3 py-2 border transition-all duration-300 flex-1 min-w-0
+          className={`rounded-lg px-3 py-2 border transition-all duration-300 flex-1 min-w-0
             ${isBottomPlayerActive
               ? "bg-cyan-500/15 border-cyan-500 ring-2 ring-cyan-500/40 shadow-lg shadow-cyan-500/20 scale-105"
               : "bg-white/5 border-white/10 opacity-70 scale-100"}`}

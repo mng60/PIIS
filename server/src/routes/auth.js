@@ -3,7 +3,6 @@ import bcrypt from 'bcryptjs';
 import jwt from 'jsonwebtoken';
 import { PrismaClient } from '@prisma/client';
 import { requireAuth } from '../middleware/auth.js';
-import { isDatabaseConnectionError, mockUsers } from '../mockData.js';
 
 const router = Router();
 const prisma = new PrismaClient();
@@ -35,15 +34,7 @@ router.post('/register', async (req, res) => {
 // POST /api/auth/login
 router.post('/login', async (req, res) => {
   const { email, password } = req.body;
-  let user;
-  try {
-    user = await prisma.user.findUnique({ where: { email } });
-  } catch (error) {
-    if (!isDatabaseConnectionError(error)) throw error;
-    user = mockUsers.find(u => u.email === email && u.password === password);
-    if (!user) return res.status(401).json({ error: 'Credenciales incorrectas' });
-    return res.json({ token: signToken(user), user: sanitize(user) });
-  }
+  const user = await prisma.user.findUnique({ where: { email } });
   if (!user) return res.status(401).json({ error: 'Credenciales incorrectas' });
 
   const valid = await bcrypt.compare(password, user.password);
@@ -72,13 +63,7 @@ router.patch('/change-password', requireAuth, async (req, res) => {
 
 // GET /api/auth/me
 router.get('/me', requireAuth, async (req, res) => {
-  let user;
-  try {
-    user = await prisma.user.findUnique({ where: { id: req.user.id } });
-  } catch (error) {
-    if (!isDatabaseConnectionError(error)) throw error;
-    user = mockUsers.find(u => u.id === req.user.id || u.email === req.user.email);
-  }
+  const user = await prisma.user.findUnique({ where: { id: req.user.id } });
   if (!user) return res.status(404).json({ error: 'Usuario no encontrado' });
   res.json(sanitize(user));
 });

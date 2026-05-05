@@ -6,7 +6,7 @@
     "node": ">=22"
   },
   "scripts": {
-    "dev": "node src/index.js",
+    "dev": "node --watch src/index.js",
     "start": "node src/index.js",
     "db:generate": "prisma generate",
     "db:migrate": "prisma migrate dev",
