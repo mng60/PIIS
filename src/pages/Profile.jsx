@@ -428,6 +428,15 @@ export default function Profile() {
                 <li className="flex items-center gap-2"><span className="text-yellow-400">✦</span> XP reducida un 30% para subir de nivel</li>
                 <li className="flex items-center gap-2"><span className="text-yellow-400">✦</span> Acceso anticipado a juegos nuevos</li>
                 <li className="flex items-center gap-2"><span className="text-yellow-400">✦</span> Tu nombre en colores arcoíris</li>
+                <li className="flex items-center gap-2"><span className="text-yellow-400">✦</span> Comprar skins exclusivas dentro de los juegos</li>
+              </ul>
+              <p className="text-sm text-gray-300">
+                Tipo de suscripciones:
+              </p>
+              <ul className="text-xs text-gray-400 space-y-1 list-none">
+                <li className="flex items-center gap-2"><span className="text-yellow-400">✦</span> Mensual: 5€/mes</li>
+                <li className="flex items-center gap-2"><span className="text-yellow-400">✦</span> Trimestral: 13€ (4,33€/mes)</li>
+                <li className="flex items-center gap-2"><span className="text-yellow-400">✦</span> Anual: 45€ (3,75€(mes))</li>
               </ul>
               <Button
                 onClick={handleSubscribePremium}
@@ -436,7 +445,7 @@ export default function Profile() {
               >
                 {isPremiumLoading
                   ? <Loader2 className="w-4 h-4 animate-spin" />
-                  : <><Crown className="w-4 h-4 mr-2" />Suscribirse — 1 mes</>}
+                  : <><Crown className="w-4 h-4 mr-2" />Suscribirse</>}
               </Button>
             </div>
           )}
